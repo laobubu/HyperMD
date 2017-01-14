@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+</head>
+
+<body>
+    <link rel=stylesheet href="../node_modules/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="../node_modules/codemirror/addon/fold/foldgutter.css" />
+    <link rel=stylesheet href="./hypermd/mode/hypermd.css">
+    <link rel=stylesheet href="./hypermd/theme/hypermd-light.css">
+
+    <style style="display: none">
+.CodeMirror{
+    /*border:1px solid #999;*/
+    /*border-radius: 2px;*/
+    max-width: 800px;
+    margin: auto;
+}
+    </style>
+
+<textarea id="demo"></textarea>
+
+<script src="./vendor/require.js"></script>
+<!-- using require.js to solve the dependencies -->
+<!-- <script src="/node_modules/codemirror/lib/codemirror.js"></script>    -->
+<!-- <script src="/hypermd/addon/token-collapse.js"></script> -->
+<script src="./demo/index.js"></script>
+</body>
+
+</html>

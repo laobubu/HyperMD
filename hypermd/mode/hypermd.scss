@@ -1,0 +1,28 @@
+span.cm-formatting {
+    transition: opacity .3s;
+}
+
+%hidden-token {
+    width: 0px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    display: inline-block;
+}
+
+span.cm-formatting-hidden{
+     &.cm-formatting-em
+    ,&.cm-formatting-strong
+    ,&.cm-formatting-strikethrough
+    ,&.cm-formatting-quote
+    ,&.cm-formatting-code
+    ,&.cm-formatting-header
+    ,&.cm-formatting-link
+    ,&.cm-formatting-escape-char
+    ,&.cm-formatting-hmd-stdheader
+//  ,&.cm-formatting-footref
+//  ,&.cm-formatting-code-block
+    {
+        @extend %hidden-token;
+    }
+}

@@ -1,0 +1,326 @@
+@font-face {
+    font-family: 'HyperMD-Bullets';
+    src: url('data:application/x-font-woff;charset=utf-8;base64,d09GRk9UVE8AAATYAAsAAAAABrQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADLAAAAVkAAAFgkDDiyEZGVE0AAASsAAAAGwAAABx9TbkrR0RFRgAABIgAAAAiAAAAJgAnACpPUy8yAAABZAAAAEcAAABgVTNgQ2NtYXAAAALUAAAAQwAAAUoBRQLkaGVhZAAAAQgAAAAzAAAANgrgpUBoaGVhAAABPAAAAB4AAAAkBOsD+WhtdHgAAATIAAAAEAAAABALoAL5bWF4cAAAAVwAAAAGAAAABgAEUABuYW1lAAABrAAAASYAAAITC0mo3nBvc3QAAAMYAAAAEwAAACD/gwAzeJxjYGRgYABil5kPquP5bb4ycLMwgMCVWRq+ENpyHoMxAwNTNFMEkMvBwAQSBQAX2QkFAHicY2BkYGAyZtjFEMNsxQAETNEMjAyogAUAMnAB7AAAAABQAAAEAAB4nGNgYTZlnMDAysDANIvpDAMDQz+EZnzFYMTIARRlYOVkgAFGBiQQkOaawtDAoMWgy2z835ghhsn4vxuKGgUgZAQARsULIwB4nIWOMWvDMBSET4mT4g6lhC7dtBQSiI1kSgNZAw506FBIlk52YhyDsIPiDIGO/T39Lf01nXtyRJYOMcjv09O9ewfgDt8QOH+PePYsECL33MMNPj338YQfzwFCcet5gHvx4nnI/geVIgh5S7opxwIjvHnuca/x3McrvjwH1Px6HkCKB89DjMQSCzTY4wSLCiV2aCExxgYT1gQKGjNMyQYZlTmOwKLZn2xV7lo53kxkovRsKk3W5HxaoaZDxWNQYMtprOq2ak2xJb6zV9LBeVlei/JoMkJKZzfnqqWi6HbH3C4x5/nveu5rKiL+o0tSpE3dpo0tC5nESs7lZTtZq0hHLu61nGv2LA58d7kkvZ173FWXCevCHqqmlkrpWCklrxj+AequT5gAAHicY2BgYGaAYBkGRgYQcAHyGMF8FgYNIM0GpBkZmBi0GXT//wfytUD0/+v/r0HVAwEjGwOCQxAwMoHtG2YAAPijCSYAeJxjYGYAg/8NDMYMWAAAKBQBtgB4nEWOsUsCYRjG38+7y/O8zoxOIi8RXBLE0iWCtkYjLLBoNMsSJC2sKILIFuuDKIhKbBKDwDFovAgC5eb8AwqaCqql740TzBZ7nuU3Pb+HAM8DIUSKreZSufTSYgiIBQhE0AHoJqhZcJDDft7zbKm0ZM4zXW7JvEcC2+bsMKUdkK06xQ98FzQoOTSAHg3KTg1UjUR6gfsbHAAfBCYy2e311PJKzjuU8HvDI6HRgDcdzyxsdOz/N9qxgwwK8IT4ssflb6pjVCe6zuo6p7swiHfNYJfePFAxyurNqFXBBG6pGWYTYmvZZGFONO3nwtlUNX6/I86bnFAsXNILekurpcqN+DIuFK9PK7TdfHm3In7VhHQ1dZWkebp/tHcoKjiGYXxTJ0236Ywx54xhumrMxdRHU30QFPbaIJ/M4NgJ2lRmPJlGl/JT60O/SmWpITVkmRl2Zsjdv2uJiQgAAAB4nGNgZGBg4AFiMQY5BiYGRiBkBmIWoAgTEDNCMAAIgwBSAAB4nGNgYGBkAIIrkuH2YHqWhi+EtpwHADfuBa0AAgAAMwMzAOgDOgDiAzMA/A==') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.cm-s-hypermd-light {
+    $fs: 12pt;  //default font-size
+
+    // font-family: Avenir, 'Lucida Grande', Calibri, 'Trebuchet MS', Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', STHeiti, 'Microsoft Jhenghei', 'Nanum Gothic', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	-webkit-font-smoothing: antialiased;
+
+    line-height: 1.5;
+    font-size: $fs;
+
+    %monospace {
+        font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    }
+
+    /// CodeMirror
+    
+    span.cm-meta { color: #FF1717; }
+    span.cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }
+    span.cm-atom { color: #219; }
+    span.cm-number { color: #164; }
+    span.cm-def { color: #00f; }
+    span.cm-variable { color: black; }
+    span.cm-variable-2 { color: #0000C0; }
+    span.cm-variable-3 { color: #0000C0; }
+    span.cm-property { color: black; }
+    span.cm-operator { color: black; }
+    span.cm-comment { color: #3F7F5F; }
+    span.cm-string { color: #2A00FF; }
+    span.cm-string-2 { color: #f50; }
+    span.cm-qualifier { color: #555; }
+    span.cm-builtin { color: #30a; }
+    span.cm-bracket { color: #cc7; }
+    span.cm-tag { color: #170; }
+    span.cm-attribute { color: #00c; }
+    span.cm-url { color: #4af }
+    span.cm-link { 
+        color: #4078c0; 
+        text-decoration: none;
+        &:hover {
+            text-decoration: underline
+        }
+    }
+    span.cm-error { color: #f00; }
+
+    .CodeMirror-activeline-background { background: #e8f2ff; }
+    .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
+
+    .CodeMirror-linenumber { 
+        color: #ccc;
+    }
+    .CodeMirror-gutters { 
+        border-right: 10px solid #FFF; 
+        padding-right: 5px;
+    }
+    .CodeMirror-foldmarker {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    /// Headers
+
+    span.cm-header   { color: #333; }
+    span.cm-header-1 { font-weight: normal; font-size: $fs * 2 }
+    span.cm-header-2 { font-weight: normal; font-size: $fs * 1.5 }
+    span.cm-header-3 { font-size: $fs * 1.2 }
+    pre.hmd-stdheader {
+        line-height: 1.5;
+
+        &.hmd-stdheader-1 {
+            span { @extend span.cm-header; @extend span.cm-header-1; }
+                
+            &:after {
+                display: block;
+                content: ' ';
+                margin-top: 2px;
+                height: 1px;
+                background: #eee;
+            }
+        }
+        &.hmd-stdheader-2 {
+            span { @extend span.cm-header; @extend span.cm-header-2; }
+        }
+    }
+
+    /// Horizontal Rule
+
+    span.cm-hr{
+        display: inline-block;
+        margin: 0 2%;
+        box-sizing: border-box;
+        width: 96%;
+        background: url('data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==') repeat-x 0px center;
+        color: transparent ;
+    }
+
+    /// blockquote
+
+    $quote-margin: 2px;
+    $quote-padding: 20px;
+
+    span.cm-quote { color: #666; }
+    
+    pre.hmd-quote-indent
+    {
+        &:before {
+            content: " ";
+            position: absolute;
+            left: $quote-margin;
+            top: 0;
+            height: 100%;
+            background: url('data:image/gif;base64,R0lGODlhIAABAIABAOjo6P///yH5BAEAAAEALAAAAAAgAAEAAAIHhI8Yy+1cAAA7') 0 0;
+            background-size: $quote-padding 1px;
+        }
+    }
+    @for $i from 1 through 6 {
+        pre.hmd-quote-indent-#{$i} { 
+            padding-left: $quote-margin + ($quote-padding) * ($i);
+            &:before {
+                width: $quote-padding * $i;
+            }
+        }
+    }
+
+    /// list
+
+    $list-margin: - $fs; // not helpful?
+    $list-padding: $fs * 2;
+    $list-bullet-padding: $fs * 0.5; //extra right padding to bullets
+    $list-cross: $fs;  // the extra left padding for line with bullet, since its following lines begin with spaces
+    $list-md-space-width: $fs;
+
+    .cm-formatting-list
+    {
+        font-family: 'HyperMD-Bullets';
+        display: inline-block;
+        color: #666;
+        width: $list-padding - $list-bullet-padding;
+        text-align: right;
+        margin-right: $list-bullet-padding;
+        margin-left: - $list-padding + $list-cross;
+        &.cm-list-2 {
+            text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
+            color: #fff;
+        }
+    }
+    @for $i from 1 through 6 {
+        pre.hmd-list-#{$i} > span { 
+            padding-left: $list-margin + $list-padding + ($list-padding - $list-md-space-width) * ($i - 1);
+        }
+    }
+
+    // pre.hmd-list {
+    //     line-height: 1.5;
+    // }
+
+    span.cm-formatting-task // task list checkbox
+    {
+        @extend %monospace;
+        white-space: nowrap;
+        display: inline-block;
+        height: 1em;
+        line-height: 1em;
+        min-width: 1em;
+        text-align: center;
+        vertical-align: middle;
+        background-repeat: no-repeat;
+        background-position: center 0;
+
+        &.cm-property {
+            background-position-y: -1em;
+        }
+
+        color: rgba(#000, .5);
+        
+        &.cm-formatting-hidden {
+            color: transparent;
+        }
+
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAwCAMAAAA8VkqRAAAAclBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACa4vOeAAAAJXRSTlMADcjpDswcLZOzsvOYBvWdbtvTX0D69+ORa1dRJCDtuaF7ZDkoQyuUXgAAAMhJREFUOMvt0reywjAUhOFjKxmcrgMZboL//V8Rm6GwkNUx0LClvhkVZ1fEZoqHqMwO7wuUSb0YxcJKxtLpxIt2SzJRykkQp5RgdAjaIKRJCEn6gWdA9OzRoqLVRscQnc9bdtXX/eyurOF7N3erLVDPwCGHxoVwamH1LwGUBfBbhrCvoLlMitL9DY8trLtJg7qoCj18VAN1OYE/YJBuDe1RJtBVo5wbqPb+GL5yWG1GLX0YZYw5iQ93yQ/yAHfZzu5qt/mxr97VFS15JGSVM0C6AAAAAElFTkSuQmCC');
+            background-size: 1em;
+        // }
+    }
+
+    /// footnote for link and image
+    pre.hmd-footnote-line {
+        font-size: $fs * 0.85;
+        span.cm-hmd-footnote{
+            display: inline-block;
+            min-width: 4em;
+
+            &.cm-hmd-footnote-real { // [^something] , not [something]
+                 + span.cm-url, + span.cm-url + span.cm-url { color: inherit }
+            }
+        }
+    }
+
+    /// code block
+
+    .cm-formatting-code-block.cm-formatting-hidden {
+        opacity: .3;
+    }
+
+    pre.hmd-codeblock-start,
+    pre.hmd-codeblock-end
+    {
+
+    }
+    pre.hmd-codeblock {
+        @extend %monospace;
+        line-height: 1em;
+        font-size: inherit;
+        
+        // &.hmd-codeblock-indent {
+        span.cm-inline-code {
+            display: inherit;
+            background-color: inherit;
+            border: inherit;
+            padding: inherit;
+        }
+        // }
+    }
+
+    /// link
+    
+    .cm-formatting-link + .cm-formatting-link-string,
+    .cm-formatting-link + .cm-formatting-link-string + .cm-url,
+    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string
+    {
+        display: inline-block;
+        font-size: .7em;
+        vertical-align: text-top;
+    }
+
+    span.cm-url, span.cm-link, .cm-link + .CodeMirror-widget {
+        cursor: pointer  !important
+    }
+
+    span.hmd-link-icon {
+        background: url(hypermd-image-link.png) no-repeat center center;
+        width: 20px;
+        height: 16px;
+        display: inline-block;
+        vertical-align: middle;
+        opacity: .4;
+        &:hover {
+            opacity: 1
+        }
+    }
+
+    /// image
+    
+    img.hmd-image {
+        vertical-align: middle;
+        width: auto;
+        height: auto;
+        &.hmd-image-loading {
+            min-width: 24px;
+            min-height: 24px;
+            background: #eeeeee url(hypermd-image-spin.gif) no-repeat center center;
+        }
+    }
+
+    /// other Markdown stuff
+
+    span.cm-formatting-escape-char { color: #999; }
+    span.cm-escape-char { color: #666 }
+    span.cm-footref {
+        display: inline-block;
+        font-size: .7em;
+        vertical-align: text-top;
+        background-color: rgba(#eee, .7);
+        color: #999;
+        margin-top: -.2em;
+        
+        &.cm-formatting-footref {
+        }
+    }
+
+    span.cm-inline-code {
+        @extend %monospace;
+        color: #922;
+        font-size: 90%;
+        
+        &:not(.cm-formatting) {
+            display: inline-block;
+            background-color: rgba(#eee, .5);
+            border-radius: 4px;
+            vertical-align: middle;
+            border: #ccc solid 1px;
+            padding: 1px .4em;
+        }
+    }
+
+    /// hyperMD stuff
+    div.hmd-hover {
+        > .hmd-hover-content {
+            background-color: #000;
+            background-color: rgba(#000, .7);
+            color: #fff;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 95%;
+            min-width: 200px;
+            white-space: pre-wrap;
+            a {
+                color: inherit
+            }
+        }
+        > .hmd-hover-indicator {
+            content: " ";
+            display:block;
+            width: 0px;
+            margin-bottom: -5px;
+            border: 5px solid transparent;
+            border-top-color: #000;
+            border-top-color: rgba(#000, .7);
+        }
+    }
+}

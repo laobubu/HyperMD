@@ -1,0 +1,9 @@
+span.cm-formatting {
+  transition: opacity .3s; }
+
+span.cm-formatting-hidden.cm-formatting-em, span.cm-formatting-hidden.cm-formatting-strong, span.cm-formatting-hidden.cm-formatting-strikethrough, span.cm-formatting-hidden.cm-formatting-quote, span.cm-formatting-hidden.cm-formatting-code, span.cm-formatting-hidden.cm-formatting-header, span.cm-formatting-hidden.cm-formatting-link, span.cm-formatting-hidden.cm-formatting-escape-char, span.cm-formatting-hidden.cm-formatting-hmd-stdheader {
+  width: 0px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  display: inline-block; }
