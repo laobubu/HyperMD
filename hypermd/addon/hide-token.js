@@ -6,7 +6,7 @@
 //
 
 (function (mod) {
-  var CODEMIRROR_ROOT = "../../node_modules/codemirror/";
+  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "../../node_modules/codemirror/";
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require(CODEMIRROR_ROOT + "lib/codemirror")
@@ -19,6 +19,8 @@
     mod(CodeMirror);
 })(function (CodeMirror) {
   "use strict";
+
+  var DEBUG_PATCHING = false
 
   /**
    * check if every element in `search` can be found in `bigarray` 
@@ -129,6 +131,19 @@
     return null
   }
 
+  /**
+   * (for patchFormattingSpan) line style checker
+   * 
+   * @param {NodeList} spans
+   */
+  function _IsIndentCodeBlock(spans) {
+    if (!(spans.length >= 2 && /^\s+$/.test(spans[0].textContent))) return false
+    for (var i = 1; i < spans.length; i++) {
+      if (!/\bcm-inline-code\b/.test(spans[i].className)) return false
+    }
+    return true
+  }
+
 
   /** 
    * adding/removing `cm-formatting-hidden` to/from the <span>s that contain Markdown tokens (eg. `### ` or `~~`)
@@ -205,7 +220,7 @@
     }
 
     // adding class to code block (indent)
-    if (spans.length == 2 && findSpanWithClass("cm-inline-code") && /^\s+$/.test(spans[0].textContent)) {
+    if (_IsIndentCodeBlock(spans)) {
       line.classList.add('hmd-codeblock-indent')
       line.classList.add('hmd-codeblock')
     }

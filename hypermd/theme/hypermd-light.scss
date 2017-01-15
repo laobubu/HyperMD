@@ -21,6 +21,7 @@
 
     /// CodeMirror
     
+    span.cm-quote { color: #666; }
     span.cm-meta { color: #FF1717; }
     span.cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }
     span.cm-atom { color: #219; }
@@ -74,7 +75,7 @@
         line-height: 1.5;
 
         &.hmd-stdheader-1 {
-            span { @extend span.cm-header; @extend span.cm-header-1; }
+            > span { @extend span.cm-header; @extend span.cm-header-1; }
                 
             &:after {
                 display: block;
@@ -85,7 +86,7 @@
             }
         }
         &.hmd-stdheader-2 {
-            span { @extend span.cm-header; @extend span.cm-header-2; }
+            > span { @extend span.cm-header; @extend span.cm-header-2; }
         }
     }
 
@@ -93,9 +94,10 @@
 
     span.cm-hr{
         display: inline-block;
-        margin: 0 2%;
+        // margin: 0 2%;
+        width: 100%;
         box-sizing: border-box;
-        width: 96%;
+        // width: 96%;
         background: url('data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==') repeat-x 0px center;
         color: transparent ;
     }
@@ -104,8 +106,6 @@
 
     $quote-margin: 2px;
     $quote-padding: 20px;
-
-    span.cm-quote { color: #666; }
     
     pre.hmd-quote-indent
     {
@@ -155,10 +155,6 @@
             padding-left: $list-margin + $list-padding + ($list-padding - $list-md-space-width) * ($i - 1);
         }
     }
-
-    // pre.hmd-list {
-    //     line-height: 1.5;
-    // }
 
     span.cm-formatting-task // task list checkbox
     {
@@ -299,8 +295,34 @@
     }
 
     /// hyperMD stuff
-    div.hmd-hover {
-        > .hmd-hover-content {
+
+    .HyperMD-goback {
+        width: 1px;
+    }
+    div.HyperMD-goback-button {
+        padding-right: 15px; // not less than .CodeMirror-gutters padding-right
+        border-radius: 0 10px 10px 0;
+        display: inline-block;
+        text-align: center;
+        background-color: lighten(#4078c0, 20%);
+        color: #f7f7f7;
+        cursor: pointer;
+        // transition: .2s;
+        &:hover {
+            // background-color: #fafafa;
+            color: transparent;
+            text-align: left;
+            &:before { 
+                position: absolute;
+                padding-left: 5px;
+                content: "Back";
+                color: #f7f7f7;
+            }
+        }
+    }
+
+    div.HyperMD-hover {
+        > .HyperMD-hover-content {
             background-color: #000;
             background-color: rgba(#000, .7);
             color: #fff;
@@ -313,7 +335,7 @@
                 color: inherit
             }
         }
-        > .hmd-hover-indicator {
+        > .HyperMD-hover-indicator {
             content: " ";
             display:block;
             width: 0px;

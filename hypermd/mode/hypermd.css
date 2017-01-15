@@ -7,3 +7,16 @@ span.cm-formatting-hidden.cm-formatting-em, span.cm-formatting-hidden.cm-formatt
   opacity: 0;
   overflow: hidden;
   display: inline-block; }
+
+div.HyperMD-hover > .HyperMD-hover-content {
+  background-color: #fff;
+  padding: .5em; }
+
+.HyperMD-goback {
+  width: 1px; }
+
+div.HyperMD-goback-button {
+  background-color: #ddd;
+  color: #333;
+  text-align: center;
+  cursor: pointer; }

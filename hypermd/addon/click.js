@@ -5,7 +5,7 @@
 //
 
 (function (mod) {
-  var CODEMIRROR_ROOT = "../../node_modules/codemirror/";
+  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "../../node_modules/codemirror/";
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require(CODEMIRROR_ROOT + "lib/codemirror"),
@@ -21,9 +21,26 @@
 })(function (CodeMirror) {
   "use strict";
 
-  function init() {
+  function init(cm) {
     /** @type {HTMLDivElement} lineDiv */
-    var cm = this, lineDiv = cm.display.lineDiv
+    var lineDiv = cm.display.lineDiv
+
+    var bookmark // where the footref is. designed for "back" button
+    var backButton = document.createElement("div")
+    // backButton.innerHTML = "▲"
+    backButton.className = "HyperMD-goback-button"
+    // backButton.setAttribute("title", "Back")
+    backButton.addEventListener("click", function () {
+      cm.setCursor(bookmark.find())
+      cm.clearGutter("HyperMD-goback")
+      bookmark.clear()
+      bookmark = null
+    })
+    var _tmp1 = cm.display.gutters.children
+    _tmp1 = _tmp1[_tmp1.length - 1]
+    _tmp1 = _tmp1.offsetLeft + _tmp1.offsetWidth
+    backButton.style.width = _tmp1 + "px"
+    backButton.style.marginLeft = -_tmp1 + "px"
 
     function then(func, clientX, clientY) {
       function evhandle(ev) {
@@ -49,10 +66,10 @@
         var url,   // the URL. title are stripped
           urlIsFinal,  // the URL NOT come from footnotes
           clickOnURL = false // user is clicking a URL/footref, not a link text
-        if (/url/.test(s[i + 1]) || txt.charAt(s[i + 2] - 1) == '>') {
+        if (/url/.test(s[i + 1]) || /^(?:https?|ftp)\:/.test(txt.substr(s[i - 2], 15)) || txt.charAt(s[i + 2] - 1) == '>') {
           //wow, a pure link
           url = txt.substr(s[i - 2], s[i] - s[i - 2])
-          urlIsFinal = txt[s[i]] != ']'
+          urlIsFinal = txt.charAt(s[i]) != ']'
           clickOnURL = true
         } else {
           // a Markdown styled link
@@ -62,7 +79,7 @@
             i2 = i; i += 2
           }
           url = txt.substr(s[i2], s[i] - s[i2])
-          urlIsFinal = txt[s[i]] == ")"
+          urlIsFinal = txt.charAt(s[i]) != ']'
         }
 
         // now we got the url
@@ -74,8 +91,17 @@
             // console.log("foot trace")
             then(function () {
               setTimeout(function () {
+                if (bookmark) {
+                  cm.clearGutter("HyperMD-goback")
+                  bookmark.clear()
+                }
+
+                bookmark = cm.setBookmark(pos)
+                cm.setGutterMarker(footnote.line, "HyperMD-goback", backButton)
+                backButton.innerHTML = pos.line
+
                 cm.setCursor({ line: footnote.line, ch: 0 })
-              }, 100)
+              }, 50)
             }, ev.clientX, ev.clientY)
             // }, 200)
             return
@@ -106,5 +132,11 @@
     }, true)
   }
 
-  CodeMirror.defineExtension("hmdClickInit", init)
+  CodeMirror.defineInitHook(function (cm) {
+    if (!cm.hmd) cm.hmd = {}
+    init(cm)
+  })
+  CodeMirror.defineOption("hmdClick", {
+    backButton: true  // display "back" button after click a footref
+  })
 })

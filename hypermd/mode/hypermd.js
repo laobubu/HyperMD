@@ -7,7 +7,7 @@
 //
 
 (function (mod) {
-  var CODEMIRROR_ROOT = "../../node_modules/codemirror/";
+  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "../../node_modules/codemirror/";
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require(CODEMIRROR_ROOT + "lib/codemirror"),
@@ -58,7 +58,7 @@
         state.combineTokens = null;
 
         var start = stream.pos
-        var retToken 
+        var retToken
 
         if (state.thisLine != stream) {
           state.prevLine = state.thisLine
@@ -71,7 +71,7 @@
             stream.skipToEnd()
             return 'formatting formatting-hmd-stdheader hmd-stdheader hmd-stdheader-' + _hlevel
           }
-          state.prevLineIsEmpty  = false
+          state.prevLineIsEmpty = false
           state.atBeginning = true
         }
         if (stream.match(/^\>\s*/, true)) return null     // skip the quote indents

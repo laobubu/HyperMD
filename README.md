@@ -30,21 +30,22 @@ You may use both original CodeMirror and HyperMD on the same page.
 
 [RequireJS] is recommended and used during developing HyperMD.
 You may just open `index.js` and copy partial code. 
-Don't forget HTML `<link>` tags to the HyperMD css files.
+Don't forget HTML `<link>` tags to the css files.
 
 If you don't want to use [RequireJS], insert `<script>` , `<link>`
-and other tags manually. Load HyperMD after CodeMirror, before 
-initializing your editor. You might need these files:
+and other tags manually. Load these files **in sequence**, before 
+initializing your editor:
 
  * CodeMirror:
  	- **codemirror.js** and **codemirror.css**
- 	- **markdown, gfm, xml, meta** modes from CodeMirror
- 	- **addon/mode/overlay** from CodeMirror
- 	- (optional) other CodeMirror modes that code highlighting uses
+ 	- **addon/mode/overlay.js** from CodeMirror
+ 	- **addon/edit/continuelist.js** from CodeMirror
+ 	- **meta, xml, markdown, gfm** modes from CodeMirror
+ 	- (optional) other CodeMirror modes if you need code highlighting
  * HyperMD:
  	- **mode/hypermd** both js and css
  	- **all addons**
- 	- **one theme** css file ( eg. `hypermd-light` )
+ 	- **theme** you prefer ( eg. `hypermd-light.css` )
 
 Once addons and stylesheets are loaded, you may initialize editor,
 turning your `<textarea>` into HyperMD editor, with few codes:
@@ -56,13 +57,16 @@ var editor = CodeMirror.fromTextArea(myTextarea, {
   lineWrapping: true,
   theme: "hypermd-light",
   mode: "text/x-hypermd",
+  gutters: [
+    "CodeMirror-linenumbers",
+    "HyperMD-goback"
+  ],
   extraKeys: {
     "Enter": "newlineAndIndentContinueMarkdownList"
   }
 })
 
 editor.hmdHideTokenInit()
-editor.hmdClickInit()
 editor.hmdHoverInit()
 ```
 
@@ -77,9 +81,10 @@ Contributions are welcomed. You may:
  - [Buy me a Coffee](https://laobubu.net/donate.html)
  - Spread HyperMD to the world!
 
+-------------------------------------------------------
 [CodeMirror]: https://codemirror.net/   a powerful text editor for the browser.
 [RequireJS]:  http://requirejs.org/   an JavaScript AMD module loader.
 [laobubu]: https://laobubu.net/  the author of HyperMD
-[^1]: Ctrl+Click works too, but might jump to the footnote if exists.
+[^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.
 [^3]: If the theme is not designed for HyperMD, some features will not be present.

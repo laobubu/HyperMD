@@ -10,6 +10,21 @@ span.cm-formatting {
     display: inline-block;
 }
 
+div.HyperMD-hover > .HyperMD-hover-content {
+    background-color: #fff;
+    padding: .5em;
+}
+
+.HyperMD-goback {
+    width: 1px;
+}
+div.HyperMD-goback-button {
+    background-color: #ddd;
+    color: #333;
+    text-align: center;
+    cursor: pointer;
+}
+
 span.cm-formatting-hidden{
      &.cm-formatting-em
     ,&.cm-formatting-strong

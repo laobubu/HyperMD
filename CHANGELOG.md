@@ -26,3 +26,4 @@
 - [x] **add**: back-slashed escaped char like `\!`
 - [x] **fix**: click addon: 鼠标释放按键时，target 改变导致不能跟踪
 - [ ] **add**: tab to indent list
+- [x] **add**: "back" button after clicking footref

@@ -7,7 +7,7 @@
 //
 
 (function (mod) {
-  var CODEMIRROR_ROOT = "../../node_modules/codemirror/";
+  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "../../node_modules/codemirror/";
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require(CODEMIRROR_ROOT + "lib/codemirror")

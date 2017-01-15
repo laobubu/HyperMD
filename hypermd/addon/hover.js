@@ -5,7 +5,7 @@
 //
 
 (function (mod) {
-  var CODEMIRROR_ROOT = "../../node_modules/codemirror/";
+  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "../../node_modules/codemirror/";
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require(CODEMIRROR_ROOT + "lib/codemirror"),
@@ -32,13 +32,13 @@
       tooltipContent = document.createElement("div"),
       tooltipIndicator = document.createElement("div")
     tooltip.setAttribute("style", "position:absolute;z-index:99")
-    tooltip.setAttribute("class", "hmd-hover")
+    tooltip.setAttribute("class", "HyperMD-hover")
     tooltip.setAttribute("cm-ignore-events", "true")
 
-    tooltipContent.setAttribute("class", "hmd-hover-content")
+    tooltipContent.setAttribute("class", "HyperMD-hover-content")
     tooltip.appendChild(tooltipContent)
 
-    tooltipIndicator.setAttribute("class", "hmd-hover-indicator")
+    tooltipIndicator.setAttribute("class", "HyperMD-hover-indicator")
     tooltip.appendChild(tooltipIndicator)
 
     this.tooltipDiv = tooltip
