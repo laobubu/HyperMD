@@ -25,6 +25,10 @@ div.HyperMD-goback-button {
     cursor: pointer;
 }
 
+span.hmd-link-icon:after {
+    content: "»"
+}
+
 span.cm-formatting-hidden{
      &.cm-formatting-em
     ,&.cm-formatting-strong

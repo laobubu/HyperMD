@@ -11,6 +11,8 @@
   font-size: 12pt; }
   .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light pre.hmd-codeblock, .cm-s-hypermd-light span.cm-inline-code {
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+  .cm-s-hypermd-light .cm-header, .cm-s-hypermd-light .cm-strong {
+    font-weight: 600; }
   .cm-s-hypermd-light span.cm-quote {
     color: #666; }
   .cm-s-hypermd-light span.cm-meta {
@@ -203,6 +205,8 @@
     opacity: .4; }
     .cm-s-hypermd-light span.hmd-link-icon:hover {
       opacity: 1; }
+    .cm-s-hypermd-light span.hmd-link-icon:after {
+      content: ""; }
   .cm-s-hypermd-light img.hmd-image {
     vertical-align: middle;
     width: auto;

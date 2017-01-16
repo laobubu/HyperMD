@@ -81,16 +81,17 @@
           return null
         }
         if (state.insideCodeFence) { stream.skipToEnd(); return null }
+        if (state.atBeginning && stream.match(/^\s*(?:[-*+]|\d+\.)\s+/)) {
+          state.inList = true
+          state.atBeginning = false  //TODO not determined
+          return null
+        }
         if (stream.sol() && stream.eatSpace()) {          //skip spaces
-          if (!state.inList && stream.current().replace(/\t/g, "    ").length >= 4) {
+          if (stream.current().replace(/\t/g, "    ").length >= 4) {
             // this is a tranditional code block
             stream.skipToEnd()
-          } else if (stream.match(/^(?:[-*+]|\d+\.)\s+/)) {
-            // the spaces are for list indent
-            state.inList = true
-            state.atBeginning = false  //TODO not determined
+            return null
           }
-          return null
         }
 
         if (state.atBeginning) {

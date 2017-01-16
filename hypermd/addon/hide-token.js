@@ -139,7 +139,7 @@
   function _IsIndentCodeBlock(spans) {
     if (!(spans.length >= 2 && /^\s+$/.test(spans[0].textContent))) return false
     for (var i = 1; i < spans.length; i++) {
-      if (!/\bcm-inline-code\b/.test(spans[i].className)) return false
+      if (!/\bcm-(?:tab|inline-code)\b/.test(spans[i].className)) return false
     }
     return true
   }

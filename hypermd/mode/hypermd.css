@@ -1,3 +1,4 @@
+@charset "UTF-8";
 span.cm-formatting {
   transition: opacity .3s; }
 
@@ -20,3 +21,6 @@ div.HyperMD-goback-button {
   color: #333;
   text-align: center;
   cursor: pointer; }
+
+span.hmd-link-icon:after {
+  content: "»"; }

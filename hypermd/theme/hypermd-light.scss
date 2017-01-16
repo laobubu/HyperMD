@@ -21,6 +21,7 @@
 
     /// CodeMirror
     
+    .cm-header, .cm-strong {font-weight: 600;}
     span.cm-quote { color: #666; }
     span.cm-meta { color: #FF1717; }
     span.cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }
@@ -247,6 +248,9 @@
         opacity: .4;
         &:hover {
             opacity: 1
+        }
+        &:after {
+            content: "" //remove default stuff
         }
     }
 
