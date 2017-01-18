@@ -62,6 +62,12 @@
       text-decoration: underline; }
   .cm-s-hypermd-light span.cm-error {
     color: #f00; }
+  .cm-s-hypermd-light span.cm-math {
+    color: #300;
+    font-style: italic;
+    background: rgba(255, 255, 238, 0.4); }
+  .cm-s-hypermd-light span.cm-formatting-math {
+    color: #CAA; }
   .cm-s-hypermd-light .CodeMirror-activeline-background {
     background: #e8f2ff; }
   .cm-s-hypermd-light .CodeMirror-matchingbracket {
@@ -215,6 +221,8 @@
       min-width: 24px;
       min-height: 24px;
       background: #eeeeee url(hypermd-image-spin.gif) no-repeat center center; }
+  .cm-s-hypermd-light span.cm-math-2 {
+    font-size: 13.2pt; }
   .cm-s-hypermd-light span.cm-formatting-escape-char {
     color: #999; }
   .cm-s-hypermd-light span.cm-escape-char {

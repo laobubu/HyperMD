@@ -31,9 +31,8 @@ require([
     'use strict';
     var myTextarea = document.getElementById('demo')
 
-    myTextarea.textContent = "# Math\n\nrendering $Pi=3$ shall works good\n\nmore than one `$` works too.\n$$ a=$b $$ ipsue"
-    init_editor()
-    // ajax_load_file_then_init_editor("README.md")
+    // init_editor()
+    ajax_load_file_then_init_editor("README.md")
 
     function init_editor() {
         var editor = CodeMirror.fromTextArea(myTextarea, {

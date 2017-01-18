@@ -77,7 +77,7 @@
     while (s$i += 2, typeof s[s$i] == 'number') {
       var chFrom = s[s$i - 2] || 0, chTo = s[s$i], chStyle = s[s$i + 1]
 
-      if (chStyle == "math") {
+      if (/\bmath\b/.test(chStyle) && !/formatting/.test(chStyle)) {
         var expr = line.text.substr(chFrom, chTo - chFrom)
         if (DEBUG) console.log("wow such math", expr)
         chFrom = s[s$i - 4] || 0
@@ -98,7 +98,7 @@
       ) continue
 
       // do folding
-      insertMathMark(cm, lineNo, chFrom, chTo, expr)
+      insertMathMark(cm, lineNo, chFrom, chTo, expr, /math-\d+/.exec(chStyle)[0])
     }
 
   }
@@ -119,12 +119,21 @@
     }
   }
 
-  function insertMathMark(cm, line, ch1, ch2, expression) {
+  function insertMathMark(cm, line, ch1, ch2, expression, className) {
     var span = document.createElement("span"), marker
-    span.setAttribute("class", "hmd-fold-math")
+    span.setAttribute("class", "hmd-fold-math " + className || '')
     span.setAttribute("title", expression)
     span.setAttribute("data-expression", expression)
-    span.textContent = "[[[" + expression + "]]]"
+
+    var script = document.createElement("script")
+    script.setAttribute("type", /math-2/.test(className) ? 'math/tex; mode=display' : 'math/tex')
+    script.innerHTML = expression
+    span.appendChild(script)
+
+    MathJax.Hub.Queue(
+      ["Typeset", MathJax.Hub, script],
+      function () { marker.changed() }
+    )
 
     var p1 = { line: line, ch: ch1 }, p2 = { line: line, ch: ch2 }
     if (DEBUG) console.log("insert", p1, p2, expression)
@@ -167,7 +176,9 @@
 
     var fold = new Fold(cm)
     cm.hmd.foldMath = fold
-    fold._doFold()
+    MathJax.Hub.Register.StartupHook("End", function () {
+      fold._doFold()
+    })
     return fold
   }
 

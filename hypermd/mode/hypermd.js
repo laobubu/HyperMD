@@ -128,7 +128,7 @@
           if (state.inside == "math") {
             if (stream.match(state.extra)) {
               state.inside = null
-              return "formatting formatting-math"
+              return "formatting formatting-math math math-" + state.extra.length
             }
             tmp = start
             while (tmp != -1) {
@@ -136,11 +136,11 @@
               if (tmp == -1) break
               if (stream.string.charAt(tmp - 1) != "\\") {
                 stream.pos = tmp
-                return "math"
+                return "math math-" + state.extra.length
               }
             }
             stream.skipToEnd()
-            return "math"
+            return "math math-" + state.extra.length
           }
         } else {
           // escaped chars
@@ -176,11 +176,11 @@
           }
 
           /// inline math
-          tmp = stream.match(/^\$+/)
+          tmp = stream.match(/^\${1,2}/)
           if (tmp && stream.string.indexOf(tmp[0], start + 2) != -1) {
             state.inside = "math"
             state.extra = tmp[0]
-            return "formatting formatting-math" // inline code are ignored by hypermd
+            return "formatting formatting-math math math-" + state.extra.length // inline code are ignored by hypermd
           }
 
           /// possible table

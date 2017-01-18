@@ -50,6 +50,8 @@
         }
     }
     span.cm-error { color: #f00; }
+    span.cm-math { color: #300; font-style: italic; background: rgba(#ffe,.4); }
+    span.cm-formatting-math {color: #CAA}
 
     .CodeMirror-activeline-background { background: #e8f2ff; }
     .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
@@ -266,6 +268,10 @@
             background: #eeeeee url(hypermd-image-spin.gif) no-repeat center center;
         }
     }
+
+    /// math blocks
+    
+    span.cm-math-2 { font-size: 1.1 * $fs }
 
     /// other Markdown stuff
 

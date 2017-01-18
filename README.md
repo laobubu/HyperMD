@@ -16,6 +16,7 @@ You may use both original CodeMirror and HyperMD on the same page.
      - Headers
      - Horizontal Rules
      - Lists (nested, ordered, unordered, tasks with checkbox)
+     - [MathJax] Formula like $ e^{ i\pi } + 1 = 0 $
  2. **Alt+Click** to follow link / footnote [^1]
  3. **Syntax Highlight** for 120+ languages code blocks [^2]
  4. **Hover** to read footnotes
@@ -24,7 +25,7 @@ You may use both original CodeMirror and HyperMD on the same page.
      - Diff and Merge
      - Fullscren
      - Themes [^3]
- 6. **[And More...](https://laobubu.net/hypermd/docs)**
+ 6. **[And More...][HyperMD-Doc]**
 
 ## Quickstart
 
@@ -82,9 +83,11 @@ Contributions are welcomed. You may:
  - Spread HyperMD to the world!
 
 -------------------------------------------------------
-[CodeMirror]: https://codemirror.net/   a powerful text editor for the browser.
-[RequireJS]:  http://requirejs.org/   an JavaScript AMD module loader.
-[laobubu]: https://laobubu.net/  the author of HyperMD
+[CodeMirror]: https://codemirror.net/   A powerful text editor for the browser.
+[RequireJS]:  http://requirejs.org/   An JavaScript AMD module loader.
+[MathJax]:  https://www.mathjax.org/  A JavaScript display engine for mathematics.
+[laobubu]:  https://laobubu.net/  The author of HyperMD.
+[HyperMD-Doc]:  https://laobubu.net/hypermd/docs  The HyperMD Documentation.
 [^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.
 [^3]: If the theme is not designed for HyperMD, some features will not be present.

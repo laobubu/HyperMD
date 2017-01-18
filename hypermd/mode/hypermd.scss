@@ -29,6 +29,11 @@ span.hmd-link-icon:after {
     content: "»"
 }
 
+span.hmd-fold-math {
+    display: inline-block;
+    vertical-align: middle;
+}
+
 span.cm-formatting-hidden{
      &.cm-formatting-em
     ,&.cm-formatting-strong

@@ -24,3 +24,7 @@ div.HyperMD-goback-button {
 
 span.hmd-link-icon:after {
   content: "»"; }
+
+span.hmd-fold-math {
+  display: inline-block;
+  vertical-align: middle; }
