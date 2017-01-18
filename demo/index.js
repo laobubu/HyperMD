@@ -23,6 +23,7 @@ require([
     HYPERMD_ROOT + 'addon/hide-token',
     HYPERMD_ROOT + 'addon/cursor-debounce',
     HYPERMD_ROOT + 'addon/fold',
+    HYPERMD_ROOT + 'addon/fold-math',
     HYPERMD_ROOT + 'addon/readlink',
     HYPERMD_ROOT + 'addon/click',
     HYPERMD_ROOT + 'addon/hover'
@@ -30,8 +31,9 @@ require([
     'use strict';
     var myTextarea = document.getElementById('demo')
 
-    //init_editor()
-    ajax_load_file_then_init_editor("README.md")
+    myTextarea.textContent = "# Math\n\nrendering $Pi=3$ shall works good\n\nmore than one `$` works too.\n$$ a=$b $$ ipsue"
+    init_editor()
+    // ajax_load_file_then_init_editor("README.md")
 
     function init_editor() {
         var editor = CodeMirror.fromTextArea(myTextarea, {

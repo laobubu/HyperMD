@@ -35,7 +35,8 @@
           inside: null, // "link"
           prevLineIsEmpty: false,
           inList: false,
-          extra: null   // reserved
+          extra: null   // reserved, works with "inside"
+          // when inside "math", this is the token like `$` or `$$`
         };
       },
       copyState: function (s) {
@@ -58,7 +59,7 @@
         state.combineTokens = null;
 
         var start = stream.pos
-        var retToken
+        var retToken, tmp, tmp2, tmp3
 
         if (state.thisLine != stream) {
           state.prevLine = state.thisLine
@@ -73,6 +74,7 @@
           }
           state.prevLineIsEmpty = false
           state.atBeginning = true
+          if (/^(?:math)$/.test(state.inside)) state.inside = null
         }
         if (stream.match(/^\>\s*/, true)) return null     // skip the quote indents
         if (state.atBeginning && stream.match(/^```/)) {  // toggle state for codefence
@@ -123,6 +125,23 @@
             state.inside = null
             return "escape-char"
           }
+          if (state.inside == "math") {
+            if (stream.match(state.extra)) {
+              state.inside = null
+              return "formatting formatting-math"
+            }
+            tmp = start
+            while (tmp != -1) {
+              tmp = stream.string.indexOf(state.extra, tmp + 1)
+              if (tmp == -1) break
+              if (stream.string.charAt(tmp - 1) != "\\") {
+                stream.pos = tmp
+                return "math"
+              }
+            }
+            stream.skipToEnd()
+            return "math"
+          }
         } else {
           // escaped chars
           if (
@@ -154,6 +173,14 @@
             stream.next()
             stream.match(/^[^`]*`/)
             return null // inline code are ignored by hypermd
+          }
+
+          /// inline math
+          tmp = stream.match(/^\$+/)
+          if (tmp && stream.string.indexOf(tmp[0], start + 2) != -1) {
+            state.inside = "math"
+            state.extra = tmp[0]
+            return "formatting formatting-math" // inline code are ignored by hypermd
           }
 
           /// possible table
