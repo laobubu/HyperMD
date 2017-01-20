@@ -269,10 +269,11 @@
     border-radius: 5px;
     padding: 5px 10px;
     font-size: 95%;
-    min-width: 200px;
-    white-space: pre-wrap; }
+    min-width: 200px; }
     .cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content a {
       color: inherit; }
+    .cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content p {
+      margin: .2em 0; }
   .cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-indicator {
     content: " ";
     display: block;
@@ -281,3 +282,6 @@
     border: 5px solid transparent;
     border-top-color: #000;
     border-top-color: rgba(0, 0, 0, 0.7); }
+  .cm-s-hypermd-light div.hmd-math-preview {
+    min-height: 3.5em;
+    overflow: hidden; }

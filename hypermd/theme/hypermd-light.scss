@@ -306,6 +306,8 @@
 
     /// hyperMD stuff
 
+    /// hypermd/addon/click
+
     .HyperMD-goback {
         width: 1px;
     }
@@ -331,6 +333,8 @@
         }
     }
 
+    /// hypermd/addon/hover
+
     div.HyperMD-hover {
         > .HyperMD-hover-content {
             background-color: #000;
@@ -340,9 +344,11 @@
             padding: 5px 10px;
             font-size: 95%;
             min-width: 200px;
-            white-space: pre-wrap;
             a {
                 color: inherit
+            }
+            p {
+                margin: .2em 0;
             }
         }
         > .HyperMD-hover-indicator {
@@ -354,5 +360,12 @@
             border-top-color: #000;
             border-top-color: rgba(#000, .7);
         }
+    }
+
+    /// hypermd/addon/fold-math
+
+    div.hmd-math-preview {
+        min-height: 3.5em;
+        overflow: hidden;
     }
 }

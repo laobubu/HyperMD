@@ -79,7 +79,7 @@
   /** if `marked` exists, use it; else, return safe html */
   function text2html(text) {
     if (window.marked) return marked(text)
-    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;')
+    return "<pre>" + text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;') + "</pre>"
   }
 
   HMDHover.prototype = {

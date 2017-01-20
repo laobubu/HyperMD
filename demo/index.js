@@ -53,7 +53,11 @@ require([
             },
 
             hmdCursorDebounce: true,    // optional, since the default value is `true`
-            hmdAutoFold: 200            // auto fold delay. 0 = disable
+            hmdAutoFold: 200,            // auto fold delay. 0 = disable
+            hmdFoldMath: {
+                interval: 200,          // auto folding interval
+                preview: true           // providing a preview while inputing math formula
+            }
         });
 
         editor.hmdHideTokenInit()
