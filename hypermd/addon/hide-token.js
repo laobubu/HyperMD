@@ -324,7 +324,7 @@
       span = spans[i]
       if (
         span.nodeType === Node.ELEMENT_NODE &&
-        /\scm-formatting-(em|code-block|strong|strikethrough|quote|code|header|task|link|escape-char|hmd-stdheader)(?:\s|$)/.test(span.className)
+        /\scm-formatting-(em|code-block|strong|strikethrough|quote|code|header|task|link|escape-char|footref|hmd-stdheader)(?:\s|$)/.test(span.className)
       ) {
         if (!visible_span_indices[i]) {
           span.classList.add('cm-formatting-hidden')

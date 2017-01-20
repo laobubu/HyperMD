@@ -10,9 +10,19 @@ span.cm-formatting {
     display: inline-block;
 }
 
+/* adding some CodeMirror-not-implemented styles' default style */
+span.cm-inline-code,
+span.cm-math {
+    color: #900;
+}
+
+
 div.HyperMD-hover > .HyperMD-hover-content {
     background-color: #fff;
     padding: .5em;
+    p {
+        margin: .2em 0;
+    }
 }
 
 .HyperMD-goback {

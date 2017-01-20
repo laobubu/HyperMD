@@ -234,6 +234,13 @@
     background-color: rgba(238, 238, 238, 0.7);
     color: #999;
     margin-top: -.2em; }
+    .cm-s-hypermd-light span.cm-footref.cm-formatting-footref.cm-formatting-hidden {
+      width: 0px;
+      height: 1px;
+      opacity: 0;
+      overflow: hidden; }
+      .cm-s-hypermd-light span.cm-footref.cm-formatting-footref.cm-formatting-hidden + span.cm-footref {
+        padding: 0 4px; }
   .cm-s-hypermd-light span.cm-inline-code {
     color: #922;
     font-size: 90%; }

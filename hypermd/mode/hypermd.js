@@ -159,7 +159,7 @@
             /^\[[^\]]{2,}\](?:[^\w\[\(]|$)/.test(stream.string.substr(start))
           ) {
             stream.next()
-            if (stream.string.charAt(start + 1) == "^") {
+            if (stream.match("^")) {
               state.inside = "footref"
               return "formatting formatting-footref footref"
             } else {

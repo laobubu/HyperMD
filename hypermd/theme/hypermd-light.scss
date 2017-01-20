@@ -285,7 +285,14 @@
         color: #999;
         margin-top: -.2em;
         
-        &.cm-formatting-footref {
+        &.cm-formatting-footref.cm-formatting-hidden{
+            width: 0px;
+            height: 1px;
+            opacity: 0;
+            overflow: hidden;
+            + span.cm-footref {
+                padding: 0 4px;
+            }
         }
     }
 

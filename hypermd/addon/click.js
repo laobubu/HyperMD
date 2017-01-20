@@ -54,12 +54,21 @@
       var target = ev.target, targetClass = target.className
       if (target.nodeName !== "SPAN") return
       if (!(ev.altKey || ev.ctrlKey)) return
+      if (
+        target.nodeName == "SPAN" &&
+        /cm-formatting-(?:url|footref)\b/.test(targetClass)
+      ) {
+        target = /[\[\(]/.test(target.innerHTML) ? target.nextSibling : target.previousSibling
+        targetClass = target.className
+      }
 
       var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }),
         line = editor.getLineHandle(pos.line), txt = line.text,
         s = line.styles, i = 1, i2
       while (s[i] && s[i] < pos.ch) i += 2
       if (!s[i]) return
+
+      if (/formatting-footref/.test(s[i + 1])) i += 2
 
       // link trace
       if (/cm-(link|url)/.test(targetClass)) {
@@ -69,6 +78,7 @@
         if (/url/.test(s[i + 1]) || /^(?:https?|ftp)\:/.test(txt.substr(s[i - 2], 15)) || txt.charAt(s[i + 2] - 1) == '>') {
           //wow, a pure link
           url = txt.substr(s[i - 2], s[i] - s[i - 2])
+          if (/footref/.test(s[i + 1])) url = "^" + url
           urlIsFinal = txt.charAt(s[i]) != ']'
           clickOnURL = true
         } else {
@@ -96,7 +106,7 @@
                   bookmark.clear()
                 }
 
-                bookmark = cm.setBookmark(pos)
+                bookmark = cm.setBookmark({ line: pos.line, ch: s[i] })
                 cm.setGutterMarker(footnote.line, "HyperMD-goback", backButton)
                 backButton.innerHTML = pos.line
 
