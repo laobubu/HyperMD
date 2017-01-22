@@ -9,7 +9,7 @@
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
   font-size: 12pt; }
-  .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light pre.hmd-codeblock, .cm-s-hypermd-light span.cm-inline-code {
+  .cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light pre.hmd-codeblock, .cm-s-hypermd-light span.cm-inline-code {
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; }
   .cm-s-hypermd-light .cm-header, .cm-s-hypermd-light .cm-strong {
     font-weight: 600; }
@@ -290,5 +290,11 @@
     border-top-color: #000;
     border-top-color: rgba(0, 0, 0, 0.7); }
   .cm-s-hypermd-light div.hmd-math-preview {
-    min-height: 3.5em;
-    overflow: hidden; }
+    padding: 0 10px;
+    text-align: center;
+    min-height: 3.5em; }
+    .cm-s-hypermd-light div.hmd-math-preview div.hmd-math-preview-content {
+      display: inline-block;
+      padding: 1px 1em;
+      border-radius: 5px;
+      background-color: #eee; }

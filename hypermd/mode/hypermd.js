@@ -66,6 +66,18 @@
           state.thisLine = stream
         }
 
+        if (state.inside == "math" && state.extra.length == 2) {
+          tmp = stream.string.indexOf(state.extra, start)
+          if (tmp == start) {
+            stream.pos += 2
+            state.inside = null
+            return "formatting formatting-math math math-" + state.extra.length
+          }
+          if (tmp > 0) stream.pos = tmp
+          else stream.skipToEnd()
+          return "math math-" + state.extra.length
+        }
+
         if (start === 0) {
           if (/^(?:-{3,}|={3,})$/.test(stream.string) && !state.prevLineIsEmpty) {
             var _hlevel = ((stream.string.charAt(0) == '=') ? 1 : 2)
@@ -74,7 +86,7 @@
           }
           state.prevLineIsEmpty = false
           state.atBeginning = true
-          if (/^(?:math)$/.test(state.inside)) state.inside = null
+          if ('math' == state.inside && state.extra.length != 2) state.inside = null
         }
         if (stream.match(/^\>\s*/, true)) return null     // skip the quote indents
         if (state.atBeginning && stream.match(/^```/)) {  // toggle state for codefence
@@ -177,10 +189,10 @@
 
           /// inline math
           tmp = stream.match(/^\${1,2}/)
-          if (tmp && stream.string.indexOf(tmp[0], start + 2) != -1) {
+          if (tmp && (tmp[0] == '$$' || stream.string.indexOf(tmp[0], start + 2) != -1)) {
             state.inside = "math"
             state.extra = tmp[0]
-            return "formatting formatting-math math math-" + state.extra.length // inline code are ignored by hypermd
+            return "formatting formatting-math formatting-math-begin math math-" + state.extra.length // inline code are ignored by hypermd
           }
 
           /// possible table

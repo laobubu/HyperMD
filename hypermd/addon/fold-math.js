@@ -60,6 +60,40 @@
   // }
 
   /**
+   * Compare two positions, return 0 if they are the same, a negative
+   * number when a is less, and a positive number otherwise.
+   */
+  function cmp(a, b) { return a.line - b.line || a.ch - b.ch }
+
+  /**
+   * find next token's position.
+   * 
+   * @param {RegExp|function} condition if regex, test the token.type; if function, test `token` object. see `tokens`
+   * @param {{line:number,ch:number}} [from]
+   * @returns {{line:number,ch:number,token:{end:number,start:number,string:string,type:string}}} pos or null
+   */
+  function findToken(cm, condition, from) {
+    if (!from) from = { line: 0, ch: 0 }
+    var line = from.line - 1, isFunc = typeof condition === 'function'
+    while (++line < cm.lineCount()) {
+      /** @type {{end:number,start:number,string:string,type:string}[]} */
+      var tokens = cm.getLineTokens(line)
+      for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i], match = false
+        if (line == from.line && token.end < from.ch) continue
+
+        if (isFunc) match = condition(token)
+        else match = condition.test(token.type)
+
+        if (match) {
+          return { line: line, ch: token.start, token: token }
+        }
+      }
+    }
+    return null
+  }
+
+  /**
    * Process one line.
    * 
    * @param {{line:number,ch:number}} curpos - avoid current editing formula
@@ -70,21 +104,71 @@
 
     var lineNo = line.lineNo()
     var avoid_ch = (curpos && (lineNo == curpos.line)) ? curpos.ch : -1
-    var preview_math = ""
+    var preview_math = "", need_preview = cm.hmd.foldMath.preview && avoid_ch != -1
 
     // vars used while iterating chars
     var s = line.styles, s$i = 1 - 2
     if (!s) return
+    if (s.length <= 1) {
+      // when cursor is inside an empty line of a math block, "line.styles" will be empty
+      // if continue processing, the preview will disappear!
+      var lastLine = cm.getLineHandle(lineNo - 1)
+      if (lastLine) {
+        //FIXME: assuming no more mode overlay; `hypermd` is currently using.
+        var hyperMD_state = lastLine.stateAfter.overlay
+        if (hyperMD_state.inside == "math" && hyperMD_state.extra == "$$")
+          return
+      }
+    }
 
     /** @type {{from:number,to:number}[]} */
-    var markedSpans = line.markedSpans && line.markedSpans.map(function (ms) { return ({ from: ms.from, to: ms.to }) }) || []
+    var markedSpans = line.markedSpans &&
+      line.markedSpans.map(function (ms) {
+        return ({ from: ms.from || 0, to: ms.to || line.text.length })
+      }) || []
     markedSpans = markedSpans.sort(function (a, b) { return (a.from > b.from) })  // sort: small -> big
     var mark$i = 0, mark$ = markedSpans[0]
 
     while (s$i += 2, typeof s[s$i] == 'number') {
       var chFrom = s[s$i - 2] || 0, chTo = s[s$i], chStyle = s[s$i + 1]
 
-      if (/\bmath\b/.test(chStyle) && !/formatting/.test(chStyle)) {
+      if (/formatting-math-begin.+math-2/.test(chStyle)) {
+        var closing = findToken(cm, /formatting-math.+math-2/, { line: lineNo, ch: chTo + 1 })
+        if (closing) {
+          // note: current line is the beginning line. `closing` might be other lines
+          var canInsert = true
+          var expr = cm.getRange({ line: lineNo, ch: chTo }, closing)
+
+          if (cmp({ line: lineNo, ch: chFrom }, curpos) < 0 && cmp(curpos, { line: closing.line, ch: closing.ch + 2 }) < 0) {
+            // cursor in range. do not render. do preview instead.
+            preview_math = expr
+            canInsert = false
+            need_preview = true
+          } else {
+            while (mark$ && mark$.to < chFrom) mark$ = markedSpans[++mark$i]
+            if (
+              mark$ &&
+              ((chFrom >= mark$.from && chFrom <= mark$.to) ||
+                (chTo >= mark$.from && chTo <= mark$.to))
+            ) canInsert = false
+          }
+
+          if (canInsert) {
+            insertMathMark(cm, lineNo, chFrom, closing.line, closing.ch + 2, expr, 'math-2')
+          }
+          continue
+          // } else {
+          //   debugger
+        }
+      }
+
+      if (avoid_ch >= chFrom && avoid_ch <= chTo && /math-2/.test(chStyle) && !/formatting-math-begin/.test(chStyle)) {
+        // display mode math: the preview will be trigged by the beginning `$$`. 
+        need_preview = false
+        continue
+      }
+
+      if (/\bmath-1\b/.test(chStyle) && !/formatting/.test(chStyle)) {
         var expr = line.text.substr(chFrom, chTo - chFrom)
         if (DEBUG) console.log("wow such math", expr)
         chFrom = s[s$i - 4] || 0
@@ -108,10 +192,10 @@
       ) continue
 
       // do folding
-      insertMathMark(cm, lineNo, chFrom, chTo, expr, /math-\d+/.exec(chStyle)[0])
+      insertMathMark(cm, lineNo, chFrom, lineNo, chTo, expr, 'math-1')
     }
 
-    if (avoid_ch != -1 && cm.hmd.foldMath.preview) updatePreview(cm, line, preview_math)
+    if (need_preview) updatePreview(cm, line, preview_math)
   }
 
   /**
@@ -130,21 +214,19 @@
     }
   }
 
-  function insertMathMark(cm, line, ch1, ch2, expression, className) {
+  function insertMathMark(cm, line1, ch1, line2, ch2, expression, className) {
     var span = document.createElement("span"), marker
     span.setAttribute("class", "hmd-fold-math " + className || '')
     span.setAttribute("title", expression)
-    span.setAttribute("data-expression", expression)
 
     var script = document.createElement("script")
     script.setAttribute("type", /math-2/.test(className) ? 'math/tex; mode=display' : 'math/tex')
     script.innerHTML = expression
     span.appendChild(script)
 
-    var p1 = { line: line, ch: ch1 }, p2 = { line: line, ch: ch2 }
+    var p1 = { line: line1, ch: ch1 }, p2 = { line: line2, ch: ch2 }
     if (DEBUG) console.log("insert", p1, p2, expression)
 
-    var update_pp2 = { line: line, ch: ch1 + 1 }
     marker = cm.markText(p1, p2, {
       className: "hmd-fold-math",
       replacedWith: span,
@@ -155,10 +237,25 @@
       cm.focus()
     }, false)
 
-    MathJax.Hub.Queue(
-      ["Typeset", MathJax.Hub, script],
-      ["changed", marker]
-    )
+    marker.on("clear", function () {
+      var jax = MathJax.Hub.getJaxFor(script)
+      if (jax) jax.Remove()
+    })
+
+
+    setTimeout(function () {
+      // FIXME sometimes failed to render.
+      // 1. cursor enter math block
+      // 2. see preview
+      // 3. cursor leave math block while preview still there 
+      // 4. MathJax failed
+      // 
+      // hence use a Timeout function to do render
+      MathJax.Hub.Queue(
+        ["Typeset", MathJax.Hub, script],
+        ["changed", marker]
+      )
+    }, 0);
   }
 
   /**
@@ -169,6 +266,14 @@
    */
   function updatePreview(cm, line, expr) {
     var hostAddon = cm.hmd.foldMath, last = hostAddon._lastPreview
+
+    if (DEBUG) console.log("math-preview: ", expr)
+
+    if (last && last.line !== line) {
+      last.jax.Remove()
+      last.widget.clear()
+      last = hostAddon._lastPreview = null
+    }
 
     if (!expr) {
       if (last) {
@@ -181,37 +286,44 @@
 
     if (last) {
       if (expr == last.expr) return
-
-      var jax = last.jax
-      var widget = last.widget
-
       last.expr = expr
+
       MathJax.Hub.Queue(
-        ["Text", jax, expr],
-        ["changed", widget]
+        ["Text", last.jax, expr],
+        function () {
+          last.div.style.minHeight = last.div2.offsetHeight + 'px'
+          last.widget.changed()
+        }
       )
     } else {
+      // div->div2->script
       var div = document.createElement('div')
+      var div2 = document.createElement('div')
       var script = document.createElement("script")
       script.setAttribute("type", 'math/tex; mode=display')
       script.innerHTML = expr
+      div2.className = "hmd-math-preview-content"
+      div2.appendChild(script)
       div.className = "hmd-math-preview"
-      div.appendChild(script)
+      div.appendChild(div2)
 
       var widget = cm.addLineWidget(line, div)
 
       hostAddon._lastPreview = {
+        line: line,
         widget: widget,
         expr: expr,
         div: div,
+        div2: div2,
         script: script
       }
 
       MathJax.Hub.Queue(
         ["Typeset", MathJax.Hub, script],
-        function() {
+        function () {
           hostAddon._lastPreview.jax = MathJax.Hub.getJaxFor(script)
           widget.changed()
+          div.style.minHeight = div2.offsetHeight + 'px'
         }
       )
     }

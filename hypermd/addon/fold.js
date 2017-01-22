@@ -43,7 +43,7 @@
     var s = line.styles, sEnd = 0, s$i = 1
 
     if (line.markedSpans) {
-      markedSpans = line.markedSpans.map(function (ms) { return ({ from: ms.from, to: ms.to }) })
+      markedSpans = line.markedSpans.map(function (ms) { return ({ from: ms.from || 0, to: ms.to || line.text.length }) })
       markedSpans = markedSpans.sort(function (a, b) { return (a.from > b.from) })  // sort: small -> big
       if (DEBUG) console.log(JSON.stringify(markedSpans))
     }

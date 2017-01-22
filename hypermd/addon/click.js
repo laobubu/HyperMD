@@ -54,21 +54,14 @@
       var target = ev.target, targetClass = target.className
       if (target.nodeName !== "SPAN") return
       if (!(ev.altKey || ev.ctrlKey)) return
-      if (
-        target.nodeName == "SPAN" &&
-        /cm-formatting-(?:url|footref)\b/.test(targetClass)
-      ) {
-        target = /[\[\(]/.test(target.innerHTML) ? target.nextSibling : target.previousSibling
-        targetClass = target.className
-      }
 
       var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }),
         line = editor.getLineHandle(pos.line), txt = line.text,
         s = line.styles, i = 1, i2
       while (s[i] && s[i] < pos.ch) i += 2
       if (!s[i]) return
-
-      if (/formatting-footref/.test(s[i + 1])) i += 2
+      
+      if (/formatting-(?:link-string|footref)/.test(s[i + 1])) i += 2
 
       // link trace
       if (/cm-(link|url)/.test(targetClass)) {

@@ -50,7 +50,7 @@
         }
     }
     span.cm-error { color: #f00; }
-    span.cm-math { color: #300; font-style: italic; background: rgba(#ffe,.4); }
+    span.cm-math { @extend %monospace; color: #300; font-style: italic; background: rgba(#ffe,.4); }
     span.cm-formatting-math {color: #CAA}
 
     .CodeMirror-activeline-background { background: #e8f2ff; }
@@ -206,11 +206,11 @@
         opacity: .3;
     }
 
-    pre.hmd-codeblock-start,
-    pre.hmd-codeblock-end
-    {
+    // pre.hmd-codeblock-start,
+    // pre.hmd-codeblock-end
+    // {
 
-    }
+    // }
     pre.hmd-codeblock {
         @extend %monospace;
         line-height: 1em;
@@ -372,7 +372,15 @@
     /// hypermd/addon/fold-math
 
     div.hmd-math-preview {
+        div.hmd-math-preview-content {
+            // overflow: hidden;
+            display: inline-block;
+            padding: 1px 1em;
+            border-radius: 5px;
+            background-color: #eee;
+        }
+        padding: 0 10px;
+        text-align: center;
         min-height: 3.5em;
-        overflow: hidden;
     }
 }
