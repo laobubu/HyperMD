@@ -38,7 +38,7 @@
   .cm-s-hypermd-light span.cm-operator {
     color: black; }
   .cm-s-hypermd-light span.cm-comment {
-    color: #3F7F5F; }
+    color: #4F9F5F; }
   .cm-s-hypermd-light span.cm-string {
     color: #2A00FF; }
   .cm-s-hypermd-light span.cm-string-2 {
@@ -81,24 +81,24 @@
   .cm-s-hypermd-light .CodeMirror-foldmarker {
     display: inline-block;
     vertical-align: middle; }
+  .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-1:after, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-2:after {
+    display: block;
+    content: ' ';
+    margin-top: 2px;
+    height: 1px;
+    background: #eee; }
   .cm-s-hypermd-light span.cm-header, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-1 > span, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-2 > span {
     color: #333; }
   .cm-s-hypermd-light span.cm-header-1, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-1 > span {
-    font-weight: normal;
+    font-weight: 600;
     font-size: 24pt; }
   .cm-s-hypermd-light span.cm-header-2, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-2 > span {
-    font-weight: normal;
+    font-weight: 600;
     font-size: 18pt; }
   .cm-s-hypermd-light span.cm-header-3 {
     font-size: 14.4pt; }
   .cm-s-hypermd-light pre.hmd-stdheader {
     line-height: 1.5; }
-    .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-1:after {
-      display: block;
-      content: ' ';
-      margin-top: 2px;
-      height: 1px;
-      background: #eee; }
   .cm-s-hypermd-light span.cm-hr {
     display: inline-block;
     width: 100%;
@@ -181,7 +181,8 @@
     font-size: 10.2pt; }
     .cm-s-hypermd-light pre.hmd-footnote-line span.cm-hmd-footnote {
       display: inline-block;
-      min-width: 4em; }
+      min-width: 4em;
+      color: #666; }
       .cm-s-hypermd-light pre.hmd-footnote-line span.cm-hmd-footnote.cm-hmd-footnote-real + span.cm-url, .cm-s-hypermd-light pre.hmd-footnote-line span.cm-hmd-footnote.cm-hmd-footnote-real + span.cm-url + span.cm-url {
         color: inherit; }
   .cm-s-hypermd-light .cm-formatting-code-block.cm-formatting-hidden {

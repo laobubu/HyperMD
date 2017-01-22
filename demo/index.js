@@ -40,27 +40,48 @@ require([
             lineWrapping: true,
             theme: "hypermd-light",
             mode: "text/x-hypermd",
-            // keyMap: "vim",
+            // keyMap: "vim",     // just for fun
 
             foldGutter: true,
             gutters: [
                 "CodeMirror-linenumbers",
                 "CodeMirror-foldgutter",
-                "HyperMD-goback"
+                "HyperMD-goback"  // (addon: click) 'back' button for footnotes
             ],
             extraKeys: {
                 "Enter": "newlineAndIndentContinueMarkdownList"
             },
 
-            hmdCursorDebounce: true,    // optional, since the default value is `true`
-            hmdAutoFold: 200,            // auto fold delay. 0 = disable
-            hmdFoldMath: {
-                interval: 200,          // auto folding interval
-                preview: true           // providing a preview while inputing math formula
-            }
-        });
+            // (addon) cursor-debounce
+            // cheap mouse could make unexpected selection. use this to fix.
+            hmdCursorDebounce: true,
 
+            // (addon) fold
+            // turn images and links into what you want to see
+            hmdAutoFold: 200,
+
+            // (addon) fold-math
+            // MathJax support. Both `$` and `$$` are supported
+            hmdFoldMath: {
+                interval: 200,      // auto folding interval
+                preview: true       // providing a preview while composing math
+            },
+
+            // (addon) click
+            // (dependencies) addon/readlink
+            // follow links and footnotes
+            hmdClick: {
+                backButton: true  // display "back" button after click a footref
+            }
+        })
+
+        // (addon) hide-token
+        // hide/show Markdown tokens like `**`
         editor.hmdHideTokenInit()
+
+        // (addon) hover
+        // (dependencies) addon/readlink
+        // a tooltip showing footnotes
         editor.hmdHoverInit()
 
         window.CodeMirror = CodeMirror

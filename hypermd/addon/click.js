@@ -109,10 +109,11 @@
             // }, 200)
             return
           }
-          url = /^\S+/.exec(footnote.content)[0]
-          if (/^\<.+\>$/.test(url)) url = url.substr(1, url.length - 2) // some legacy Markdown syntax
+          url = footnote.content
         }
 
+        url = /^\S+/.exec(url)[0]
+        if (/^\<.+\>$/.test(url)) url = url.substr(1, url.length - 2) // some legacy Markdown syntax
         if (/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/.test(url)) url = "mailto:" + url
         else if (/^\d(?:[\d-]+)\d$/.test(url)) url = "tel:" + url.replace(/\D/g, '')
 

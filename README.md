@@ -25,7 +25,7 @@ You may use both original CodeMirror and HyperMD on the same page.
      - Diff and Merge
      - Fullscren
      - Themes [^3]
- 6. **[And More...][HyperMD-Doc]**
+ 6. **[And More...](https://laobubu.net/hypermd/docs "HyperMD Documentation")**
 
 ## Quickstart
 
@@ -54,20 +54,52 @@ turning your `<textarea>` into HyperMD editor, with few codes:
 ```javascript
 var myTextarea = document.getElementById('input-area')
 var editor = CodeMirror.fromTextArea(myTextarea, {
-  lineNumbers: true,
-  lineWrapping: true,
-  theme: "hypermd-light",
-  mode: "text/x-hypermd",
-  gutters: [
-    "CodeMirror-linenumbers",
-    "HyperMD-goback"
-  ],
-  extraKeys: {
-    "Enter": "newlineAndIndentContinueMarkdownList"
-  }
+    lineNumbers: true,
+    lineWrapping: true,
+    theme: "hypermd-light",
+    mode: "text/x-hypermd",
+    // keyMap: "vim",     // just for fun
+
+    foldGutter: true,
+    gutters: [
+        "CodeMirror-linenumbers",
+        "CodeMirror-foldgutter",
+        "HyperMD-goback"  // (addon: click) 'back' button for footnotes
+    ],
+    extraKeys: {
+        "Enter": "newlineAndIndentContinueMarkdownList"
+    },
+
+    // (addon) cursor-debounce
+    // cheap mouse could make unexpected selection. use this to fix.
+    hmdCursorDebounce: true,
+    
+    // (addon) fold
+    // turn images and links into what you want to see
+    hmdAutoFold: 200,
+
+    // (addon) fold-math
+    // MathJax support. Both `$` and `$$` are supported
+    hmdFoldMath: {   
+        interval: 200,      // auto folding interval
+        preview: true       // providing a preview while composing math
+    },
+
+    // (addon) click
+    // (dependencies) addon/readlink
+    // follow links and footnotes
+    hmdClick: {
+      backButton: true  // display "back" button after click a footref
+    }
 })
 
+// (addon) hide-token
+// hide/show Markdown tokens like `**`
 editor.hmdHideTokenInit()
+
+// (addon) hover
+// (dependencies) addon/readlink
+// a tooltip showing footnotes
 editor.hmdHoverInit()
 ```
 
@@ -82,12 +114,13 @@ Contributions are welcomed. You may:
  - [Buy me a Coffee](https://laobubu.net/donate.html)
  - Spread HyperMD to the world!
 
+
+
 -------------------------------------------------------
 [CodeMirror]: https://codemirror.net/   A powerful text editor for the browser.
-[RequireJS]:  http://requirejs.org/   An JavaScript AMD module loader.
+[RequireJS]:  http://requirejs.org/   A JavaScript AMD module loader.
 [MathJax]:  https://www.mathjax.org/  A JavaScript display engine for mathematics.
 [laobubu]:  https://laobubu.net/  The author of HyperMD.
-[HyperMD-Doc]:  https://laobubu.net/hypermd/docs  The HyperMD Documentation.
 [^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.
-[^3]: If the theme is not designed for HyperMD, some features will not be present.
+[^3]: If the theme is not designed for HyperMD, some features might not be present.

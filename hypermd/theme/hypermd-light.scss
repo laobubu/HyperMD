@@ -33,7 +33,7 @@
     span.cm-variable-3 { color: #0000C0; }
     span.cm-property { color: black; }
     span.cm-operator { color: black; }
-    span.cm-comment { color: #3F7F5F; }
+    span.cm-comment { color: #4F9F5F; }
     span.cm-string { color: #2A00FF; }
     span.cm-string-2 { color: #f50; }
     span.cm-qualifier { color: #555; }
@@ -69,26 +69,32 @@
     }
 
     /// Headers
+    // in fact stdheader has no special meaning; they are just normal headers
+    // legacy naming problem
+
+    %hmd-stdheader-with-line {
+        &:after {
+            display: block;
+            content: ' ';
+            margin-top: 2px;
+            height: 1px;
+            background: #eee;
+        }
+    }
 
     span.cm-header   { color: #333; }
-    span.cm-header-1 { font-weight: normal; font-size: $fs * 2 }
-    span.cm-header-2 { font-weight: normal; font-size: $fs * 1.5 }
+    span.cm-header-1 { font-weight: 600; font-size: $fs * 2 }
+    span.cm-header-2 { font-weight: 600; font-size: $fs * 1.5 }
     span.cm-header-3 { font-size: $fs * 1.2 }
     pre.hmd-stdheader {
         line-height: 1.5;
 
         &.hmd-stdheader-1 {
+            @extend %hmd-stdheader-with-line;
             > span { @extend span.cm-header; @extend span.cm-header-1; }
-                
-            &:after {
-                display: block;
-                content: ' ';
-                margin-top: 2px;
-                height: 1px;
-                background: #eee;
-            }
         }
         &.hmd-stdheader-2 {
+            @extend %hmd-stdheader-with-line;
             > span { @extend span.cm-header; @extend span.cm-header-2; }
         }
     }
@@ -193,6 +199,7 @@
         span.cm-hmd-footnote{
             display: inline-block;
             min-width: 4em;
+            color: #666;
 
             &.cm-hmd-footnote-real { // [^something] , not [something]
                  + span.cm-url, + span.cm-url + span.cm-url { color: inherit }
