@@ -16,7 +16,7 @@ You may use both original CodeMirror and HyperMD on the same page.
      - Headers
      - Horizontal Rules
      - Lists (nested, ordered, unordered, tasks with checkbox)
-     - [MathJax] Formula like $ e^{ i\pi } + 1 = 0 $
+     - [MathJax] Formula, like $ e^{ i\pi } + 1 = 0 $ and math block [^4]
  2. **Alt+Click** to follow link / footnote [^1]
  3. **Syntax Highlight** for 120+ languages code blocks [^2]
  4. **Hover** to read footnotes
@@ -51,6 +51,9 @@ initializing your editor:
 Once addons and stylesheets are loaded, you may initialize editor,
 turning your `<textarea>` into HyperMD editor, with few codes:
 
+***Note**: This complex approach is temporary. but don't worry,*
+*Some easy-to-use functions (methods) will come in a new version.*
+
 ```javascript
 var myTextarea = document.getElementById('input-area')
 var editor = CodeMirror.fromTextArea(myTextarea, {
@@ -58,49 +61,23 @@ var editor = CodeMirror.fromTextArea(myTextarea, {
     lineWrapping: true,
     theme: "hypermd-light",
     mode: "text/x-hypermd",
-    // keyMap: "vim",     // just for fun
 
-    foldGutter: true,
     gutters: [
         "CodeMirror-linenumbers",
-        "CodeMirror-foldgutter",
-        "HyperMD-goback"  // (addon: click) 'back' button for footnotes
+        "HyperMD-goback"
     ],
     extraKeys: {
         "Enter": "newlineAndIndentContinueMarkdownList"
     },
-
-    // (addon) cursor-debounce
-    // cheap mouse could make unexpected selection. use this to fix.
-    hmdCursorDebounce: true,
     
-    // (addon) fold
-    // turn images and links into what you want to see
+    hmdHideToken: "(profile-1)",
+    hmdCursorDebounce: true,
     hmdAutoFold: 200,
-
-    // (addon) fold-math
-    // MathJax support. Both `$` and `$$` are supported
-    hmdFoldMath: {   
-        interval: 200,      // auto folding interval
-        preview: true       // providing a preview while composing math
-    },
-
-    // (addon) click
-    // (dependencies) addon/readlink
-    // follow links and footnotes
-    hmdClick: {
-      backButton: true  // display "back" button after click a footref
-    }
+    hmdFoldMath: { interval: 200, preview: true }
 })
 
-// (addon) hide-token
-// hide/show Markdown tokens like `**`
-editor.hmdHideTokenInit()
-
-// (addon) hover
-// (dependencies) addon/readlink
-// a tooltip showing footnotes
-editor.hmdHoverInit()
+editor.hmdHoverInit()       // tooltips on footnotes
+editor.hmdClickInit()       // click to follow links and footnotes 
 ```
 
 And that's all. Feel free to modify the options above.
@@ -124,3 +101,4 @@ Contributions are welcomed. You may:
 [^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.
 [^3]: If the theme is not designed for HyperMD, some features might not be present.
+[^4]: Math block is just like code block. Use `$$` to wrap your math expression.

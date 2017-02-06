@@ -5,7 +5,7 @@
 //
 
 (function (mod) {
-  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "../../node_modules/codemirror/";
+  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "codemirror/";
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require(CODEMIRROR_ROOT + "lib/codemirror"),
@@ -21,26 +21,38 @@
 })(function (CodeMirror) {
   "use strict";
 
-  function init(cm) {
+  /**
+   * Init HyperMD Click addon. Where `this` is the editor instance.
+   * 
+   * Note: 
+   *  if you need a "back" button before a footnote, please 
+   * add "HyperMD-goback" into "gutters" option when init editor.
+   */
+  function init() {
+    var cm = this
+    if (!cm.hmd) cm.hmd = {}
+
     /** @type {HTMLDivElement} lineDiv */
     var lineDiv = cm.display.lineDiv
 
-    var bookmark // where the footref is. designed for "back" button
-    var backButton = document.createElement("div")
-    // backButton.innerHTML = "▲"
-    backButton.className = "HyperMD-goback-button"
-    // backButton.setAttribute("title", "Back")
-    backButton.addEventListener("click", function () {
-      cm.setCursor(bookmark.find())
-      cm.clearGutter("HyperMD-goback")
-      bookmark.clear()
-      bookmark = null
-    })
-    var _tmp1 = cm.display.gutters.children
-    _tmp1 = _tmp1[_tmp1.length - 1]
-    _tmp1 = _tmp1.offsetLeft + _tmp1.offsetWidth
-    backButton.style.width = _tmp1 + "px"
-    backButton.style.marginLeft = -_tmp1 + "px"
+    var hasBackButton = cm.options.gutters.indexOf("HyperMD-goback") != -1
+
+    if (hasBackButton) {
+      var bookmark // where the footref is. designed for "back" button
+      var backButton = document.createElement("div")
+      backButton.className = "HyperMD-goback-button"
+      backButton.addEventListener("click", function () {
+        cm.setCursor(bookmark.find())
+        cm.clearGutter("HyperMD-goback")
+        bookmark.clear()
+        bookmark = null
+      })
+      var _tmp1 = cm.display.gutters.children
+      _tmp1 = _tmp1[_tmp1.length - 1]
+      _tmp1 = _tmp1.offsetLeft + _tmp1.offsetWidth
+      backButton.style.width = _tmp1 + "px"
+      backButton.style.marginLeft = -_tmp1 + "px"
+    }
 
     function then(func, clientX, clientY) {
       function evhandle(ev) {
@@ -56,11 +68,11 @@
       if (!(ev.altKey || ev.ctrlKey)) return
 
       var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }),
-        line = editor.getLineHandle(pos.line), txt = line.text,
+        line = cm.getLineHandle(pos.line), txt = line.text,
         s = line.styles, i = 1, i2
       while (s[i] && s[i] < pos.ch) i += 2
       if (!s[i]) return
-      
+
       if (/formatting-(?:link-string|footref)/.test(s[i + 1])) i += 2
 
       // link trace
@@ -94,14 +106,16 @@
             // console.log("foot trace")
             then(function () {
               setTimeout(function () {
-                if (bookmark) {
-                  cm.clearGutter("HyperMD-goback")
-                  bookmark.clear()
-                }
+                if (hasBackButton) {
+                  if (bookmark) {
+                    cm.clearGutter("HyperMD-goback")
+                    bookmark.clear()
+                  }
 
-                bookmark = cm.setBookmark({ line: pos.line, ch: s[i] })
-                cm.setGutterMarker(footnote.line, "HyperMD-goback", backButton)
-                backButton.innerHTML = pos.line
+                  bookmark = cm.setBookmark({ line: pos.line, ch: s[i] })
+                  cm.setGutterMarker(footnote.line, "HyperMD-goback", backButton)
+                  backButton.innerHTML = pos.line + 1
+                }
 
                 cm.setCursor({ line: footnote.line, ch: 0 })
               }, 50)
@@ -136,11 +150,5 @@
     }, true)
   }
 
-  CodeMirror.defineInitHook(function (cm) {
-    if (!cm.hmd) cm.hmd = {}
-    init(cm)
-  })
-  CodeMirror.defineOption("hmdClick", {
-    backButton: true  // display "back" button after click a footref
-  })
+  CodeMirror.defineExtension("hmdClickInit", init)
 })

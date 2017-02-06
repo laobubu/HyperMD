@@ -6,8 +6,7 @@ if (requirejs) requirejs.config({
     waitSeconds: 15
 })
 
-// Using requirejs's "path" option (see above).
-// Change these if things are different
+// Using requirejs's "path" option (see above)
 var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT = "codemirror/";
 var HYPERMD_ROOT = window.HYPERMD_ROOT = "hypermd/";
 
@@ -67,22 +66,20 @@ require([
                 preview: true       // providing a preview while composing math
             },
 
-            // (addon) click
-            // (dependencies) addon/readlink
-            // follow links and footnotes
-            hmdClick: {
-                backButton: true  // display "back" button after click a footref
-            }
+            // (addon) hide-token
+            // hide/show Markdown tokens like `**`
+            hmdHideToken: "(profile-1)"
         })
-
-        // (addon) hide-token
-        // hide/show Markdown tokens like `**`
-        editor.hmdHideTokenInit()
 
         // (addon) hover
         // (dependencies) addon/readlink
-        // a tooltip showing footnotes
+        // tooltips on footnotes
         editor.hmdHoverInit()
+
+        // (addon) click
+        // (dependencies) addon/readlink
+        // click to follow links and footnotes
+        editor.hmdClickInit()
 
         window.CodeMirror = CodeMirror
         window.editor = editor

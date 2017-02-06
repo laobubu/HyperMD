@@ -6,7 +6,7 @@
 //
 
 (function (mod) {
-  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "../../node_modules/codemirror/";
+  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "codemirror/";
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require(CODEMIRROR_ROOT + "lib/codemirror")
@@ -147,6 +147,8 @@
 
   /** 
    * adding/removing `cm-formatting-hidden` to/from the <span>s that contain Markdown tokens (eg. `### ` or `~~`)
+   * 
+   * a member of class `HideToken`
    * 
    * @param {object} cm                       CodeMirror editor instance
    * @param {Element} line                    The <pre> element
@@ -324,7 +326,7 @@
       span = spans[i]
       if (
         span.nodeType === Node.ELEMENT_NODE &&
-        /\scm-formatting-(em|code-block|strong|strikethrough|quote|code|header|task|link|escape-char|footref|hmd-stdheader)(?:\s|$)/.test(span.className)
+        this.matchRegex.test(span.className)
       ) {
         if (!visible_span_indices[i]) {
           span.classList.add('cm-formatting-hidden')
@@ -346,35 +348,78 @@
     }
   }
 
-  CodeMirror.defineExtension("hmdHideTokenInit", function (pos, options, force) {
-    var cm = this
+  function HideToken(cm) {
+    this.cm = cm
+    this.eventBinded = false
+    this.tokenTypes = ""
+    this.matchRegex = /^$/
 
-    cm.on("renderLine", function (cm, line_handle, ele) {
-      var pos = cm.getCursor()
-      var line = ele
-      var linenum = line_handle.lineNo()
-      patchFormattingSpan(cm, line, (linenum === pos.line) && pos || { line: linenum })
-    })
+    this._renderLine = this.renderLine.bind(this)
 
-    var lastCursorPos = { line: 0, ch: 0 }
+    this.lastCursorPos = { line: 0, ch: 0 }
+    this._cursorHandler = this.cursorHandler.bind(this)
+  }
 
-    cm.on("cursorActivity", function hyperCursorHandler(cm) {
-      var pos = cm.getCursor()
-      if (lastCursorPos.line !== pos.line) {
-        var line = getLineView(cm, lastCursorPos.line)
-        if (line) {
-          patchFormattingSpan(cm, line.text, { line: lastCursorPos.line })
-          if (line.measure) line.measure.cache = {}
-        }
+  HideToken.prototype.setTokenTypes = function (tokenTypes) {
+    this.tokenTypes = tokenTypes
+    this.matchRegex = new RegExp("\\scm-formatting-(" + tokenTypes + ")(?:\\s|$)")
+
+    if (this.eventBinded ^ !!tokenTypes) {
+      var cm = this.cm
+      if (tokenTypes) {
+        cm.on("renderLine", this._renderLine)
+        cm.on("cursorActivity", this._cursorHandler)
+      } else {
+        cm.off("renderLine", this._renderLine)
+        cm.off("cursorActivity", this._cursorHandler)
       }
-      var line = getLineView(cm, pos.line)
+      this.eventBinded = !!tokenTypes
+    }
+  }
+
+  HideToken.prototype.renderLine = function (cm, line_handle, ele) {
+    var pos = cm.getCursor()
+    var line = ele
+    var linenum = line_handle.lineNo()
+    this.patchFormattingSpan(cm, line, (linenum === pos.line) && pos || { line: linenum })
+  }
+
+  HideToken.prototype.cursorHandler = function (cm) {
+    var pos = cm.getCursor(), lastCursorPos = this.lastCursorPos
+    if (lastCursorPos.line !== pos.line) {
+      var line = getLineView(cm, lastCursorPos.line)
       if (line) {
-        patchFormattingSpan(cm, line.text, pos, true)
+        this.patchFormattingSpan(cm, line.text, { line: lastCursorPos.line })
+        if (line.measure) line.measure.cache = {}
       }
-      lastCursorPos = pos
-      if (DEBUG_PATCHING) console.log("cursor fly to ", pos)
-    })
+    }
+    var line = getLineView(cm, pos.line)
+    if (line) {
+      this.patchFormattingSpan(cm, line.text, pos, true)
+    }
+    this.lastCursorPos = pos
+    if (DEBUG_PATCHING) console.log("cursor fly to ", pos)
+  }
 
+  HideToken.prototype.patchFormattingSpan = patchFormattingSpan
+
+  /** get Hide instance of `cm`. if not exists, create one. */
+  function getHide(cm) {
+    if (!cm.hmd) cm.hmd = {}
+    else if (cm.hmd.hideToken) return cm.hmd.hideToken
+
+    var fold = new HideToken(cm)
+    cm.hmd.hideToken = fold
+    return fold
+  }
+
+  var defaultTokenTypes = "em|code-block|strong|strikethrough|quote|code|header|task|link|escape-char|footref|hmd-stdheader"
+  CodeMirror.defineOption("hmdHideToken", "", function (cm, newVal) {
+    // complete newCfg with default values
+    var hide = getHide(cm)
+    if (newVal === "(profile-1)") newVal = defaultTokenTypes
+
+    hide.setTokenTypes(newVal)
     cm.refresh() //force re-render lines
-  });
+  })
 })
