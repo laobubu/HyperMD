@@ -1,12 +1,13 @@
 # ChangeLog
 
-## Alpha 0.2 (2017-01)
+## Alpha 0.2 (2017-02)
 
 - [ ] **add**: Table Parsing
 - [ ] **add**: Table Styling
 - [ ] **add**: Table Mode Keyboard Binding
-- [ ] **add**: MathJax
-- [ ] better UI theme
+- [x] **add**: MathJax
+- [x] better UI theme
+- [x] **add**: copy from webpage(html), paste as Markdown
 - [ ] toolbar styling buttons
 - [ ] side-by-side preview (with div-to-line mapping support)
 

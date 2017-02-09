@@ -28,10 +28,24 @@
     this._pasteHandle = this.pasteHandle.bind(this)
   }
 
-  function BogusTextNode(textContent) {
+  function BogusTextNode(textContent, proxy) {
     this.textContent = textContent
+    this.proxy = proxy
   }
   BogusTextNode.prototype.nodeType = 99
+  BogusTextNode.prototype.compareDocumentPosition = function (node) {
+    return this.proxy.compareDocumentPosition(node)
+  }
+
+  /**
+   * add slash for some chars
+   * 
+   * @param {string} str
+   * @returns {string}
+   */
+  function escape(str) {
+    return str.replace(/([\_\(\*\<\[\+\`\$\\])/g, "\\$1")
+  }
 
   /** 
    * get one element's wrapping stuff.
@@ -39,34 +53,51 @@
    *   <b>  => {start: "**", end: "**"}
    *   <h2> => {start: "## "} 
    *   <script> => {skip: true}
+   *   <blockquote> => { lead: "> "}
    * ```
    * 
+   * 1. `lead` is the leading string for every Markdown line inside it.
+   * 
    * @param {HTMLElement} ele
-   * @return {{start?:string, end?:string, skip?:boolean}}
+   * @return {{start?:string, end?:string, skip?:boolean, lead?:string}}
    */
-  function getStartAndEnd(ele) {
+  function getDecoration(ele) {
     if (ele.nodeType != 1) return {}
     var tagName = ele.tagName.toLowerCase()
 
     var LI_ATTR_INDENT = "data-paste-indent"
     var LI_ATTR_INDEX = "data-paste-index"
 
-    if (/^(?:i|em)$/.test(tagName)) return { start: "*", end: "*" }
-    if (/^(?:del|s|strike)$/.test(tagName)) return { start: "~~", end: "~~" }
-    if (/^(?:b|strong)$/.test(tagName)) return { start: "**", end: "**" }
+    function isEmpty() { return ele.textContent.trim().length == 0 }
+
+    if (/^(?:i|em)$/.test(tagName)) return isEmpty ? {} : { start: "*", end: "*" }
+    if (/^(?:del|s|strike)$/.test(tagName)) return isEmpty ? {} : { start: "~~", end: "~~" }
+    if (/^(?:b|strong)$/.test(tagName)) return isEmpty ? {} : { start: "**", end: "**" }
     if (/^h\d$/.test(tagName)) return { start: "\n######".substr(0, 1 + ~~tagName.charAt(1)) + " ", end: "\n\n" }
-    if ("pre" === tagName) return { start: "\n\n```\n" + ele.textContent + "\n```\n\n", skip: true }
-    if ("code" === tagName && ele.parentElement.tagName !== "PRE") return { start: "`", end: "`" }
-    if ("blockquote" === tagName) return { start: "\n\n> ", end: "\n\n" }
+    if ("pre" === tagName) {
+      var childClassName = ele.firstElementChild && ele.firstElementChild.className || ''
+      var lang =
+        /\b(?:highlight-source|language)-(\w+)/.exec(ele.parentElement.className) ||
+        /\b(?:highlight-source|language)-(\w+)/.exec(ele.className) ||
+        /\b(?:highlight-source|language)-(\w+)/.exec(childClassName) ||
+        (/hljs/.test(ele.className + childClassName) && [0, childClassName.replace('hljs', '').trim()])
+      lang = lang ? lang[1] : ''
+      return { start: "\n\n```" + lang + "\n" + ele.textContent + "\n```\n\n", skip: true }
+    }
+    if ("code" === tagName && ele.parentElement.tagName !== "PRE") return { start: "`" + ele.textContent + "`", skip: true }
+    if ("blockquote" === tagName) return { start: "\n\n", end: "\n\n", lead: "> " }
     if ("br" === tagName) return { start: "\n" }
 
     if ("table" === tagName) {
-      if (!ele.textContent.trim()) return { skip: true }
+      if (isEmpty()) return { skip: true }
       return { start: "\n\n", end: "\n\n" }
     }
     if ("tr" === tagName) {
       var end = "\n"
-      if (ele == ele.parentElement.firstElementChild) {
+      if (
+        ele == ele.parentElement.firstElementChild &&  // first <tr> 
+        ele.parentElement == ele.parentElement.parentElement.firstElementChild // <thead> or <tbody>
+      ) {
         var ths = ele.children, i = 0, j = 0
         while (i < ths.length) {
           var th = ths[i++]
@@ -74,7 +105,7 @@
         }
 
         while (j--) {
-          end += "|:----:"
+          end += "| ------ "
         }
         end += "|\n"
       }
@@ -83,8 +114,7 @@
     if (/^t[dh]$/.test(tagName)) return { end: " | " }
 
     if (
-      /^(?:p|div)$/.test(tagName) &&
-      ele.textContent.trim().length
+      /^(?:p|div)$/.test(tagName)
     ) {
       return { start: "\n", end: "\n" }
     }
@@ -93,39 +123,46 @@
       var alt = ele.getAttribute("alt") || '',
         url = ele.getAttribute("src") || '',
         title = ele.getAttribute("title")
-      if (title) url += ' "' + title.replace(/([\(\)\"])/g, '\\$1') + '"'
+      if (title) url += ' "' + escape(title) + '"'
       return { start: "![" + alt + "](" + url + ")" }
     }
 
     if ("a" === tagName) {
       var url = ele.getAttribute("href") || '',
         title = ele.getAttribute("title")
-      if (title) url += ' "' + title.replace(/([\(\)\"])/g, '\\$1') + '"'
+      if (title) url += ' "' + escape(title) + '"'
+      if (!url && !title) return {} // skip bookmarks?
+      if (isEmpty()) return { skip: true } // skip empty links
       return { start: "[", end: "](" + url + ")" }
     }
 
+    // lists should use `lead`, but may get unexcepted spaces...
     if (/^[uo]l$/.test(tagName)) {
       var lis = ele.querySelectorAll("li")
       for (var i = 0; i < lis.length; i++) {
         var li = lis[i]
-        li.setAttribute(LI_ATTR_INDENT, ~~li.getAttribute(LI_ATTR_INDENT))
+        li.setAttribute(LI_ATTR_INDENT, 1 + ~~li.getAttribute(LI_ATTR_INDENT))
       }
 
       lis = ele.children
       if ('ol' === tagName) {
         for (var i = 0; i < lis.length;) {
           li = lis[i++]
-          li.setAttribute(LI_ATTR_INDEX, i + ". ")
+          li.setAttribute(LI_ATTR_INDEX, i + ".")
         }
       }
+
+      var isNestedList = /^(?:ul|ol|li)$/i.test(ele.parentElement.tagName)
+      if (isNestedList) return { start: "\n", end: "\n" }
       return { start: "\n\n", end: "\n\n" }
     }
 
     if ('li' === tagName) {
       var
-        indent = ~~ele.getAttribute(LI_ATTR_INDENT),
-        index = ele.getAttribute(LI_ATTR_INDEX) || " - "
-      return { start: "         ".substr(0, indent * 2) + index, end: "\n" }
+        indent = ele.getAttribute(LI_ATTR_INDENT) - 1,
+        index = ele.getAttribute(LI_ATTR_INDEX) || "-"
+      index = ' ' + index + ' '
+      return { start: "                  ".substr(0, indent * 2) + index, end: "\n" }
     }
 
     return {}
@@ -145,28 +182,40 @@
     var result = ""
     var queue = [doc.body]
 
+    /** @type {{inside: HTMLElement, text:string}[]} */
+    var leads = []
+
     while (queue.length) {
       var node = queue.shift()
 
+      var lead = "", text = node.textContent
+      for (var i = 0; i < leads.length; i++) {
+        var relation = node.compareDocumentPosition(leads[i].inside)
+        if (relation & 8) lead += leads[i].text // contained by
+        else leads.splice(i--, 1) // out of this lead
+      }
+
       switch (node.nodeType) {
         case 1: // Element
-          var se = getStartAndEnd(node)
-          if (se.start) result += se.start
+          var se = getDecoration(node)
+          if (se.start) {
+            result += lead ? se.start.replace(/(\n)/g, "$1" + lead) : se.start
+          }
+          if (se.lead) {
+            leads.push({ inside: node, text: se.lead })
+            result += se.lead
+          }
           if (!se.skip) {
             var childNodes = [].slice.call(node.childNodes)
             childNodes.splice(0, 0, 0, 0)
-            if (se.end) childNodes.push(new BogusTextNode(se.end));
+            if (se.end) childNodes.push(new BogusTextNode(se.end, node));
             [].splice.apply(queue, childNodes)
           }
           break
         case 3: // Text
-          result += node.textContent
-            .replace(/^[\s\n\r]{2,}/, ' ')
-            .replace(/[\s\n\r]{2,}$/, ' ')
-            .replace(/([\_\(\)\"\-\*\<\[\]\+\`\$\\])/g, "\\$1")
-          break
+          text = escape(text.replace(/[\s\n\r]{2,}/, ' '))
         case 99: // BogusTextNode
-          result += node.textContent
+          result += lead ? text.replace(/(\n)/g, "$1" + lead) : text
           break
       }
 
