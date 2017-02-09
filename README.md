@@ -4,6 +4,8 @@
 
 **Breaks the Wall** between *writing* and *preview*, in a Markdown Editor.
 
+[Online Demo](https://demo.laobubu.net)
+
 ## Why use HyperMD ?
 
 HyperMD is a set of [CodeMirror] addons / modes / themes.
@@ -20,12 +22,13 @@ You may use both original CodeMirror and HyperMD on the same page.
  2. **Alt+Click** to follow link / footnote [^1]
  3. **Syntax Highlight** for 120+ languages code blocks [^2]
  4. **Hover** to read footnotes
- 5. **Massive CodeMirror Addons** can be loaded, including:
+ 5. **Copy and Paste**, translate HTML into Markdown
+ 6. **Massive CodeMirror Addons** can be loaded, including:
      - VIM/Emacs mode and Configurable keybindings
      - Diff and Merge
      - Fullscren
      - Themes [^3]
- 6. **[And More...](https://laobubu.net/hypermd/docs "HyperMD Documentation")**
+ 7. **[And More...](https://laobubu.net/hypermd/docs "HyperMD Documentation")**
 
 ## Quickstart
 
@@ -73,6 +76,7 @@ var editor = CodeMirror.fromTextArea(myTextarea, {
     hmdHideToken: "(profile-1)",
     hmdCursorDebounce: true,
     hmdAutoFold: 200,
+    hmdPaste: true,
     hmdFoldMath: { interval: 200, preview: true }
 })
 

@@ -158,7 +158,7 @@
           // escaped chars
           if (
             stream.peek() == "\\" &&
-            "\\![]()$".indexOf(stream.string.substr(start + 1, 1)) >= 0
+            "\\![]()$*-`+<>_".indexOf(stream.string.charAt(start + 1)) >= 0
           ) {
             stream.next()
             state.inside = "escape"

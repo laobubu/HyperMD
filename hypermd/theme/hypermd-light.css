@@ -217,6 +217,7 @@
   .cm-s-hypermd-light img.hmd-image {
     vertical-align: middle;
     width: auto;
+    max-width: 95%;
     height: auto; }
     .cm-s-hypermd-light img.hmd-image.hmd-image-loading {
       min-width: 24px;

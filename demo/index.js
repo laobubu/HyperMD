@@ -25,7 +25,8 @@ require([
     HYPERMD_ROOT + 'addon/fold-math',
     HYPERMD_ROOT + 'addon/readlink',
     HYPERMD_ROOT + 'addon/click',
-    HYPERMD_ROOT + 'addon/hover'
+    HYPERMD_ROOT + 'addon/hover',
+    HYPERMD_ROOT + 'addon/paste'
 ], function (CodeMirror) {
     'use strict';
     var myTextarea = document.getElementById('demo')
@@ -66,6 +67,10 @@ require([
                 preview: true       // providing a preview while composing math
             },
 
+            // (addon) paste
+            // copy and paste HTML content
+            hmdPaste: true,
+            
             // (addon) hide-token
             // hide/show Markdown tokens like `**`
             hmdHideToken: "(profile-1)"
