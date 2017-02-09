@@ -68,11 +68,15 @@
     var LI_ATTR_INDENT = "data-paste-indent"
     var LI_ATTR_INDEX = "data-paste-index"
 
-    function isEmpty() { return ele.textContent.trim().length == 0 }
+    if (
+      /^(?:i|em|del|s|table|strike|b|strong|a|code)$/.test(tagName) &&
+      ele.textContent.trim().length === 0
+    ) return { skip: true }
 
-    if (/^(?:i|em)$/.test(tagName)) return isEmpty ? {} : { start: "*", end: "*" }
-    if (/^(?:del|s|strike)$/.test(tagName)) return isEmpty ? {} : { start: "~~", end: "~~" }
-    if (/^(?:b|strong)$/.test(tagName)) return isEmpty ? {} : { start: "**", end: "**" }
+    if (/^(?:script|comment)$/.test(tagName)) return { skip: true }
+    if (/^(?:i|em)$/.test(tagName)) return { start: "*", end: "*" }
+    if (/^(?:del|s|strike)$/.test(tagName)) return { start: "~~", end: "~~" }
+    if (/^(?:b|strong)$/.test(tagName)) return { start: "**", end: "**" }
     if (/^h\d$/.test(tagName)) return { start: "\n######".substr(0, 1 + ~~tagName.charAt(1)) + " ", end: "\n\n" }
     if ("pre" === tagName) {
       var childClassName = ele.firstElementChild && ele.firstElementChild.className || ''
@@ -88,10 +92,7 @@
     if ("blockquote" === tagName) return { start: "\n\n", end: "\n\n", lead: "> " }
     if ("br" === tagName) return { start: "\n" }
 
-    if ("table" === tagName) {
-      if (isEmpty()) return { skip: true }
-      return { start: "\n\n", end: "\n\n" }
-    }
+    if ("table" === tagName) return { start: "\n\n", end: "\n\n" }
     if ("tr" === tagName) {
       var end = "\n"
       if (
@@ -132,7 +133,6 @@
         title = ele.getAttribute("title")
       if (title) url += ' "' + escape(title) + '"'
       if (!url && !title) return {} // skip bookmarks?
-      if (isEmpty()) return { skip: true } // skip empty links
       return { start: "[", end: "](" + url + ")" }
     }
 
