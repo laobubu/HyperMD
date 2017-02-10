@@ -141,25 +141,25 @@
     font-family: 'HyperMD-Bullets';
     display: inline-block;
     color: #666;
-    width: 18pt;
+    width: 30pt;
     text-align: right;
     margin-right: 6pt;
-    margin-left: -12pt; }
+    margin-left: -24pt; }
     .cm-s-hypermd-light .cm-formatting-list.cm-list-2 {
       text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
       color: #fff; }
   .cm-s-hypermd-light pre.hmd-list-1 > span {
-    padding-left: 12pt; }
-  .cm-s-hypermd-light pre.hmd-list-2 > span {
     padding-left: 24pt; }
-  .cm-s-hypermd-light pre.hmd-list-3 > span {
-    padding-left: 36pt; }
-  .cm-s-hypermd-light pre.hmd-list-4 > span {
+  .cm-s-hypermd-light pre.hmd-list-2 > span {
     padding-left: 48pt; }
-  .cm-s-hypermd-light pre.hmd-list-5 > span {
-    padding-left: 60pt; }
-  .cm-s-hypermd-light pre.hmd-list-6 > span {
+  .cm-s-hypermd-light pre.hmd-list-3 > span {
     padding-left: 72pt; }
+  .cm-s-hypermd-light pre.hmd-list-4 > span {
+    padding-left: 96pt; }
+  .cm-s-hypermd-light pre.hmd-list-5 > span {
+    padding-left: 120pt; }
+  .cm-s-hypermd-light pre.hmd-list-6 > span {
+    padding-left: 144pt; }
   .cm-s-hypermd-light span.cm-formatting-task {
     white-space: nowrap;
     display: inline-block;
