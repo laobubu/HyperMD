@@ -22,7 +22,7 @@ You may use both original CodeMirror and HyperMD on the same page.
  2. **Alt+Click** to follow link / footnote [^1]
  3. **Syntax Highlight** for 120+ languages code blocks [^2]
  4. **Hover** to read footnotes
- 5. **Copy and Paste**, translate HTML into Markdown
+ 5. **Copy and Paste**, translate HTML into Markdown [^5]
  6. **Massive CodeMirror Addons** can be loaded, including:
      - VIM/Emacs mode and Configurable keybindings
      - Diff and Merge
@@ -106,3 +106,4 @@ Contributions are welcomed. You may:
 [^2]: Languages as many as CodeMirror supports.
 [^3]: If the theme is not designed for HyperMD, some features might not be present.
 [^4]: Math block is just like code block. Use `$$` to wrap your math expression.
+[^5]: Use `Ctrl+Shift+V` to paste plain text.

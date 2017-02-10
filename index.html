@@ -43,8 +43,10 @@ h2 { font-size: 1.4em; }
 <div id="header">
     <h1>HyperMD</h1>
     <p><b>Breaks the Wall</b> between <i>writing</i> and <i>preview</i>, in a Markdown Editor.</p>
-    <p>A Markdown editor provided by <a href="https://laobubu.net">laobubu</a></p>
+    <p>A WYSIWYG Markdown editor provided by <a href="https://laobubu.net">laobubu</a></p>
     <p><a href="https://github.com/laobubu/hypermd/">[View on GitHub]</a></p>
+    <p>&nbsp;</p>
+    <p><i>Loading, please wait...</i></p>
 </div>
 
 <textarea id="demo"></textarea>
@@ -63,6 +65,7 @@ h2 { font-size: 1.4em; }
     <ul>
         <li><button id="raw_mode">Raw Mode</button> use default theme provided by CodeMirror, stop folding/hiding things.</li>
         <li><button id="hypermd_mode">HyperMD Mode</button> revert changes made by the above button</li>
+        <li>Load syntax highlight profile for <select id="load_mode"></select></li>
     </ul>
 </div>
 <script src="./demo/index2.js"></script>
