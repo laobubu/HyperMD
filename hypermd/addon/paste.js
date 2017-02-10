@@ -73,6 +73,18 @@
       ele.textContent.trim().length === 0
     ) return { skip: true }
 
+    if (/dp-highlighter/.test(ele.className)) {
+      var lis = ele.querySelectorAll('ol li'), text = ""
+
+      // get language (for CSDN blog)
+      var lang = ele.querySelector('.tools')
+      if (lang) lang = /^\s*\[(\w+)\]/.exec(lang.textContent)
+      lang = lang ? lang[1] : ''
+
+      for (var i = 0; i < lis.length; i++) text += lis[i].textContent.replace(/\s+$/, '') + "\n"
+      return { start: "\n\n```" + lang + "\n" + text + "```\n\n", skip: true }
+    }
+
     if (/^(?:script|comment)$/.test(tagName)) return { skip: true }
     if (/^(?:i|em)$/.test(tagName)) return { start: "*", end: "*" }
     if (/^(?:del|s|strike)$/.test(tagName)) return { start: "~~", end: "~~" }
@@ -86,7 +98,12 @@
         /\b(?:highlight-source|language)-(\w+)/.exec(childClassName) ||
         (/hljs/.test(ele.className + childClassName) && [0, childClassName.replace('hljs', '').trim()])
       lang = lang ? lang[1] : ''
-      return { start: "\n\n```" + lang + "\n" + ele.textContent + "\n```\n\n", skip: true }
+
+      var text = ele.textContent + "\n"
+      if (ele.previousElementSibling.tagName !== 'PRE') text = "\n\n```" + lang + "\n" + text
+      if (ele.nextElementSibling.tagName !== 'PRE') text += "```\n\n"
+
+      return { start: text, skip: true }
     }
     if ("code" === tagName && ele.parentElement.tagName !== "PRE") return { start: "`" + ele.textContent + "`", skip: true }
     if ("blockquote" === tagName) return { start: "\n\n", end: "\n\n", lead: "> " }
