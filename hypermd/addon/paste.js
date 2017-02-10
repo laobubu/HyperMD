@@ -100,8 +100,10 @@
       lang = lang ? lang[1] : ''
 
       var text = ele.textContent + "\n"
-      if (ele.previousElementSibling.tagName !== 'PRE') text = "\n\n```" + lang + "\n" + text
-      if (ele.nextElementSibling.tagName !== 'PRE') text += "```\n\n"
+      if (!ele.previousElementSibling || ele.previousElementSibling.tagName !== 'PRE')
+        text = "\n\n```" + lang + "\n" + text
+      if (!ele.nextElementSibling || ele.nextElementSibling.tagName !== 'PRE')
+        text += "```\n\n"
 
       return { start: text, skip: true }
     }
