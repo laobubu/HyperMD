@@ -26,7 +26,8 @@ require([
     HYPERMD_ROOT + 'addon/readlink',
     HYPERMD_ROOT + 'addon/click',
     HYPERMD_ROOT + 'addon/hover',
-    HYPERMD_ROOT + 'addon/paste'
+    HYPERMD_ROOT + 'addon/paste',
+    HYPERMD_ROOT + 'addon/paste-image'
 ], function (CodeMirror) {
     'use strict';
     var myTextarea = document.getElementById('demo')
@@ -70,6 +71,10 @@ require([
             // (addon) paste
             // copy and paste HTML content
             hmdPaste: true,
+
+            // (addon) paste-image
+            // copy, paste and upload image
+            hmdPasteImage: true,
             
             // (addon) hide-token
             // hide/show Markdown tokens like `**`

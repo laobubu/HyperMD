@@ -3,8 +3,6 @@
 //
 // make paste great again
 //
-// NOTE: using ECMAScript6. Only supports the newest modern browsers.
-//
 
 (function (mod) {
   var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "codemirror/";
@@ -69,8 +67,9 @@
     var LI_ATTR_INDEX = "data-paste-index"
 
     if (
-      /^(?:i|em|del|s|table|strike|b|strong|a|code)$/.test(tagName) &&
-      ele.textContent.trim().length === 0
+      /^(?:i|em|del|s|table|span|strike|b|strong|a|code)$/.test(tagName) &&
+      ele.textContent.trim().length === 0 &&
+      !ele.querySelector('img')
     ) return { skip: true }
 
     if (/dp-highlighter/.test(ele.className)) {
@@ -251,7 +250,7 @@
    * @param {ClipboardEvent} ev 
    */
   Paste.prototype.pasteHandle = function (cm, ev) {
-    var cd = ev.clipboardData
+    var cd = ev.clipboardData || window.clipboardData
     if (!cd || cd.types.indexOf('text/html') == -1) return
     var result = html2md(cd.getData('text/html'))
 

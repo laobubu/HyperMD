@@ -8,6 +8,7 @@
 - [x] **add**: MathJax
 - [x] better UI theme
 - [x] **add**: copy from webpage(html), paste as Markdown
+- [x] **add**: paste and upload image
 - [ ] toolbar styling buttons
 - [ ] side-by-side preview (with div-to-line mapping support)
 
