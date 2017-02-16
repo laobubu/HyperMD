@@ -45,10 +45,10 @@ initializing your editor:
  	- **codemirror.js** and **codemirror.css**
  	- **addon/mode/overlay.js** from CodeMirror
  	- **addon/edit/continuelist.js** from CodeMirror
- 	- **meta, XML, markdown, GFM** modes from CodeMirror
+ 	- **meta, xml, markdown, gfm** modes from CodeMirror
  	- (optional) other CodeMirror modes if you need code highlighting
  * HyperMD:
- 	- **mode/hypermd** both js and CSS
+ 	- **mode/hypermd** both js and css
  	- **all add-ons**
  	- **theme** you prefer ( eg. `hypermd-light.css` )
 
