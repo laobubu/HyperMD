@@ -6,9 +6,10 @@
 
 [Online Demo](https://demo.laobubu.net)
 
-## Why use HyperMD ?
+## Why use HyperMD?
 
-HyperMD is a set of [CodeMirror] addons / modes / themes.
+HyperMD is a set of [CodeMirror] add-ons / modes / themes.
+<!-- http://english.stackexchange.com/questions/50319/add-in-addin-add-on-addon -->
 You may use both original CodeMirror and HyperMD on the same page.
 
  1. Write, and preview on the fly
@@ -23,36 +24,36 @@ You may use both original CodeMirror and HyperMD on the same page.
  3. **Syntax Highlight** for 120+ languages code blocks [^2]
  4. **Hover** to read footnotes
  5. **Copy and Paste**, translate HTML into Markdown [^5]
- 6. **Massive CodeMirror Addons** can be loaded, including:
+ 6. **Massive CodeMirror Add-ons** can be loaded, including:
      - VIM/Emacs mode and Configurable keybindings
      - Diff and Merge
-     - Fullscren
+     - Fullscreen
      - Themes [^3]
  7. **[And More...](https://laobubu.net/hypermd/docs "HyperMD Documentation")**
 
 ## Quickstart
 
 [RequireJS] is recommended and used during developing HyperMD.
-You may just open `index.js` and copy partial code. 
-Don't forget HTML `<link>` tags to the css files.
+You may just open `index.js` and copy partial code.
+Don't forget HTML `<link>` tags to the CSS files.
 
 If you don't want to use [RequireJS], insert `<script>` , `<link>`
-and other tags manually. Load these files **in sequence**, before 
+and other tags manually. Load these files **in sequence**, before
 initializing your editor:
 
  * CodeMirror:
  	- **codemirror.js** and **codemirror.css**
  	- **addon/mode/overlay.js** from CodeMirror
  	- **addon/edit/continuelist.js** from CodeMirror
- 	- **meta, xml, markdown, gfm** modes from CodeMirror
+ 	- **meta, XML, markdown, GFM** modes from CodeMirror
  	- (optional) other CodeMirror modes if you need code highlighting
  * HyperMD:
- 	- **mode/hypermd** both js and css
- 	- **all addons**
+ 	- **mode/hypermd** both js and CSS
+ 	- **all add-ons**
  	- **theme** you prefer ( eg. `hypermd-light.css` )
 
-Once addons and stylesheets are loaded, you may initialize editor,
-turning your `<textarea>` into HyperMD editor, with few codes:
+Once add-ons and stylesheets are loaded, you may initialize editor,
+turn your `<textarea>` into HyperMD editor, with few codes:
 
 ***Note**: This complex approach is temporary. but don't worry,*
 *Some easy-to-use functions (methods) will come in a new version.*
@@ -72,7 +73,7 @@ var editor = CodeMirror.fromTextArea(myTextarea, {
     extraKeys: {
         "Enter": "newlineAndIndentContinueMarkdownList"
     },
-    
+
     hmdHideToken: "(profile-1)",
     hmdCursorDebounce: true,
     hmdAutoFold: 200,
@@ -81,17 +82,17 @@ var editor = CodeMirror.fromTextArea(myTextarea, {
 })
 
 editor.hmdHoverInit()       // tooltips on footnotes
-editor.hmdClickInit()       // click to follow links and footnotes 
+editor.hmdClickInit()       // click to follow links and footnotes
 ```
 
-And that's all. Feel free to modify the options above.
+And that's all. Feel free to the options above.
 
 ## Contributing
 
 HyperMD is a personal Open-Source project by [laobubu].
 Contributions are welcomed. You may:
 
- - [Fork on GitHub](https://github.com/laobubu/hypermd/) , create your amazing themes and addons.
+ - [Fork on GitHub](https://github.com/laobubu/hypermd/) , create your amazing themes and add-ons.
  - [Buy me a Coffee](https://laobubu.net/donate.html)
  - Spread HyperMD to the world!
 
