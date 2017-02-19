@@ -1,10 +1,21 @@
 if (requirejs) requirejs.config({
     paths: {
         "codemirror": "./node_modules/codemirror/",
+        /* "codemirror/lib": "./node_modules/codemirror/", */ /* [^1] */
         "hypermd": "./hypermd/"
     },
     waitSeconds: 15
 })
+
+/**
+ [^1]:  The `codemirror.js` might be outside the `lib` directory,
+        which will make HyperMD fail to load,
+        if you are using CDN, bower, or old version of CodeMirror.
+        
+        Uncomment this line to fix it.
+
+        see http://stackoverflow.com/questions/36500713/loading-codemirror-with-requirejs-from-cdn
+ */
 
 // Using requirejs's "path" option (see above)
 var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT = "codemirror/";

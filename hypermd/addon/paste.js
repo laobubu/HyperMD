@@ -68,9 +68,12 @@
 
     if (
       /^(?:i|em|del|s|table|span|strike|b|strong|a|code)$/.test(tagName) &&
-      ele.textContent.trim().length === 0 &&
       !ele.querySelector('img')
-    ) return { skip: true }
+    ) {
+      var eleText = ele.textContent
+      if (eleText == "\xA0") return { start: " ", skip: true } // &nbsp;
+      if (eleText.trim().length == 0) return { skip: true }
+    }
 
     if (/dp-highlighter/.test(ele.className)) {
       var lis = ele.querySelectorAll('ol li'), text = ""

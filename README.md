@@ -9,7 +9,7 @@
 ## Why use HyperMD?
 
 HyperMD is a set of [CodeMirror] add-ons / modes / themes.
-<!-- http://english.stackexchange.com/questions/50319/add-in-addin-add-on-addon -->
+
 You may use both original CodeMirror and HyperMD on the same page.
 
  1. Write, and preview on the fly
@@ -29,13 +29,15 @@ You may use both original CodeMirror and HyperMD on the same page.
      - Diff and Merge
      - Fullscreen
      - Themes [^3]
- 7. **[And More...](https://laobubu.net/hypermd/docs "HyperMD Documentation")**
+ 7. **[And More...](https://laobubu.net/HyperMD/ "HyperMD Documentation")**
 
 ## Quickstart
 
 [RequireJS] is recommended and used during developing HyperMD.
-You may just open `index.js` and copy partial code.
-Don't forget HTML `<link>` tags to the CSS files.
+
+After importing related CSS files, [RequireJS],
+and other *optional* third-party libraries ([MathJax], [marked]),
+you may copy and edit the initializing code from `demo/index.js`.
 
 If you don't want to use [RequireJS], insert `<script>` , `<link>`
 and other tags manually. Load these files **in sequence**, before
@@ -51,6 +53,9 @@ initializing your editor:
  	- **mode/hypermd** both js and css
  	- **all add-ons**
  	- **theme** you prefer ( eg. `hypermd-light.css` )
+ * Third-party:
+    - (optional) [MathJax]
+    - (optional) [marked] renders tooltip text
 
 Once add-ons and stylesheets are loaded, you may initialize editor,
 turn your `<textarea>` into HyperMD editor, with few codes:
@@ -85,14 +90,14 @@ editor.hmdHoverInit()       // tooltips on footnotes
 editor.hmdClickInit()       // click to follow links and footnotes
 ```
 
-And that's all. Feel free to the options above.
+And that's all. Feel free to modify the options above.
 
 ## Contributing
 
 HyperMD is a personal Open-Source project by [laobubu].
 Contributions are welcomed. You may:
 
- - [Fork on GitHub](https://github.com/laobubu/hypermd/) , create your amazing themes and add-ons.
+ - [Fork on GitHub](https://github.com/laobubu/HyperMD/) , create your amazing themes and add-ons.
  - [Buy me a Coffee](https://laobubu.net/donate.html)
  - Spread HyperMD to the world!
 
@@ -101,7 +106,8 @@ Contributions are welcomed. You may:
 -------------------------------------------------------
 [CodeMirror]: https://codemirror.net/   A powerful text editor for the browser.
 [RequireJS]:  http://requirejs.org/   A JavaScript AMD module loader.
-[MathJax]:  https://www.mathjax.org/  A JavaScript display engine for mathematics.
+[MathJax]:  https://www.mathjax.org/  A display engine for mathematics.
+[marked]:   https://github.com/chjj/marked/  A markdown parser and compiler.
 [laobubu]:  https://laobubu.net/  The author of HyperMD.
 [^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.
