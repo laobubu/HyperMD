@@ -239,6 +239,11 @@
       img.classList.remove("hmd-image-loading")
       marker.changed()
     }, false)
+    img.addEventListener("error", function() {
+      img.classList.remove("hmd-image-loading")
+      img.classList.add("hmd-image-error")
+      marker.changed()
+    })
     img.setAttribute("src", url)
     img.addEventListener("click", function () {
       breakMark(cm, marker, 2)
