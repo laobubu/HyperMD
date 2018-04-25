@@ -12,9 +12,11 @@
   "author": "laobubu <laobubu@gmail.com> (http://laobubu.net)",
   "license": "MIT",
   "devDependencies": {
-    "codemirror": "^5.22.0",
     "marked": "^0.3.6",
     "mathjax": "^2.7.0",
     "rollup": "^0.40.2"
+  },
+  "dependencies": {
+    "codemirror": "^5.37.0"
   }
 }

@@ -114,7 +114,7 @@ require([
         if (xmlhttp != null) {
             xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    myTextarea.innerText = xmlhttp.responseText
+                    myTextarea.value = xmlhttp.responseText
                     init_editor()
                 }
             }

@@ -49,7 +49,7 @@ var $load_mode = document.getElementById('load_mode')
     for (var name in name_alias) {
         name_alias[name].split(/,\s*/g).forEach(function (alias) {
             name_alias_rev[alias] = name
-            modes += alias + ' (from ' + name + '),'
+            modes += alias + ','
         })
     }
 
@@ -60,8 +60,10 @@ var $load_mode = document.getElementById('load_mode')
         .sort()
         .forEach(function (name) {
             var opt = document.createElement('option')
+            var value = name_alias_rev[name] || name
+            if (name != value) name += " (alias " + value + ")"
             opt.textContent = name
-            opt.value = name_alias_rev[name] || name
+            opt.value = value
             $load_mode.appendChild(opt)
         })
 }()

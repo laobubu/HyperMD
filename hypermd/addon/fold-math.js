@@ -116,6 +116,8 @@
       if (lastLine) {
         //FIXME: assuming no more mode overlay; `hypermd` is currently using.
         var hyperMD_state = lastLine.stateAfter.overlay
+        if (!hyperMD_state) // ignore empty lines (maybe since CodeMirror 5.37 ?)
+          return
         if (hyperMD_state.inside == "math" && hyperMD_state.extra == "$$")
           return
       }
