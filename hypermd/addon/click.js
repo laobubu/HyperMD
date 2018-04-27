@@ -70,38 +70,38 @@
       var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }),
         line = cm.getLineHandle(pos.line), txt = line.text,
         s = line.styles, i = 1, i2
+
       while (s[i] && s[i] < pos.ch) i += 2
       if (!s[i]) return
 
-      if (/formatting-(?:link-string|footref)/.test(s[i + 1])) i += 2
+      // now s[i+1] is current clicked token style
+      // s[i] is where this token stops
 
       // link trace
       if (/cm-(link|url)/.test(targetClass)) {
-        var url,   // the URL. title are stripped
-          urlIsFinal,  // the URL NOT come from footnotes
-          clickOnURL = false // user is clicking a URL/footref, not a link text
-        if (/url/.test(s[i + 1]) || /^(?:https?|ftp)\:/.test(txt.substr(s[i - 2], 15)) || txt.charAt(s[i + 2] - 1) == '>') {
-          //wow, a pure link
-          url = txt.substr(s[i - 2], s[i] - s[i - 2])
-          if (/footref/.test(s[i + 1])) url = "^" + url
-          urlIsFinal = txt.charAt(s[i]) != ']'
-          clickOnURL = true
-        } else {
-          // a Markdown styled link
-          i2 = i += 2
-          while (/formatting/.test(s[i + 1]) || !/url/.test(s[i + 1])) {
-            if (!s[i]) return
-            i2 = i; i += 2
-          }
-          url = txt.substr(s[i2], s[i] - s[i2])
-          urlIsFinal = txt.charAt(s[i]) != ']'
+        // if clicked on the formatting token. find the 
+        if (/\bformatting-(?:link|url)\b/.test(s[i + 1])) {
+          if (/\b(?:link|url)\b/.test(s[i + 3]) && !/\bformatting-(?:link|url)\b/.test(s[i + 3])) i += 2
+          else i -= 2
         }
 
+        var clickOnURL = !(/\bstring\b/.test(s[i + 5]) && /\burl\b/.test(s[i + 5]))
+        var url
+        if (!clickOnURL) {
+          // found [url] or (http://laobubu.net) after current token
+          url = txt.substr(s[i + 4], s[i + 6] - s[i + 4])
+        } else {
+          url = txt.substr(s[i - 2], s[i] - s[i - 2])
+        }
+        
+        // whether `url` is a real url, not a reference
+        var isRealURL = /^(?:https?|ftp|wss?)\:|^[:\.]?\/\/?/i.test(url)
+
         // now we got the url
-        if (!urlIsFinal) {
+        if (!isRealURL) {
           var footnote = cm.hmdReadLink(url, pos.line)
           if (!footnote) return
-          if ((ev.ctrlKey && clickOnURL) || (/footref/.test(targetClass))) {
+          if ((ev.ctrlKey && clickOnURL) || (/hmd-footref/.test(targetClass))) {
             // setTimeout(function(){
             // console.log("foot trace")
             then(function () {

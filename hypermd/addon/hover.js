@@ -55,18 +55,10 @@
       return
     }
 
-    if (
-      target.nodeName == "SPAN" &&
-      /cm-formatting-(?:url|footref)\b/.test(target.className)
-    ) {
-      target = /[\[\(]/.test(target.innerHTML) ? target.nextSibling : target.previousSibling
-    }
-
     if (!(
       target.nodeName == "SPAN" &&
-      /cm-(url|footref)\b/.test(target.className) &&
-      target.nextSibling &&
-      target.nextSibling.textContent == "]"
+      /cm-hmd-barelink\b/.test(target.className) &&
+      !/cm-formatting\b/.test(target.className)
     )) {
       this.hideInfo()
       return
@@ -74,7 +66,6 @@
 
     var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY })
     var url = target.textContent
-    if (/cm-footref/.test(target.className)) url = "^" + url
 
     var footnote = cm.hmdReadLink(url, pos.line)
     if (!footnote) {

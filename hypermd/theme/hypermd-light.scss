@@ -86,29 +86,27 @@
     span.cm-header-1 { font-weight: 600; font-size: $fs * 2 }
     span.cm-header-2 { font-weight: 600; font-size: $fs * 1.5 }
     span.cm-header-3 { font-size: $fs * 1.2 }
-    pre.hmd-stdheader {
+
+    pre.HyperMD-header {
         line-height: 1.5;
 
-        &.hmd-stdheader-1 {
+        &.HyperMD-header-1,
+        &.HyperMD-header-2 {
             @extend %hmd-stdheader-with-line;
-            > span { @extend span.cm-header; @extend span.cm-header-1; }
         }
-        &.hmd-stdheader-2 {
-            @extend %hmd-stdheader-with-line;
-            > span { @extend span.cm-header; @extend span.cm-header-2; }
-        }
+    }
+
+    pre.HyperMD-header-line {
+        @extend %hmd-stdheader-with-line;
+        color: rgba(#000, 0.3);
+        line-height: 8px;
     }
 
     /// Horizontal Rule
 
-    span.cm-hr{
-        display: inline-block;
-        // margin: 0 2%;
-        width: 100%;
-        box-sizing: border-box;
-        // width: 96%;
+    pre.HyperMD-hr{
         background: url('data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==') repeat-x 0px center;
-        color: transparent ;
+        color: transparent;
     }
 
     /// blockquote
@@ -116,7 +114,7 @@
     $quote-margin: 2px;
     $quote-padding: 20px;
     
-    pre.hmd-quote-indent
+    pre.HyperMD-quote
     {
         &:before {
             content: " ";
@@ -129,7 +127,7 @@
         }
     }
     @for $i from 1 through 6 {
-        pre.hmd-quote-indent-#{$i} { 
+        pre.HyperMD-quote-#{$i} { 
             padding-left: $quote-margin + ($quote-padding) * ($i);
             &:before {
                 width: $quote-padding * $i;
@@ -139,29 +137,29 @@
 
     /// list
 
-    $list-margin: - $fs; // not helpful?
-    $list-padding: $fs * 3;
-    $list-bullet-padding: $fs * 0.5; //extra right padding to bullets
-    $list-cross: $fs;  // the extra left padding for line with bullet, since its following lines begin with spaces
-    $list-md-space-width: $fs;
+    $list-indent-width: 1.5em;
+
+    .cm-hmd-list-indent {
+        display: inline-block;
+        width: $list-indent-width;
+        border-left: 1px dashed #eee;
+        vertical-align: bottom;
+        text-align: right;
+
+        &.cm-hmd-list-indent-1 {
+            display: inline;
+            border-left: 0;
+        }
+    }
 
     .cm-formatting-list
     {
+        @extend .cm-hmd-list-indent;
         font-family: 'HyperMD-Bullets';
-        display: inline-block;
         color: #666;
-        width: $list-padding - $list-bullet-padding;
-        text-align: right;
-        margin-right: $list-bullet-padding;
-        margin-left: - $list-padding + $list-cross;
         &.cm-list-2 {
             text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
             color: #fff;
-        }
-    }
-    @for $i from 1 through 6 {
-        pre.hmd-list-#{$i} > span { 
-            padding-left: $list-margin + $list-padding + ($list-padding - $list-md-space-width) * ($i - 1);
         }
     }
 
@@ -194,12 +192,15 @@
     }
 
     /// footnote for link and image
-    pre.hmd-footnote-line {
+    pre.HyperMD-footnote {
         font-size: $fs * 0.85;
-        span.cm-hmd-footnote{
+        span.cm-hmd-footnote:not(.cm-formatting){
             display: inline-block;
+            vertical-align: bottom;
             min-width: 4em;
             color: #666;
+            cursor: text !important;
+            text-decoration: none;
 
             &.cm-hmd-footnote-real { // [^something] , not [something]
                  + span.cm-url, + span.cm-url + span.cm-url { color: inherit }
@@ -218,7 +219,7 @@
     // {
 
     // }
-    pre.hmd-codeblock {
+    pre.HyperMD-codeblock {
         @extend %monospace;
         line-height: 1em;
         font-size: inherit;
@@ -231,7 +232,14 @@
             padding: inherit;
         }
         // }
+
     }
+    
+    // note: this is a background style
+    div.HyperMD-codeblock-indented {
+        background: #EEE
+    }
+
 
     /// link
     
@@ -285,23 +293,13 @@
 
     span.cm-formatting-escape-char { color: #999; }
     span.cm-escape-char { color: #666 }
-    span.cm-footref {
+    span.cm-hmd-footref {
         display: inline-block;
         font-size: .7em;
         vertical-align: text-top;
         background-color: rgba(#eee, .7);
         color: #999;
         margin-top: -.2em;
-        
-        &.cm-formatting-footref.cm-formatting-hidden{
-            width: 0px;
-            height: 1px;
-            opacity: 0;
-            overflow: hidden;
-            + span.cm-footref {
-                padding: 0 4px;
-            }
-        }
     }
 
     span.cm-inline-code {

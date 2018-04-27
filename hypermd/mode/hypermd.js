@@ -25,6 +25,8 @@
 })(function (CodeMirror) {
   "use strict";
 
+  var listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/  // this regex is from CodeMirror's sourcecode
+
   CodeMirror.defineMode("hypermd", function (config, modeConfig) {
     var codeDepth = 0;
     var hypermdOverlay = {
@@ -32,11 +34,15 @@
         return {
           atBeginning: true,  //at the beginning of one line, quotes are skipped
           insideCodeFence: false,
-          inside: null, // "link"
+          quoteLevel: 0,
+          inside: null, // math, listSpace
+          listSpaceStack: [], // spaces for every levels like [1, 2, 2] ...
+          // NOTICE: listSpaceStack[0] could be 0, (eg. ordered list, or " - "'s leading space is missing)
+          //         if meet the situation, do not return any token, otherwise CodeMirror would crash
           prevLineIsEmpty: false,
-          inList: false,
           extra: null   // reserved, works with "inside"
           // when inside "math", this is the token like `$` or `$$`
+          // when insnde "listSpace", this is the index of listSpaceStack(array)
         };
       },
       copyState: function (s) {
@@ -44,15 +50,20 @@
           // structure of `s` is defined in startState; do a deep copy for it
           atBeginning: s.atBeginning,
           insideCodeFence: s.insideCodeFence,
+          quoteLevel: s.quoteLevel,
           inside: s.inside,
+          listSpaceStack: s.listSpaceStack && s.listSpaceStack.slice(),
           prevLineIsEmpty: s.prevLineIsEmpty,
-          inList: s.inList,
           extra: s.extra
         };
       },
       blankLine: function (s) {
+        s.atBeginning = true
         s.prevLineIsEmpty = true
-        s.inList = false
+        s.quoteLevel = 0
+        s.listSpaceStack = []
+
+        if (s.insideCodeFence) return "line-HyperMD-codeblock"
         return null
       },
       token: function (stream, state) {
@@ -78,66 +89,207 @@
           return "math math-" + state.extra.length
         }
 
+        //////////////////////////////////////////////////////////////////
+        /// start process one raw line
         if (start === 0) {
+          // Now we are at the beginning of current line
+          state.atBeginning = true
+
+          /**
+           * StdHeader
+           * -----------
+           * ^we are here
+           * 
+           * Note: since we can't go back and modify header title text's style
+           *       the only remedy is writing some CSS rules, targeting .hmd-stdheader-line
+           */
           if (/^(?:-{3,}|={3,})$/.test(stream.string) && !state.prevLineIsEmpty) {
             var _hlevel = ((stream.string.charAt(0) == '=') ? 1 : 2)
             stream.skipToEnd()
-            return 'formatting formatting-hmd-stdheader hmd-stdheader hmd-stdheader-' + _hlevel
+            return 'formatting line-HyperMD-header-line line-HyperMD-header-line-' + _hlevel
           }
+
+          // since now prevLineIsEmpty is useless
+          // this is not blankLine function, so this line is not empty. mark it for the next line
           state.prevLineIsEmpty = false
-          state.atBeginning = true
+
+          var indentation = stream.indentation()
+
+          /**
+           * Last line has unfinished Tex Math like $ x = \pi + 123...
+           * 
+           * Just clear the status
+           */
           if ('math' == state.inside && state.extra.length != 2) state.inside = null
-        }
-        if (stream.match(/^\>\s*/, true)) return null     // skip the quote indents
-        if (state.atBeginning && stream.match(/^```/)) {  // toggle state for codefence
-          state.insideCodeFence ^= 1
-          stream.skipToEnd()
-          return null
-        }
-        if (state.insideCodeFence) { stream.skipToEnd(); return null }
-        if (state.atBeginning && stream.match(/^\s*(?:[-*+]|\d+\.)\s+/)) {
-          state.inList = true
-          state.atBeginning = false  //TODO not determined
-          return null
-        }
-        if (stream.sol() && stream.eatSpace()) {          //skip spaces
-          if (stream.current().replace(/\t/g, "    ").length >= 4) {
-            // this is a tranditional code block
+
+          /**
+           * > > blockquote! we are at the beginning !
+           * ^we are here
+           * 
+           * When a style is prefixed by "line-" , CodeMirror will call addLineClass
+           */
+          if (stream.match(/^\>\s*/)) {
+            var quoteLevel = 1
+            while (stream.match(/^\s*\>\s*/)) quoteLevel++
+            state.quoteLevel = quoteLevel
+
+            return (
+              "formatting formatting-quote formatting-quote-" + quoteLevel +
+              " quote quote-" + quoteLevel +
+              " line-HyperMD-quote line-HyperMD-quote-" + quoteLevel
+            )
+          } else if (state.quoteLevel) {
+            /**
+             * > block support such
+             *   syntax
+             * ^ we are here.
+             * 
+             */
+            stream.next()
+            state.combineTokens = true
+            return "line-HyperMD-quote line-HyperMD-quote-" + state.quoteLevel
+          }
+
+          /**
+           * ## Header
+           * ^we are here
+           * 
+           */
+          if (stream.match(/^(#+)(?: |$)/, false)) {
+            state.combineTokens = true
+            return "line-HyperMD-header line-HyperMD-header-" + stream.match(/^#+/)[0].length
+          }
+
+          /**
+           * ```c++
+           * ^we are here (if !insideCodeFence)
+           * 
+           * ```
+           * ^or here (if insideCodeFence)
+           */
+          if (stream.match(/^```/)) {  // toggle state for codefence
+            state.combineTokens = true
+            state.insideCodeFence ^= 1
+            var fence_type = state.insideCodeFence ? 'start' : 'end'
+            return "line-HyperMD-codeblock line-HyperMD-codeblock-" + fence_type
+          }
+
+          /**
+           * if insideCodeFence, nothing to process.
+           */
+          if (state.insideCodeFence) {
             stream.skipToEnd()
-            return null
+            state.combineTokens = true
+            return "line-HyperMD-codeblock"
+          }
+
+          //FIXME: tranditional code block is buggy and shall be deprecated!
+          /**
+           * this is a tranditional code block
+           * 
+           *     #include <stdio.h>
+           * ^we are here and we can see lots of space
+           * 
+           * note that we can't detect the program's language, so, no need to set `state.combineTokens = true`
+           */
+          if (state.listSpaceStack.length === 0 && indentation >= 4) {
+            stream.skipToEnd()
+            return "line-HyperMD-codeblock line-background-HyperMD-codeblock-indented"
+          }
+
+          /**
+           * this is a list
+           * 
+           * Note: list checking must be the last step of `if (start === 0) { ... }` ; it doesn't jump out this function
+           */
+          if (state.listSpaceStack.length !== 0 || stream.match(listRE, false)) {
+            // rebuild state.listSpaceStack
+            var zero_leading = state.listSpaceStack[0] === 0
+
+            for (var i = zero_leading ? 1 : 0; i < state.listSpaceStack.length; i++) {
+              if (indentation > 0) indentation -= state.listSpaceStack[i]
+              else {
+                state.listSpaceStack.splice(i)
+                break
+              }
+            }
+            if (indentation > 0) {
+              // new nested level
+              state.listSpaceStack.push(indentation)
+            }
+
+            // for situations like ordered list whose beginning char is not a space
+            if (state.listSpaceStack.length === 0) {
+              state.listSpaceStack.push(0)
+            }
+
+            // finished listSpaceStack, now we shall get into it and treat every indent(spaces) as a token
+            state.inside = "listSpace"
+            state.extra = 0
           }
         }
 
+        // following `if (state.listSpaceStack.length !== 0 || stream.match(listRE, false))` 's status
+        if (state.inside == "listSpace") {
+          var listLevel = state.listSpaceStack.length
+          var firstMet = state.extra === 0
+
+          if (firstMet && state.listSpaceStack[0] === 0) {
+            // skip this virtual token. see listSpaceStack's comment above
+            state.extra++
+          }
+
+          if (state.extra >= listLevel) {
+            // edge case: "1. xxxxx" where virtual token (indent length=0) skipped just now
+            state.inside = null
+            state.extra = null
+          } else {
+            stream.pos += state.listSpaceStack[state.extra]
+
+            var ans = ""
+            ans = "hmd-list-indent hmd-list-indent-" + (state.extra + 1)
+            if (firstMet) ans += " line-HyperMD-line line-HyperMD-line-" + listLevel
+
+            if (++state.extra >= listLevel) {
+              // this is the last indenting space, going to exit "listSpace" status
+              state.inside = null
+              state.extra = null
+            }
+
+            state.combineTokens = true
+            return ans
+          }
+        }
+
+        //////////////////////////////////////////////////////////////////
+        /// now list bullets and quote indents are gone. Enter the content.
+        
+        // first, deal with some special stuff that only appears once at Beginning
         if (state.atBeginning) {
-          state.atBeginning = false
 
-          var footnote = stream.match(/^\[([^\]]+)\]:\s*/)
-          if (footnote) {
-            if (footnote[1].charAt(0) == '^') return "hmd-footnote hmd-footnote-real"
-            return "hmd-footnote"
+          /**
+           * Markdown supports footref [^f1]
+           * 
+           * [^f1]: you may reference this footnote
+           * ^we are here
+           * 
+           * note: ^ is not necessary.
+           */
+          if (stream.match(/^\[[^\]]+\]\:/)) {
+            state.combineTokens = true
+            return "line-HyperMD-footnote hmd-footnote"
           }
+
+          state.atBeginning = false
         }
+
+        // then just normal inline stuffs
+        state.combineTokens = true
 
         if (state.inside) {
-          if (state.inside == "link" || state.inside == "footref") {
-            if (stream.eatWhile(/^[^\]]/)) {
-              return (state.inside == "footref") ?
-                "footref url" :
-                "link url"
-            }
-            stream.next()
-            retToken = (state.inside == "footref") ?
-              "formatting formatting-footref footref" :
-              "formatting formatting-link link url"
-            state.inside = null
-            return retToken
-          }
-          if (state.inside == "escape") {
-            stream.next()
-            state.inside = null
-            return "escape-char"
-          }
           if (state.inside == "math") {
+            state.combineTokens = false // math stuff can't be messed up with Markdown
+
             if (stream.match(state.extra)) {
               state.inside = null
               return "formatting formatting-math math math-" + state.extra.length
@@ -155,29 +307,17 @@
             return "math math-" + state.extra.length
           }
         } else {
-          // escaped chars
-          if (
-            stream.peek() == "\\" &&
-            "\\![]()$*-`+<>_".indexOf(stream.string.charAt(start + 1)) >= 0
-          ) {
-            stream.next()
-            state.inside = "escape"
-            return "formatting formatting-escape-char escape-char"
-          }
+          /// escaped chars
+          // now CodeMirror(>=5.37) built-in markdown mode will handle this.
 
-          /// bare link and ref to footnote
-          if (
-            stream.string[start - 1] !== "]" &&
-            /^\[[^\]]{2,}\](?:[^\w\[\(]|$)/.test(stream.string.substr(start))
-          ) {
-            stream.next()
-            if (stream.match("^")) {
-              state.inside = "footref"
-              return "formatting formatting-footref footref"
-            } else {
-              state.inside = "link"
-              return "formatting formatting-link link url"
-            }
+          /// footref and bare link
+          tmp = stream.match(/^\[([^\]]+)\]/)
+          if (tmp && !/[\[\(]/.test(stream.peek())) {
+            var ans = "hmd-barelink"
+            if (tmp[1].charAt(0) === "^") ans += " hmd-footref"
+
+            state.combineTokens = true
+            return ans
           }
 
           /// inline code
@@ -205,14 +345,13 @@
       }
     };
 
-    function f_quick_link1(stream, state) {
-      stream.match(/^[^\]]+/, true)
-      state.f = f_quick_link_end
-    }
-
     var gfmConfig = {
       highlightFormatting: true,
       tokenTypeOverrides: {
+        hr: "line-HyperMD-hr hr",
+        // HyperMD needs to know the level of header/indent. using tokenTypeOverrides is not enough
+        // header: "line-HyperMD-header header", 
+        // quote: "line-HyperMD-quote quote",
         list1: "list-1",
         list2: "list-2",
         list3: "list-3",
@@ -224,8 +363,17 @@
       gfmConfig[attr] = modeConfig[attr];
     }
     gfmConfig.name = "gfm";
-    return CodeMirror.overlayMode(CodeMirror.getMode(config, gfmConfig), hypermdOverlay);
 
+    var finalMode = CodeMirror.overlayMode(CodeMirror.getMode(config, gfmConfig), hypermdOverlay);
+
+    // // now deal with indent method
+    // var baseIndent = finalMode.indent;
+    // finalMode.indent = function (state, textAfter) {
+    //   console.log("INDENT", arguments)
+    //   return baseIndent ? baseIndent(state, textAfter) : CodeMirror.Pass
+    // }
+
+    return finalMode
   }, "gfm");
 
   CodeMirror.defineMIME("text/x-hypermd", "hypermd");

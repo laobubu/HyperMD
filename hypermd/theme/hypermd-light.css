@@ -9,7 +9,7 @@
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
   font-size: 12pt; }
-  .cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light pre.hmd-codeblock, .cm-s-hypermd-light span.cm-inline-code {
+  .cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light pre.HyperMD-codeblock, .cm-s-hypermd-light span.cm-inline-code {
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; }
   .cm-s-hypermd-light .cm-header, .cm-s-hypermd-light .cm-strong {
     font-weight: 600; }
@@ -81,31 +81,31 @@
   .cm-s-hypermd-light .CodeMirror-foldmarker {
     display: inline-block;
     vertical-align: middle; }
-  .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-1:after, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-2:after {
+  .cm-s-hypermd-light pre.HyperMD-header.HyperMD-header-1:after, .cm-s-hypermd-light pre.HyperMD-header.HyperMD-header-2:after, .cm-s-hypermd-light pre.HyperMD-header-line:after {
     display: block;
     content: ' ';
     margin-top: 2px;
     height: 1px;
     background: #eee; }
-  .cm-s-hypermd-light span.cm-header, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-1 > span, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-2 > span {
+  .cm-s-hypermd-light span.cm-header {
     color: #333; }
-  .cm-s-hypermd-light span.cm-header-1, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-1 > span {
+  .cm-s-hypermd-light span.cm-header-1 {
     font-weight: 600;
     font-size: 24pt; }
-  .cm-s-hypermd-light span.cm-header-2, .cm-s-hypermd-light pre.hmd-stdheader.hmd-stdheader-2 > span {
+  .cm-s-hypermd-light span.cm-header-2 {
     font-weight: 600;
     font-size: 18pt; }
   .cm-s-hypermd-light span.cm-header-3 {
     font-size: 14.4pt; }
-  .cm-s-hypermd-light pre.hmd-stdheader {
+  .cm-s-hypermd-light pre.HyperMD-header {
     line-height: 1.5; }
-  .cm-s-hypermd-light span.cm-hr {
-    display: inline-block;
-    width: 100%;
-    box-sizing: border-box;
+  .cm-s-hypermd-light pre.HyperMD-header-line {
+    color: rgba(0, 0, 0, 0.3);
+    line-height: 8px; }
+  .cm-s-hypermd-light pre.HyperMD-hr {
     background: url("data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==") repeat-x 0px center;
     color: transparent; }
-  .cm-s-hypermd-light pre.hmd-quote-indent:before {
+  .cm-s-hypermd-light pre.HyperMD-quote:before {
     content: " ";
     position: absolute;
     left: 2px;
@@ -113,53 +113,45 @@
     height: 100%;
     background: url("data:image/gif;base64,R0lGODlhIAABAIABAOjo6P///yH5BAEAAAEALAAAAAAgAAEAAAIHhI8Yy+1cAAA7") 0 0;
     background-size: 20px 1px; }
-  .cm-s-hypermd-light pre.hmd-quote-indent-1 {
+  .cm-s-hypermd-light pre.HyperMD-quote-1 {
     padding-left: 22px; }
-    .cm-s-hypermd-light pre.hmd-quote-indent-1:before {
+    .cm-s-hypermd-light pre.HyperMD-quote-1:before {
       width: 20px; }
-  .cm-s-hypermd-light pre.hmd-quote-indent-2 {
+  .cm-s-hypermd-light pre.HyperMD-quote-2 {
     padding-left: 42px; }
-    .cm-s-hypermd-light pre.hmd-quote-indent-2:before {
+    .cm-s-hypermd-light pre.HyperMD-quote-2:before {
       width: 40px; }
-  .cm-s-hypermd-light pre.hmd-quote-indent-3 {
+  .cm-s-hypermd-light pre.HyperMD-quote-3 {
     padding-left: 62px; }
-    .cm-s-hypermd-light pre.hmd-quote-indent-3:before {
+    .cm-s-hypermd-light pre.HyperMD-quote-3:before {
       width: 60px; }
-  .cm-s-hypermd-light pre.hmd-quote-indent-4 {
+  .cm-s-hypermd-light pre.HyperMD-quote-4 {
     padding-left: 82px; }
-    .cm-s-hypermd-light pre.hmd-quote-indent-4:before {
+    .cm-s-hypermd-light pre.HyperMD-quote-4:before {
       width: 80px; }
-  .cm-s-hypermd-light pre.hmd-quote-indent-5 {
+  .cm-s-hypermd-light pre.HyperMD-quote-5 {
     padding-left: 102px; }
-    .cm-s-hypermd-light pre.hmd-quote-indent-5:before {
+    .cm-s-hypermd-light pre.HyperMD-quote-5:before {
       width: 100px; }
-  .cm-s-hypermd-light pre.hmd-quote-indent-6 {
+  .cm-s-hypermd-light pre.HyperMD-quote-6 {
     padding-left: 122px; }
-    .cm-s-hypermd-light pre.hmd-quote-indent-6:before {
+    .cm-s-hypermd-light pre.HyperMD-quote-6:before {
       width: 120px; }
+  .cm-s-hypermd-light .cm-hmd-list-indent, .cm-s-hypermd-light .cm-formatting-list {
+    display: inline-block;
+    width: 1.5em;
+    border-left: 1px dashed #eee;
+    vertical-align: bottom;
+    text-align: right; }
+    .cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-1, .cm-s-hypermd-light .cm-hmd-list-indent-1.cm-formatting-list {
+      display: inline;
+      border-left: 0; }
   .cm-s-hypermd-light .cm-formatting-list {
     font-family: 'HyperMD-Bullets';
-    display: inline-block;
-    color: #666;
-    width: 30pt;
-    text-align: right;
-    margin-right: 6pt;
-    margin-left: -24pt; }
+    color: #666; }
     .cm-s-hypermd-light .cm-formatting-list.cm-list-2 {
       text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
       color: #fff; }
-  .cm-s-hypermd-light pre.hmd-list-1 > span {
-    padding-left: 24pt; }
-  .cm-s-hypermd-light pre.hmd-list-2 > span {
-    padding-left: 48pt; }
-  .cm-s-hypermd-light pre.hmd-list-3 > span {
-    padding-left: 72pt; }
-  .cm-s-hypermd-light pre.hmd-list-4 > span {
-    padding-left: 96pt; }
-  .cm-s-hypermd-light pre.hmd-list-5 > span {
-    padding-left: 120pt; }
-  .cm-s-hypermd-light pre.hmd-list-6 > span {
-    padding-left: 144pt; }
   .cm-s-hypermd-light span.cm-formatting-task {
     white-space: nowrap;
     display: inline-block;
@@ -177,24 +169,29 @@
       background-position-y: -1em; }
     .cm-s-hypermd-light span.cm-formatting-task.cm-formatting-hidden {
       color: transparent; }
-  .cm-s-hypermd-light pre.hmd-footnote-line {
+  .cm-s-hypermd-light pre.HyperMD-footnote {
     font-size: 10.2pt; }
-    .cm-s-hypermd-light pre.hmd-footnote-line span.cm-hmd-footnote {
+    .cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote:not(.cm-formatting) {
       display: inline-block;
+      vertical-align: bottom;
       min-width: 4em;
-      color: #666; }
-      .cm-s-hypermd-light pre.hmd-footnote-line span.cm-hmd-footnote.cm-hmd-footnote-real + span.cm-url, .cm-s-hypermd-light pre.hmd-footnote-line span.cm-hmd-footnote.cm-hmd-footnote-real + span.cm-url + span.cm-url {
+      color: #666;
+      cursor: text !important;
+      text-decoration: none; }
+      .cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote:not(.cm-formatting).cm-hmd-footnote-real + span.cm-url, .cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote:not(.cm-formatting).cm-hmd-footnote-real + span.cm-url + span.cm-url {
         color: inherit; }
   .cm-s-hypermd-light .cm-formatting-code-block.cm-formatting-hidden {
     opacity: .3; }
-  .cm-s-hypermd-light pre.hmd-codeblock {
+  .cm-s-hypermd-light pre.HyperMD-codeblock {
     line-height: 1em;
     font-size: inherit; }
-    .cm-s-hypermd-light pre.hmd-codeblock span.cm-inline-code {
+    .cm-s-hypermd-light pre.HyperMD-codeblock span.cm-inline-code {
       display: inherit;
       background-color: inherit;
       border: inherit;
       padding: inherit; }
+  .cm-s-hypermd-light div.HyperMD-codeblock-indented {
+    background: #EEE; }
   .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string,
   .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string + .cm-url,
   .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string {
@@ -229,20 +226,13 @@
     color: #999; }
   .cm-s-hypermd-light span.cm-escape-char {
     color: #666; }
-  .cm-s-hypermd-light span.cm-footref {
+  .cm-s-hypermd-light span.cm-hmd-footref {
     display: inline-block;
     font-size: .7em;
     vertical-align: text-top;
     background-color: rgba(238, 238, 238, 0.7);
     color: #999;
     margin-top: -.2em; }
-    .cm-s-hypermd-light span.cm-footref.cm-formatting-footref.cm-formatting-hidden {
-      width: 0px;
-      height: 1px;
-      opacity: 0;
-      overflow: hidden; }
-      .cm-s-hypermd-light span.cm-footref.cm-formatting-footref.cm-formatting-hidden + span.cm-footref {
-        padding: 0 4px; }
   .cm-s-hypermd-light span.cm-inline-code {
     color: #922;
     font-size: 90%; }
