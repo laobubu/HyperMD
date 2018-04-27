@@ -167,8 +167,6 @@
     background-size: 1em; }
     .cm-s-hypermd-light span.cm-formatting-task.cm-property {
       background-position-y: -1em; }
-    .cm-s-hypermd-light span.cm-formatting-task.cm-formatting-hidden {
-      color: transparent; }
   .cm-s-hypermd-light pre.HyperMD-footnote {
     font-size: 10.2pt; }
     .cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote:not(.cm-formatting) {
@@ -180,8 +178,6 @@
       text-decoration: none; }
       .cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote:not(.cm-formatting).cm-hmd-footnote-real + span.cm-url, .cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote:not(.cm-formatting).cm-hmd-footnote-real + span.cm-url + span.cm-url {
         color: inherit; }
-  .cm-s-hypermd-light .cm-formatting-code-block.cm-formatting-hidden {
-    opacity: .3; }
   .cm-s-hypermd-light pre.HyperMD-codeblock {
     line-height: 1em;
     font-size: inherit; }
@@ -290,3 +286,5 @@
       padding: 1px 1em;
       border-radius: 5px;
       background-color: #eee; }
+  .cm-s-hypermd-light pre.HyperMD-token-hidden span.cm-formatting-task {
+    color: transparent; }

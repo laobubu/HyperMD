@@ -44,14 +44,14 @@ span.hmd-fold-math {
     vertical-align: middle;
 }
 
-span.cm-formatting-hidden{
+pre.HyperMD-token-hidden > span > span{
      &.cm-formatting-em
     ,&.cm-formatting-strong
     ,&.cm-formatting-strikethrough
     ,&.cm-formatting-quote
     ,&.cm-formatting-code
     ,&.cm-formatting-header
-    ,&.cm-formatting-link
+    ,&.cm-formatting-link:not(.cm-hmd-footnote, .cm-hmd-barelink)
     ,&.cm-formatting-escape-char
     ,&.cm-formatting-header
 //  ,&.cm-formatting-footref

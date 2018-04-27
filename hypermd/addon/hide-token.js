@@ -20,73 +20,11 @@
 })(function (CodeMirror) {
   "use strict";
 
-  var DEBUG_PATCHING = false
+  var DEBUG = false
 
-  /**
-   * check if every element in `search` can be found in `bigarray` 
-   * 
-   * ( search ⊂ bigarray )
-   * 
-   * [EDGE CASE] if `search` is empty, this will return `false`
-   * 
-   * @param {any[]} bigarray
-   * @param {any[]} search
-   * @returns {boolean}
-   */
-  function arrayContainsArray(bigarray, search) {
-    if (!search.length) return false
-    var search2 = search.slice(0)
-    for (var i = 0; i < bigarray.length; i++) {
-      var cmp1 = bigarray[i]
-      for (var j = 0; j < search2.length; j++) {
-        var cmp2 = search2[j]
-        if (cmp1 === cmp2) {
-          search2.splice(j--, 1)
-        }
-      }
-    }
-    return search2.length === 0
-  }
+  ///////////////////////////////////////////////////////////////////////////
+  /// Some utils
 
-  /**
-   * check if there is nonempty intersection of `A` and `B` (, optionally, get the intersection)
-   * 
-   * ( A ∩ B ≠ ∅ )
-   * 
-   * [EDGE CASE] if `A` or `B` is empty, return `false`
-   * 
-   * @param {any[]} A
-   * @param {any[]} B
-   * @param {boolean} [returns_intersection]   true if you need the content of the intersection. slower
-   * @returns {boolean|any[]}
-   */
-  function arrayIntersection(A, B, returns_intersection) {
-    if (!A.length || !B.length) return false
-
-    var search2 = B.slice(0), intersection = []
-    for (var i = 0; i < A.length; i++) {
-      var cmp1 = A[i]
-      for (var j = 0; j < search2.length; j++) {
-        var cmp2 = search2[j]
-        if (cmp1 === cmp2) {
-          if (!returns_intersection) return true
-          intersection.push(search2.splice(j--, 1))
-        }
-      }
-    }
-
-    return intersection.length && intersection || false
-  }
-
-  /**
-   * get class name list
-   * 
-   * @param {Element} ele
-   * @returns {string[]}
-   */
-  function getClassList(ele) {
-    return (ele && ele.className && ele.className.trim().split(/[\s\r\n]+/)) || []
-  }
 
   /**
    * get LineView
@@ -96,21 +34,6 @@
    * @returns {object}
    */
   function getLineView(cm, line) {
-    // since some lines might be folded, the following method is unreliable:
-    //    return cm.display.view[line - cm.display.viewFrom]
-    // thus, use Bisection method to find the line
-    // initial: (p2 + p1)/2 = line - p1
-    // var p1 = cm.display.viewFrom, p2 = line * 2 - p1 * 3, v, dbgg = 0
-    // while (p1 != p2) {
-    //   v = ~~((p1 + p2) / 2) //floor
-    //   var ret = cm.display.view[v], lno = ret && ret.line.lineNo() || line //dont know what am i doing
-    //   if (lno == line) return ret
-    //   if (lno > line) p2 = v
-    //   if (lno < line) p1 = v
-    //   if (dbgg++ == 20) {
-    //     debugger
-    //   }
-    // }
     var i = line - cm.display.viewFrom, v, vl
     if (i >= cm.display.view.length) i = cm.display.view.length - 1
     v = cm.display.view[i]
@@ -131,236 +54,51 @@
     return null
   }
 
+  function MyStack() {
+    this.stack = [null]
+    this.top = null
+    this.length = 0
+  }
+  MyStack.prototype.push = function (obj) {
+    var stack = this.stack, pos = this.length++
+    if (stack.length <= pos + 1) stack.push(obj)
+    else stack[pos] = obj
+    this.top = obj
+  }
+  MyStack.prototype.pop = function (obj) {
+    var stack = this.stack, pos = this.length--
+    var retval = stack[pos]
+    stack[pos] = null
+    this.top = stack[pos - 1]
+    return retval
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+
   /**
-   * (for patchFormattingSpan) line style checker
+   * TokenHider helps you hide/show CodeMirror tokens
    * 
-   * @param {NodeList} spans
+   * @class
+   * @param {CodeMirror.Editor} cm 
    */
-  function _IsIndentCodeBlock(spans) {
-    if (!(spans.length >= 2 && /^\s+$/.test(spans[0].textContent))) return false
-    for (var i = 1; i < spans.length; i++) {
-      if (!/\bcm-(?:tab|inline-code)\b/.test(spans[i].className)) return false
-    }
-    return true
-  }
-
-
-  /** 
-   * adding/removing `cm-formatting-hidden` to/from the <span>s that contain Markdown tokens (eg. `### ` or `~~`)
-   * 
-   * a member of class `HideToken`
-   * 
-   * @param {object} cm                       CodeMirror editor instance
-   * @param {Element} line                    The <pre> element
-   * @param {{line:number, ch?:number}} pos   Current cursor position. Nearby Markdown tokens will show up.
-   * @param {boolean} [rebuildCache]          Empty cursor position cache data or not. Expensive. (see `cursorCoords`)
-   */
-  function patchFormattingSpan(cm, line, pos, rebuildCache) {
-    if (!line) return
-
-    var line2 = line.children[0]   // the container of <span>s. <pre class="CodeMirror-line"><span style=""> ... real content ...
-    var spans = line2.childNodes
-
-    //FIXME: partial-cross-line marks are currently not supported
-    var textmark_itered = 0
-    var char_itered = 0
-
-    /** @type {HTMLElement} */
-    var span = null
-    var span_i = 0
-
-    /** @type {{[index:number]: any}} */
-    var visible_span_indices = {}
-
-    // // fix setextHeader problem
-    // if (spans.length === 1 && 
-    //     /\scm-formatting-header\s/.test(spans[0].className) && 
-    //     /^\s*(?:\={3,}|-{3,})\s*$/.test(spans[0].textContent)
-    // ) {
-    //     // turn last line into header
-    //     //TODO: use more elegant way to implement this
-    //     var last_line = line.parentElement.previousElementSibling.lastElementChild
-    //     last_line.firstElementChild.classList.add("cm-header", /cm-header-\d/.exec(spans[0].className))
-    // }
-
-    var lineView = getLineView(cm, pos.line)
-    var tokenState = lineView && lineView.line.stateAfter ||  // use cached data is much faster
-      cm.getTokenAt({ line: pos.line + 1, ch: 0 }).state      // but sometimes the data does not exists.
-    var tokenStateBase = tokenState // raw token state from Markdown
-    while (tokenStateBase.base) tokenStateBase = tokenStateBase.base
-
-    /////////////////////////////////////////////////////////////
-    /// adding className to <pre> for some special lines
-
-    var firstSpanClassList = spans[0] && spans[0].classList
-    function findSpanWithClass(className) {
-      if (!spans) return null
-      for (var i = 0; i < spans.length; i++) {
-        var rtn = spans[i]
-        if (rtn.classList && rtn.classList.contains(className)) return rtn
-      }
-      return null
-    }
-
-    // adding cm-quote indent placeholder
-    if (
-      // !firstSpanHasClass('hmd-quote-indent') &&
-      tokenStateBase.quote
-    ) {
-      line.classList.add('hmd-quote-indent')
-      line.classList.add('hmd-quote-indent-' + tokenStateBase.quote)
-    }
-
-    // adding class to code block (GFM)
-    if (tokenStateBase.fencedChars) {
-      if (line2.querySelector('.cm-formatting-code-block'))
-        line.classList.add('hmd-codeblock-end')
-      else
-        line.classList.add('hmd-codeblock')
-    } else if (line2.querySelector('.cm-formatting-code-block')) {
-      line.classList.add('hmd-codeblock-start')
-    }
-
-    // adding class to code block (indent)
-    if (_IsIndentCodeBlock(spans)) {
-      line.classList.add('hmd-codeblock-indent')
-      line.classList.add('hmd-codeblock')
-    }
-
-    // adding footnote
-    if (findSpanWithClass("cm-hmd-footnote")) {
-      line.classList.add('hmd-footnote-line')
-    }
-
-    // adding class to code block (GFM)
-    if (tokenStateBase.listStack && findSpanWithClass("cm-list-" + tokenStateBase.listStack.length)) {
-      line.classList.add('hmd-list')
-      line.classList.add('hmd-list-' + tokenStateBase.listStack.length)
-    }
-
-    // adding header stuff
-    var _cnextLineToken = cm.getTokenTypeAt({ line: pos.line + 1, ch: 0 })
-    var _hlevel = null
-    if (_cnextLineToken && (_hlevel = /hmd-stdheader-(\d)/.exec(_cnextLineToken))) _hlevel = _hlevel[1]
-    else if (spans[0] && (_hlevel = /cm-header-(\d)/.exec(spans[0].className))) _hlevel = _hlevel[1]
-    if (_hlevel) {
-      line.classList.add('hmd-stdheader')
-      line.classList.add('hmd-stdheader-' + _hlevel)
-    }
-
-
-    /////////////////////////////////////////////////////////////
-    /// Find the span where cursor is on, then hide/show spans
-
-    if (typeof pos.ch === "number") {
-      if (DEBUG_PATCHING) console.log("[PATCH] pos = ", pos)
-
-      for (span_i = 0; span_i < spans.length; span_i++) {
-        span = spans[span_i]
-        if (span.classList && span.classList.contains('CodeMirror-widget')) {
-          if (lineView) { //FIXME: remove this and scroll to reproduce the bug
-            var local_mark = lineView.line.markedSpans[textmark_itered++]
-            char_itered += local_mark.to - local_mark.from
-            span = spans[span_i + 1]
-          }
-        } else {
-          var text = span.textContent
-          char_itered += text.length
-        }
-        if (char_itered >= pos.ch) break
-      }
-
-      if (DEBUG_PATCHING) console.log("[PATCH] span = ", span, span_i)
-
-      if (span && span.nodeType === Node.ELEMENT_NODE) {
-        var classList1 = getClassList(span)
-
-        if (DEBUG_PATCHING) console.log("current span is ", span, "\n with classList: ", classList1.join(", "))
-
-        // if current cursor is on a token, set `span` to the content and re-retrive its class string[]
-        if (span.classList.contains('cm-formatting')) {
-          visible_span_indices[span_i] = true // if the token is incompleted, it's still visible
-
-          if (arrayContainsArray(classList1, getClassList(span.nextSibling))) {
-            span = span.nextSibling
-            span_i++
-          } else if (arrayContainsArray(classList1, getClassList(span.previousSibling))) {
-            span = span.previousSibling
-            span_i--
-          }
-
-          classList1 = getClassList(span)
-          if (DEBUG_PATCHING) console.log("rewind to", span, "\n with classList: ", classList1.join(", "))
-        }
-
-        // a trick
-        classList1.push('cm-formatting')
-
-        // forward search
-        var span_tmp = span, span_tmp_i = span_i
-        while (span_tmp_i++ , span_tmp = span_tmp.nextSibling) {
-          var classList2 = getClassList(span_tmp)
-          visible_span_indices[span_tmp_i] = true
-
-          if (DEBUG_PATCHING) console.log("forward:  adding ", span_tmp, "(" + span_tmp_i + ")")
-
-          if (arrayContainsArray(classList2, classList1)) break
-        }
-
-        // backward search
-        var span_tmp = span, span_tmp_i = span_i
-        while (span_tmp_i-- , span_tmp = span_tmp.previousSibling) {
-          var classList2 = getClassList(span_tmp)
-          visible_span_indices[span_tmp_i] = true
-
-          if (DEBUG_PATCHING) console.log("backward: adding ", span_tmp, "(" + span_tmp_i + ")")
-
-          if (arrayContainsArray(classList2, classList1)) break
-        }
-      }
-    }
-
-    // ~~TODO: cache status~~  not necessary
-    // console.time("hide/show tokens")
-    for (var i = 0; i < spans.length; i++) {
-      span = spans[i]
-      if (
-        span.nodeType === Node.ELEMENT_NODE &&
-        this.matchRegex.test(span.className)
-      ) {
-        if (!visible_span_indices[i]) {
-          span.classList.add('cm-formatting-hidden')
-        } else {
-          span.classList.remove('cm-formatting-hidden')
-        }
-      }
-    }
-    // console.timeEnd("hide/show tokens")
-
-    if (rebuildCache /* && visible_span_indices_changed */) {
-      // remove caches of the chars after the current cursor
-      getLineView(cm, pos.line).measure.cache = {}
-      // var cache = getLineView(cm, pos.line).measure.cache
-      // for (var key in cache) {
-      //     var ch = parseInt(key)
-      //     if (ch >= pos.ch) delete cache[key]
-      // }
-    }
-  }
-
-  function HideToken(cm) {
+  function TokenHider(cm) {
     this.cm = cm
     this.eventBinded = false
     this.tokenTypes = ""
     this.matchRegex = /^$/
 
-    this._renderLine = this.renderLine.bind(this)
+    this.TSlines = [] // token-shown line numbers
 
-    this.lastCursorPos = { line: 0, ch: 0 }
+    // functions that binded to `this`
+    this._renderLine = this.renderLine.bind(this)
     this._cursorHandler = this.cursorHandler.bind(this)
   }
 
-  HideToken.prototype.setTokenTypes = function (tokenTypes) {
+  /**
+   * Set the token types that TokenHider shall hide/show.
+   * @param {string} tokenTypes token types separated by `|`
+   */
+  TokenHider.prototype.setTokenTypes = function (tokenTypes) {
     this.tokenTypes = tokenTypes
     this.matchRegex = new RegExp("\\scm-formatting-(" + tokenTypes + ")(?:\\s|$)")
 
@@ -377,49 +115,165 @@
     }
   }
 
-  HideToken.prototype.renderLine = function (cm, line_handle, ele) {
-    var pos = cm.getCursor()
-    var line = ele
-    var linenum = line_handle.lineNo()
-    this.patchFormattingSpan(cm, line, (linenum === pos.line) && pos || { line: linenum })
+  /**
+   * CodeMirror "renderLine" event handler. Fired right after the DOM element is built, 
+   * before it is added to the document.
+   * 
+   * TokenHider shall rebuild its cache here.
+   * 
+   * @param {CodeMirror.Editor} cm 
+   * @param {CodeMirror.LineHandle} line 
+   * @param {HTMLPreElement} el 
+   */
+  TokenHider.prototype.renderLine = function (cm, line, el) {
+    var lineNo = line.lineNo()
+    var shallShowToken = this.TSlines.indexOf(lineNo) !== -1
+
+    this.adjustLine(el, shallShowToken ? 1 : 0)
   }
 
-  HideToken.prototype.cursorHandler = function (cm) {
-    var pos = cm.getCursor(), lastCursorPos = this.lastCursorPos
-    if (lastCursorPos.line !== pos.line) {
-      var line = getLineView(cm, lastCursorPos.line)
-      if (line) {
-        this.patchFormattingSpan(cm, line.text, { line: lastCursorPos.line })
-        if (line.measure) line.measure.cache = {}
+  /**
+   * Scan one line and retrive infos to show/hide
+   * 
+   * @param {CodeMirror.LineHandle} line 
+   * @param {HTMLPreElement} lineEl 
+   */
+  TokenHider.prototype.buildLineInfo = function (line, lineEl) {
+    // `nodes` are <span> and #text nodes inside this line
+    // While enumerating `nodes`, before checking one node, make sure there is no text marked before it (or, is it a markerSpan ?)
+    // Note: CodeMirror doesn't merge adjacent text nodes, thus, no need to worry about "plain text with [collapsed invisible mark] inside"
+    var nodes = lineEl.children[0].childNodes
+
+    /** @type {{end:number,start:number,string:string,type:string,state:object}[]} */
+    var tokens = cm.getLineTokens(line)
+
+    // First, build a sparse array. If a mark starts at char #i, then markers[i] will be it.
+    /** @type {{span: HTMLSpanElement, length: number}[]} */
+    var markers = new Array(line.text.length)
+    for (var i = 0; i < markedSpans.length; i++) {
+      var raw_info = line.markedSpans[i] // original info, CodeMirror format
+      if (!raw_info.marker.collapsed) continue // we only care about collapsed
+
+      var from = raw_info.from, len = raw_info.to - raw_info.from
+      if (markers[from] && markers[from].length >= len) continue // a longer mark already exists
+
+      markers[from] = {
+        span: raw_info.marker.widgetNode, // notice: this could be null
+        length: len
       }
     }
-    var line = getLineView(cm, pos.line)
-    if (line) {
-      this.patchFormattingSpan(cm, line.text, pos, true)
+
+    // Prepare a stack
+    // object inside this stack is
+    /** @type {{from:number, to:number, el1:HTMLSpanElement, el2:HTMLSpanElement}} */
+    var xspan
+
+    // 2018-04-27 20:48 UTC+8
+    // Suddenly I just don't want to go on.
+    // So be lazy, stopped
+    //-------------------------------------
+
+    // Now, start enumerating nodes
+    var ch = 0
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i]
+      if (markers[ch]) { // a mark starts from current char!
+        ch += markers[ch].length
+        if (markers[ch].span === node) continue // whoops, current node is a markedSpan. Skip this node
+      }
+
+      var nodeTextLen = node.textContent.length
+      ch += nodeTextLen
     }
-    this.lastCursorPos = pos
-    if (DEBUG_PATCHING) console.log("cursor fly to ", pos)
   }
 
-  HideToken.prototype.patchFormattingSpan = patchFormattingSpan
+  /**
+   * 
+   * @param {CodeMirror.Editor} cm 
+   */
+  TokenHider.prototype.cursorHandler = function (cm) {
+    /** @type {number[]} */
+    var lineNums = cm.listSelections().map(function (e) { return e.head.line })
+    if (lineNums.length > 1) lineNums.sort()
 
-  /** get Hide instance of `cm`. if not exists, create one. */
-  function getHide(cm) {
+    /** @type {number[]} */
+    var oldTSlines = this.TSlines
+
+    // console.log(lineNums.join(","), "=======OLD=> " , oldTSlines.join(","))
+
+    var diffCount = 0
+    var i = 0, j = 0
+    while (i < oldTSlines.length && j < lineNums.length) {
+      var a = oldTSlines[i], b = lineNums[j]
+      if (a < b) {
+        // found one line that shall be recovered to hidden
+        this.adjustLine(a, 0)
+        i++ , diffCount++
+      } else if (a === b) {
+        // found one line no need to process
+        i++ , j++
+      } else {
+        // found one line whose tokens shall be shown
+        this.adjustLine(b, 1)
+        j++ , diffCount++
+      }
+    }
+
+    for (; i < oldTSlines.length; i++) this.adjustLine(oldTSlines[i], 0)
+    for (; j < lineNums.length; j++) this.adjustLine(lineNums[j], 1)
+
+    if (diffCount > 0 || oldTSlines.length !== lineNums.length) {
+      this.TSlines = lineNums
+    }
+  }
+
+  /**
+   * Change one line's apperance. Call this function when cursor moved!
+   * 
+   * @param {number|HTMLPreElement} line 
+   * @param {0|1} hideOrShow  0=hide all tokens    1=show all tokens
+   */
+  TokenHider.prototype.adjustLine = function (line, hideOrShow) {
+    var pre
+    var className = "HyperMD-token-hidden"
+
+    if (typeof (line) === 'number') {
+      var lineView = getLineView(this.cm, line)
+      if (!lineView) return
+
+      if (lineView.measure) lineView.measure.cache = {}
+      pre = lineView.text
+    } else {
+      pre = line
+    }
+
+    if (hideOrShow === 0) CodeMirror.addClass(pre, className)
+    else if (hideOrShow === 1) CodeMirror.rmClass(pre, className)
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+
+  /** 
+   * get TokenHider instance of `cm`. if not exists, create one. 
+   * 
+   * @returns {TokenHider}
+   */
+  function getTokenHider(cm) {
     if (!cm.hmd) cm.hmd = {}
-    else if (cm.hmd.hideToken) return cm.hmd.hideToken
+    else if (cm.hmd.tokenHider) return cm.hmd.tokenHider
 
-    var fold = new HideToken(cm)
-    cm.hmd.hideToken = fold
-    return fold
+    var tokenHider = new TokenHider(cm)
+    cm.hmd.tokenHider = tokenHider
+    return tokenHider
   }
 
   var defaultTokenTypes = "em|code-block|strong|strikethrough|quote|code|header|task|link|escape-char|footref|hmd-stdheader"
   CodeMirror.defineOption("hmdHideToken", "", function (cm, newVal) {
     // complete newCfg with default values
-    var hide = getHide(cm)
+    var hider = getTokenHider(cm)
     if (newVal === "(profile-1)") newVal = defaultTokenTypes
 
-    hide.setTokenTypes(newVal)
+    hider.setTokenTypes(newVal)
     cm.refresh() //force re-render lines
   })
 })
