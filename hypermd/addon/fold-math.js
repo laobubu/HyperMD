@@ -132,38 +132,6 @@
     cm.eachLine(fromLine, toLine + 1, processLine.bind(this, cm, curpos))
   }
 
-  // /**
-  //  * get the count of masked chars before the (beforeCh)th char
-  //  * 
-  //  * assuming `beforeCh` is not masked!
-  //  * 
-  //  * @param {object} line the lineHandle
-  //  * @returns {number}
-  //  */
-  // function getMaskedCharCount(line, beforeCh) {
-  //   if (!line.markedSpans) return 0
-  //   var ret = 0
-  //   /** @type {{from:number,to:number}[]} */
-  //   var markedSpans = line.markedSpans.map(function (ms) { return ({ from: ms.from, to: ms.to }) })
-  //   markedSpans = markedSpans.sort(function (a, b) { return (a.from > b.from) })  // sort: small -> big
-  //   for (var i = 0; i < markedSpans.length; i++) {
-  //     var cur = markedSpans[i]
-  //     if (cur.from > beforeCh) return ret
-  //     ret += cur.to - cur.from
-
-  //     // remove "subsets"
-  //     //  +-----------------+ cur
-  //     //  |   +-----------+-+
-  //     //  |   | subset(s) | |
-  //     while (++i < markedSpans.length) {
-  //       var next = markedSpans[i]
-  //       if (!(next.from >= cur.from && next.to <= cur.to)) break
-  //     }
-  //     i--
-  //   }
-  //   return ret
-  // }
-
   /**
    * Compare two positions, return 0 if they are the same, a negative
    * number when a is less, and a positive number otherwise.
@@ -178,23 +146,28 @@
    * @returns {{line:number,ch:number,token:{end:number,start:number,string:string,type:string}}} pos or null
    */
   function findToken(cm, condition, from) {
-    if (!from) from = { line: 0, ch: 0 }
-    var line = from.line - 1, isFunc = typeof condition === 'function'
-    while (++line < cm.lineCount()) {
+    var beginCh = from && from.ch || 0
+    var isFunc = typeof condition === 'function'
+    var lineCount = cm.lineCount()
+
+    for (var line = from && from.line || 0; line < lineCount; line++) {
       /** @type {{end:number,start:number,string:string,type:string}[]} */
       var tokens = cm.getLineTokens(line)
-      for (var i = 0; i < tokens.length; i++) {
+
+      for (var i = beginCh; i < tokens.length; i++) {
         var token = tokens[i], match = false
-        if (line == from.line && token.end < from.ch) continue
 
         if (isFunc) match = condition(token)
         else match = condition.test(token.type)
 
         if (match) {
-          return { line: line, ch: token.start, token: token }
+          return { line: line, ch: i, token: token }
         }
       }
+
+      beginCh = 0
     }
+
     return null
   }
 
@@ -208,101 +181,86 @@
     if (!line) return
 
     var lineNo = line.lineNo()
-    var avoid_ch = (curpos && (lineNo == curpos.line)) ? curpos.ch : -1
-    var preview_math = "", need_preview = cm.hmd.foldMath.preview && avoid_ch != -1
+    var updatedPreview = false
 
-    // vars used while iterating chars
-    var s = line.styles, s$i = 1 - 2
-    if (!s) return
-    if (s.length <= 1) {
-      // when cursor is inside an empty line of a math block, "line.styles" will be empty
-      // if continue processing, the preview will disappear!
-      var lastLine = cm.getLineHandle(lineNo - 1)
-      if (lastLine) {
-        //FIXME: assuming no more mode overlay; `hypermd` is currently using.
-        var hyperMD_state = lastLine.stateAfter.overlay
-        if (!hyperMD_state) // ignore empty lines (maybe since CodeMirror 5.37 ?)
-          return
-        if (hyperMD_state.inside == "math" && hyperMD_state.extra == "$$")
-          return
-      }
-    }
+    /** @type { ({type:string}|null)[] } */
+    var tokens = cm.getLineTokens(lineNo)
 
-    /** @type {{from:number,to:number}[]} */
-    var markedSpans = line.markedSpans &&
-      line.markedSpans.map(function (ms) {
-        return ({ from: ms.from || 0, to: ms.to || line.text.length })
-      }) || []
-    markedSpans = markedSpans.sort(function (a, b) { return (a.from > b.from) })  // sort: small -> big
-    var mark$i = 0, mark$ = markedSpans[0]
+    // we shall avoid processing marked texts
+    if (line.markedSpans) {
+      for (var ch = 0; ch < line.markedSpans.length; ch++) {
+        var mark = line.markedSpans[ch]
+        if (!mark.marker.collapsed) continue
 
-    while (s$i += 2, typeof s[s$i] == 'number') {
-      var chFrom = s[s$i - 2] || 0, chTo = s[s$i], chStyle = s[s$i + 1]
-
-      if (/formatting-math-begin.+math-2/.test(chStyle)) {
-        var closing = findToken(cm, /formatting-math.+math-2/, { line: lineNo, ch: chTo + 1 })
-        if (closing) {
-          // note: current line is the beginning line. `closing` might be other lines
-          var canInsert = true
-          var expr = cm.getRange({ line: lineNo, ch: chTo }, closing)
-
-          if (cmp({ line: lineNo, ch: chFrom }, curpos) < 0 && cmp(curpos, { line: closing.line, ch: closing.ch + 2 }) < 0) {
-            // cursor in range. do not render. do preview instead.
-            preview_math = expr
-            canInsert = false
-            need_preview = true
-          } else {
-            while (mark$ && mark$.to < chFrom) mark$ = markedSpans[++mark$i]
-            if (
-              mark$ &&
-              ((chFrom >= mark$.from && chFrom <= mark$.to) ||
-                (chTo >= mark$.from && chTo <= mark$.to))
-            ) canInsert = false
-          }
-
-          if (canInsert) {
-            insertMathMark(cm, lineNo, chFrom, closing.line, closing.ch + 2, expr, 'math-2')
-          }
-          continue
-          // } else {
-          //   debugger
+        // note: `mark.to === null` means this marker spans lines
+        var end = mark.to === null ? (tokens.length - 1) : mark.to
+        for (var j = mark.from; j <= end; j++) {
+          tokens[j] = null
         }
       }
-
-      if (avoid_ch >= chFrom && avoid_ch <= chTo && /math-2/.test(chStyle) && !/formatting-math-begin/.test(chStyle)) {
-        // display mode math: the preview will be trigged by the beginning `$$`. 
-        need_preview = false
-        continue
-      }
-
-      if (/\bmath-1\b/.test(chStyle) && !/formatting/.test(chStyle)) {
-        var expr = line.text.substr(chFrom, chTo - chFrom)
-        if (DEBUG) console.log("wow such math", expr)
-        chFrom = s[s$i - 4] || 0
-        chTo = s[s$i + 2] || chTo + 1
-      } else {
-        continue
-      }
-
-      // if cursor is in section, do not insert
-      if (avoid_ch >= chFrom && avoid_ch <= chTo) {
-        preview_math = expr
-        continue
-      }
-
-      // if the section is marked, skip
-      while (mark$ && mark$.to < chFrom) mark$ = markedSpans[++mark$i]
-      if (
-        mark$ &&
-        ((chFrom >= mark$.from && chFrom <= mark$.to) ||
-          (chTo >= mark$.from && chTo <= mark$.to))
-      ) continue
-
-      // do folding
-      insertMathMark(cm, lineNo, chFrom, lineNo, chTo, expr, 'math-1')
     }
 
-    if (need_preview) updatePreview(cm, line, preview_math)
+    // now start searching for unmarked maths
+    for (var ch = 0; ch < tokens.length; ch++) {
+      var token = tokens[ch]
+      if (!token) {
+        while (++ch < tokens.length && !tokens[ch]); // if chars are marked, skip them
+        if (ch >= tokens.length) break // whoops, no more char in this line
+
+        token = tokens[ch]
+      }
+
+      if (/formatting-math-begin/.test(token.type)) {
+        // found beginning
+        var mathLevel = ~~ /\bmath-(\d+)/.exec(token.type)[1]
+        var beginPos = { line: lineNo, ch: ch }
+
+        // searching for the end
+        var endPos = findToken(cm, /formatting-math-end/, beginPos)
+        if (!endPos) {
+          if (DEBUG) console.log("Failed to find end of math , sicne ", beginPos)
+          continue
+        }
+        endPos.ch += mathLevel
+
+        // extract the Tex expression
+        var expr
+        if (endPos.line === lineNo) {
+          // same line, extract expr with substr
+          expr = line.text.substr(ch + mathLevel, endPos.ch - ch - mathLevel * 2)
+        } else {
+          expr = cm.getRange(beginPos, endPos)
+          expr = expr.slice(mathLevel, -mathLevel)  // strip "$" or "$$"
+        }
+        if (DEBUG) console.log("Found math at ", beginPos, expr)
+
+        // inserMathMark or updatePreview
+        if (cmp(curpos, beginPos) >= 0 && cmp(curpos, endPos) <= 0) {
+          // cursor is inside this math block
+          // we shall do preview, instead of insertMathMark
+          updatePreview(cm, line, expr)
+          updatedPreview = true
+        } else {
+          // everything is good. insertMathMark
+          var className = "cm-math-" + mathLevel
+          insertMathMark(cm, beginPos, endPos, expr, className)
+        }
+
+        // skip processed chars
+        if (endPos.line !== lineNo) break // nothing left in this line
+        else ch = endPos.ch
+      }
+    }
+
+    // hide preview panel if necessary
+    if (lineNo === curpos.line) {
+      if (!/\bmath-2/.test(tokens.length && tokens[0] && tokens[0].type)) { // not inside multiline Tex block
+        if (!updatedPreview) { // not trigged updatePreview
+          // then, hide it
+          updatePreview(cm, line, "")
+        }
+      }
+    }
   }
 
   /**
@@ -321,12 +279,11 @@
     }
   }
 
-  function insertMathMark(cm, line1, ch1, line2, ch2, expression, className) {
+  function insertMathMark(cm, p1, p2, expression, className) {
     var span = document.createElement("span"), marker
     span.setAttribute("class", "hmd-fold-math " + className || '')
     span.setAttribute("title", expression)
 
-    var p1 = { line: line1, ch: ch1 }, p2 = { line: line2, ch: ch2 }
     if (DEBUG) console.log("insert", p1, p2, expression)
 
     marker = cm.markText(p1, p2, {
@@ -340,7 +297,7 @@
     }, false)
 
     var mathRenderer = new MathRenderer(span, "")
-
+    mathRenderer.onChanged = function () { marker.changed() }
     marker.on("clear", function () { mathRenderer.clear() })
     mathRenderer.startRender(expression)
   }
@@ -355,7 +312,7 @@
     if (DEBUG) console.log("math-preview: ", expr)
 
     var hostAddon = cm.hmd.foldMath
-    hostAddon.updatePreview(expr)
+    if (hostAddon.preview) hostAddon.updatePreview(expr)
   }
 
   function Fold(cm) {
@@ -364,6 +321,7 @@
     this.cm = cm
     this.interval = foldDefaultOption.interval
     this.preview = foldDefaultOption.preview
+    this.previewTitle = foldDefaultOption.previewTitle
 
     this._timeoutHandle = 0
     this._doFold = this.doFold.bind(this)
@@ -374,14 +332,30 @@
     var div = document.createElement('div')
     div.className = "HyperMD-math-preview"
 
+    var divSizeKeeper = document.createElement('div')
+    divSizeKeeper.style.cssFloat = "left"
+    div.appendChild(divSizeKeeper)
+
+    var divTitle = document.createElement('div')
+    divTitle.textContent = this.previewTitle
+    divTitle.className = "HyperMD-math-preview-title"
+    div.appendChild(divTitle)
+
     var div2 = document.createElement('div')
     div2.className = "HyperMD-math-preview-content"
     div.appendChild(div2)
 
+    // click this panel to close previewer
+    div.addEventListener("click", function () {
+      self.updatePreview("")
+      cm.focus()
+    }, false)
+
     var renderer = new MathRenderer(div2, "display")
     renderer.onChanged = function () {
-      console.log("PANEL CHANGED")
+      if (DEBUG) console.log("PANEL CHANGED")
       if (self._pv.panel) {
+        divSizeKeeper.style.height = (divTitle.offsetHeight + div2.offsetHeight) + 'px'
         self._pv.panel.changed()
       }
     }
@@ -389,8 +363,10 @@
     this._pv = {
       panel: null,
       div: div,
+      divTitle: divTitle,
       div2: div2,
-      renderer: renderer
+      renderer: renderer,
+      last_expr: null,
     }
   }
 
@@ -410,10 +386,17 @@
 
   /**
    * Update preview, or close preview panel (if `!expr`)
+   * 
+   * NOTE: calling this function will force to show a panel, even if `this.preview === false`.
+   * 
    * @param {string|null} expr 
    */
   Fold.prototype.updatePreview = function (expr) {
     var pv = this._pv, cm = this.cm
+
+    if (expr === pv.last_expr) return
+    pv.last_expr = expr
+
     if (expr) {
       // (optionally) create panel
       if (!pv.panel) {
@@ -428,6 +411,9 @@
         pv.panel = null
       }
     }
+
+    cm.focus()
+    cm.scrollIntoView(cm.getCursor('head'))
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
@@ -444,7 +430,8 @@
 
   var foldDefaultOption = { // exposed options. also see Fold class.
     interval: 0,    // auto rendering interval, 0 = off
-    preview: false  // provide a preview while inputing a formula
+    preview: false,  // provide a preview while inputing a formula
+    previewTitle: "HyperMD Tex Previewer. Click to Close", // title of preview panel
   }
 
   CodeMirror.defineOption("hmdFoldMath", foldDefaultOption, function (cm, newVal, oldVal) {
@@ -469,6 +456,10 @@
         cm.off("cursorActivity", fold._doFold)
       }
     }
+
+    // update behavior
+    fold._pv.divTitle.textContent = newCfg.previewTitle
+    if (!newCfg.preview) fold.updatePreview("") // hide preview if needed
 
     // write new values into cm
     for (var k in foldDefaultOption) {

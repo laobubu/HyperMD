@@ -82,7 +82,7 @@
           if (tmp == start) {
             stream.pos += 2
             state.inside = null
-            return "formatting formatting-math math math-" + state.extra.length
+            return "formatting formatting-math formatting-math-end math math-" + state.extra.length
           }
           if (tmp > 0) stream.pos = tmp
           else stream.skipToEnd()
@@ -292,7 +292,7 @@
 
             if (stream.match(state.extra)) {
               state.inside = null
-              return "formatting formatting-math math math-" + state.extra.length
+              return "formatting formatting-math formatting-math-end math math-" + state.extra.length
             }
             tmp = start
             while (tmp != -1) {

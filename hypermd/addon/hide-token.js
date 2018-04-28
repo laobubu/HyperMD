@@ -247,8 +247,12 @@
       pre = line
     }
 
-    if (hideOrShow === 0) CodeMirror.addClass(pre, className)
-    else if (hideOrShow === 1) CodeMirror.rmClass(pre, className)
+    // make sure we've get <pre> element.
+    // NOTE: inside "cursorActivity" event, <pre> element might not exists
+    if (pre) { 
+      if (hideOrShow === 0) CodeMirror.addClass(pre, className)
+      else if (hideOrShow === 1) CodeMirror.rmClass(pre, className)
+    }
   }
 
   ///////////////////////////////////////////////////////////////////////////

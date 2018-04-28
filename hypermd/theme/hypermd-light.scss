@@ -380,16 +380,34 @@
 /// hypermd/addon/fold-math
 
 div.HyperMD-math-preview {
-    overflow: hidden;
-    padding: 0 10px;
+    overflow: auto;
     text-align: center;
     min-height: 3.5em;
+    max-height: 7em;
+    border-top: 1px solid #EEE;
+    background: #f7f7f7;
+
+    &:after {
+        display: block;
+        content: ' ';
+        clear: both;
+    }
     
-    div.HyperMD-math-preview-content {
-        // overflow: hidden;
+    > div.HyperMD-math-preview-content {
+        overflow: hidden;
         display: inline-block;
-        padding: 1px 1em;
-        border-radius: 5px;
-        background-color: #eee;
+
+        .MathJax_Display,
+        .MathJax_SVG_Display {
+            margin: 10px 0;
+        }
+    }
+
+    > div.HyperMD-math-preview-title {
+        background: #EEE;
+        color: #666;
+        font-size: 10px;
+        padding: 4px;
+        cursor: pointer;
     }
 }
