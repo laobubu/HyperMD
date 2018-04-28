@@ -77,15 +77,15 @@
           state.thisLine = stream
         }
 
-        if (state.inside == "math" && state.extra.length == 2) {
-          tmp = stream.string.indexOf(state.extra, start)
-          if (tmp == start) {
-            stream.pos += 2
+        if (state.inside === "math") {
+          if (
+            (start === 0 || stream.string.charAt(start - 1) !== "\\") &&
+            stream.match(state.extra)
+          ) {
             state.inside = null
             return "formatting formatting-math formatting-math-end math math-" + state.extra.length
           }
-          if (tmp > 0) stream.pos = tmp
-          else stream.skipToEnd()
+          stream.next()
           return "math math-" + state.extra.length
         }
 
@@ -95,75 +95,12 @@
           // Now we are at the beginning of current line
           state.atBeginning = true
 
-          /**
-           * StdHeader
-           * -----------
-           * ^we are here
-           * 
-           * Note: since we can't go back and modify header title text's style
-           *       the only remedy is writing some CSS rules, targeting .hmd-stdheader-line
-           */
-          if (/^(?:-{3,}|={3,})$/.test(stream.string) && !state.prevLineIsEmpty) {
-            var _hlevel = ((stream.string.charAt(0) == '=') ? 1 : 2)
-            stream.skipToEnd()
-            return 'formatting line-HyperMD-header-line line-HyperMD-header-line-' + _hlevel
-          }
-
-          // since now prevLineIsEmpty is useless
-          // this is not blankLine function, so this line is not empty. mark it for the next line
-          state.prevLineIsEmpty = false
-
           var indentation = stream.indentation()
-
-          /**
-           * Last line has unfinished Tex Math like $ x = \pi + 123...
-           * 
-           * Just clear the status
-           */
-          if ('math' == state.inside && state.extra.length != 2) state.inside = null
-
-          /**
-           * > > blockquote! we are at the beginning !
-           * ^we are here
-           * 
-           * When a style is prefixed by "line-" , CodeMirror will call addLineClass
-           */
-          if (stream.match(/^\>\s*/)) {
-            var quoteLevel = 1
-            while (stream.match(/^\s*\>\s*/)) quoteLevel++
-            state.quoteLevel = quoteLevel
-
-            return (
-              "formatting formatting-quote formatting-quote-" + quoteLevel +
-              " quote quote-" + quoteLevel +
-              " line-HyperMD-quote line-HyperMD-quote-" + quoteLevel
-            )
-          } else if (state.quoteLevel) {
-            /**
-             * > block support such
-             *   syntax
-             * ^ we are here.
-             * 
-             */
-            stream.next()
-            state.combineTokens = true
-            return "line-HyperMD-quote line-HyperMD-quote-" + state.quoteLevel
-          }
-
-          /**
-           * ## Header
-           * ^we are here
-           * 
-           */
-          if (stream.match(/^(#+)(?: |$)/, false)) {
-            state.combineTokens = true
-            return "line-HyperMD-header line-HyperMD-header-" + stream.match(/^#+/)[0].length
-          }
 
           /**
            * ```c++
            * ^we are here (if !insideCodeFence)
-           * 
+           *
            * ```
            * ^or here (if insideCodeFence)
            */
@@ -186,10 +123,10 @@
           //FIXME: tranditional code block is buggy and shall be deprecated!
           /**
            * this is a tranditional code block
-           * 
+           *
            *     #include <stdio.h>
            * ^we are here and we can see lots of space
-           * 
+           *
            * note that we can't detect the program's language, so, no need to set `state.combineTokens = true`
            */
           if (state.listSpaceStack.length === 0 && indentation >= 4) {
@@ -198,8 +135,64 @@
           }
 
           /**
+           * StdHeader
+           * -----------
+           * ^we are here
+           *
+           * Note: since we can't go back and modify header title text's style
+           *       the only remedy is writing some CSS rules, targeting .hmd-stdheader-line
+           */
+          if (/^(?:-{3,}|={3,})$/.test(stream.string) && !state.prevLineIsEmpty) {
+            var _hlevel = ((stream.string.charAt(0) == '=') ? 1 : 2)
+            stream.skipToEnd()
+            return 'formatting line-HyperMD-header-line line-HyperMD-header-line-' + _hlevel
+          }
+
+          // since now prevLineIsEmpty is useless
+          // this is not blankLine function, so this line is not empty. mark it for the next line
+          state.prevLineIsEmpty = false
+
+          /**
+           * > > blockquote! we are at the beginning !
+           * ^we are here
+           *
+           * When a style is prefixed by "line-" , CodeMirror will call addLineClass
+           */
+          if (stream.match(/^\>\s*/)) {
+            var quoteLevel = 1
+            while (stream.match(/^\s*\>\s*/)) quoteLevel++
+            state.quoteLevel = quoteLevel
+
+            return (
+              "formatting formatting-quote formatting-quote-" + quoteLevel +
+              " quote quote-" + quoteLevel +
+              " line-HyperMD-quote line-HyperMD-quote-" + quoteLevel
+            )
+          } else if (state.quoteLevel) {
+            /**
+             * > block support such
+             *   syntax
+             * ^ we are here.
+             *
+             */
+            stream.next()
+            state.combineTokens = true
+            return "line-HyperMD-quote line-HyperMD-quote-" + state.quoteLevel
+          }
+
+          /**
+           * ## Header
+           * ^we are here
+           *
+           */
+          if (stream.match(/^(#+)(?:\s|$)/)) {
+            state.combineTokens = true
+            return "line-HyperMD-header line-HyperMD-header-" + stream.string.match(/^#+/)[0].length
+          }
+
+          /**
            * this is a list
-           * 
+           *
            * Note: list checking must be the last step of `if (start === 0) { ... }` ; it doesn't jump out this function
            */
           if (state.listSpaceStack.length !== 0 || stream.match(listRE, false)) {
@@ -239,14 +232,16 @@
             state.extra++
           }
 
+          var ans = null
           if (state.extra >= listLevel) {
             // edge case: "1. xxxxx" where virtual token (indent length=0) skipped just now
+            // and no more list indent. Now exit "listSpace" status and eat the bullet symbol
             state.inside = null
             state.extra = null
+            if (!stream.match(listRE)) stream.next()
           } else {
             stream.pos += state.listSpaceStack[state.extra]
 
-            var ans = ""
             ans = "hmd-list-indent hmd-list-indent-" + (state.extra + 1)
             if (firstMet) ans += " line-HyperMD-line line-HyperMD-line-" + listLevel
 
@@ -255,24 +250,24 @@
               state.inside = null
               state.extra = null
             }
-
-            state.combineTokens = true
-            return ans
           }
+
+          state.combineTokens = true
+          return ans
         }
 
         //////////////////////////////////////////////////////////////////
         /// now list bullets and quote indents are gone. Enter the content.
-        
+
         // first, deal with some special stuff that only appears once at Beginning
         if (state.atBeginning) {
 
           /**
            * Markdown supports footref [^f1]
-           * 
+           *
            * [^f1]: you may reference this footnote
            * ^we are here
-           * 
+           *
            * note: ^ is not necessary.
            */
           if (stream.match(/^\[[^\]]+\]\:/)) {
@@ -284,28 +279,11 @@
         }
 
         // then just normal inline stuffs
+        // usually we just add some extra styles to CodeMirror's result
         state.combineTokens = true
 
         if (state.inside) {
-          if (state.inside == "math") {
-            state.combineTokens = false // math stuff can't be messed up with Markdown
-
-            if (stream.match(state.extra)) {
-              state.inside = null
-              return "formatting formatting-math formatting-math-end math math-" + state.extra.length
-            }
-            tmp = start
-            while (tmp != -1) {
-              tmp = stream.string.indexOf(state.extra, tmp + 1)
-              if (tmp == -1) break
-              if (stream.string.charAt(tmp - 1) != "\\") {
-                stream.pos = tmp
-                return "math math-" + state.extra.length
-              }
-            }
-            stream.skipToEnd()
-            return "math math-" + state.extra.length
-          }
+          // Math has high priority. The code has been moved above
         } else {
           /// escaped chars
           // now CodeMirror(>=5.37) built-in markdown mode will handle this.
@@ -329,9 +307,13 @@
 
           /// inline math
           tmp = stream.match(/^\${1,2}/)
-          if (tmp && (tmp[0] == '$$' || stream.string.indexOf(tmp[0], start + 2) != -1)) {
+          if (tmp && (
+            tmp[0] === '$$' ||    // `$$` may span lines
+            /[^\\]\$/.test(stream.string.substr(start + 1))  // `$` can't. there must be another `$` after current one
+          )) {
             state.inside = "math"
             state.extra = tmp[0]
+            state.combineTokens = false
             return "formatting formatting-math formatting-math-begin math math-" + state.extra.length // inline code are ignored by hypermd
           }
 
@@ -350,7 +332,7 @@
       tokenTypeOverrides: {
         hr: "line-HyperMD-hr hr",
         // HyperMD needs to know the level of header/indent. using tokenTypeOverrides is not enough
-        // header: "line-HyperMD-header header", 
+        // header: "line-HyperMD-header header",
         // quote: "line-HyperMD-quote quote",
         list1: "list-1",
         list2: "list-2",
