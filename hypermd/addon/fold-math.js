@@ -154,14 +154,15 @@
       /** @type {{end:number,start:number,string:string,type:string}[]} */
       var tokens = cm.getLineTokens(line)
 
-      for (var i = beginCh; i < tokens.length; i++) {
+      for (var i = 0; i < tokens.length; i++) {
         var token = tokens[i], match = false
+        if (!token || token.start < beginCh) continue
 
         if (isFunc) match = condition(token)
         else match = condition.test(token.type)
 
         if (match) {
-          return { line: line, ch: i, token: token }
+          return { line: line, ch: token.start, token: token }
         }
       }
 
@@ -170,6 +171,27 @@
 
     return null
   }
+
+  /**
+   * CodeMirror's getLineTokens might merge chars with same styles, but this won't.
+   * 
+   * This one will consume more memory.
+   * 
+   * @param {LineHandle} line 
+   * @returns {string[]}
+   */
+  function getEveryCharToken(line) {
+    var ans = new Array(line.text.length)
+    var ss = line.styles
+    var i = 0
+    for (var j = 1; j < ss.length; j += 2) {
+      var i_to = ss[j], s = ss[j + 1]
+      while (i < i_to) ans[i++] = s
+    }
+    return ans
+  }
+
+  window.getEveryCharToken = getEveryCharToken
 
   /**
    * Process one line.
@@ -183,8 +205,8 @@
     var lineNo = line.lineNo()
     var updatedPreview = false
 
-    /** @type { ({type:string}|null)[] } */
-    var tokens = cm.getLineTokens(lineNo)
+    /** every char's style @type {string[]} */
+    var tokens = getEveryCharToken(line)
 
     // we shall avoid processing marked texts
     if (line.markedSpans) {
@@ -210,9 +232,9 @@
         token = tokens[ch]
       }
 
-      if (/formatting-math-begin/.test(token.type)) {
+      if (/formatting-math-begin/.test(token)) {
         // found beginning
-        var mathLevel = ~~ /\bmath-(\d+)/.exec(token.type)[1]
+        var mathLevel = ~~ /\bmath-(\d+)/.exec(token)[1]
         var beginPos = { line: lineNo, ch: ch }
 
         // searching for the end
@@ -232,7 +254,7 @@
           expr = cm.getRange(beginPos, endPos)
           expr = expr.slice(mathLevel, -mathLevel)  // strip "$" or "$$"
         }
-        if (DEBUG) console.log("Found math at ", beginPos, expr)
+        if (DEBUG) console.log("Found math at ", beginPos, endPos, expr)
 
         // inserMathMark or updatePreview
         if (cmp(curpos, beginPos) >= 0 && cmp(curpos, endPos) <= 0) {
