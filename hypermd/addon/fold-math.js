@@ -184,9 +184,21 @@
     var ans = new Array(line.text.length)
     var ss = line.styles
     var i = 0
-    for (var j = 1; j < ss.length; j += 2) {
-      var i_to = ss[j], s = ss[j + 1]
-      while (i < i_to) ans[i++] = s
+
+    if (ss) {
+      // CodeMirror already parsed this line. Use cache
+      for (var j = 1; j < ss.length; j += 2) {
+        var i_to = ss[j], s = ss[j + 1]
+        while (i < i_to) ans[i++] = s
+      }
+    } else {
+      // Emmm... slow method
+      var cm = line.parent.cm || line.parent.parent.cm || line.parent.parent.parent.cm
+      ss = cm.getLineTokens(line.lineNo())
+      for (var j = 0; j < ss.length; j ++) {
+        var i_to = ss[j].end, s = ss[j].type
+        while (i < i_to) ans[i++] = s
+      }
     }
     return ans
   }
@@ -425,6 +437,7 @@
         pv.panel = cm.addPanel(pv.div, { position: "bottom", stable: true })
       }
       // render Tex
+      if (DEBUG) console.log("PANEL start rendering", expr)
       pv.renderer.startRender(expr)
     } else {
       // remove panel
