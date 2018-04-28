@@ -7,11 +7,13 @@
   var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "codemirror/";
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
-      require(CODEMIRROR_ROOT + "lib/codemirror")
+      require(CODEMIRROR_ROOT + "lib/codemirror"),
+      require(CODEMIRROR_ROOT + "addon/display/panel")
     );
   else if (typeof define == "function" && define.amd) // AMD
     define([
-      CODEMIRROR_ROOT + "lib/codemirror"
+      CODEMIRROR_ROOT + "lib/codemirror",
+      CODEMIRROR_ROOT + "addon/display/panel"
     ], mod);
   else // Plain browser env
     mod(CodeMirror);
@@ -19,6 +21,109 @@
   "use strict";
 
   var DEBUG = false
+
+
+  ///////////////////////////////////////////////////////////////////////////////////
+  /// MathRenderer Class
+  /// Controlling one Tex widget
+  ///
+  /// Your MathRenderer must have:
+  /// - constructor(div_container, mode)
+  /// - startRender(expr)
+  /// - clear()
+  /// - onChanged   (property, points to a callback function, called when a rendering work is done)
+
+  /**
+   * The default MathRenderer, using MathJax
+   * 
+   * @param {HTMLDivElement} div container
+   * @param {"display"|""} [mode] MathJax Mode
+   */
+  function MathRenderer(div, mode) {
+    var script = document.createElement("script")
+    script.setAttribute("type", mode ? 'math/tex; mode=' + mode : 'math/tex')
+    div.appendChild(script)
+
+    this.div = div
+    this.mode = mode
+    this.script = script
+    this.jax = null
+
+    this.onChanged = null
+
+    this._cleared = false
+    this._renderingExpr = "" // Currently rendering expr
+  }
+
+  MathRenderer.prototype.clear = function () {
+    var script = this.script
+    script.innerHTML = ''
+
+    if (this.jax) this.jax.Remove()
+
+    this._cleared = true
+  }
+
+  /**
+   * start rendering a Tex expression
+   * @param {string} expr 
+   */
+  MathRenderer.prototype.startRender = function (expr) {
+    if (this._cleared) {
+      return
+    }
+
+    if (this._renderingExpr) {
+      // A new rendering job comes, while previous one is still in progress
+      // Do rendering later, in _TypesetDoneCB function
+      this._renderingExpr = expr
+      return
+    }
+
+    this._renderingExpr = expr
+
+    var script = this.script
+    script.innerHTML = expr
+
+    if (this.jax) {
+      MathJax.Hub.Queue(
+        ["Text", this.jax, expr],
+        ["_TypesetDoneCB", this, expr]
+      )
+    } else {
+      this.jax = MathJax.Hub.getJaxFor(script)
+      MathJax.Hub.Queue(
+        ["Typeset", MathJax.Hub, script],
+        ["_TypesetDoneCB", this, expr]
+      )
+    }
+  }
+
+  /**
+   * When MathJax finishes rendering, it shall call this function
+   * 
+   * @private
+   */
+  MathRenderer.prototype._TypesetDoneCB = function (finished_expr) {
+    if (this._cleared) {
+      return
+    }
+
+    if (this._renderingExpr !== finished_expr) {
+      // Current finished rendering job is out-of-date
+      // re-render with newest Tex expr
+      var expr_new = this._renderingExpr
+      this._renderingExpr = ""
+      this.startRender(expr_new)
+      return
+    }
+
+    // Rendering finished. Nothing wrong
+    this._renderingExpr = ""
+    if (typeof (this.onChanged) === 'function') this.onChanged(this)
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////
 
   function processRange(cm, fromLine, toLine) {
     var curpos = cm.getCursor()
@@ -221,11 +326,6 @@
     span.setAttribute("class", "hmd-fold-math " + className || '')
     span.setAttribute("title", expression)
 
-    var script = document.createElement("script")
-    script.setAttribute("type", /math-2/.test(className) ? 'math/tex; mode=display' : 'math/tex')
-    script.innerHTML = expression
-    span.appendChild(script)
-
     var p1 = { line: line1, ch: ch1 }, p2 = { line: line2, ch: ch2 }
     if (DEBUG) console.log("insert", p1, p2, expression)
 
@@ -239,25 +339,10 @@
       cm.focus()
     }, false)
 
-    marker.on("clear", function () {
-      var jax = MathJax.Hub.getJaxFor(script)
-      if (jax) jax.Remove()
-    })
+    var mathRenderer = new MathRenderer(span, "")
 
-
-    setTimeout(function () {
-      // FIXME sometimes failed to render.
-      // 1. cursor enter math block
-      // 2. see preview
-      // 3. cursor leave math block while preview still there 
-      // 4. MathJax failed
-      // 
-      // hence use a Timeout function to do render
-      MathJax.Hub.Queue(
-        ["Typeset", MathJax.Hub, script],
-        ["changed", marker]
-      )
-    }, 0);
+    marker.on("clear", function () { mathRenderer.clear() })
+    mathRenderer.startRender(expression)
   }
 
   /**
@@ -267,90 +352,85 @@
    * @param {string} [expr] expression
    */
   function updatePreview(cm, line, expr) {
-    var hostAddon = cm.hmd.foldMath, last = hostAddon._lastPreview
-
     if (DEBUG) console.log("math-preview: ", expr)
 
-    if (last && last.line !== line) {
-      last.jax.Remove()
-      last.widget.clear()
-      last = hostAddon._lastPreview = null
-    }
-
-    if (!expr) {
-      if (last) {
-        last.jax.Remove()
-        last.widget.clear()
-      }
-      hostAddon._lastPreview = null
-      return
-    }
-
-    if (last) {
-      if (expr == last.expr) return
-      last.expr = expr
-
-      MathJax.Hub.Queue(
-        ["Text", last.jax, expr],
-        function () {
-          last.div.style.minHeight = last.div2.offsetHeight + 'px'
-          last.widget.changed()
-        }
-      )
-    } else {
-      // div->div2->script
-      var div = document.createElement('div')
-      var div2 = document.createElement('div')
-      var script = document.createElement("script")
-      script.setAttribute("type", 'math/tex; mode=display')
-      script.innerHTML = expr
-      div2.className = "hmd-math-preview-content"
-      div2.appendChild(script)
-      div.className = "hmd-math-preview"
-      div.appendChild(div2)
-
-      var widget = cm.addLineWidget(line, div)
-
-      hostAddon._lastPreview = {
-        line: line,
-        widget: widget,
-        expr: expr,
-        div: div,
-        div2: div2,
-        script: script
-      }
-
-      MathJax.Hub.Queue(
-        ["Typeset", MathJax.Hub, script],
-        function () {
-          hostAddon._lastPreview.jax = MathJax.Hub.getJaxFor(script)
-          widget.changed()
-          div.style.minHeight = div2.offsetHeight + 'px'
-        }
-      )
-    }
+    var hostAddon = cm.hmd.foldMath
+    hostAddon.updatePreview(expr)
   }
 
   function Fold(cm) {
+    var self = this
+
     this.cm = cm
     this.interval = foldDefaultOption.interval
     this.preview = foldDefaultOption.preview
 
     this._timeoutHandle = 0
     this._doFold = this.doFold.bind(this)
-  }
-  Fold.prototype = {
-    doFold: function () {
-      var self = this, cm = self.cm
-      if (self._timeoutHandle) clearTimeout(self._timeoutHandle)
-      self._timeoutHandle = setTimeout(function () {
-        self._timeoutHandle = 0
-        cm.operation(function () {
-          processRange(cm, cm.display.viewFrom, cm.display.viewTo)
-        })
-      }, self.interval)
+
+    // preview panel and renderer
+
+    // div > div2 > Tex
+    var div = document.createElement('div')
+    div.className = "HyperMD-math-preview"
+
+    var div2 = document.createElement('div')
+    div2.className = "HyperMD-math-preview-content"
+    div.appendChild(div2)
+
+    var renderer = new MathRenderer(div2, "display")
+    renderer.onChanged = function () {
+      console.log("PANEL CHANGED")
+      if (self._pv.panel) {
+        self._pv.panel.changed()
+      }
+    }
+
+    this._pv = {
+      panel: null,
+      div: div,
+      div2: div2,
+      renderer: renderer
     }
   }
+
+  /**
+   * Process every visible line , fold and render Tex expressions
+   */
+  Fold.prototype.doFold = function () {
+    var self = this, cm = self.cm
+    if (self._timeoutHandle) clearTimeout(self._timeoutHandle)
+    self._timeoutHandle = setTimeout(function () {
+      self._timeoutHandle = 0
+      cm.operation(function () {
+        processRange(cm, cm.display.viewFrom, cm.display.viewTo)
+      })
+    }, self.interval)
+  }
+
+  /**
+   * Update preview, or close preview panel (if `!expr`)
+   * @param {string|null} expr 
+   */
+  Fold.prototype.updatePreview = function (expr) {
+    var pv = this._pv, cm = this.cm
+    if (expr) {
+      // (optionally) create panel
+      if (!pv.panel) {
+        pv.panel = cm.addPanel(pv.div, { position: "bottom", stable: true })
+      }
+      // render Tex
+      pv.renderer.startRender(expr)
+    } else {
+      // remove panel
+      if (pv.panel) {
+        pv.panel.clear()
+        pv.panel = null
+      }
+    }
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////
 
   /** get Fold instance of `cm`. if not exists, create one. */
   function getFold(cm) {

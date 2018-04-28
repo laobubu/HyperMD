@@ -367,21 +367,6 @@
         }
     }
 
-    /// hypermd/addon/fold-math
-
-    div.hmd-math-preview {
-        div.hmd-math-preview-content {
-            // overflow: hidden;
-            display: inline-block;
-            padding: 1px 1em;
-            border-radius: 5px;
-            background-color: #eee;
-        }
-        padding: 0 10px;
-        text-align: center;
-        min-height: 3.5em;
-    }
-
     /// hide-token
     pre.HyperMD-token-hidden {
         // background: aqua;  // just for debug
@@ -389,5 +374,22 @@
         span.cm-formatting-task {
             color: transparent;
         }
+    }
+}
+
+/// hypermd/addon/fold-math
+
+div.HyperMD-math-preview {
+    overflow: hidden;
+    padding: 0 10px;
+    text-align: center;
+    min-height: 3.5em;
+    
+    div.HyperMD-math-preview-content {
+        // overflow: hidden;
+        display: inline-block;
+        padding: 1px 1em;
+        border-radius: 5px;
+        background-color: #eee;
     }
 }

@@ -59,4 +59,8 @@ pre.HyperMD-token-hidden > span > span{
     {
         @extend %hidden-token;
     }
+
+     &.cm-formatting-link.cm-hmd-barelink:not(.cm-hmd-footnote) {
+        opacity: 0.4;
+    }
 }

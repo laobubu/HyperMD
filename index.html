@@ -26,7 +26,16 @@
 <textarea id="demo"></textarea>
 
 <script src="./node_modules/marked/marked.min.js"></script>  <!-- for addon/hover and other -->
-<script src="./node_modules/mathjax/MathJax.js?config=TeX-MML-AM_CHTML"></script>   <!-- for addon/fold-math -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        jax: ["input/TeX","output/SVG", "output/PreviewHTML"],
+        extensions: ["MathMenu.js","MathZoom.js", "AssistiveMML.js", "a11y/accessibility-menu.js"],
+        TeX: {
+            extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+        }
+    });
+</script>
+<script src="./node_modules/mathjax/MathJax.js"></script>   <!-- for addon/fold-math -->
 
 <!-- using require.js to solve the dependencies -->
 <script src="./demo/vendor/require.js"></script>

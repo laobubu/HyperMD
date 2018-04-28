@@ -43,3 +43,6 @@ span.hmd-link-icon:after {
 span.hmd-fold-math {
   display: inline-block;
   vertical-align: middle; }
+
+pre.HyperMD-token-hidden > span > span.cm-formatting-link.cm-hmd-barelink:not(.cm-hmd-footnote) {
+  opacity: 0.4; }

@@ -277,14 +277,16 @@
     border: 5px solid transparent;
     border-top-color: #000;
     border-top-color: rgba(0, 0, 0, 0.7); }
-  .cm-s-hypermd-light div.hmd-math-preview {
-    padding: 0 10px;
-    text-align: center;
-    min-height: 3.5em; }
-    .cm-s-hypermd-light div.hmd-math-preview div.hmd-math-preview-content {
-      display: inline-block;
-      padding: 1px 1em;
-      border-radius: 5px;
-      background-color: #eee; }
   .cm-s-hypermd-light pre.HyperMD-token-hidden span.cm-formatting-task {
     color: transparent; }
+
+div.HyperMD-math-preview {
+  overflow: hidden;
+  padding: 0 10px;
+  text-align: center;
+  min-height: 3.5em; }
+  div.HyperMD-math-preview div.HyperMD-math-preview-content {
+    display: inline-block;
+    padding: 1px 1em;
+    border-radius: 5px;
+    background-color: #eee; }
