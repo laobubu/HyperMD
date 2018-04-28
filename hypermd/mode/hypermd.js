@@ -63,7 +63,7 @@
         s.quoteLevel = 0
         s.listSpaceStack = []
 
-        if (s.insideCodeFence) return "line-HyperMD-codeblock"
+        if (s.insideCodeFence) return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
         return null
       },
       token: function (stream, state) {
@@ -170,8 +170,8 @@
           if (stream.match(/^```/)) {  // toggle state for codefence
             state.combineTokens = true
             state.insideCodeFence ^= 1
-            var fence_type = state.insideCodeFence ? 'start' : 'end'
-            return "line-HyperMD-codeblock line-HyperMD-codeblock-" + fence_type
+            var fence_type = state.insideCodeFence ? 'begin' : 'end'
+            return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg line-HyperMD-codeblock-" + fence_type
           }
 
           /**
@@ -180,7 +180,7 @@
           if (state.insideCodeFence) {
             stream.skipToEnd()
             state.combineTokens = true
-            return "line-HyperMD-codeblock"
+            return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
           }
 
           //FIXME: tranditional code block is buggy and shall be deprecated!
@@ -194,7 +194,7 @@
            */
           if (state.listSpaceStack.length === 0 && indentation >= 4) {
             stream.skipToEnd()
-            return "line-HyperMD-codeblock line-background-HyperMD-codeblock-indented"
+            return "line-HyperMD-codeblock line-background-HyperMD-codeblock-indented-bg"
           }
 
           /**

@@ -45,206 +45,42 @@
     return str.replace(/([\_\(\*\<\[\+\`\$\\])/g, "\\$1")
   }
 
-  /** 
-   * get one element's wrapping stuff.
-   * ```
-   *   <b>  => {start: "**", end: "**"}
-   *   <h2> => {start: "## "} 
-   *   <script> => {skip: true}
-   *   <blockquote> => { lead: "> "}
-   * ```
-   * 
-   * 1. `lead` is the leading string for every Markdown line inside it.
-   * 
-   * @param {HTMLElement} ele
-   * @return {{start?:string, end?:string, skip?:boolean, lead?:string}}
-   */
-  function getDecoration(ele) {
-    if (ele.nodeType != 1) return {}
-    var tagName = ele.tagName.toLowerCase()
-
-    var LI_ATTR_INDENT = "data-paste-indent"
-    var LI_ATTR_INDEX = "data-paste-index"
-
-    if (
-      /^(?:i|em|del|s|table|span|strike|b|strong|a|code)$/.test(tagName) &&
-      !ele.querySelector('img')
-    ) {
-      var eleText = ele.textContent
-      if (eleText == "\xA0") return { start: " ", skip: true } // &nbsp;
-      if (eleText.trim().length == 0) return { skip: true }
-    }
-
-    if (/dp-highlighter/.test(ele.className)) {
-      var lis = ele.querySelectorAll('ol li'), text = ""
-
-      // get language (for CSDN blog)
-      var lang = ele.querySelector('.tools')
-      if (lang) lang = /^\s*\[(\w+)\]/.exec(lang.textContent)
-      lang = lang ? lang[1] : ''
-
-      for (var i = 0; i < lis.length; i++) text += lis[i].textContent.replace(/\s+$/, '') + "\n"
-      return { start: "\n\n```" + lang + "\n" + text + "```\n\n", skip: true }
-    }
-
-    if (/^(?:script|comment)$/.test(tagName)) return { skip: true }
-    if (/^(?:i|em)$/.test(tagName)) return { start: "*", end: "*" }
-    if (/^(?:del|s|strike)$/.test(tagName)) return { start: "~~", end: "~~" }
-    if (/^(?:b|strong)$/.test(tagName)) return { start: "**", end: "**" }
-    if (/^h\d$/.test(tagName)) return { start: "\n######".substr(0, 1 + ~~tagName.charAt(1)) + " ", end: "\n\n" }
-    if ("pre" === tagName) {
-      var childClassName = ele.firstElementChild && ele.firstElementChild.className || ''
-      var lang =
-        /\b(?:highlight-source|language)-(\w+)/.exec(ele.parentElement.className) ||
-        /\b(?:highlight-source|language)-(\w+)/.exec(ele.className) ||
-        /\b(?:highlight-source|language)-(\w+)/.exec(childClassName) ||
-        (/hljs/.test(ele.className + childClassName) && [0, childClassName.replace('hljs', '').trim()])
-      lang = lang ? lang[1] : ''
-
-      var text = ele.textContent + "\n"
-      if (!ele.previousElementSibling || ele.previousElementSibling.tagName !== 'PRE')
-        text = "\n\n```" + lang + "\n" + text
-      if (!ele.nextElementSibling || ele.nextElementSibling.tagName !== 'PRE')
-        text += "```\n\n"
-
-      return { start: text, skip: true }
-    }
-    if ("code" === tagName && ele.parentElement.tagName !== "PRE") return { start: "`" + ele.textContent + "`", skip: true }
-    if ("blockquote" === tagName) return { start: "\n\n", end: "\n\n", lead: "> " }
-    if ("br" === tagName) return { start: "\n" }
-
-    if ("table" === tagName) return { start: "\n\n", end: "\n\n" }
-    if ("tr" === tagName) {
-      var end = "\n"
-      if (
-        ele == ele.parentElement.firstElementChild &&  // first <tr> 
-        ele.parentElement == ele.parentElement.parentElement.firstElementChild // <thead> or <tbody>
-      ) {
-        var ths = ele.children, i = 0, j = 0
-        while (i < ths.length) {
-          var th = ths[i++]
-          j += ~~th.getAttribute('colspan') + 1
-        }
-
-        while (j--) {
-          end += "| ------ "
-        }
-        end += "|\n"
-      }
-      return { start: "| ", end: end }
-    }
-    if (/^t[dh]$/.test(tagName)) return { end: " | " }
-
-    if (
-      /^(?:p|div)$/.test(tagName)
-    ) {
-      return { start: "\n", end: "\n" }
-    }
-
-    if ("img" === tagName) {
-      var alt = ele.getAttribute("alt") || '',
-        url = ele.getAttribute("src") || '',
-        title = ele.getAttribute("title")
-      if (title) url += ' "' + escape(title) + '"'
-      return { start: "![" + alt + "](" + url + ")" }
-    }
-
-    if ("a" === tagName) {
-      var url = ele.getAttribute("href") || '',
-        title = ele.getAttribute("title")
-      if (title) url += ' "' + escape(title) + '"'
-      if (!url && !title) return {} // skip bookmarks?
-      return { start: "[", end: "](" + url + ")" }
-    }
-
-    // lists should use `lead`, but may get unexcepted spaces...
-    if (/^[uo]l$/.test(tagName)) {
-      var lis = ele.querySelectorAll("li")
-      for (var i = 0; i < lis.length; i++) {
-        var li = lis[i]
-        li.setAttribute(LI_ATTR_INDENT, 1 + ~~li.getAttribute(LI_ATTR_INDENT))
-      }
-
-      lis = ele.children
-      if ('ol' === tagName) {
-        for (var i = 0; i < lis.length;) {
-          li = lis[i++]
-          li.setAttribute(LI_ATTR_INDEX, i + ".")
-        }
-      }
-
-      var isNestedList = /^(?:ul|ol|li)$/i.test(ele.parentElement.tagName)
-      if (isNestedList) return { start: "\n", end: "\n" }
-      return { start: "\n\n", end: "\n\n" }
-    }
-
-    if ('li' === tagName) {
-      var
-        indent = ele.getAttribute(LI_ATTR_INDENT) - 1,
-        index = ele.getAttribute(LI_ATTR_INDEX) || "-"
-      index = ' ' + index + ' '
-      return { start: "                  ".substr(0, indent * 2) + index, end: "\n" }
-    }
-
-    return {}
-  }
-
   /**
-   * parse HTML and translate into Markdown
+   * function that used to translate HTML into Markdown
    * 
-   * @param {string} html
-   * @returns {string}
+   * @type {(html:string)=>string}
    */
-  function html2md(html) {
-    var doc = new DOMParser().parseFromString(html, 'text/html')
+  var html2md
 
-    // once data is fetched, codemirror.js:7554 will get nothing.
+  if (typeof TurndownService === 'function') {
+    // using npm library `turndown`
+    html2md = (function () {
+      var opts = {
+        "headingStyle": "atx",
+        "hr": "---",
+        "bulletListMarker": "*",
+        "codeBlockStyle": "fenced",
+        "fence": "```",
+        "emDelimiter": "*",
+        "strongDelimiter": "**",
+        "linkStyle": "inlined",
+        "linkReferenceStyle": "collapsed"
+      }
+      var turndownService = new TurndownService(opts)
 
-    var result = ""
-    var queue = [doc.body]
-
-    /** @type {{inside: HTMLElement, text:string}[]} */
-    var leads = []
-
-    while (queue.length) {
-      var node = queue.shift()
-
-      var lead = "", text = node.textContent
-      for (var i = 0; i < leads.length; i++) {
-        var relation = node.compareDocumentPosition(leads[i].inside)
-        if (relation & 8) lead += leads[i].text // contained by
-        else leads.splice(i--, 1) // out of this lead
+      if (typeof turndownPluginGfm !== 'undefined') {
+        turndownService.use(turndownPluginGfm.gfm)
       }
 
-      switch (node.nodeType) {
-        case 1: // Element
-          var se = getDecoration(node)
-          if (se.start) {
-            result += lead ? se.start.replace(/(\n)/g, "$1" + lead) : se.start
-          }
-          if (se.lead) {
-            leads.push({ inside: node, text: se.lead })
-            result += se.lead
-          }
-          if (!se.skip) {
-            var childNodes = [].slice.call(node.childNodes)
-            childNodes.splice(0, 0, 0, 0)
-            if (se.end) childNodes.push(new BogusTextNode(se.end, node));
-            [].splice.apply(queue, childNodes)
-          }
-          break
-        case 3: // Text
-          text = escape(text.replace(/[\s\n\r]{2,}/, ' '))
-        case 99: // BogusTextNode
-          result += lead ? text.replace(/(\n)/g, "$1" + lead) : text
-          break
+      return function (html) {
+        return turndownService.turndown(html)
       }
-
-      // remove redundant LFs
-      result = result.replace(/\n{3,}/, "\n\n")
+    })()
+  } else {
+    // using my stupid method to process
+    return function (html) {
+      return html
     }
-
-    return result.trim()
   }
 
   /** 

@@ -106,7 +106,7 @@
 
     pre.HyperMD-hr{
         background: url('data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==') repeat-x 0px center;
-        color: transparent;
+        text-shadow: 0 0 2px #FFF;
     }
 
     /// blockquote
@@ -225,11 +225,23 @@
         }
         // }
 
+        &.HyperMD-codeblock-begin {
+            border-top: 1px solid #CCC;
+            border-radius: 4px 4px 0 0;
+        }
+
+        &.HyperMD-codeblock-end {
+            border-bottom: 1px solid #CCC;
+            border-radius: 0 0 4px 4px;
+        }
+
+        border-left: 1px solid #CCC;
     }
     
     // note: this is a background style
-    div.HyperMD-codeblock-indented {
-        background: #EEE
+    div.HyperMD-codeblock-bg,
+    div.HyperMD-codeblock-indented-bg {
+        background-color: rgba(#eee, .5);
     }
 
 
@@ -373,6 +385,11 @@
 
         span.cm-formatting-task {
             color: transparent;
+        }
+
+        &.HyperMD-hr {
+            color: transparent;
+            text-shadow: none;
         }
     }
 }

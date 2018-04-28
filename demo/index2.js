@@ -86,6 +86,7 @@ click_bind("load_mode", function () {
         function () {
             clearTimeout(fail)
             unfreeze('#3f3')
+            HyperMD.reHighlight(editor)
         }
     )
 }, 'change')

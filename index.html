@@ -25,7 +25,10 @@
 
 <textarea id="demo"></textarea>
 
-<script src="./node_modules/marked/marked.min.js"></script>  <!-- for addon/hover and other -->
+<!-- for addon/hover and other -->
+<script src="./node_modules/marked/marked.min.js"></script>
+
+<!-- for addon/fold-math -->
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         jax: ["input/TeX", "output/HTML-CSS","output/NativeMML","output/SVG"],
@@ -35,7 +38,14 @@
         }
     });
 </script>
-<script src="./node_modules/mathjax/MathJax.js"></script>   <!-- for addon/fold-math -->
+<script src="./node_modules/mathjax/MathJax.js"></script>
+
+<!-- for addon/paste -->
+<script src="./node_modules/turndown/dist/turndown.js"></script>
+<script src="./node_modules/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
+
+<!-- for HyperMD utils -->
+<script src="./hypermd/hypermd.js"></script>
 
 <!-- using require.js to solve the dependencies -->
 <script src="./demo/vendor/require.js"></script>

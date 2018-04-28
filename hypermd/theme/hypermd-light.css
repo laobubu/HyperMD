@@ -104,7 +104,7 @@
     line-height: 8px; }
   .cm-s-hypermd-light pre.HyperMD-hr {
     background: url("data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==") repeat-x 0px center;
-    color: transparent; }
+    text-shadow: 0 0 2px #FFF; }
   .cm-s-hypermd-light pre.HyperMD-quote:before {
     content: " ";
     position: absolute;
@@ -180,14 +180,22 @@
         color: inherit; }
   .cm-s-hypermd-light pre.HyperMD-codeblock {
     line-height: 1em;
-    font-size: inherit; }
+    font-size: inherit;
+    border-left: 1px solid #CCC; }
     .cm-s-hypermd-light pre.HyperMD-codeblock span.cm-inline-code {
       display: inherit;
       background-color: inherit;
       border: inherit;
       padding: inherit; }
-  .cm-s-hypermd-light div.HyperMD-codeblock-indented {
-    background: #EEE; }
+    .cm-s-hypermd-light pre.HyperMD-codeblock.HyperMD-codeblock-begin {
+      border-top: 1px solid #CCC;
+      border-radius: 4px 4px 0 0; }
+    .cm-s-hypermd-light pre.HyperMD-codeblock.HyperMD-codeblock-end {
+      border-bottom: 1px solid #CCC;
+      border-radius: 0 0 4px 4px; }
+  .cm-s-hypermd-light div.HyperMD-codeblock-bg,
+  .cm-s-hypermd-light div.HyperMD-codeblock-indented-bg {
+    background-color: rgba(238, 238, 238, 0.5); }
   .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string,
   .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string + .cm-url,
   .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string {
@@ -279,6 +287,9 @@
     border-top-color: rgba(0, 0, 0, 0.7); }
   .cm-s-hypermd-light pre.HyperMD-token-hidden span.cm-formatting-task {
     color: transparent; }
+  .cm-s-hypermd-light pre.HyperMD-token-hidden.HyperMD-hr {
+    color: transparent;
+    text-shadow: none; }
 
 div.HyperMD-math-preview {
   overflow: auto;
