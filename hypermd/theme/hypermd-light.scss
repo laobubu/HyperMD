@@ -20,7 +20,7 @@
     }
 
     /// CodeMirror
-    
+
     .cm-header, .cm-strong {font-weight: 600;}
     span.cm-quote { color: #666; }
     span.cm-meta { color: #FF1717; }
@@ -42,8 +42,8 @@
     span.cm-tag { color: #170; }
     span.cm-attribute { color: #00c; }
     span.cm-url { color: #4af }
-    span.cm-link { 
-        color: #4078c0; 
+    span.cm-link {
+        color: #4078c0;
         text-decoration: none;
         &:hover {
             text-decoration: underline
@@ -56,11 +56,11 @@
     .CodeMirror-activeline-background { background: #e8f2ff; }
     .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
 
-    .CodeMirror-linenumber { 
+    .CodeMirror-linenumber {
         color: #ccc;
     }
-    .CodeMirror-gutters { 
-        border-right: 10px solid #FFF; 
+    .CodeMirror-gutters {
+        border-right: 10px solid #FFF;
         padding-right: 5px;
     }
     .CodeMirror-foldmarker {
@@ -113,7 +113,7 @@
 
     $quote-margin: 2px;
     $quote-padding: 20px;
-    
+
     pre.HyperMD-quote
     {
         &:before {
@@ -127,7 +127,7 @@
         }
     }
     @for $i from 1 through 6 {
-        pre.HyperMD-quote-#{$i} { 
+        pre.HyperMD-quote-#{$i} {
             padding-left: $quote-margin + ($quote-padding) * ($i);
             &:before {
                 width: $quote-padding * $i;
@@ -215,7 +215,7 @@
         @extend %monospace;
         line-height: 1em;
         font-size: inherit;
-        
+
         // &.hmd-codeblock-indent {
         span.cm-inline-code {
             display: inherit;
@@ -237,7 +237,7 @@
 
         border-left: 1px solid #CCC;
     }
-    
+
     // note: this is a background style
     div.HyperMD-codeblock-bg,
     div.HyperMD-codeblock-indented-bg {
@@ -246,10 +246,12 @@
 
 
     /// link
-    
+
     .cm-formatting-link + .cm-formatting-link-string,
     .cm-formatting-link + .cm-formatting-link-string + .cm-url,
     .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string
+    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link,
+    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link + .cm-formatting-link-string
     {
         display: inline-block;
         font-size: .7em;
@@ -276,7 +278,7 @@
     }
 
     /// image
-    
+
     img.hmd-image {
         vertical-align: middle;
         width: auto;
@@ -290,7 +292,7 @@
     }
 
     /// math blocks
-    
+
     span.cm-math-2 { font-size: 1.1 * $fs }
 
     /// other Markdown stuff
@@ -310,7 +312,7 @@
         @extend %monospace;
         color: #922;
         font-size: 90%;
-        
+
         &:not(.cm-formatting) {
             display: inline-block;
             background-color: rgba(#eee, .5);
@@ -341,7 +343,7 @@
             // background-color: #fafafa;
             color: transparent;
             text-align: left;
-            &:before { 
+            &:before {
                 position: absolute;
                 padding-left: 5px;
                 content: "Back";
@@ -409,10 +411,9 @@ div.HyperMD-math-preview {
         content: ' ';
         clear: both;
     }
-    
+
     > div.HyperMD-math-preview-content {
         overflow: hidden;
-        display: inline-block;
 
         .MathJax_Display,
         .MathJax_SVG_Display {
@@ -426,5 +427,12 @@ div.HyperMD-math-preview {
         font-size: 10px;
         padding: 4px;
         cursor: pointer;
+    }
+
+    &.HyperMD-math-preview-hidden {
+        height: 0px;
+        min-height: 0px;
+        overflow: hidden;
+        border-top: 0;
     }
 }

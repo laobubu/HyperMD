@@ -8,16 +8,18 @@
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require(CODEMIRROR_ROOT + "lib/codemirror"),
+      require("./../hypermd"),
       require(CODEMIRROR_ROOT + "addon/display/panel")
     );
   else if (typeof define == "function" && define.amd) // AMD
     define([
       CODEMIRROR_ROOT + "lib/codemirror",
+      "./../hypermd",
       CODEMIRROR_ROOT + "addon/display/panel"
     ], mod);
   else // Plain browser env
     mod(CodeMirror);
-})(function (CodeMirror) {
+})(function (CodeMirror, HyperMD) {
   "use strict";
 
   var DEBUG = false
@@ -35,11 +37,11 @@
 
   /**
    * The default MathRenderer, using MathJax
-   * 
+   *
    * @param {HTMLDivElement} div container
    * @param {"display"|""} [mode] MathJax Mode
    */
-  function MathRenderer(div, mode) {
+  function MathJaxRenderer(div, mode) {
     var script = document.createElement("script")
     script.setAttribute("type", mode ? 'math/tex; mode=' + mode : 'math/tex')
     div.appendChild(script)
@@ -55,7 +57,7 @@
     this._renderingExpr = "" // Currently rendering expr
   }
 
-  MathRenderer.prototype.clear = function () {
+  MathJaxRenderer.prototype.clear = function () {
     var script = this.script
     script.innerHTML = ''
 
@@ -66,9 +68,9 @@
 
   /**
    * start rendering a Tex expression
-   * @param {string} expr 
+   * @param {string} expr
    */
-  MathRenderer.prototype.startRender = function (expr) {
+  MathJaxRenderer.prototype.startRender = function (expr) {
     if (this._cleared) {
       return
     }
@@ -101,10 +103,10 @@
 
   /**
    * When MathJax finishes rendering, it shall call this function
-   * 
+   *
    * @private
    */
-  MathRenderer.prototype._TypesetDoneCB = function (finished_expr) {
+  MathJaxRenderer.prototype._TypesetDoneCB = function (finished_expr) {
     if (this._cleared) {
       return
     }
@@ -120,7 +122,7 @@
 
     // Rendering finished. Nothing wrong
     this._renderingExpr = ""
-    if (typeof (this.onChanged) === 'function') this.onChanged(this)
+    if (typeof (this.onChanged) === 'function') this.onChanged(this, finished_expr)
   }
 
   ///////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +142,7 @@
 
   /**
    * find next token's position.
-   * 
+   *
    * @param {RegExp|function} condition if regex, test the token.type; if function, test `token` object. see `tokens`
    * @param {{line:number,ch:number}} [from]
    * @returns {{line:number,ch:number,token:{end:number,start:number,string:string,type:string}}} pos or null
@@ -173,41 +175,8 @@
   }
 
   /**
-   * CodeMirror's getLineTokens might merge chars with same styles, but this won't.
-   * 
-   * This one will consume more memory.
-   * 
-   * @param {LineHandle} line 
-   * @returns {string[]}
-   */
-  function getEveryCharToken(line) {
-    var ans = new Array(line.text.length)
-    var ss = line.styles
-    var i = 0
-
-    if (ss) {
-      // CodeMirror already parsed this line. Use cache
-      for (var j = 1; j < ss.length; j += 2) {
-        var i_to = ss[j], s = ss[j + 1]
-        while (i < i_to) ans[i++] = s
-      }
-    } else {
-      // Emmm... slow method
-      var cm = line.parent.cm || line.parent.parent.cm || line.parent.parent.parent.cm
-      ss = cm.getLineTokens(line.lineNo())
-      for (var j = 0; j < ss.length; j ++) {
-        var i_to = ss[j].end, s = ss[j].type
-        while (i < i_to) ans[i++] = s
-      }
-    }
-    return ans
-  }
-
-  window.getEveryCharToken = getEveryCharToken
-
-  /**
    * Process one line.
-   * 
+   *
    * @param {{line:number,ch:number}} curpos - avoid current editing formula
    * @param {object} line - lineHandle
    */
@@ -217,8 +186,9 @@
     var lineNo = line.lineNo()
     var updatedPreview = false
 
-    /** every char's style @type {string[]} */
-    var tokens = getEveryCharToken(line)
+    /** every char's style
+     * @type {string[]} */
+    var tokens = HyperMD.getEveryCharToken(line)
 
     // we shall avoid processing marked texts
     if (line.markedSpans) {
@@ -288,7 +258,7 @@
 
     // hide preview panel if necessary
     if (lineNo === curpos.line) {
-      if (!/\bmath-2/.test(tokens.length && tokens[0] && tokens[0].type)) { // not inside multiline Tex block
+      if (!/\bmath-2/.test(tokens.length && tokens[0])) { // not inside multiline Tex block
         if (!updatedPreview) { // not trigged updatePreview
           // then, hide it
           updatePreview(cm, line, "")
@@ -298,19 +268,18 @@
   }
 
   /**
-   * move cursor to where marker is 
-   * 
+   * move cursor to where marker is
+   *
+   * @param {CodeMirror.TextMarker} marker
    * @param {number} chOffset >= 1
    */
   function breakMark(cm, marker, chOffset) {
-    var line = marker.lines[0], ms = line.markedSpans
-    for (var i = 0; i < ms.length; i++) {
-      var s = ms[i]
-      if (s.marker === marker) {
-        cm.setCursor({ line: line.lineNo(), ch: s.from + ~~chOffset })
-        return
-      }
-    }
+    cm.operation(function () {
+      var pos = marker.find().from
+      pos = { line: pos.line, ch: pos.ch + ~~chOffset }
+      cm.setCursor(pos)
+      marker.clear()
+    })
   }
 
   function insertMathMark(cm, p1, p2, expression, className) {
@@ -330,6 +299,8 @@
       cm.focus()
     }, false)
 
+    var MathRenderer = getFold(cm).MathRenderer || MathJaxRenderer
+
     var mathRenderer = new MathRenderer(span, "")
     mathRenderer.onChanged = function () { marker.changed() }
     marker.on("clear", function () { mathRenderer.clear() })
@@ -338,7 +309,7 @@
 
   /**
    * show / hide a math preview.
-   * 
+   *
    * @param {object|number} line
    * @param {string} [expr] expression
    */
@@ -356,6 +327,7 @@
     this.interval = foldDefaultOption.interval
     this.preview = foldDefaultOption.preview
     this.previewTitle = foldDefaultOption.previewTitle
+    this.MathRenderer = foldDefaultOption.MathRenderer
 
     this._timeoutHandle = 0
     this._doFold = this.doFold.bind(this)
@@ -364,16 +336,16 @@
 
     // div > div2 > Tex
     var div = document.createElement('div')
-    div.className = "HyperMD-math-preview"
-
-    var divSizeKeeper = document.createElement('div')
-    divSizeKeeper.style.cssFloat = "left"
-    div.appendChild(divSizeKeeper)
+    div.className = "HyperMD-math-preview HyperMD-math-preview-hidden"
 
     var divTitle = document.createElement('div')
     divTitle.textContent = this.previewTitle
     divTitle.className = "HyperMD-math-preview-title"
     div.appendChild(divTitle)
+
+    var divSizeKeeper = document.createElement('div')
+    divSizeKeeper.setAttribute("style", "float:left;width:1px;")
+    div.appendChild(divSizeKeeper)
 
     var div2 = document.createElement('div')
     div2.className = "HyperMD-math-preview-content"
@@ -385,17 +357,24 @@
       cm.focus()
     }, false)
 
+    var panel = cm.addPanel && cm.addPanel(div, { position: "bottom", stable: true })
+
+    var MathRenderer = this.MathRenderer || MathJaxRenderer
     var renderer = new MathRenderer(div2, "display")
     renderer.onChanged = function () {
       if (DEBUG) console.log("PANEL CHANGED")
-      if (self._pv.panel) {
-        divSizeKeeper.style.height = (divTitle.offsetHeight + div2.offsetHeight) + 'px'
-        self._pv.panel.changed()
+      if (panel && self._pv.last_expr) {
+        if (/HyperMD-math-preview-hidden/.test(div.className)) {
+          div.className = div.className.replace('HyperMD-math-preview-hidden', '')
+        }
+        divSizeKeeper.style.height = div2.offsetHeight + 'px'
+        panel.changed()
+        cm.scrollIntoView(cm.cursorCoords(false, 'local'))
       }
     }
 
     this._pv = {
-      panel: null,
+      panel: panel,
       div: div,
       divTitle: divTitle,
       div2: div2,
@@ -420,35 +399,31 @@
 
   /**
    * Update preview, or close preview panel (if `!expr`)
-   * 
+   *
    * NOTE: calling this function will force to show a panel, even if `this.preview === false`.
-   * 
-   * @param {string|null} expr 
+   *
+   * @param {string|null} expr
    */
   Fold.prototype.updatePreview = function (expr) {
     var pv = this._pv, cm = this.cm
 
     if (expr === pv.last_expr) return
+    if (!pv.panel) return // panel addon unavailable, can't preview
     pv.last_expr = expr
 
     if (expr) {
-      // (optionally) create panel
-      if (!pv.panel) {
-        pv.panel = cm.addPanel(pv.div, { position: "bottom", stable: true })
-      }
       // render Tex
       if (DEBUG) console.log("PANEL start rendering", expr)
       pv.renderer.startRender(expr)
     } else {
       // remove panel
-      if (pv.panel) {
-        pv.panel.clear()
-        pv.panel = null
+      if (!/HyperMD-math-preview-hidden/.test(pv.div.className)) {
+        pv.div.className += " HyperMD-math-preview-hidden"
+        pv.panel.changed()
       }
     }
 
-    cm.focus()
-    cm.scrollIntoView(cm.getCursor('head'))
+    // cm.focus()
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
@@ -466,7 +441,8 @@
   var foldDefaultOption = { // exposed options. also see Fold class.
     interval: 0,    // auto rendering interval, 0 = off
     preview: false,  // provide a preview while inputing a formula
-    previewTitle: "HyperMD Tex Previewer. Click to Close", // title of preview panel
+    previewTitle: "HyperMD Tex Preview", // title of preview panel
+    MathRenderer: MathJaxRenderer, // a constructor function, creating a MathRenderer
   }
 
   CodeMirror.defineOption("hmdFoldMath", foldDefaultOption, function (cm, newVal, oldVal) {
