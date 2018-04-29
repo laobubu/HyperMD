@@ -1,15 +1,22 @@
-/**
- * Provides HyperMD **base functions**
- *
- */
+// HyperMD, copyright (c) by laobubu
+// Distributed under an MIT license: http://laobubu.net/hypermd/LICENSE
+//
+// Provides HyperMD **base functions**
+//
+
 (function (mod) {
+  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "codemirror/"
   if (typeof exports == "object" && typeof module == "object") // CommonJS
-    module.exports = mod()
+    module.exports = mod(
+      require(CODEMIRROR_ROOT + "lib/codemirror")
+    )
   else if (typeof define == "function" && define.amd) // AMD
-    define([], mod)
+    define([
+      CODEMIRROR_ROOT + "lib/codemirror",
+    ], mod)
   else // Plain browser env
-    window.HyperMD = mod()
-})(function () {
+    window.HyperMD = mod(window.CodeMirror)
+})(function (CodeMirror) {
   var HyperMD = {
     /**
     * CodeMirror's `getLineTokens` might merge adjacent chars with same styles,

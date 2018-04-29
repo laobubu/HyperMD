@@ -11,7 +11,7 @@ if (requirejs) requirejs.config({
  [^1]:  The `codemirror.js` might be outside the `lib` directory,
         which will make HyperMD fail to load,
         if you are using CDN, bower, or old version of CodeMirror.
-        
+
         Uncomment this line to fix it.
 
         see http://stackoverflow.com/questions/36500713/loading-codemirror-with-requirejs-from-cdn
@@ -52,6 +52,7 @@ require([
             lineWrapping: true,
             theme: "hypermd-light",
             mode: "text/x-hypermd",
+            tabSize: 4, // CommonMark specifies tab as 4 spaces
             // keyMap: "vim",     // just for fun
 
             foldGutter: true,
@@ -86,7 +87,7 @@ require([
             // (addon) paste-image
             // copy, paste and upload image
             hmdPasteImage: true,
-            
+
             // (addon) hide-token
             // hide/show Markdown tokens like `**`
             hmdHideToken: "(profile-1)"

@@ -23,9 +23,9 @@
 
   /**
    * Init HyperMD Click addon. Where `this` is the editor instance.
-   * 
-   * Note: 
-   *  if you need a "back" button before a footnote, please 
+   *
+   * Note:
+   *  if you need a "back" button before a footnote, please
    * add "HyperMD-goback" into "gutters" option when init editor.
    */
   function init() {
@@ -69,7 +69,7 @@
 
       var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }),
         line = cm.getLineHandle(pos.line), txt = line.text,
-        s = line.styles, i = 1, i2
+        s = line.styles, i = 1
 
       while (s[i] && s[i] < pos.ch) i += 2
       if (!s[i]) return
@@ -78,24 +78,35 @@
       // s[i] is where this token stops
 
       // link trace
-      if (/cm-(link|url)/.test(targetClass)) {
-        // if clicked on the formatting token. find the 
-        if (/\bformatting-(?:link|url)\b/.test(s[i + 1])) {
-          if (/\b(?:link|url)\b/.test(s[i + 3]) && !/\bformatting-(?:link|url)\b/.test(s[i + 3])) i += 2
-          else i -= 2
-        }
+      if (/cm-(?:link|url)/.test(targetClass)) {
+        // find the url
 
-        var clickOnURL = !(/\bstring\b/.test(s[i + 5]) && /\burl\b/.test(s[i + 5]))
-        var url
-        if (!clickOnURL) {
-          // found [url] or (http://laobubu.net) after current token
-          url = txt.substr(s[i + 4], s[i + 6] - s[i + 4])
-        } else {
-          url = txt.substr(s[i - 2], s[i] - s[i - 2])
-        }
-        
+        // find the tail token of current link
+        var ti_end = i  // ti == token index
+        while (/link|url/.test(s[ti_end + 1])) ti_end += 2
+        ti_end -= 2
+
+        // find the beginning token of current link
+        var ti_begin = i
+        while (/link|url/.test(s[ti_begin + 1])) ti_begin -= 2
+        ti_begin += 2
+
+        // find the beginning token of url (usually is [ or ( )
+        var ti_urlbegin = ti_end - 2
+        while (ti_urlbegin > ti_begin && !/formatting-link(?:-string)?/.test(s[ti_urlbegin + 1])) ti_urlbegin -= 2
+
+        // now get all interesting char positions
+        var ch_begin = s[ti_begin - 2] || 0 // char index
+        var ch_end = s[ti_end] // last char index + 1
+        var ch_separate = s[ti_urlbegin - 2] || 0
+
+        var clickOnURL = pos.ch >= ch_separate && pos.ch <= ch_end
+        var url = line.text.substr(ch_separate + 1, ch_end - ch_separate - 2) // bracket-free url string
+
+        if (!url) return
+
         // whether `url` is a real url, not a reference
-        var isRealURL = /^(?:https?|ftp|wss?)\:|^[:\.]?\/\/?/i.test(url)
+        var isRealURL = /^(?:mailto|tel|https?|ftp|wss?)\:|^[:\.]?\/\/?/i.test(url)
 
         // now we got the url
         if (!isRealURL) {
@@ -126,8 +137,7 @@
           url = footnote.content
         }
 
-        url = /^\S+/.exec(url)[0]
-        if (/^\<.+\>$/.test(url)) url = url.substr(1, url.length - 2) // some legacy Markdown syntax
+        url = /^\S+/.exec(url)[0] // remove tailing title
         if (/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/.test(url)) url = "mailto:" + url
         else if (/^\d(?:[\d-]+)\d$/.test(url)) url = "tel:" + url.replace(/\D/g, '')
 

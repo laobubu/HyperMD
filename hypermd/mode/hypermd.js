@@ -28,7 +28,6 @@
   var listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/  // this regex is from CodeMirror's sourcecode
 
   CodeMirror.defineMode("hypermd", function (config, modeConfig) {
-    var codeDepth = 0;
     var hypermdOverlay = {
       startState: function () {
         return {
@@ -40,7 +39,7 @@
           // NOTICE: listSpaceStack[0] could be 0, (eg. ordered list, or " - "'s leading space is missing)
           //         if meet the situation, do not return any token, otherwise CodeMirror would crash
           prevLineIsEmpty: false,
-          extra: null   // reserved, works with "inside"
+          extra: null,   // reserved, works with "inside"
           // when inside "math", this is the token like `$` or `$$`
           // when insnde "listSpace", this is the index of listSpaceStack(array)
         };
@@ -240,10 +239,26 @@
             state.extra = null
             if (!stream.match(listRE)) stream.next()
           } else {
-            stream.pos += state.listSpaceStack[state.extra]
+            var indent_to_eat = state.listSpaceStack[state.extra]
+            var corrupted = false
+            while (indent_to_eat > 0) {
+              var next_ch = stream.next()
+              if (next_ch === "\t") indent_to_eat -= 4
+              else if (next_ch === " ") indent_to_eat -= 1
+              else {
+                // FIXME: User made a corrupted indent. How to solve?
+                state.inside = null
+                state.extra = null
+                corrupted = true
+                break
+              }
+            }
+
+            //FIXME: deal with indent_to_eat < 0
 
             ans = "hmd-list-indent hmd-list-indent-" + (state.extra + 1)
-            if (firstMet) ans += " line-HyperMD-line line-HyperMD-line-" + listLevel
+            if (firstMet) ans += " line-HyperMD-list-line line-HyperMD-list-line-" + listLevel
+            if (corrupted) ans += " hmd-list-indent-corrupted"
 
             if (++state.extra >= listLevel) {
               // this is the last indenting space, going to exit "listSpace" status

@@ -194,6 +194,7 @@
 .cm-s-hypermd-light .cm-hmd-list-indent, .cm-s-hypermd-light .cm-formatting-list {
   display: inline-block;
   width: 1.5em;
+  box-sizing: border-box;
   border-left: 1px dashed #eee;
   vertical-align: bottom;
   text-align: right; }
@@ -201,6 +202,45 @@
 .cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-1, .cm-s-hypermd-light .cm-hmd-list-indent-1.cm-formatting-list {
   display: inline;
   border-left: 0; }
+
+.cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-corrupted, .cm-s-hypermd-light .cm-hmd-list-indent-corrupted.cm-formatting-list {
+  background: rgba(255, 0, 0, 0.4); }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-1 {
+  padding-left: 1.7em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > span:first-child {
+  margin-left: -1.9em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-2 {
+  padding-left: 3.2em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-2 > span > span:first-child {
+  margin-left: -3.4em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-3 {
+  padding-left: 4.7em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-3 > span > span:first-child {
+  margin-left: -4.9em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-4 {
+  padding-left: 6.2em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-4 > span > span:first-child {
+  margin-left: -6.4em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-5 {
+  padding-left: 7.7em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-5 > span > span:first-child {
+  margin-left: -7.9em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-6 {
+  padding-left: 9.2em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-6 > span > span:first-child {
+  margin-left: -9.4em; }
 
 .cm-s-hypermd-light .cm-formatting-list {
   font-family: 'HyperMD-Bullets';
@@ -228,7 +268,11 @@
   background-position-y: -1em; }
 
 .cm-s-hypermd-light pre.HyperMD-footnote {
-  font-size: 10.2pt; }
+  font-size: 10.2pt;
+  padding-left: 4em; }
+
+.cm-s-hypermd-light pre.HyperMD-footnote > span > span:first-child {
+  margin-left: -4em; }
 
 .cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote:not(.cm-formatting) {
   display: inline-block;
@@ -266,7 +310,8 @@
 
 .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string,
 .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string + .cm-url,
-.cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link,
+.cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string,
+.cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link,
 .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link + .cm-formatting-link-string {
   display: inline-block;
   font-size: .7em;

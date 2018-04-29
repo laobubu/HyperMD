@@ -138,10 +138,12 @@
     /// list
 
     $list-indent-width: 1.5em;
+    $list-wrapped-indent: 0.2em;
 
     .cm-hmd-list-indent {
         display: inline-block;
         width: $list-indent-width;
+        box-sizing: border-box;
         border-left: 1px dashed #eee;
         vertical-align: bottom;
         text-align: right;
@@ -149,6 +151,20 @@
         &.cm-hmd-list-indent-1 {
             display: inline;
             border-left: 0;
+        }
+
+        &.cm-hmd-list-indent-corrupted {
+            background: rgba(#F00, 0.4);
+        }
+    }
+
+    @for $i from 1 through 6 {
+        pre.HyperMD-list-line-#{$i} {
+            $indent_i: $list-indent-width * $i + $list-wrapped-indent;
+            padding-left: $indent_i;
+            > span > span:first-child {
+                margin-left: - $indent_i - $list-wrapped-indent;
+            }
         }
     }
 
@@ -189,7 +205,14 @@
 
     /// footnote for link and image
     pre.HyperMD-footnote {
+        $footnote-left-indent: 4em;
         font-size: $fs * 0.85;
+        padding-left: $footnote-left-indent;
+
+        > span > span:first-child {
+            margin-left: - $footnote-left-indent;
+        }
+
         span.cm-hmd-footnote:not(.cm-formatting){
             display: inline-block;
             vertical-align: bottom;
@@ -249,7 +272,7 @@
 
     .cm-formatting-link + .cm-formatting-link-string,
     .cm-formatting-link + .cm-formatting-link-string + .cm-url,
-    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string
+    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string,
     .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link,
     .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link + .cm-formatting-link-string
     {
