@@ -393,6 +393,14 @@
             p {
                 margin: .2em 0;
             }
+            code {
+                @extend %monospace;
+                display: inline-block;
+                font-size: .87em;
+                border: 1px solid #999;
+                border-radius: 2px;
+                padding: 0px 4px;
+            }
         }
         > .HyperMD-hover-indicator {
             content: " ";

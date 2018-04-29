@@ -38,7 +38,8 @@ require([
     HYPERMD_ROOT + 'addon/click',
     HYPERMD_ROOT + 'addon/hover',
     HYPERMD_ROOT + 'addon/paste',
-    HYPERMD_ROOT + 'addon/paste-image'
+    HYPERMD_ROOT + 'addon/paste-image',
+    HYPERMD_ROOT + 'addon/mode-loader',
 ], function (CodeMirror) {
     'use strict';
     var myTextarea = document.getElementById('demo')
@@ -90,7 +91,15 @@ require([
 
             // (addon) hide-token
             // hide/show Markdown tokens like `**`
-            hmdHideToken: "(profile-1)"
+            hmdHideToken: "(profile-1)",
+
+            // (addon) mode-loader
+            // auto load mode to highlight code blocks
+            // by providing a URL prefix, pointing to your CodeMirror
+            // - http://cdn.xxxxx.com/codemirror/v4.xx/
+            // - ./node_modules/codemirror/              <- relative to webpage's URL
+            // using require.js? do it like this :
+            hmdLoadModeFrom: "~codemirror/",
         })
 
         // (addon) hover

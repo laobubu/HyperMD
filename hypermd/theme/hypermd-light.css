@@ -10,7 +10,7 @@
   line-height: 1.5;
   font-size: 12pt; }
 
-.cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light pre.HyperMD-codeblock, .cm-s-hypermd-light span.cm-inline-code {
+.cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light pre.HyperMD-codeblock, .cm-s-hypermd-light span.cm-inline-code, .cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content code {
   font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; }
 
 .cm-s-hypermd-light .cm-header, .cm-s-hypermd-light .cm-strong {
@@ -411,6 +411,13 @@
 
 .cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content p {
   margin: .2em 0; }
+
+.cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content code {
+  display: inline-block;
+  font-size: .87em;
+  border: 1px solid #999;
+  border-radius: 2px;
+  padding: 0px 4px; }
 
 .cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-indicator {
   content: " ";

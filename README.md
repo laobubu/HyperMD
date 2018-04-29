@@ -29,7 +29,8 @@ You may use both original CodeMirror and HyperMD on the same page.
      - Diff and Merge
      - Fullscreen
      - Themes [^3]
- 7. **[And More...](https://laobubu.net/HyperMD/ "HyperMD Documentation")**
+ 7. **Code Block Highlighting** language modes are loaded automatically
+ 8. **[And More...](https://laobubu.net/HyperMD/ "HyperMD Documentation")**
 
 ## Quickstart
 
@@ -52,7 +53,7 @@ initializing your editor:
  * HyperMD:
  	- **hypermd.js** (core and base functions)
  	- **mode/hypermd** both js and css
- 	- **all add-ons**
+ 	- **addon**s (you would like to load all of them)
  	- **theme** you prefer ( eg. `hypermd-light.css` )
  * Third-party:
     - (optional) [MathJax]

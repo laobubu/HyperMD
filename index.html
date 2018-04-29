@@ -20,10 +20,11 @@
     <p>A WYSIWYG Markdown editor provided by <a href="https://laobubu.net">laobubu</a></p>
     <p><a href="https://github.com/laobubu/hypermd/">[View on GitHub]</a></p>
     <p>&nbsp;</p>
-    <p><i>Loading, please wait...</i></p>
+    <p style="font-size:1.4em;text-align:center"><b><i>Loading...</i></b></p>
+    <p>&nbsp;</p>
 </div>
 
-<textarea id="demo"></textarea>
+<textarea id="demo" style="display:none"></textarea>
 
 <!-- for addon/hover and other -->
 <script src="./node_modules/marked/marked.min.js"></script>
@@ -55,7 +56,6 @@
     <ul>
         <li><button id="raw_mode">Raw Mode</button> use default theme provided by CodeMirror, stop folding/hiding things.</li>
         <li><button id="hypermd_mode">HyperMD Mode</button> revert changes made by the above button</li>
-        <li>Load syntax highlight profile for <select id="load_mode"></select></li>
     </ul>
 </div>
 <script src="./demo/index2.js"></script>
