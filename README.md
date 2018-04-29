@@ -18,7 +18,7 @@ You may use both original CodeMirror and HyperMD on the same page.
      - Block-quotes, code blocks
      - Headers
      - Horizontal Rules
-     - Lists (nested, ordered, unordered, tasks with checkbox)
+     - [x] Lists (nested, ordered, unordered, tasks with checkbox)
      - [MathJax] Formula, like $ e^{ i\pi } + 1 = 0 $ and math block [^4]
  2. **Alt+Click** to follow link / footnote [^1]
  3. **Syntax Highlight** for 120+ languages code blocks [^2]
@@ -50,12 +50,15 @@ initializing your editor:
  	- **meta, xml, markdown, gfm** modes from CodeMirror
  	- (optional) other CodeMirror modes if you need code highlighting
  * HyperMD:
+ 	- **hypermd.js** (core and base functions)
  	- **mode/hypermd** both js and css
  	- **all add-ons**
  	- **theme** you prefer ( eg. `hypermd-light.css` )
  * Third-party:
     - (optional) [MathJax]
     - (optional) [marked] renders tooltip text
+    - (optional) [turndown] translate copied content into Markdown
+    - (optional) [turndown-plugin-gfm] paste strikethrough, tables etc.
 
 Once add-ons and stylesheets are loaded, you may initialize editor,
 turn your `<textarea>` into HyperMD editor, with few codes:
@@ -87,7 +90,7 @@ var editor = CodeMirror.fromTextArea(myTextarea, {
 })
 
 editor.hmdHoverInit()       // tooltips on footnotes
-editor.hmdClickInit()       // click to follow links and footnotes
+editor.hmdClickInit()       // open link, toggle todo item etc.
 ```
 
 And that's all. Feel free to modify the options above.
@@ -108,6 +111,8 @@ Contributions are welcomed. You may:
 [RequireJS]:  http://requirejs.org/   A JavaScript AMD module loader.
 [MathJax]:  https://www.mathjax.org/  A display engine for mathematics.
 [marked]:   https://github.com/chjj/marked/  A markdown parser and compiler.
+[turndown]: https://github.com/domchristie/turndown An HTML to Markdown converter
+[turndown-plugin-gfm]: https://github.com/domchristie/turndown-plugin-gfm Turndown plugin to add GitHub Flavored Markdown extensions
 [laobubu]:  https://laobubu.net/  The author of HyperMD.
 [^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.

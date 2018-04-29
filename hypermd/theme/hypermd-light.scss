@@ -145,7 +145,7 @@
         width: $list-indent-width;
         box-sizing: border-box;
         border-left: 1px dashed #eee;
-        vertical-align: bottom;
+        vertical-align: middle;
         text-align: right;
 
         &.cm-hmd-list-indent-1 {
@@ -191,6 +191,7 @@
         vertical-align: middle;
         background-repeat: no-repeat;
         background-position: center 0;
+        cursor: pointer;
 
         &.cm-property {
             background-position-y: -1em;

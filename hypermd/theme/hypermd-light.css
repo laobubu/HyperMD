@@ -196,7 +196,7 @@
   width: 1.5em;
   box-sizing: border-box;
   border-left: 1px dashed #eee;
-  vertical-align: bottom;
+  vertical-align: middle;
   text-align: right; }
 
 .cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-1, .cm-s-hypermd-light .cm-hmd-list-indent-1.cm-formatting-list {
@@ -260,6 +260,7 @@
   vertical-align: middle;
   background-repeat: no-repeat;
   background-position: center 0;
+  cursor: pointer;
   color: rgba(0, 0, 0, 0.5);
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAwCAMAAAA8VkqRAAAAclBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACa4vOeAAAAJXRSTlMADcjpDswcLZOzsvOYBvWdbtvTX0D69+ORa1dRJCDtuaF7ZDkoQyuUXgAAAMhJREFUOMvt0reywjAUhOFjKxmcrgMZboL//V8Rm6GwkNUx0LClvhkVZ1fEZoqHqMwO7wuUSb0YxcJKxtLpxIt2SzJRykkQp5RgdAjaIKRJCEn6gWdA9OzRoqLVRscQnc9bdtXX/eyurOF7N3erLVDPwCGHxoVwamH1LwGUBfBbhrCvoLlMitL9DY8trLtJg7qoCj18VAN1OYE/YJBuDe1RJtBVo5wbqPb+GL5yWG1GLX0YZYw5iQ93yQ/yAHfZzu5qt/mxr97VFS15JGSVM0C6AAAAAElFTkSuQmCC");
   background-size: 1em; }

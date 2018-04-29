@@ -64,11 +64,11 @@
 
     lineDiv.addEventListener("mousedown", function (ev) {
       var target = ev.target, targetClass = target.className
-      if (target.nodeName !== "SPAN") return
-      if (!(ev.altKey || ev.ctrlKey)) return
+      var decorateKey = ev.altKey || ev.ctrlKey
+      var nodeName = target.nodeName
 
       var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }),
-        line = cm.getLineHandle(pos.line), txt = line.text,
+        line = cm.getLineHandle(pos.line), text = line.text,
         s = line.styles, i = 1
 
       while (s[i] && s[i] < pos.ch) i += 2
@@ -77,8 +77,36 @@
       // now s[i+1] is current clicked token style
       // s[i] is where this token stops
 
+      /**
+       * 1: link
+       * 2: todo-list line
+       */
+      var action = 0
+
+      if (nodeName === "SPAN") {
+        // open a link
+        if (decorateKey && /cm-(?:link|url)/.test(targetClass)) action = 1
+
+        // cursor directly on the checkbox, no need to press Ctrl or Alt key
+        if (action === 0 && /cm-formatting-task/.test(targetClass)) action = 2
+
+        // Ctrl+alt clicking a list line
+        if (action === 0 && decorateKey && /cm-list/.test(targetClass)) {
+          for (var i = 2; i < s.length; i+=2) {
+            if (/formatting-task/.test(s[i])) {
+              // toggle a todo-item (with ctrl or alt key)
+              // this line contains todo checkbox
+              action = 2
+              break
+            }
+          }
+        }
+      }
+
+      if (action === 0) return
+
       // link trace
-      if (/cm-(?:link|url)/.test(targetClass)) {
+      if (action === 1) {
         // find the url
 
         // find the tail token of current link
@@ -101,7 +129,7 @@
         var ch_separate = s[ti_urlbegin - 2] || 0
 
         var clickOnURL = pos.ch >= ch_separate && pos.ch <= ch_end
-        var url = line.text.substr(ch_separate + 1, ch_end - ch_separate - 2) // bracket-free url string
+        var url = text.substr(ch_separate + 1, ch_end - ch_separate - 2) // bracket-free url string
 
         if (!url) return
 
@@ -148,12 +176,13 @@
       }
 
       // to-do list checkbox
-      if (/cm-formatting-task/.test(targetClass)) {
+      if (action === 2) {
         then(function () {
+          var opos = text.indexOf('[') + 1
           cm.replaceRange(
-            target.textContent == "[x]" ? "[ ]" : "[x]",
-            { line: pos.line, ch: s[i] - 3 },
-            { line: pos.line, ch: s[i] }
+            text.charAt(opos) === "x" ? " " : "x",
+            { line: pos.line, ch: opos },
+            { line: pos.line, ch: opos + 1 }
           )
         }, ev.clientX, ev.clientY)
       }
