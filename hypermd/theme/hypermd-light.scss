@@ -376,6 +376,20 @@
         }
     }
 
+    /// hpyermd table
+
+    pre.HyperMD-table-row {
+        span.cm-hmd-table-sep {
+            display: inline-block;
+            transform: scaleY(1.5);
+        }
+
+        &.HyperMD-table-rowsep {
+            // | :--- | :----: | ----: |
+            line-height: 1em;
+        }
+    }
+
     /// hypermd/addon/hover
 
     div.HyperMD-hover {

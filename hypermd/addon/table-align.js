@@ -172,7 +172,7 @@
     this.tables = /** @type {Table[]} */([])
     this.enabled = false
 
-    this._doAlign = HyperMD.debounce(this.doAlign.bind(this), 500)
+    this._doAlign = HyperMD.debounce(this.doAlign.bind(this), 120)
   }
 
   /**

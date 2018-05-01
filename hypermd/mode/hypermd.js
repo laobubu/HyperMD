@@ -26,6 +26,7 @@
   "use strict";
 
   var listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/  // this regex is from CodeMirror's sourcecode
+  var tableTitleSepRE = /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/ // find  |:-----:|:-----:| line
 
   CodeMirror.defineMode("hypermd", function (config, modeConfig) {
     var hypermdOverlay = {
@@ -356,6 +357,12 @@
           if (state.nstyle === 0 && stream.eat('|')) {
             var ans = ""
             if (!state.table) {
+              if (!tableTitleSepRE.test(stream.lookAhead(1))) {
+                // a |:-----:|:-----:| line is required, but not found.
+                // this `|` can't construct a table
+                return null
+              }
+
               // this is a new table!
               state.table = "T" + stream.lineOracle.line
               state.tableRow = 0
@@ -365,9 +372,7 @@
             if (state.tableCol === 0) {
               ans += "line-HyperMD-table_" + state.table + " "
               ans += "line-HyperMD-table-row line-HyperMD-table-row-" + state.tableRow + " "
-              if (
-                /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/.test(stream.string)
-              ) {
+              if (tableTitleSepRE.test(stream.string)) {
                 // find  |:-----:|:-----:| line
                 ans += "line-HyperMD-table-rowsep "
               }
