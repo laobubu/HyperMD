@@ -18,7 +18,7 @@
       CODEMIRROR_ROOT + "addon/display/panel"
     ], mod);
   else // Plain browser env
-    mod(CodeMirror);
+    mod(CodeMirror, HyperMD);
 })(function (CodeMirror, HyperMD) {
   "use strict";
 

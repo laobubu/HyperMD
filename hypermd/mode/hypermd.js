@@ -34,6 +34,10 @@
           atBeginning: true,  //at the beginning of one line, quotes are skipped
           insideCodeFence: false,
           quoteLevel: 0,
+          nstyle: 0,   // normal style, stored in bit format. MSE [ del | em | strong ] LSE
+          table: null, // if inside a table, the table ID (volatile and maybe duplicate)
+          tableCol: 0, // current table Column Number
+          tableRow: 0, // current table row number
           inside: null, // math, listSpace
           listSpaceStack: [], // spaces for every levels like [1, 2, 2] ...
           // NOTICE: listSpaceStack[0] could be 0, (eg. ordered list, or " - "'s leading space is missing)
@@ -50,6 +54,10 @@
           atBeginning: s.atBeginning,
           insideCodeFence: s.insideCodeFence,
           quoteLevel: s.quoteLevel,
+          nstyle: s.nstyle,
+          table: s.table,
+          tableCol: s.tableCol,
+          tableRow: s.tableRow,
           inside: s.inside,
           listSpaceStack: s.listSpaceStack && s.listSpaceStack.slice(),
           prevLineIsEmpty: s.prevLineIsEmpty,
@@ -61,6 +69,10 @@
         s.prevLineIsEmpty = true
         s.quoteLevel = 0
         s.listSpaceStack = []
+        s.table = null
+        s.tableCol = 0
+        s.tableRow = 0
+        s.nstyle = 0
 
         if (s.insideCodeFence) return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
         return null
@@ -93,6 +105,10 @@
         if (start === 0) {
           // Now we are at the beginning of current line
           state.atBeginning = true
+          if (state.table) {
+            state.tableCol = 0
+            state.tableRow++
+          }
 
           var indentation = stream.indentation()
 
@@ -314,9 +330,7 @@
           }
 
           /// inline code
-          if (stream.peek() == "`") {
-            stream.next()
-            stream.match(/^[^`]*`/)
+          if (stream.match(/^`[^`]*`?/)) {
             return null // inline code are ignored by hypermd
           }
 
@@ -332,7 +346,38 @@
             return "formatting formatting-math formatting-math-begin math math-" + state.extra.length // inline code are ignored by hypermd
           }
 
+          /// skip some normal Markdown inline stuff
+          if (stream.match("**")) { state.nstyle ^= 0x01; return null }
+          if (stream.match("__")) { state.nstyle ^= 0x01; return null }
+          if (stream.match(/^[*_]/)) { state.nstyle ^= 0x02; return null }
+          if (stream.match("~~")) { state.nstyle ^= 0x04; return null }
+
           /// possible table
+          if (state.nstyle === 0 && stream.eat('|')) {
+            var ans = ""
+            if (!state.table) {
+              // this is a new table!
+              state.table = "T" + stream.lineOracle.line
+              state.tableRow = 0
+              ans += "line-HyperMD-table-title "
+            }
+
+            if (state.tableCol === 0) {
+              ans += "line-HyperMD-table_" + state.table + " "
+              ans += "line-HyperMD-table-row line-HyperMD-table-row-" + state.tableRow + " "
+              if (
+                /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/.test(stream.string)
+              ) {
+                // find  |:-----:|:-----:| line
+                ans += "line-HyperMD-table-rowsep "
+              }
+            }
+
+            ans += "hmd-table-sep hmd-table-sep-" + state.tableCol + " "
+
+            state.tableCol++
+            return ans
+          }
         }
 
         //do nothing

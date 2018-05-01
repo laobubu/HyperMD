@@ -73,6 +73,27 @@
         }
       })
     },
+
+    /**
+     * make a debounced function
+     *
+     * @param {function} fn
+     * @param {number} delay in ms
+     */
+    debounce: function (fn, delay) {
+      var deferTask = 0
+      var notClearBefore = 0
+      var run = function () { fn(); deferTask = 0; }
+      return function () {
+        var nowTime = +new Date()
+        if (deferTask) {
+          if (nowTime < notClearBefore) return
+          else clearTimeout(deferTask)
+        }
+        deferTask = setTimeout(run, delay)
+        notClearBefore = nowTime + 100  // allow 100ms error
+      }
+    },
   }
   return HyperMD
 })

@@ -28,6 +28,10 @@ require([
     CODEMIRROR_ROOT + 'addon/fold/foldgutter',
     CODEMIRROR_ROOT + 'addon/fold/markdown-fold',
     CODEMIRROR_ROOT + 'addon/edit/continuelist',
+
+    CODEMIRROR_ROOT + 'addon/dialog/dialog',
+    CODEMIRROR_ROOT + 'addon/search/search',
+    CODEMIRROR_ROOT + 'addon/search/jump-to-line',
     // CODEMIRROR_ROOT + 'keymap/vim',
     HYPERMD_ROOT + 'mode/hypermd',
     HYPERMD_ROOT + 'addon/hide-token',
@@ -40,6 +44,7 @@ require([
     HYPERMD_ROOT + 'addon/paste',
     HYPERMD_ROOT + 'addon/paste-image',
     HYPERMD_ROOT + 'addon/mode-loader',
+    HYPERMD_ROOT + 'addon/table-align',
 ], function (CodeMirror) {
     'use strict';
     var myTextarea = document.getElementById('demo')
@@ -100,6 +105,10 @@ require([
             // - ./node_modules/codemirror/              <- relative to webpage's URL
             // using require.js? do it like this :
             hmdLoadModeFrom: "~codemirror/",
+
+            // (addon) table-align
+            // adjust table separators' margin, making table columns aligned
+            hmdTableAlign: true,
         })
 
         // (addon) hover
