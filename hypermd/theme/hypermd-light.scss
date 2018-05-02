@@ -68,6 +68,10 @@
         vertical-align: middle;
     }
 
+    pre.CodeMirror-line {
+        word-break: break-all;
+    }
+
     /// Headers
     // in fact stdheader has no special meaning; they are just normal headers
     // legacy naming problem

@@ -114,6 +114,9 @@
   display: inline-block;
   vertical-align: middle; }
 
+.cm-s-hypermd-light pre.CodeMirror-line {
+  word-break: break-all; }
+
 .cm-s-hypermd-light pre.HyperMD-header.HyperMD-header-1:after, .cm-s-hypermd-light pre.HyperMD-header.HyperMD-header-2:after, .cm-s-hypermd-light pre.HyperMD-header-line:after {
   display: block;
   content: ' ';
