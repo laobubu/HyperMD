@@ -140,13 +140,23 @@
     $list-indent-width: 1.5em;
     $list-wrapped-indent: 0.2em;
 
-    .cm-hmd-list-indent {
+    .cm-hmd-list-indent,
+    .cm-hmd-list-indent + .cm-formatting-list
+    {
         display: inline-block;
         width: $list-indent-width;
         box-sizing: border-box;
         border-left: 1px dashed #eee;
         vertical-align: middle;
         text-align: right;
+
+        &.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting) {
+            /**
+             *- xxx      <- without any space to indent the bullet
+             *  xxxxxx   <- this is level2 line, but only one indent <span>. 
+             */
+            padding-left: $list-indent-width;
+        }
 
         &.cm-hmd-list-indent-1 {
             display: inline;
@@ -170,7 +180,6 @@
 
     .cm-formatting-list
     {
-        @extend .cm-hmd-list-indent;
         font-family: 'HyperMD-Bullets';
         color: #666;
         &.cm-list-2 {

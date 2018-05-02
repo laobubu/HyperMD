@@ -191,7 +191,8 @@
 .cm-s-hypermd-light pre.HyperMD-quote-6:before {
   width: 120px; }
 
-.cm-s-hypermd-light .cm-hmd-list-indent, .cm-s-hypermd-light .cm-formatting-list {
+.cm-s-hypermd-light .cm-hmd-list-indent,
+.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list {
   display: inline-block;
   width: 1.5em;
   box-sizing: border-box;
@@ -199,11 +200,21 @@
   vertical-align: middle;
   text-align: right; }
 
-.cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-1, .cm-s-hypermd-light .cm-hmd-list-indent-1.cm-formatting-list {
+.cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting),
+.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting) {
+  /**
+             *- xxx      <- without any space to indent the bullet
+             *  xxxxxx   <- this is level2 line, but only one indent <span>. 
+             */
+  padding-left: 1.5em; }
+
+.cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-1,
+.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-1 {
   display: inline;
   border-left: 0; }
 
-.cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-corrupted, .cm-s-hypermd-light .cm-hmd-list-indent-corrupted.cm-formatting-list {
+.cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-corrupted,
+.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-corrupted {
   background: rgba(255, 0, 0, 0.4); }
 
 .cm-s-hypermd-light pre.HyperMD-list-line-1 {

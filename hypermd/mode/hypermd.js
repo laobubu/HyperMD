@@ -260,46 +260,53 @@
         if (state.inside === insideValues.listSpace) {
           var listLevel = state.listSpaceStack.length
           var firstMet = state.extra === 0
+          var ans = ""
 
           if (firstMet && state.listSpaceStack[0] === 0) {
-            // skip this virtual token. see listSpaceStack's comment above
-            state.extra++
-          }
+            if (listLevel === 1) {
+              // oops, this is level-1 list without indentation!
+              // do some dirty job to add HyperMD styles
 
-          var ans = null
-          if (state.extra >= listLevel) {
-            // edge case: "1. xxxxx" where virtual token (indent length=0) skipped just now
-            // and no more list indent. Now exit "listSpace" status and eat the bullet symbol
-            state.inside = null
-            state.extra = null
-            if (!stream.match(listRE)) stream.next()
-          } else {
-            var indent_to_eat = state.listSpaceStack[state.extra]
-            var corrupted = false
-            while (indent_to_eat > 0) {
-              var next_ch = stream.next()
-              if (next_ch === "\t") indent_to_eat -= 4
-              else if (next_ch === " ") indent_to_eat -= 1
-              else {
-                // FIXME: User made a corrupted indent. How to solve?
-                state.inside = null
-                state.extra = null
-                corrupted = true
-                break
-              }
-            }
-
-            //FIXME: deal with indent_to_eat < 0
-
-            ans = "hmd-list-indent hmd-list-indent-" + (state.extra + 1)
-            if (firstMet) ans += " line-HyperMD-list-line line-HyperMD-list-line-" + listLevel
-            if (corrupted) ans += " hmd-list-indent-corrupted"
-
-            if (++state.extra >= listLevel) {
-              // this is the last indenting space, going to exit "listSpace" status
               state.inside = null
               state.extra = null
+              state.combineTokens = true
+
+              if (!stream.match(listRE)) stream.next()
+
+              return "line-HyperMD-list-line line-HyperMD-list-line-1"
             }
+
+            // skip this virtual token. see listSpaceStack's comment above
+            state.extra++
+            ans += "hmd-list-indent-virtual "
+          }
+
+          var indent_to_eat = state.listSpaceStack[state.extra]
+          var corrupted = false
+          
+          while (indent_to_eat > 0) {
+            var next_ch = stream.next()
+            if (next_ch === "\t") indent_to_eat -= 4
+            else if (next_ch === " ") indent_to_eat -= 1
+            else {
+              // FIXME: User made a corrupted indent. How to solve?
+              state.inside = null
+              state.extra = null
+              corrupted = true
+              break
+            }
+          }
+
+          //FIXME: deal with indent_to_eat < 0
+
+          ans += "hmd-list-indent hmd-list-indent-" + (state.extra + 1)
+          if (firstMet) ans += " line-HyperMD-list-line line-HyperMD-list-line-" + listLevel
+          if (corrupted) ans += " hmd-list-indent-corrupted"
+
+          if (++state.extra >= listLevel) {
+            // this is the last indenting space, going to exit "listSpace" status
+            state.inside = null
+            state.extra = null
           }
 
           state.combineTokens = true
@@ -308,7 +315,7 @@
 
         //////////////////////////////////////////////////////////////////
         /// now list bullets and quote indents are gone. Enter the content.
-        
+
         var atBeginning = state.atBeginning // whether is at beginning (ignoreing `#`, `>` and list bullets)
         if (atBeginning && /\S/.test(stream.peek())) state.atBeginning = false
 
