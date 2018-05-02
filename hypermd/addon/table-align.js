@@ -86,12 +86,16 @@
     var col_widths = []
     var sep_widths = [] // separators' width, useful when calc position . note that sep_widths.length <= col_widths.width
 
+    var bgLeftPos = 0  // 也许可以让表格居中显示？ FIXME: REMOVE THIS OR FINISH THIS
+
     for (var y = table_from; y <= table_to; y++) {
       var lv = lvs[y - vrow_from]
       var span_and_colwidth_s = []
 
       var seps_raw = lv && lv.text && lv.text.querySelectorAll('span.cm-hmd-table-sep') || []
-      var lastLeft = 0
+      var lastLeft = lv && lv.text && lv.text.firstElementChild.offsetLeft || 0
+
+      bgLeftPos = lastLeft
 
       //FIXME: assuming every separator has the same width and no padding....
       var sep_width = 4
@@ -213,7 +217,7 @@
     if (lastColumnHasNoTailingPipeChar) width_sum += col_widths[col_widths.length - 1]
 
     var bgimg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + width_sum + ' 100">' + rects.join('') + '</svg>'
-    styles.push(sprefix + " { background: url('data:image/svg+xml," + bgimg + "') repeat-y 0 center; background-size: " + width_sum + "px auto; }")
+    styles.push(sprefix + " { background: url('data:image/svg+xml," + bgimg + "') repeat-y " + bgLeftPos + "px center; background-size: " + width_sum + "px auto; }")
 
     /// generate extra images
 
@@ -248,7 +252,7 @@
     styles.push(
       sprefix + '.HyperMD-table-title:before,' +
       sprefix + ':after' +
-      '{ display:block;position:absolute;left:' + x1 + 'px;bottom:0;width:' + (x2 - x1) + 'px;height:1px;content:" ";background:' + aligner.lineColor + '; }'
+      '{ display:block;position:absolute;left:' + (x1 + bgLeftPos) + 'px;bottom:0;width:' + (x2 - x1) + 'px;height:1px;content:" ";background:' + aligner.lineColor + '; }'
     )
     styles.push(sprefix + '.HyperMD-table-title:before { bottom: auto; top: 0 }')
 
