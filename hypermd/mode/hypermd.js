@@ -31,8 +31,12 @@
   /** @constant */ var insideValues = {
     math: 1,
     listSpace: 2,
-    escape: 4,
-    tableTitleSep: 8, // a line like |:-----:|:-----:| 
+    tableTitleSep: 4, // a line like |:-----:|:-----:| 
+  }
+
+  /** @constant */ var nstyleValues = {
+    /* ....xxxx [standalone]  */ DEL: 0x01, EM: 0x02, STRONG: 0x04, ESCAPE: 0x08,
+    /* ####.... link relative */ LINK: 0x10, BARELINK: 0x20, FOOTREF: 0x30, FOOTREF_BEGIN: 0x40, FOOTNOTE_NAME: 0x50,  // FOOTREF_BEGIN: ^ is not scanned
   }
 
   CodeMirror.defineMode("hypermd", function (config, modeConfig) {
@@ -42,7 +46,7 @@
           atBeginning: true,  //at the beginning of one line, quotes are skipped
           insideCodeFence: false,
           quoteLevel: 0,
-          nstyle: 0,   // normal style, stored in bit format. MSE [ del | em | strong ] LSE
+          nstyle: 0,   // non-exclusive statuses, stored in bit format. see nstyleValues
           table: null, // if inside a table, the table ID (volatile and maybe duplicate)
           tableCol: 0, // current table Column Number
           tableRow: 0, // current table row number
@@ -304,25 +308,9 @@
 
         //////////////////////////////////////////////////////////////////
         /// now list bullets and quote indents are gone. Enter the content.
-
-        // first, deal with some special stuff that only appears once at Beginning
-        if (state.atBeginning) {
-
-          /**
-           * Markdown supports footref [^f1]
-           *
-           * [^f1]: you may reference this footnote
-           * ^we are here
-           *
-           * note: ^ is not necessary.
-           */
-          if (stream.match(/^\[[^\]]+\]\:/)) {
-            state.combineTokens = true
-            return "line-HyperMD-footnote hmd-footnote"
-          }
-
-          state.atBeginning = false
-        }
+        
+        var atBeginning = state.atBeginning // whether is at beginning (ignoreing `#`, `>` and list bullets)
+        if (atBeginning && /\S/.test(stream.peek())) state.atBeginning = false
 
         // then just normal inline stuffs
         // usually we just add some extra styles to CodeMirror's result
@@ -336,29 +324,6 @@
               return "hmd-table-title-dash line-HyperMD-table-row line-HyperMD-table-rowsep "
             }
             break
-
-          case insideValues.escape:
-            stream.next()
-            state.inside = null
-            return "hmd-escape hmd-escape-char"
-        }
-
-        /// escaped chars
-        // now CodeMirror(>=5.37) built-in markdown mode will handle its styles.
-        // HyperMD only need to skip it
-        if (stream.match(/^\\(?=.)/)) {
-          state.inside = insideValues.escape
-          return "formatting-hmd-escape hmd-escape hmd-escape-backslash"
-        }
-
-        /// footref and bare link
-        tmp = stream.match(/^\[([^\]]+)\]/)
-        if (tmp && !/[\[\(]/.test(stream.peek())) {
-          var ans = "hmd-barelink"
-          if (tmp[1].charAt(0) === "^") ans += " hmd-footref"
-
-          state.combineTokens = true
-          return ans
         }
 
         /// inline code
@@ -378,13 +343,11 @@
           return "formatting formatting-math formatting-math-begin math math-" + state.extra.length // inline code are ignored by hypermd
         }
 
-        /// skip some normal Markdown inline stuff
-        if (stream.match("**")) { state.nstyle ^= 0x01; return null }
-        if (stream.match("__")) { state.nstyle ^= 0x01; return null }
-        if (stream.match(/^[*_]/)) { state.nstyle ^= 0x02; return null }
-        if (stream.match("~~")) { state.nstyle ^= 0x04; return null }
-
+        ////////////////////////////////////////////////////////////////////////////////////////
         /// possible table
+        /// NOTE: only the pipe chars whose nstyle === 0 can construct a table
+        ///       no need to worry about nstyle stuff
+
         if (state.nstyle === 0 && stream.eat('|')) {
           var ans = ""
           if (!state.table) {
@@ -416,9 +379,110 @@
           return ans
         }
 
-        //do nothing
+        ///////////////////////////////////////////////////////////////////
+        // now process mixable (non-exclusive) styles
+        // if nstyle changes, do `return` at once
+
+        /** @constant */ var nstyle = state.nstyle
+        /** @constant */ var ns_link = nstyle & 0xF0
+        var ans = ""
+
+        // current style is ....
+
+        if (ns_link !== 0) {
+          switch (ns_link) {
+            case nstyleValues.FOOTNOTE_NAME:
+              ans += "hmd-footnote "
+              break
+            case nstyleValues.FOOTREF_BEGIN:
+              ans += "hmd-footref-lead "
+            case nstyleValues.FOOTREF:
+              ans += "hmd-footref "
+            case nstyleValues.BARELINK:
+              ans += "hmd-barelink "
+            // case nstyleValues.LINK:  // HyperMD mode doesn't care about normal link
+          }
+        }
+
+        ///////////////////////////////////////
+        /// start changing nstyle (if needed)
+
+        /// exiting escape
+
+        if (nstyle & nstyleValues.ESCAPE) {
+          ans += "hmd-escape hmd-escape-char "
+          state.nstyle -= nstyleValues.ESCAPE
+
+          stream.next()
+          return ans
+        }
+
+        /// entering escape?
+
+        if (stream.match(/^\\(?=.)/)) {
+          // found the backslash
+          state.nstyle |= nstyleValues.ESCAPE
+          ans += "formatting-hmd-escape hmd-escape hmd-escape-backslash "
+          return ans
+        }
+
+        /// enter/exit a link/footref/bare-link/footnote
+
+        if (ns_link === 0) {
+          if (stream.match(/^\[([^\]]+)\]/, false)) {
+            /// found a start
+            stream.next()
+            if (atBeginning && stream.match(/^(?:[^\]]+)\]\:/, false)) {
+              // found a beginning of footnote
+              state.nstyle |= nstyleValues.FOOTNOTE_NAME
+              ans += "hmd-footnote "
+            } else if (stream.match(/^(?:[^\]]+)\](?:[^\[\(]|$)/, false)) {
+              // a [bare link] could be a [^footref]
+              if (stream.peek() === '^') {
+                state.nstyle |= nstyleValues.FOOTREF_BEGIN
+                ans += "hmd-barelink hmd-footref "
+              } else {
+                state.nstyle |= nstyleValues.BARELINK
+                ans += "hmd-barelink "
+              }
+            } else {
+              state.nstyle |= nstyleValues.LINK
+            }
+            return ans
+          }
+        } else {
+          // current is inside a link
+          switch (ns_link) {
+            case nstyleValues.FOOTREF_BEGIN:
+              // caught the "^"
+              state.nstyle = nstyle & ~0xF0 | nstyleValues.FOOTREF
+              stream.next()
+              return ans
+            case nstyleValues.FOOTREF:
+            case nstyleValues.BARELINK:
+            case nstyleValues.LINK:
+              if (stream.eat(']')) {
+                state.nstyle = nstyle & ~0xF0
+                return ans
+              }
+            case nstyleValues.FOOTNOTE_NAME:
+              if (stream.match(']:')) {
+                state.nstyle = nstyle & ~0xF0
+                return ans
+              }
+          }
+        }
+
+        /// skip some normal Markdown inline stuff
+
+        if (stream.match("**")) { state.nstyle ^= nstyleValues.STRONG; return ans }
+        if (stream.match("__")) { state.nstyle ^= nstyleValues.STRONG; return ans }
+        if (stream.match(/^[*_]/)) { state.nstyle ^= nstyleValues.EM; return ans }
+        if (stream.match("~~")) { state.nstyle ^= nstyleValues.DEL; return ans }
+
+        /// finally, if nothing changed, move on
         stream.next()
-        return null
+        return (ans.length !== 0 ? ans : null)
       }
     };
 

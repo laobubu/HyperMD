@@ -2,14 +2,15 @@
 span.cm-formatting {
   transition: opacity .3s; }
 
-pre.HyperMD-token-hidden > span > span.cm-formatting-em,
-pre.HyperMD-token-hidden > span > span.cm-formatting-strong,
-pre.HyperMD-token-hidden > span > span.cm-formatting-strikethrough,
-pre.HyperMD-token-hidden > span > span.cm-formatting-quote,
-pre.HyperMD-token-hidden > span > span.cm-formatting-code,
-pre.HyperMD-token-hidden > span > span.cm-formatting-header,
-pre.HyperMD-token-hidden > span > span.cm-formatting-link:not(.cm-hmd-footnote):not(.cm-hmd-barelink),
-pre.HyperMD-token-hidden > span > span.cm-formatting-escape-char {
+pre.HyperMD-token-hidden >
+span > span.cm-formatting-em, pre.HyperMD-token-hidden >
+span > span.cm-formatting-strong, pre.HyperMD-token-hidden >
+span > span.cm-formatting-strikethrough, pre.HyperMD-token-hidden >
+span > span.cm-formatting-quote, pre.HyperMD-token-hidden >
+span > span.cm-formatting-code, pre.HyperMD-token-hidden >
+span > span.cm-formatting-header, pre.HyperMD-token-hidden >
+span > span.cm-formatting-link:not(.cm-hmd-footnote):not(.cm-hmd-barelink), pre.HyperMD-token-hidden >
+span > span.cm-hmd-escape-backslash, pre.HyperMD-token-hidden > span > span.cm-hmd-footref-lead {
   width: 0px;
   height: 1px;
   opacity: 0;

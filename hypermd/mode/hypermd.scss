@@ -53,9 +53,9 @@ pre.HyperMD-token-hidden > span > span{
     ,&.cm-formatting-code
     ,&.cm-formatting-header
     ,&.cm-formatting-link:not(.cm-hmd-footnote, .cm-hmd-barelink)
-    ,&.cm-formatting-escape-char
+    ,&.cm-hmd-escape-backslash
     ,&.cm-formatting-header
-//  ,&.cm-formatting-footref
+    ,&.cm-hmd-footref-lead
 //  ,&.cm-formatting-code-block
     {
         @extend %hidden-token;
