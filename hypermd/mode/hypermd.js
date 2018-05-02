@@ -25,8 +25,15 @@
 })(function (CodeMirror) {
   "use strict";
 
-  var listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/  // this regex is from CodeMirror's sourcecode
-  var tableTitleSepRE = /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/ // find  |:-----:|:-----:| line
+  /** @constant */ var listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/  // this regex is from CodeMirror's sourcecode
+  /** @constant */ var tableTitleSepRE = /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/ // find  |:-----:|:-----:| line
+
+  /** @constant */ var insideValues = {
+    math: 1,
+    listSpace: 2,
+    escape: 4,
+    tableTitleSep: 8, // a line like |:-----:|:-----:| 
+  }
 
   CodeMirror.defineMode("hypermd", function (config, modeConfig) {
     var hypermdOverlay = {
@@ -39,7 +46,7 @@
           table: null, // if inside a table, the table ID (volatile and maybe duplicate)
           tableCol: 0, // current table Column Number
           tableRow: 0, // current table row number
-          inside: null, // math, listSpace
+          inside: null, // see insideValues
           listSpaceStack: [], // spaces for every levels like [1, 2, 2] ...
           // NOTICE: listSpaceStack[0] could be 0, (eg. ordered list, or " - "'s leading space is missing)
           //         if meet the situation, do not return any token, otherwise CodeMirror would crash
@@ -89,7 +96,7 @@
           state.thisLine = stream
         }
 
-        if (state.inside === "math") {
+        if (state.inside === insideValues.math) {
           if (
             (start === 0 || stream.string.charAt(start - 1) !== "\\") &&
             stream.match(state.extra)
@@ -109,6 +116,13 @@
           if (state.table) {
             state.tableCol = 0
             state.tableRow++
+            if (state.tableRow === 1 && tableTitleSepRE.test(stream.string)) {
+              // this line is  |:-----:|:-----:| 
+              // HyperMD must handle it, otherwise CodeMirror will treat `:---:` as emoji
+              state.inside = insideValues.tableTitleSep
+            } else {
+              state.inside = null
+            }
           }
 
           var indentation = stream.indentation()
@@ -233,13 +247,13 @@
             }
 
             // finished listSpaceStack, now we shall get into it and treat every indent(spaces) as a token
-            state.inside = "listSpace"
+            state.inside = insideValues.listSpace
             state.extra = 0
           }
         }
 
         // following `if (state.listSpaceStack.length !== 0 || stream.match(listRE, false))` 's status
-        if (state.inside == "listSpace") {
+        if (state.inside === insideValues.listSpace) {
           var listLevel = state.listSpaceStack.length
           var firstMet = state.extra === 0
 
@@ -314,81 +328,92 @@
         // usually we just add some extra styles to CodeMirror's result
         state.combineTokens = true
 
-        if (state.inside) {
-          // Math has high priority. The code has been moved above
-        } else {
-          /// escaped chars
-          // now CodeMirror(>=5.37) built-in markdown mode will handle this.
+        switch (state.inside) {
+          case insideValues.tableTitleSep:
+            /// tableTitleSep line doesn't need any styling
+            if (stream.match(/^(?:\:\s*)?-+(?:\s*\:)?/)) {
+              state.combineTokens = false
+              return "hmd-table-title-dash line-HyperMD-table-row line-HyperMD-table-rowsep "
+            }
+            break
+            
+          case insideValues.escape:
+            stream.next()
+            state.inside = null
+            return "hmd-escape hmd-escape-char"
+        }
 
-          /// footref and bare link
-          tmp = stream.match(/^\[([^\]]+)\]/)
-          if (tmp && !/[\[\(]/.test(stream.peek())) {
-            var ans = "hmd-barelink"
-            if (tmp[1].charAt(0) === "^") ans += " hmd-footref"
+        /// escaped chars
+        // now CodeMirror(>=5.37) built-in markdown mode will handle its styles.
+        // HyperMD only need to skip it
+        if (stream.match(/^\\(?=.)/)) {
+          state.inside = insideValues.escape
+          return "formatting-hmd-escape hmd-escape hmd-escape-backslash"
+        }
 
-            state.combineTokens = true
-            return ans
-          }
+        /// footref and bare link
+        tmp = stream.match(/^\[([^\]]+)\]/)
+        if (tmp && !/[\[\(]/.test(stream.peek())) {
+          var ans = "hmd-barelink"
+          if (tmp[1].charAt(0) === "^") ans += " hmd-footref"
 
-          /// inline code
-          if (stream.match(/^`[^`]*`?/)) {
-            return null // inline code are ignored by hypermd
-          }
+          state.combineTokens = true
+          return ans
+        }
 
-          /// inline math
-          tmp = stream.match(/^\${1,2}/)
-          if (tmp && (
-            tmp[0] === '$$' ||    // `$$` may span lines
-            /[^\\]\$/.test(stream.string.substr(start + 1))  // `$` can't. there must be another `$` after current one
-          )) {
-            state.inside = "math"
-            state.extra = tmp[0]
-            state.combineTokens = false
-            return "formatting formatting-math formatting-math-begin math math-" + state.extra.length // inline code are ignored by hypermd
-          }
+        /// inline code
+        if (stream.match(/^`[^`]*`?/)) {
+          return null // inline code are ignored by hypermd
+        }
 
-          /// skip some normal Markdown inline stuff
-          if (stream.match("**")) { state.nstyle ^= 0x01; return null }
-          if (stream.match("__")) { state.nstyle ^= 0x01; return null }
-          if (stream.match(/^[*_]/)) { state.nstyle ^= 0x02; return null }
-          if (stream.match("~~")) { state.nstyle ^= 0x04; return null }
+        /// inline math
+        tmp = stream.match(/^\${1,2}/)
+        if (tmp && (
+          tmp[0] === '$$' ||    // `$$` may span lines
+          /[^\\]\$/.test(stream.string.substr(start + 1))  // `$` can't. there must be another `$` after current one
+        )) {
+          state.inside = insideValues.math
+          state.extra = tmp[0]
+          state.combineTokens = false
+          return "formatting formatting-math formatting-math-begin math math-" + state.extra.length // inline code are ignored by hypermd
+        }
 
-          /// possible table
-          if (state.nstyle === 0 && stream.eat('|')) {
-            var ans = ""
-            if (!state.table) {
-              if (!tableTitleSepRE.test(stream.lookAhead(1))) {
-                // a |:-----:|:-----:| line is required, but not found.
-                // this `|` can't construct a table
-                return null
-              }
+        /// skip some normal Markdown inline stuff
+        if (stream.match("**")) { state.nstyle ^= 0x01; return null }
+        if (stream.match("__")) { state.nstyle ^= 0x01; return null }
+        if (stream.match(/^[*_]/)) { state.nstyle ^= 0x02; return null }
+        if (stream.match("~~")) { state.nstyle ^= 0x04; return null }
 
-              // this is a new table!
-              state.table = "T" + stream.lineOracle.line
-              state.tableRow = 0
-              ans += "line-HyperMD-table-title "
+        /// possible table
+        if (state.nstyle === 0 && stream.eat('|')) {
+          var ans = ""
+          if (!state.table) {
+            if (!tableTitleSepRE.test(stream.lookAhead(1))) {
+              // a |:-----:|:-----:| line is required, but not found.
+              // this `|` can't construct a table
+              return null
             }
 
-            if (state.tableCol === 0) {
-              ans += "line-HyperMD-table_" + state.table + " "
-              ans += "line-HyperMD-table-row line-HyperMD-table-row-" + state.tableRow + " "
-              if (tableTitleSepRE.test(stream.string)) {
-                // find  |:-----:|:-----:| line
-                ans += "line-HyperMD-table-rowsep "
-              }
-            }
-
-            ans += "hmd-table-sep hmd-table-sep-" + state.tableCol + " "
-
-            state.tableCol++
-            return ans
+            // this is a new table!
+            state.table = "T" + stream.lineOracle.line
+            state.tableRow = 0
+            ans += "line-HyperMD-table-title "
           }
+
+          if (state.tableCol === 0) {
+            ans += "line-HyperMD-table_" + state.table + " "
+            ans += "line-HyperMD-table-row line-HyperMD-table-row-" + state.tableRow + " "
+          }
+
+          ans += "hmd-table-sep hmd-table-sep-" + state.tableCol + " "
+
+          state.tableCol++
+          return ans
         }
 
         //do nothing
         stream.next()
-
-        return null;
+        return null
       }
     };
 

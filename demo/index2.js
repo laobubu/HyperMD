@@ -26,6 +26,9 @@ click_bind("raw_mode", function () {
 
     // stop hiding tokens
     editor.setOption('hmdHideToken', '')
+
+    // stop aligining table columns
+    editor.setOption('hmdTableAlign', false)
 })
 
 click_bind("hypermd_mode", function () {
@@ -33,6 +36,7 @@ click_bind("hypermd_mode", function () {
     editor.setOption('hmdAutoFold', 200)
     editor.setOption('hmdFoldMath', { interval: 200, preview: true })
     editor.setOption('hmdHideToken', '(profile-1)')
+    editor.setOption('hmdTableAlign', { lineColor: '#999', rowsepColor: '#999' })
 })
 
 !function hideSplash() {

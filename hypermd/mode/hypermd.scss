@@ -39,7 +39,8 @@ span.hmd-link-icon:after {
     content: "»"
 }
 
-span.hmd-fold-math {
+span.hmd-fold-math,
+span.cm-hmd-table-sep {
     display: inline-block;
     vertical-align: middle;
 }

@@ -380,13 +380,22 @@
 
     pre.HyperMD-table-row {
         span.cm-hmd-table-sep {
-            display: inline-block;
-            transform: scaleY(1.5);
+            width: 1em;
+            text-align: center;
+            box-sizing: content-box;
+            font-family: monospace;
         }
 
         &.HyperMD-table-rowsep {
-            // | :--- | :----: | ----: |
-            line-height: 1em;
+            > span {
+                // this span has same width with content
+
+            }
+        }
+
+        &.HyperMD-table-row-0 {
+            // title row
+            font-weight: bold;
         }
     }
 
@@ -438,6 +447,16 @@
         &.HyperMD-hr {
             color: transparent;
             text-shadow: none;
+        }
+
+        &.HyperMD-table-row {
+            span.cm-hmd-table-sep {
+                color: transparent;
+            }
+        }
+
+        &.HyperMD-table-rowsep {
+            color: transparent;
         }
     }
 }

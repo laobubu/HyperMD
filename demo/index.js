@@ -108,7 +108,10 @@ require([
 
             // (addon) table-align
             // adjust table separators' margin, making table columns aligned
-            hmdTableAlign: true,
+            hmdTableAlign: {
+              lineColor: '#999',   // color of vertical lines
+              rowsepColor: '#999',  // color of the horizontal line, can be null (means transparent)
+            },
         })
 
         // (addon) hover

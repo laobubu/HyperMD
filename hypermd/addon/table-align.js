@@ -42,6 +42,7 @@
     this.line = line
     this.mark = this.cm.setBookmark({ line: line, ch: 0 }, { widget: styleEl })
     this.styleEl = styleEl
+    this.lastStyle = ""
   }
 
   /**
@@ -71,17 +72,27 @@
     var seps = []
 
     var col_widths = []
+    var sep_widths = [] // separators' width, useful when calc position . note that sep_widths.length <= col_widths.width
 
     for (var y = table_from; y <= table_to; y++) {
       var lv = lvs[y - vrow_from]
       var span_and_colwidth_s = []
 
-      //FIXME: sometime lv is null
-      var seps_raw = lv ? lv.text.querySelectorAll('span.cm-hmd-table-sep') : []
+      var seps_raw = lv && lv.text && lv.text.querySelectorAll('span.cm-hmd-table-sep') || []
       var lastLeft = 0
 
+      //FIXME: assuming every separator has the same width and no padding....
+      var sep_width = 4
+      if (seps_raw.length > 0) {
+        var tmp = window.getComputedStyle(seps_raw[0])
+        sep_width = parseFloat(tmp['width'] || '4')
+      }
+
       for (var colidx = 0; colidx < seps_raw.length; colidx++) {
-        var left = seps_raw[colidx].offsetLeft
+        /** @type {HTMLSpanElement} */ var span = seps_raw[colidx]
+        var left = span.offsetLeft
+        // var sep_width = ... // FIXME: use correct way to compute
+        var right = left + span.offsetWidth
         var width = left - lastLeft
         if (width < 0) {
           // word-wrap.... this line is too long
@@ -89,8 +100,17 @@
           width = lv.text.offsetWidth + width
         }
 
-        if (col_widths.length <= colidx) col_widths.push(width)
-        else if (col_widths[colidx] < width) col_widths[colidx] = width
+        if (col_widths.length <= colidx) {
+          col_widths.push(width)
+          sep_widths.push(sep_width)
+        } else {
+          if (col_widths[colidx] <= width) {
+            col_widths[colidx] = width
+            if (sep_widths[colidx] < sep_width) {
+              sep_widths[colidx] = sep_width
+            }
+          }
+        }
 
         if (DEBUG) {
           console.log(
@@ -101,10 +121,27 @@
 
         span_and_colwidth_s.push([seps_raw[colidx], width])
 
-        lastLeft = left + seps_raw[colidx].offsetWidth
+        lastLeft = right
+      }
+
+      // last pipe char was omitted
+      if (lv && !/\|\s*$/.test(lv.line.text)) {
+        // colidx = seps_raw.length
+        width = lv.text.firstElementChild.offsetWidth + sep_width - lastLeft
+        if (col_widths.length <= colidx) {
+          col_widths.push(width)
+          sep_widths.push(0)
+        } else {
+          if (col_widths[colidx] <= width) col_widths[colidx] = width
+        }
       }
 
       seps.push(span_and_colwidth_s)
+    }
+
+    var lastColumnHasNoTailingPipeChar = (sep_widths[sep_widths.length - 1] === 0)
+    if (lastColumnHasNoTailingPipeChar) {
+      sep_widths.splice(-1)
     }
 
     // now can modify the style
@@ -114,14 +151,11 @@
     var sfirstRow = olState.tableRow
     var sprefix = "pre.HyperMD-table_" + olState.table
 
-    var cursorPos = cm.getCursor('head')
-
     // compute styles
 
     for (var row = 0; row < seps.length; row++) {
       var seps_row = seps[row]
       var lv = lvs[row + table_from - vrow_from]
-      var line_updated = true
 
       for (var col = 0; col < seps_row.length; col++) {
         var span = seps_row[col][0]
@@ -134,7 +168,6 @@
             " span.cm-hmd-table-sep-" + col +
             " { padding-left: " + wdiff + "px }"
           )
-          line_updated = true
         }
 
         if (DEBUG) {
@@ -145,32 +178,85 @@
           )
         }
       }
-
-      if (line_updated) {
-        if (lv && lv.measure) lv.measure.cache = {}
-        if (cursorPos.line === row + table_from) {
-          // console.log("LINE UPDATES", lv && lv.lineNumber.textContent, Object.keys(lv.measure.cache))
-          //NOTE: extracted from codemirror.js : function updateSelection(cm)
-          setTimeout(function() {
-            cm.display.input.showSelection(cm.display.input.prepareSelection())
-          }, 0)
-        }
-      }
     }
 
-    this.styleEl.innerHTML = styles.join("\n")
+    // generate background image
+
+    var aligner = this.aligner
+    var lineColorEnc = encodeURIComponent(aligner.lineColor)
+
+    var rects = []
+    var width_sum = 0
+    for (var i = 0; i < sep_widths.length; i++) {
+      width_sum += col_widths[i] + sep_widths[i]
+      var left = width_sum - sep_widths[i] / 2
+      rects.push('<line x1="' + left + '" y1="0" x2="' + left + '" y2="100" stroke="' + lineColorEnc + '" />')
+    }
+
+    if (lastColumnHasNoTailingPipeChar) width_sum += col_widths[col_widths.length - 1]
+
+    var bgimg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + width_sum + ' 100">' + rects.join('') + '</svg>'
+    styles.push(sprefix + " { background: url('data:image/svg+xml," + bgimg + "') repeat-y 0 center; background-size: " + width_sum + "px auto; }")
+
+
+    if (aligner.rowsepColor) {
+      // special background image for  |:------------:|:--------:| line
+      var x1 = (col_widths[0] + sep_widths[0] / 2)
+      var x2 = left // using last iterating's result
+      if (lastColumnHasNoTailingPipeChar) {
+        // last pipe char was omitted
+        x2 += col_widths[col_widths.length - 1]
+      }
+
+      if (x2 - x1 < 10) {
+        // too near
+        x1 = 0
+        x2 = width_sum
+      } else if (x1 > sep_widths[0] * 2) {
+        // maybe leading optional "|" is missing ?
+        x1 = 0
+      }
+
+      var bgimg_rowsep = bgimg.slice(0, -6) +
+        '<line x1="' + x1 + '" x2="' + x2 + '" y1="50" y2="50" stroke="' + encodeURIComponent(aligner.rowsepColor) + '"/></svg>'
+      styles.push(sprefix + ".HyperMD-table-row-1 { background-image: url('data:image/svg+xml," + bgimg_rowsep + "'); }")
+    }
+
+    // apply style
+
+    var new_css = styles.join("\n")
+    if (this.lastStyle !== new_css) {
+      this.lastStyle = new_css
+      this.styleEl.innerHTML = new_css
+    }
     return seps.length
   }
 
 
+  /**
+   * remove this table
+   */
+  Table.prototype.clear = function () {
+    this.mark.clear()
+    this.lastStyle = ""
+    this.styleEl = null
+  }
 
   ///////////////////////////////////////////////////////////
   /// Main Controller
+
+  /** @constant */ var AlignerDefaults = {
+    lineColor: '#999',
+    rowsepColor: '#999',  // can be null
+  }
 
   function Aligner(cm) {
     this.cm = cm
     this.tables = /** @type {Table[]} */([])
     this.enabled = false
+
+    this.lineColor = AlignerDefaults.lineColor
+    this.rowsepColor = AlignerDefaults.rowsepColor
 
     this._doAlign = HyperMD.debounce(this.doAlign.bind(this), 120)
   }
@@ -217,8 +303,10 @@
     this.enabled = true
 
     this.cm.on('viewportChange', this._doAlign)
-    this.cm.on('renderLine', this._doAlign)
+    this.cm.on('update', this._doAlign)
     this.cm.on('cursorActivity', this._doAlign)
+
+    this.doAlign()
   }
 
   Aligner.prototype.disable = function () {
@@ -226,8 +314,10 @@
     this.enabled = false
 
     this.cm.off('viewportChange', this._doAlign)
-    this.cm.off('renderLine', this._doAlign)
+    this.cm.off('update', this._doAlign)
     this.cm.off('cursorActivity', this._doAlign)
+
+    this.removeAll()
   }
 
   Aligner.prototype.doAlign = function () {
@@ -237,13 +327,27 @@
     // FIXME: assuming no row line is folded!
     var tmp = cm.getViewport()
     var vl_from = tmp.from, vl_to = tmp.to
+    var found_table = 0
 
     for (var line = vl_from; line < vl_to; line++) {
       var table = this.getTableAt(line)
       if (!table) continue
+      found_table++
       if (DEBUG) console.log("table-align found table at " + line, table)
       line += table.measureAndAlign() // re-align and skip processed lines
     }
+
+    if (found_table !== 0) {
+      HyperMD.updateCursorDisplay(cm)
+    }
+  }
+
+  Aligner.prototype.removeAll = function () {
+    this._doAlign.stop()
+    for (var i = 0; i < this.tables.length; i++) {
+      this.tables[i].clear()
+    }
+    this.tables = []
   }
 
   /** @returns {Aligner} */
@@ -260,6 +364,13 @@
     // complete newCfg with default values
     var aligner = getAligner(cm)
     if (oldVal == 'CodeMirror.Init') oldVal = false
+
+    if (newVal) {
+      var newCfg = {}
+      for (var k in AlignerDefaults) {
+        aligner[k] = newVal.hasOwnProperty(k) ? newVal[k] : AlignerDefaults[k]
+      }
+    }
 
     if (!oldVal ^ !newVal) {
       newVal ? aligner.enable() : aligner.disable()

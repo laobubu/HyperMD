@@ -84,7 +84,7 @@
       var deferTask = 0
       var notClearBefore = 0
       var run = function () { fn(); deferTask = 0; }
-      return function () {
+      var ans = function () {
         var nowTime = +new Date()
         if (deferTask) {
           if (nowTime < notClearBefore) return
@@ -93,6 +93,48 @@
         deferTask = setTimeout(run, delay)
         notClearBefore = nowTime + 100  // allow 100ms error
       }
+      ans.stop = function() {
+        if (!deferTask) return
+        clearTimeout(deferTask)
+        deferTask = 0
+      }
+
+      return ans
+    },
+
+    /**
+     * clean line measure caches (if needed) 
+     * and re-position cursor
+     * 
+     * partially extracted from codemirror.js : function updateSelection(cm)
+     * 
+     * @param {CodeMirror.Editor} cm
+     * @param {boolean} skipCacheCleaning
+     */
+    updateCursorDisplay: function (cm, skipCacheCleaning) {
+      if (!skipCacheCleaning) {
+        // // only process affected lines?
+        // var lines = []
+        // var vfrom = cm.display.viewFrom, vto = cm.display.viewTo
+        // var selections = cm.listSelections()
+        // var line
+        // for (var i = 0; i < selections.length; i++) {
+        //   line = selections[i].head.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
+        //   line = selections[i].anchor.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
+        // }
+        
+        var lvs = cm.display.view // LineView s
+        for (var i = 0; i < lvs.length; i++) {
+          // var j = lines.indexOf(lvs[i].line.lineNo())
+          // if (j === -1) continue
+
+          if (lvs[i].measure) lvs[i].measure.cache = {}
+        }
+      }
+
+      setTimeout(function () {
+        cm.display.input.showSelection(cm.display.input.prepareSelection())
+      }, 60) // wait for css style
     },
   }
   return HyperMD
