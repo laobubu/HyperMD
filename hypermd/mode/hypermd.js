@@ -336,7 +336,7 @@
               return "hmd-table-title-dash line-HyperMD-table-row line-HyperMD-table-rowsep "
             }
             break
-            
+
           case insideValues.escape:
             stream.next()
             state.inside = null
@@ -388,9 +388,9 @@
         if (state.nstyle === 0 && stream.eat('|')) {
           var ans = ""
           if (!state.table) {
-            if (!tableTitleSepRE.test(stream.lookAhead(1))) {
-              // a |:-----:|:-----:| line is required, but not found.
-              // this `|` can't construct a table
+            if (!/^\s*\|/.test(stream.string) && !tableTitleSepRE.test(stream.lookAhead(1))) {
+              // a leading pipe char (|) or an extra |:-----:|:-----:| line 
+              // is required, but not found, thus we can't establish a table 
               return null
             }
 
@@ -398,6 +398,11 @@
             state.table = "T" + stream.lineOracle.line
             state.tableRow = 0
             ans += "line-HyperMD-table-title "
+
+            if (tableTitleSepRE.test(stream.lookAhead(1))) {
+              // a |:-----:|:----:| line exists
+              ans += "line-HyperMD-table-title-has_rowsep "
+            }
           }
 
           if (state.tableCol === 0) {

@@ -43,12 +43,14 @@
     this.mark = this.cm.setBookmark({ line: line, ch: 0 }, { widget: styleEl })
     this.styleEl = styleEl
     this.lastStyle = ""
+
+    this.lineCount = 0
   }
 
   /**
    * re-measure every column's width, then update the spans' style
    *
-   * @returns {number} rows scanned
+   * @returns {boolean} style is updated or not
    */
   Table.prototype.measureAndAlign = function () {
     var cm = this.cm
@@ -124,8 +126,9 @@
         lastLeft = right
       }
 
-      // last pipe char was omitted
-      if (lv && !/\|\s*$/.test(lv.line.text)) {
+      // last pipe char was omitted, and <pre> was generated
+      // compute the last column's width
+      if (lv && !/\|\s*$/.test(lv.line.text) && lv.text) {
         // colidx = seps_raw.length
         width = lv.text.firstElementChild.offsetWidth + sep_width - lastLeft
         if (col_widths.length <= colidx) {
@@ -143,6 +146,10 @@
     if (lastColumnHasNoTailingPipeChar) {
       sep_widths.splice(-1)
     }
+
+    // store status 
+
+    this.lineCount = seps.length
 
     // now can modify the style
 
@@ -198,38 +205,56 @@
     var bgimg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + width_sum + ' 100">' + rects.join('') + '</svg>'
     styles.push(sprefix + " { background: url('data:image/svg+xml," + bgimg + "') repeat-y 0 center; background-size: " + width_sum + "px auto; }")
 
+    /// generate extra images
 
-    if (aligner.rowsepColor) {
-      // special background image for  |:------------:|:--------:| line
-      var x1 = (col_widths[0] + sep_widths[0] / 2)
-      var x2 = left // using last iterating's result
-      if (lastColumnHasNoTailingPipeChar) {
-        // last pipe char was omitted
-        x2 += col_widths[col_widths.length - 1]
-      }
+    var x1, x2 // left-most and right-most
 
-      if (x2 - x1 < 10) {
-        // too near
-        x1 = 0
-        x2 = width_sum
-      } else if (x1 > sep_widths[0] * 2) {
-        // maybe leading optional "|" is missing ?
-        x1 = 0
-      }
-
-      var bgimg_rowsep = bgimg.slice(0, -6) +
-        '<line x1="' + x1 + '" x2="' + x2 + '" y1="50" y2="50" stroke="' + encodeURIComponent(aligner.rowsepColor) + '"/></svg>'
-      styles.push(sprefix + ".HyperMD-table-row-1 { background-image: url('data:image/svg+xml," + bgimg_rowsep + "'); }")
+    x1 = (col_widths[0] + sep_widths[0] / 2)
+    x2 = left // using last iterating's result
+    if (lastColumnHasNoTailingPipeChar) {
+      // last pipe char was omitted
+      x2 += col_widths[col_widths.length - 1]
     }
 
-    // apply style
+    if (x2 - x1 < 10) {
+      // too near
+      x1 = 0
+      x2 = width_sum
+    } else if (x1 > sep_widths[0] * 2) {
+      // maybe leading optional "|" is missing ?
+      x1 = 0
+    }
+
+    /// special background image for  |:------------:|:--------:| line
+
+    if (aligner.rowsepColor) {
+      var bgimg_rowsep = bgimg.slice(0, -6) +
+        '<line x1="' + x1 + '" x2="' + x2 + '" y1="50" y2="50" style="stroke-width: 3px" stroke="' + encodeURIComponent(aligner.rowsepColor) + '"/></svg>'
+      styles.push(sprefix + ".HyperMD-table-rowsep { background-image: url('data:image/svg+xml," + bgimg_rowsep + "'); }")
+    }
+
+    /// top & bottom borders
+
+    styles.push(
+      sprefix + '.HyperMD-table-title:before,' +
+      sprefix + ':after' +
+      '{ display:block;position:absolute;left:' + x1 + 'px;bottom:0;width:' + (x2 - x1) + 'px;height:1px;content:" ";background:' + aligner.lineColor + '; }'
+    )
+    styles.push(sprefix + '.HyperMD-table-title:before { bottom: auto; top: 0 }')
+
+    // no need for   |:------------:|:--------:| line
+    // styles.push(sprefix + '.HyperMD-table-rowsep:after { display: none }')
+    styles.push(sprefix + '.HyperMD-table-title-has_rowsep:after { display: none }')
+
+    /// apply style
 
     var new_css = styles.join("\n")
     if (this.lastStyle !== new_css) {
       this.lastStyle = new_css
       this.styleEl.innerHTML = new_css
+      return true
     }
-    return seps.length
+    return false
   }
 
 
@@ -327,17 +352,17 @@
     // FIXME: assuming no row line is folded!
     var tmp = cm.getViewport()
     var vl_from = tmp.from, vl_to = tmp.to
-    var found_table = 0
+    var style_updated = false
 
     for (var line = vl_from; line < vl_to; line++) {
       var table = this.getTableAt(line)
       if (!table) continue
-      found_table++
       if (DEBUG) console.log("table-align found table at " + line, table)
-      line += table.measureAndAlign() // re-align and skip processed lines
+      if (table.measureAndAlign()) style_updated = true
+      line += table.lineCount
     }
 
-    if (found_table !== 0) {
+    if (style_updated) {
       HyperMD.updateCursorDisplay(cm)
     }
   }

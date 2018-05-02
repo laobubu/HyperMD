@@ -403,6 +403,11 @@
   box-sizing: content-box;
   font-family: monospace; }
 
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-rowsep {
+  line-height: .5em;
+  overflow: hidden;
+  text-shadow: 0 0 1px #FFF, 0 0 1px #FFF; }
+
 .cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 {
   font-weight: bold; }
 
@@ -448,7 +453,8 @@
   color: transparent; }
 
 .cm-s-hypermd-light pre.HyperMD-token-hidden.HyperMD-table-rowsep {
-  color: transparent; }
+  color: transparent;
+  text-shadow: none; }
 
 div.HyperMD-math-preview {
   overflow: auto;

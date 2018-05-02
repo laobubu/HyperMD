@@ -387,10 +387,9 @@
         }
 
         &.HyperMD-table-rowsep {
-            > span {
-                // this span has same width with content
-
-            }
+            line-height: .5em;
+            overflow: hidden;
+            text-shadow: 0 0 1px #FFF, 0 0 1px #FFF;
         }
 
         &.HyperMD-table-row-0 {
@@ -457,6 +456,7 @@
 
         &.HyperMD-table-rowsep {
             color: transparent;
+            text-shadow: none;
         }
     }
 }
