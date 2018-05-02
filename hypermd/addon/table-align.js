@@ -55,6 +55,16 @@
   Table.prototype.measureAndAlign = function () {
     var cm = this.cm
 
+    // use mark's position. this is much more reliable
+    var start_pos = this.mark.find()
+    if (!start_pos) {
+      // seems table is removed
+      this.lineCount = 0
+      this.lastStyle = ""
+      return false
+    }
+    this.line = start_pos.line
+
     // we only care about visible lines
     // FIXME: assuming no row line is folded!
     var tmp = cm.getViewport()
