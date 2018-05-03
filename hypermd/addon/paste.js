@@ -52,32 +52,38 @@
    */
   var html2md = null
 
-  if (typeof TurndownService === 'function') {
-    // using npm library `turndown`
-    html2md = (function () {
-      var opts = {
-        "headingStyle": "atx",
-        "hr": "---",
-        "bulletListMarker": "*",
-        "codeBlockStyle": "fenced",
-        "fence": "```",
-        "emDelimiter": "*",
-        "strongDelimiter": "**",
-        "linkStyle": "inlined",
-        "linkReferenceStyle": "collapsed"
-      }
-      var turndownService = new TurndownService(opts)
+  /**
+   * Searching for avaliable HTML-to-Markdown transformer and 
+   * populate `html2md` variable, if any transformer found
+   */
+  function loadHTML2MDService() {
+    if (html2md) return
 
-      if (typeof turndownPluginGfm !== 'undefined') {
-        turndownService.use(turndownPluginGfm.gfm)
-      }
+    if (typeof TurndownService === 'function') {
+      // using npm library `turndown`
+      html2md = (function () {
+        var opts = {
+          "headingStyle": "atx",
+          "hr": "---",
+          "bulletListMarker": "*",
+          "codeBlockStyle": "fenced",
+          "fence": "```",
+          "emDelimiter": "*",
+          "strongDelimiter": "**",
+          "linkStyle": "inlined",
+          "linkReferenceStyle": "collapsed"
+        }
+        var turndownService = new TurndownService(opts)
 
-      return function (html) {
-        return turndownService.turndown(html)
-      }
-    })()
-  } else {
-    //TODO: set `html2md` with other converter here
+        if (typeof turndownPluginGfm !== 'undefined') {
+          turndownService.use(turndownPluginGfm.gfm)
+        }
+
+        return function (html) {
+          return turndownService.turndown(html)
+        }
+      })()
+    }
   }
 
   /** 
@@ -87,6 +93,7 @@
    */
   Paste.prototype.pasteHandle = function (cm, ev) {
     var cd = ev.clipboardData || window.clipboardData
+    if (!html2md) loadHTML2MDService()
     if (!html2md || !cd || cd.types.indexOf('text/html') == -1) return
     var result = html2md(cd.getData('text/html'))
     if (!result) return

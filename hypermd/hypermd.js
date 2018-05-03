@@ -75,6 +75,26 @@
     },
 
     /**
+     * execute a function, and async retry if it doesn't returns true
+     */
+    tryToRun: function (fn, times) {
+      times = ~~times || 5
+      var delayTime = 250
+
+      function nextCycle() {
+        if (!times--) return
+
+        try { if (fn()) return }
+        catch { }
+
+        setTimeout(nextCycle, delayTime)
+        delayTime *= 2
+      }
+
+      setTimeout(nextCycle, 0)
+    },
+
+    /**
      * make a debounced function
      *
      * @param {function} fn
@@ -93,7 +113,7 @@
         deferTask = setTimeout(run, delay)
         notClearBefore = nowTime + 100  // allow 100ms error
       }
-      ans.stop = function() {
+      ans.stop = function () {
         if (!deferTask) return
         clearTimeout(deferTask)
         deferTask = 0
@@ -122,7 +142,7 @@
         //   line = selections[i].head.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
         //   line = selections[i].anchor.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
         // }
-        
+
         var lvs = cm.display.view // LineView s
         for (var i = 0; i < lvs.length; i++) {
           // var j = lines.indexOf(lvs[i].line.lineNo())

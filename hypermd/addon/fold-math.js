@@ -34,6 +34,7 @@
   /// - startRender(expr)
   /// - clear()
   /// - onChanged   (property, points to a callback function, called when a rendering work is done)
+  /// - (static method) isReady()    indicate that the Renderer is ready to execute
 
   /**
    * The default MathRenderer, using MathJax
@@ -55,6 +56,20 @@
 
     this._cleared = false
     this._renderingExpr = "" // Currently rendering expr
+  }
+
+  MathJaxRenderer.isReady = function () {
+    if (typeof MathJax === 'undefined') return false
+
+    if (!MathJaxRenderer._mathjax_loading) {
+      MathJax.Hub.Register.StartupHook("End", function () {
+        // rewrite isReady function, always returns true
+        MathJaxRenderer.isReady = function () { return true }
+      })
+      MathJaxRenderer._mathjax_loading = true
+    }
+
+    return false
   }
 
   MathJaxRenderer.prototype.clear = function () {
@@ -331,6 +346,7 @@
 
     this._timeoutHandle = 0
     this._doFold = this.doFold.bind(this)
+    this._rendererReady = false
 
     // preview panel and renderer
 
@@ -388,6 +404,11 @@
    */
   Fold.prototype.doFold = function () {
     var self = this, cm = self.cm
+    if (!this._rendererReady) {
+      // renderer is not ready, can't render
+      this._rendererReady = this.MathRenderer.isReady()
+      if (!this._rendererReady) return
+    }
     if (self._timeoutHandle) clearTimeout(self._timeoutHandle)
     self._timeoutHandle = setTimeout(function () {
       self._timeoutHandle = 0
@@ -459,9 +480,6 @@
       if (newCfg.interval) { // auto render is enabled
         cm.on("update", fold._doFold)
         cm.on("cursorActivity", fold._doFold)
-        MathJax.Hub.Register.StartupHook("End", function () {
-          fold._doFold()
-        })
       } else {
         cm.off("update", fold._doFold)
         cm.off("cursorActivity", fold._doFold)
@@ -471,6 +489,24 @@
     // update behavior
     fold._pv.divTitle.textContent = newCfg.previewTitle
     if (!newCfg.preview) fold.updatePreview("") // hide preview if needed
+
+    // update Renderer
+    if (newCfg.MathRenderer !== fold.MathRenderer) {
+      fold._rendererReady = false
+    }
+    
+    // if auto-rendering is enabled, but renderer is not ready...
+    if (!fold._rendererReady && newCfg.interval) {
+      HyperMD.tryToRun(function(){
+        if (fold._rendererReady) return true // no need to run
+        if (!newCfg.MathRenderer.isReady()) return false
+
+        fold._rendererReady = true
+        fold.doFold()
+
+        return true
+      })
+    }
 
     // write new values into cm
     for (var k in foldDefaultOption) {
