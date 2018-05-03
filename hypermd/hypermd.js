@@ -85,7 +85,7 @@
         if (!times--) return
 
         try { if (fn()) return }
-        catch { }
+        catch (e) { }
 
         setTimeout(nextCycle, delayTime)
         delayTime *= 2

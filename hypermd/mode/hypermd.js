@@ -442,7 +442,7 @@
             if (atBeginning && stream.match(/^(?:[^\]]+)\]\:/, false)) {
               // found a beginning of footnote
               state.nstyle |= nstyleValues.FOOTNOTE_NAME
-              ans += "hmd-footnote "
+              ans += "hmd-footnote line-HyperMD-footnote "
             } else if (stream.match(/^(?:[^\]]+)\](?:[^\[\(]|$)/, false)) {
               // a [bare link] could be a [^footref]
               if (stream.peek() === '^') {

@@ -48,20 +48,29 @@ click_bind("hypermd_mode", function () {
 // only works on https://*.github.io/ and https://*.laobubu.net/
 // useless for you (maybe)
 
-if (/\.github\.|laobubu\.net/.test(location.hostname)) {
+!function CDNPatch() {
+    if (!/\.github\.|laobubu\.net/.test(location.hostname)) return
 
-    var node_modules_RE = /^.*node_modules\//
-    var CDNPrefix = "https://cdn.jsdelivr.net/npm/"
-
-    // inject requirejs
+    // inject requirejs to display progress.
+    // just for fun
     var old_requirejs_load = requirejs.load
     requirejs.load = function (context, moduleId, url) {
-        url = url.replace(node_modules_RE, CDNPrefix)
+        document.getElementById('loadingFileName').textContent = url
         return old_requirejs_load.call(this, context, moduleId, url)
     }
+    
+    // now seriously
+
+    var node_modules_RE = /^.*node_modules\//ig
+    var CDNPrefix = "https://cdn.jsdelivr.net/npm/"
 
     // Redirect style
-    Array.prototype.forEach.call(document.querySelectorAll("link"), function (link) {
+    // Load Scripts from CDN
+    var styleLinks = Array.prototype.slice.call(document.querySelectorAll("link"))
+    var scripts_raw = Array.prototype.slice.call(document.querySelectorAll("script"))
+    var scripts = []
+
+    styleLinks.forEach(function (link) {
         var href = link.href
         if (!node_modules_RE.test(href)) return
         href = href.replace(node_modules_RE, CDNPrefix)
@@ -69,14 +78,25 @@ if (/\.github\.|laobubu\.net/.test(location.hostname)) {
         link.href = href
     })
 
-    // Load Scripts from CDN
-    Array.prototype.forEach.call(document.querySelectorAll("script"), function (link) {
-        var src = link.getAttribute("src")
-        if (!node_modules_RE.test(src)) return
-        src = src.replace(node_modules_RE, CDNPrefix)
+    scripts_raw.forEach(function (s) {
+        if (s.hasAttribute("data-requiremodule")) return // do not mess up with require.js
 
-        var script = document.createElement("script")
-        script.src = src
-        document.body.appendChild(script)
+        var src = s.getAttribute("src")
+        if (!node_modules_RE.test(src)) return
+
+        s.parentElement.removeChild(s)
+        scripts.push(s)
     })
-}
+
+    //FIXME: a weird bug with browser or require.js
+    setTimeout(function () {
+        scripts.forEach(function (link) {
+            var src = link.getAttribute("src")
+            src = src.replace(node_modules_RE, CDNPrefix)
+
+            var script = document.createElement("script")
+            script.setAttribute("src", src)
+            document.body.appendChild(script)
+        })
+    }, 0)
+}()

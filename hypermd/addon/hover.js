@@ -11,18 +11,16 @@
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require(CODEMIRROR_ROOT + "lib/codemirror"),
-      require("marked/lib/marked"),
       require("./readlink")
     );
   else if (typeof define == "function" && define.amd) // AMD
     define([
       CODEMIRROR_ROOT + "lib/codemirror",
-      "marked/lib/marked",
       "./readlink"
     ], mod);
   else // Plain browser env
-    mod(CodeMirror, marked);
-})(function (CodeMirror, marked) {
+    mod(CodeMirror);
+})(function (CodeMirror) {
   "use strict";
 
   var HMDHover = function (cm) {

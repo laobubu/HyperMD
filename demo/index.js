@@ -1,21 +1,21 @@
 var demo_page_baseurl = window.location.href.replace(/\?.*$/, '').replace(/\/[^\/]*$/, '/')
+var demo_page_lib_baseurl = (/\.github\.|laobubu\.net/.test(location.hostname)) ? "https://cdn.jsdelivr.net/npm/" : "node_modules/"
 
 if (requirejs) requirejs.config({
-  baseUrl: "node_modules/",                // using local version
+  // baseUrl: "node_modules/",                   // using local version
   // baseUrl: "https://cdn.jsdelivr.net/npm/",   // or use CDN
+  baseUrl: demo_page_lib_baseurl,
   paths: {
-    // "codemirror/lib": "codemirror/", /* [^1] */
-    "hypermd": demo_page_baseurl + "hypermd",  // HyperMD is not from node_modules nor CDN
+    // Some CDNs treat lib files differently. If CodeMirror failed to load, Uncomment this line to fix it:
+    // ( see http://stackoverflow.com/questions/36500713/loading-codemirror-with-requirejs-from-cdn )
+    // "codemirror/lib": "codemirror/",
+
+    // HyperMD is not from node_modules nor CDN:
+    // "hypermd": "./hypermd",
+    "hypermd": demo_page_baseurl + "hypermd",
   },
   waitSeconds: 15
 })
-
-/**
- [^1]:  Some CDNs treat lib files differently. If CodeMirror failed to load,
-        Uncomment this line to fix it.
-
-        see http://stackoverflow.com/questions/36500713/loading-codemirror-with-requirejs-from-cdn
- */
 
 // Using requirejs's "path" option (see above)
 var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT = "codemirror/";
