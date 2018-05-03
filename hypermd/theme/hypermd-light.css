@@ -420,7 +420,7 @@
 .cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-rowsep {
   line-height: .5em;
   overflow: hidden;
-  text-shadow: 0 0 1px #FFF, 0 0 1px #FFF; }
+  text-shadow: 0 1px #FFF, 0 -1px #FFF, 1px 0 #FFF, -1px 0 #FFF; }
 
 .cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 {
   font-weight: bold; }

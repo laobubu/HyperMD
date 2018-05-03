@@ -25,7 +25,10 @@
   var DEBUG = false
 
   function isTableRow(cm, line) {
-    return (line < cm.lineCount()) && cm.getStateAfter(line).overlay.table
+    if (line >= cm.lineCount()) return false
+
+    var s = cm.getStateAfter(line)
+    return !!(s && s.overlay && s.overlay.table)
   }
 
   /**

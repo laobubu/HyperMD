@@ -402,7 +402,7 @@
         &.HyperMD-table-rowsep {
             line-height: .5em;
             overflow: hidden;
-            text-shadow: 0 0 1px #FFF, 0 0 1px #FFF;
+            text-shadow: 0 1px #FFF, 0 -1px #FFF, 1px 0 #FFF, -1px 0 #FFF;
         }
 
         &.HyperMD-table-row-0 {
