@@ -195,66 +195,70 @@
   width: 120px; }
 
 .cm-s-hypermd-light .cm-hmd-list-indent,
-.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list {
+.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list,
+.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child {
   display: inline-block;
-  width: 1.5em;
+  width: 2em;
   box-sizing: border-box;
   border-left: 1px dashed #eee;
   vertical-align: middle;
   text-align: right; }
 
 .cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting),
-.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting) {
+.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting),
+.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting) {
   /**
              *- xxx      <- without any space to indent the bullet
              *  xxxxxx   <- this is level2 line, but only one indent <span>. 
              */
-  padding-left: 1.5em; }
+  padding-left: 2em; }
 
 .cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-1,
-.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-1 {
+.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-1,
+.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child.cm-hmd-list-indent-1 {
   display: inline;
   border-left: 0; }
 
 .cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-corrupted,
-.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-corrupted {
+.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-corrupted,
+.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child.cm-hmd-list-indent-corrupted {
   background: rgba(255, 0, 0, 0.4); }
 
 .cm-s-hypermd-light pre.HyperMD-list-line-1 {
-  padding-left: 1.7em; }
+  padding-left: 2.2em; }
 
 .cm-s-hypermd-light pre.HyperMD-list-line-1 > span > span:first-child {
-  margin-left: -1.9em; }
+  margin-left: -2.4em; }
 
 .cm-s-hypermd-light pre.HyperMD-list-line-2 {
-  padding-left: 3.2em; }
+  padding-left: 4.2em; }
 
 .cm-s-hypermd-light pre.HyperMD-list-line-2 > span > span:first-child {
-  margin-left: -3.4em; }
+  margin-left: -4.4em; }
 
 .cm-s-hypermd-light pre.HyperMD-list-line-3 {
-  padding-left: 4.7em; }
-
-.cm-s-hypermd-light pre.HyperMD-list-line-3 > span > span:first-child {
-  margin-left: -4.9em; }
-
-.cm-s-hypermd-light pre.HyperMD-list-line-4 {
   padding-left: 6.2em; }
 
-.cm-s-hypermd-light pre.HyperMD-list-line-4 > span > span:first-child {
+.cm-s-hypermd-light pre.HyperMD-list-line-3 > span > span:first-child {
   margin-left: -6.4em; }
 
+.cm-s-hypermd-light pre.HyperMD-list-line-4 {
+  padding-left: 8.2em; }
+
+.cm-s-hypermd-light pre.HyperMD-list-line-4 > span > span:first-child {
+  margin-left: -8.4em; }
+
 .cm-s-hypermd-light pre.HyperMD-list-line-5 {
-  padding-left: 7.7em; }
+  padding-left: 10.2em; }
 
 .cm-s-hypermd-light pre.HyperMD-list-line-5 > span > span:first-child {
-  margin-left: -7.9em; }
+  margin-left: -10.4em; }
 
 .cm-s-hypermd-light pre.HyperMD-list-line-6 {
-  padding-left: 9.2em; }
+  padding-left: 12.2em; }
 
 .cm-s-hypermd-light pre.HyperMD-list-line-6 > span > span:first-child {
-  margin-left: -9.4em; }
+  margin-left: -12.4em; }
 
 .cm-s-hypermd-light .cm-formatting-list {
   font-family: 'HyperMD-Bullets';

@@ -141,11 +141,12 @@
 
     /// list
 
-    $list-indent-width: 1.5em;
+    $list-indent-width: 2em;
     $list-wrapped-indent: 0.2em;
 
     .cm-hmd-list-indent,
-    .cm-hmd-list-indent + .cm-formatting-list
+    .cm-hmd-list-indent + .cm-formatting-list,
+    pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child 
     {
         display: inline-block;
         width: $list-indent-width;
