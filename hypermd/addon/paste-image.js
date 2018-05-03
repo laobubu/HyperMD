@@ -20,7 +20,7 @@
   "use strict";
 
   /** 
-   * @typedef {function(string,string)} UploadCallback
+   * @typedef {(imgurl:string, err:string)=>void} UploadCallback
    * 1st param is URL, 2nd is error message.
    */
 
@@ -55,10 +55,13 @@
     xhr.send(formData)
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+
   function Paste(cm) {
     this.cm = cm
     this.enabled = false
     this.uploadTo = 'sm.ms'
+    this.placeholderURL = defaultOption.placeholderURL
 
     this._pasteHandle = this.pasteHandle.bind(this)
     this.updateUploader(this.uploadTo)
@@ -110,7 +113,10 @@
       uploadFunc = builtInUploader[newUploader]
     }
 
-    return (this.uploader = uploadFunc)
+    if (uploadFunc) { this.uploader = uploadFunc }
+    else { delete this['uploader'] }
+
+    return this.uploader
   }
 
   /**
@@ -136,18 +142,21 @@
    * upload a image and insert at the current cursor.
    * 
    * @param {File} file
+   * @returns {boolean} handled or not
    */
   Paste.prototype.doInsert = function (file) {
     var self = this, cm = self.cm
 
     if (!/image\//.test(file.type)) return false
+    if (!this.uploader) return false
+
+    var placeholderURL = this.placeholderURL
 
     cm.operation(function () {
-      cm.replaceSelection("![](Uploading)")
+      cm.replaceSelection("![](" + placeholderURL + ")")
       var pos = cm.getCursor()
-      
-      // add a bookmark before the left paren
-      pos.ch -= 11
+
+      // add a bookmark after the right paren ")"
       var bookmark = cm.setBookmark(pos)
 
       // start uploading
@@ -164,8 +173,8 @@
 
         // replace `Uploading` with the URL
         var
-          pos1 = { line: pos.line, ch: pos.ch + 1 },
-          pos2 = { line: pos.line, ch: pos.ch + 10 }
+          pos1 = { line: pos.line, ch: pos.ch - 1 - placeholderURL.length },
+          pos2 = { line: pos.line, ch: pos.ch - 1 }
         cm.replaceRange(url, pos1, pos2)
 
         // update `<img>` if the text is folded
@@ -174,10 +183,13 @@
           var mark = marks[i]
           if (mark.className == "hmd-fold-image") {
             mark.replacedWith.src = url
+            break
           }
         }
       })
     })
+
+    return true
   }
 
   /** 
@@ -189,14 +201,15 @@
     var cd = ev.clipboardData || window.clipboardData
     if (!cd || !cd.files || 1 != cd.files.length) return
 
-    this.doInsert(cd.files[0])
+    if (!this.doInsert(cd.files[0])) return
 
     ev.preventDefault()
   }
   Paste.prototype.bind = function () { this.cm.on('paste', this._pasteHandle) }
   Paste.prototype.unbind = function () { this.cm.off('paste', this._pasteHandle) }
 
-  /** get Paste instance of `cm`. if not exists, create one. */
+  /** get Paste instance of `cm`. if not exists, create one. 
+   * @returns {Paste} */
   function getPaste(cm) {
     if (!cm.hmd) cm.hmd = {}
     else if (cm.hmd.pasteImage) return cm.hmd.pasteImage
@@ -206,19 +219,11 @@
     return paste
   }
 
-  /**
-   * @typedef PasteOption
-   * @type {object}
-   * @property {boolean} enabled
-   * @property {PasteImageUploader | string} uploadTo
-   */
-
-  /**
-   * @type {PasteOption}
-   */
   var defaultOption = { // exposed options from Paste class
     enabled: false,
-    uploadTo: 'sm.ms'
+    uploadTo: 'sm.ms',
+    // before image is uploaded, a placeholder is applied. see hypermd-image-uploading.svg
+    placeholderURL: 'Uploading.gif', 
   }
 
   CodeMirror.defineOption("hmdPasteImage", false, function (cm, newVal) {
@@ -226,11 +231,10 @@
     var paste = getPaste(cm)
     var newCfg = {}
 
-    if (newVal === true) newVal = { enabled: true }
+    if (!newVal || newVal === true) newVal = { enabled: !!newVal }
     else if (/string|function/.test(typeof newVal)) newVal = { enabled: true, uploadTo: newVal }
-    else {
-      // normalize to boolean
-      newVal.enabled = !!newVal.enabled
+    else if (typeof newVal !== 'object') {
+      throw new Error("[HyperMD paste-image] wrong hmdPasteImage option value")
     }
 
     for (var k in defaultOption) {

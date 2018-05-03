@@ -50,7 +50,7 @@
    * 
    * @type {(html:string)=>string}
    */
-  var html2md
+  var html2md = null
 
   if (typeof TurndownService === 'function') {
     // using npm library `turndown`
@@ -77,10 +77,7 @@
       }
     })()
   } else {
-    // using my stupid method to process
-    return function (html) {
-      return html
-    }
+    //TODO: set `html2md` with other converter here
   }
 
   /** 
@@ -90,8 +87,9 @@
    */
   Paste.prototype.pasteHandle = function (cm, ev) {
     var cd = ev.clipboardData || window.clipboardData
-    if (!cd || cd.types.indexOf('text/html') == -1) return
+    if (!html2md || !cd || cd.types.indexOf('text/html') == -1) return
     var result = html2md(cd.getData('text/html'))
+    if (!result) return
 
     cm.operation(cm.replaceSelection.bind(cm, result))
 

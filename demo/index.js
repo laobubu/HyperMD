@@ -1,6 +1,6 @@
 if (requirejs) requirejs.config({
     paths: {
-        "codemirror": "./node_modules/codemirror/",
+        "codemirror": "./node_modules/codemirror/",   // CDN is supported too, try:  https://cdn.jsdelivr.net/npm/codemirror@5.37.0/
         /* "codemirror/lib": "./node_modules/codemirror/", */ /* [^1] */
         "hypermd": "./hypermd/"
     },
@@ -88,11 +88,17 @@ require([
 
             // (addon) paste
             // copy and paste HTML content
+            // NOTE: only works when `turndown` is loaded before HyperMD
             hmdPaste: true,
 
             // (addon) paste-image
             // copy, paste and upload image
-            hmdPasteImage: true,
+            // if you don't need this, passing `false` as option value
+            hmdPasteImage: {
+                enabled: true,
+                uploadTo: 'sm.ms', // can be a function(file, callback) , where file is Blob object and callback is function(imageURL, errorMsg)
+                placeholderURL: './hypermd/theme/hypermd-image-uploading.gif',
+            },
 
             // (addon) hide-token
             // hide/show Markdown tokens like `**`
