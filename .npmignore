@@ -1,10 +1,8 @@
 .gitignore
 node_modules/
 demo/
-*.scss
-dev.sh
-CHANGELOG.md
 index.html
 tmp/
-dev.js
 tests/
+dev/
+docs/

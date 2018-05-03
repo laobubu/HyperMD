@@ -12,25 +12,26 @@ HyperMD is a set of [CodeMirror] add-ons / modes / themes.
 
 You may use both original CodeMirror and HyperMD on the same page.
 
- 1. Write, and preview on the fly
-     - **Strong**, *Emphasis*, ~~Strikethrough~~, `Code`
-     - [Links](https://laobubu.net), Images, Footnotes
-     - Block-quotes, code blocks
-     - Headers
-     - Horizontal Rules
-     - [x] Lists (nested, ordered, unordered, tasks with checkbox)
-     - [MathJax] Formula, like $ e^{ i\pi } + 1 = 0 $ and math block [^4]
- 2. **Alt+Click** to follow link / footnote [^1]
- 3. **Syntax Highlight** for 120+ languages code blocks [^2]
- 4. **Hover** to read footnotes
- 5. **Copy and Paste**, translate HTML into Markdown [^5]
- 6. **Massive CodeMirror Add-ons** can be loaded, including:
-     - VIM/Emacs mode and Configurable keybindings
-     - Diff and Merge
-     - Fullscreen
-     - Themes [^3]
- 7. **Code Block Highlighting** language modes are loaded automatically
- 8. **[And More...](https://laobubu.net/HyperMD/ "HyperMD Documentation")**
+1. Write, and preview on the fly
+    - **Strong**, *Emphasis*, ~~Strikethrough~~, `Code`
+    - [Links](https://laobubu.net), Images, Footnotes
+    - Block-quotes, code blocks
+    - Headers
+    - Horizontal Rules
+    - [x] Lists (nested, ordered, unordered, tasks with checkbox)
+    - [MathJax] Formula, like $ e^{ i\pi } + 1 = 0 $ and math block [^4]
+    - Simple Tables
+2. **Alt+Click** to follow link / footnote [^1]
+3. **Syntax Highlight** for 120+ languages code blocks [^2]
+4. **Hover** to read footnotes
+5. **Copy and Paste**, translate HTML into Markdown [^5]
+6. **Massive CodeMirror Add-ons** can be loaded, including:
+    - VIM/Emacs mode and Configurable keybindings
+    - Diff and Merge
+    - Fullscreen
+    - Themes [^3]
+7. **Code Block Highlighting** language modes are loaded automatically
+8. **[And More...](https://laobubu.net/HyperMD/ "HyperMD Documentation")**
 
 ## Quickstart
 
@@ -44,18 +45,18 @@ If you don't want to use [RequireJS], insert `<script>` , `<link>`
 and other tags manually. Load these files **in sequence**, before
 initializing your editor:
 
- * CodeMirror:
- 	- **codemirror.js** and **codemirror.css**
- 	- **addon/mode/overlay.js** from CodeMirror
- 	- **addon/edit/continuelist.js** from CodeMirror
- 	- **meta, xml, markdown, gfm** modes from CodeMirror
- 	- (optional) other CodeMirror modes if you need code highlighting
- * HyperMD:
- 	- **hypermd.js** (core and base functions)
- 	- **mode/hypermd** both js and css
- 	- **addon**s (you would like to load all of them)
- 	- **theme** you prefer ( eg. `hypermd-light.css` )
- * Third-party:
+* CodeMirror:
+    - **codemirror.js** and **codemirror.css**
+    - **addon/mode/overlay.js** from CodeMirror
+    - **addon/edit/continuelist.js** from CodeMirror
+    - **meta, xml, markdown, gfm** modes from CodeMirror
+    - (optional) other CodeMirror modes if you need code highlighting
+* HyperMD:
+    - **hypermd.js** (core and base functions)
+    - **mode/hypermd** both js and css
+    - **addon**s (you would like to load all of them)
+    - **theme** you prefer ( eg. `hypermd-light.css` )
+* Third-party:
     - (optional) [MathJax]
     - (optional) [marked] renders tooltip text
     - (optional) [turndown] translate copied content into Markdown
@@ -86,8 +87,14 @@ var editor = CodeMirror.fromTextArea(myTextarea, {
     hmdHideToken: "(profile-1)",
     hmdCursorDebounce: true,
     hmdAutoFold: 200,
-    hmdPaste: true,
-    hmdFoldMath: { interval: 200, preview: true }
+    hmdPaste: true,   // Convert to Markdown before pasting. Needs `turndown`
+    hmdPasteImage: true,  // Can be a uploader function, (file: File) => Promise<string>
+    hmdFoldMath: { interval: 200, preview: true },
+    hmdTableAlign: { lineColor: '#999', rowsepColor: '#999' },
+
+    // Highlight any language!
+    // If using require.js, just "~codemirror/"
+    hmdLoadModeFrom: "URL_TO_codemirror/", 
 })
 
 editor.hmdHoverInit()       // tooltips on footnotes

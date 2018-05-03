@@ -43,3 +43,40 @@ click_bind("hypermd_mode", function () {
     if (!window.editor) return setTimeout(hideSplash, 100)
     document.getElementById('header').setAttribute('style', 'height:1px; overflow:hidden')
 }()
+
+// Use CDN to load CodeMirror and other stuff
+// only works on https://*.github.io/ and https://*.laobubu.net/
+// useless for you (maybe)
+
+if (/\.github\.|laobubu\.net/.test(location.hostname)) {
+
+    var node_modules_RE = /^.*node_modules\//
+    var CDNPrefix = "https://cdn.jsdelivr.net/npm/"
+
+    // inject requirejs
+    var old_requirejs_load = requirejs.load
+    requirejs.load = function (context, moduleId, url) {
+        url = url.replace(node_modules_RE, CDNPrefix)
+        return old_requirejs_load.call(this, context, moduleId, url)
+    }
+
+    // Redirect style
+    Array.prototype.forEach.call(document.querySelectorAll("link"), function (link) {
+        var href = link.href
+        if (!node_modules_RE.test(href)) return
+        href = href.replace(node_modules_RE, CDNPrefix)
+
+        link.href = href
+    })
+
+    // Load Scripts from CDN
+    Array.prototype.forEach.call(document.querySelectorAll("script"), function (link) {
+        var src = link.getAttribute("src")
+        if (!node_modules_RE.test(src)) return
+        src = src.replace(node_modules_RE, CDNPrefix)
+
+        var script = document.createElement("script")
+        script.src = src
+        document.body.appendChild(script)
+    })
+}
