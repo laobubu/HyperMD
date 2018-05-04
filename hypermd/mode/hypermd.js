@@ -7,18 +7,18 @@
 //
 
 (function (mod) {
-  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "codemirror/";
+  
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
-      require(CODEMIRROR_ROOT + "lib/codemirror"),
-      require(CODEMIRROR_ROOT + "mode/gfm/gfm"),
-      require(CODEMIRROR_ROOT + "addon/mode/overlay")
+      require("codemirror/lib/codemirror"),
+      require("codemirror/mode/gfm/gfm"),
+      require("codemirror/addon/mode/overlay")
     );
   else if (typeof define == "function" && define.amd) // AMD
     define([
-      CODEMIRROR_ROOT + "lib/codemirror",
-      CODEMIRROR_ROOT + "mode/gfm/gfm",
-      CODEMIRROR_ROOT + "addon/mode/overlay"
+      "codemirror/lib/codemirror",
+      "codemirror/mode/gfm/gfm",
+      "codemirror/addon/mode/overlay"
     ], mod);
   else // Plain browser env
     mod(CodeMirror);

@@ -4,7 +4,7 @@
 
 **Breaks the Wall** between *writing* and *preview*, in a Markdown Editor.
 
-[Online Demo](https://demo.laobubu.net)
+[Online Demo](https://laobubu.net/HyperMD/)
 
 ## Why use HyperMD?
 
@@ -31,77 +31,32 @@ You may use both original CodeMirror and HyperMD on the same page.
     - Fullscreen
     - Themes [^3]
 7. **Code Block Highlighting** language modes are loaded automatically
-8. **[And More...](https://laobubu.net/HyperMD/ "HyperMD Documentation")**
+8. **[And More...][doc]**
 
 ## Quickstart
 
 [RequireJS] is recommended and used during developing HyperMD.
 
 After importing related CSS files, [RequireJS],
-and other *optional* third-party libraries ([MathJax], [marked]),
+and other *optional* third-party libraries ([MathJax] etc...),
 you may copy and edit the initializing code from `demo/index.js`.
 
-If you don't want to use [RequireJS], insert `<script>` , `<link>`
-and other tags manually. Load these files **in sequence**, before
-initializing your editor:
+If you want to write `<script>` , `<link>` tags and import libs manually,
+Load these files **in sequence**, before initializing your editor:
 
-* CodeMirror:
-    - **codemirror.js** and **codemirror.css**
-    - **addon/mode/overlay.js** from CodeMirror
-    - **addon/edit/continuelist.js** from CodeMirror
-    - **meta, xml, markdown, gfm** modes from CodeMirror
-    - (optional) other CodeMirror modes if you need code highlighting
-* HyperMD:
-    - **hypermd.js** (core and base functions)
-    - **mode/hypermd** both js and css
-    - **addon**s (you would like to load all of them)
-    - **theme** you prefer ( eg. `hypermd-light.css` )
-* Third-party:
-    - (optional) [MathJax]
-    - (optional) [marked] renders tooltip text
-    - (optional) [turndown] translate copied content into Markdown
-    - (optional) [turndown-plugin-gfm] paste strikethrough, tables etc.
+* **CSS Styles** ( see `index.html` )
+* **JS Libs** ( see `demo/index.js` )
+    - Third-party libraries are optional, except [marked]
 
 Once add-ons and stylesheets are loaded, you may initialize editor,
 turn your `<textarea>` into HyperMD editor, with few codes:
 
-***Note**: This complex approach is temporary. but don't worry,*
-*Some easy-to-use functions (methods) will come in a new version.*
-
 ```javascript
 var myTextarea = document.getElementById('input-area')
-var editor = CodeMirror.fromTextArea(myTextarea, {
-    lineNumbers: true,
-    lineWrapping: true,
-    theme: "hypermd-light",
-    mode: "text/x-hypermd",
-
-    gutters: [
-        "CodeMirror-linenumbers",
-        "HyperMD-goback"
-    ],
-    extraKeys: {
-        "Enter": "newlineAndIndentContinueMarkdownList"
-    },
-
-    hmdHideToken: "(profile-1)",
-    hmdCursorDebounce: true,
-    hmdAutoFold: 200,
-    hmdPaste: true,   // Convert to Markdown before pasting. Needs `turndown`
-    hmdPasteImage: true,  // Can be a uploader function, (file: File) => Promise<string>
-    hmdFoldMath: { interval: 200, preview: true },
-    hmdTableAlign: { lineColor: '#999', rowsepColor: '#999' },
-
-    // Highlight any language!
-    // If using require.js, just "~codemirror/"
-    hmdLoadModeFrom: "URL_TO_codemirror/", 
-})
-
-editor.hmdHoverInit()       // tooltips on footnotes
-editor.hmdClickInit()       // open link, toggle todo item etc.
+var editor = HyperMD.fromTextArea(myTextarea)
 ```
 
-And that's all. Feel free to modify the options above.
+And that's all. Configuration guide can be found in [doc].
 
 ## Contributing
 
@@ -122,6 +77,8 @@ Contributions are welcomed. You may:
 [turndown]: https://github.com/domchristie/turndown An HTML to Markdown converter
 [turndown-plugin-gfm]: https://github.com/domchristie/turndown-plugin-gfm Turndown plugin to add GitHub Flavored Markdown extensions
 [laobubu]:  https://laobubu.net/  The author of HyperMD.
+[doc]: https://laobubu.net/HyperMD/docs/ HyperMD Documentation
+
 [^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.
 [^3]: If the theme is not designed for HyperMD, some features might not be present.

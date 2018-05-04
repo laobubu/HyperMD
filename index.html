@@ -8,11 +8,13 @@
 </head>
 
 <body>
+    <!-- CodeMirror and HyperMD style! -->
     <link rel="stylesheet" href="./node_modules/codemirror/lib/codemirror.css">
     <link rel="stylesheet" href="./node_modules/codemirror/addon/dialog/dialog.css">
     <link rel="stylesheet" href="./node_modules/codemirror/addon/fold/foldgutter.css">
     <link rel="stylesheet" href="./hypermd/mode/hypermd.css">
     <link rel="stylesheet" href="./hypermd/theme/hypermd-light.css">
+
     <link rel="stylesheet" href="./demo/style.css">
 
 <div id="header">
@@ -28,9 +30,6 @@
 
 <textarea id="demo" style="display:none"></textarea>
 
-<!-- for addon/hover and other -->
-<script src="./node_modules/marked/marked.min.js"></script>
-
 <!-- for addon/fold-math -->
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -41,11 +40,6 @@
         }
     });
 </script>
-<script src="./node_modules/mathjax/MathJax.js"></script>
-
-<!-- for addon/paste -->
-<script src="./node_modules/turndown/dist/turndown.js"></script>
-<script src="./node_modules/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
 
 <!-- using require.js to solve the dependencies -->
 <script src="./demo/vendor/require.js"></script>

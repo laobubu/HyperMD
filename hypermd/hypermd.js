@@ -5,28 +5,174 @@
 //
 
 (function (mod) {
-  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "codemirror/"
+
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     module.exports = mod(
-      require(CODEMIRROR_ROOT + "lib/codemirror")
+      require("codemirror/lib/codemirror")
     )
   else if (typeof define == "function" && define.amd) // AMD
     define([
-      CODEMIRROR_ROOT + "lib/codemirror",
+      "codemirror/lib/codemirror",
     ], mod)
   else // Plain browser env
     window.HyperMD = mod(window.CodeMirror)
 })(function (CodeMirror) {
   var HyperMD = {
     /**
-    * CodeMirror's `getLineTokens` might merge adjacent chars with same styles,
-    * but this one won't.
-    *
-    * This one will consume more memory.
-    *
-    * @param {CodeMirror.LineHandle} line
-    * @returns {string[]} every char's style
-    */
+     * Initialize an editor from a <textarea>
+     * Calling `CodeMirror.fromTextArea` with recommended HyperMD options
+     * 
+     * @see CodeMirror.fromTextArea
+     * 
+     * @param {HTMLTextAreaElement} textArea
+     * @param {object} [config]
+     * @returns {CodeMirror.EditorFromTextArea}
+     */
+    fromTextArea: function (textArea, config) {
+      var final_config = {
+        lineNumbers: true,
+        lineWrapping: true,
+        theme: "hypermd-light",
+        mode: "text/x-hypermd",
+        tabSize: 4, // CommonMark specifies tab as 4 spaces
+
+        foldGutter: true,
+        gutters: [
+          "CodeMirror-linenumbers",
+          "CodeMirror-foldgutter",
+          "HyperMD-goback"  // (addon: click) 'back' button for footnotes
+        ],
+        extraKeys: {
+          "Enter": "newlineAndIndentContinueMarkdownList"
+        },
+
+        // (addon) cursor-debounce
+        // cheap mouse could make unexpected selection. use this to fix.
+        hmdCursorDebounce: true,
+
+        // (addon) fold
+        // turn images and links into what you want to see
+        hmdAutoFold: 200,
+
+        // (addon) fold-math
+        // MathJax support. Both `$` and `$$` are supported
+        hmdFoldMath: {
+          interval: 200,      // auto folding interval
+          preview: true       // providing a preview while composing math
+        },
+
+        // (addon) paste
+        // copy and paste HTML content
+        // NOTE: only works when `turndown` is loaded before HyperMD
+        hmdPaste: true,
+
+        // (addon) paste-image
+        // copy, paste and upload image
+        // if you don't need this, passing `false` as option value
+        hmdPasteImage: {
+          enabled: true,
+          uploadTo: 'sm.ms', // can be a function(file, callback) , where file is Blob object and callback is function(imageURL, errorMsg)
+          placeholderURL: './hypermd/theme/hypermd-image-uploading.gif',
+        },
+
+        // (addon) hide-token
+        // hide/show Markdown tokens like `**`
+        hmdHideToken: "(profile-1)",
+
+        // (addon) mode-loader
+        // auto load mode to highlight code blocks
+        // by providing a URL prefix, pointing to your CodeMirror
+        // - http://cdn.xxxxx.com/codemirror/v4.xx/
+        // - ./node_modules/codemirror/              <- relative to webpage's URL
+        // using require.js? do it like this :
+        hmdLoadModeFrom: "~codemirror/",
+
+        // (addon) table-align
+        // adjust table separators' margin, making table columns aligned
+        hmdTableAlign: {
+          lineColor: '#999',   // color of vertical lines
+          rowsepColor: '#999',  // color of the horizontal line, can be null (means transparent)
+        },
+      }
+
+      if (typeof config === 'object') {
+        for (var key in config) {
+          if (config.hasOwnProperty(key)) {
+            final_config[key] = config[key]
+          }
+        }
+      }
+
+      var cm = CodeMirror.fromTextArea(textArea, final_config)
+
+      // (addon) hover
+      // (dependencies) addon/readlink
+      // tooltips on footnotes
+      if (typeof cm['hmdHoverInit'] === 'function') cm.hmdHoverInit()
+
+      // (addon) click
+      // (dependencies) addon/readlink
+      // click to follow links and footnotes
+      if (typeof cm['hmdClickInit'] === 'function') cm.hmdClickInit()
+
+      return cm
+    },
+
+    /**
+     * Turn HyperMD editor into to a normal editor
+     * 
+     * Disable HyperMD visual effects. 
+     * Interactive addons like click or paste are not affected.
+     * 
+     * @param {CodeMirror.EditorFromTextArea} editor Created by **HyperMD.fromTextArea**
+     * @param {string} [theme]
+     */
+    switchToNormal: function (editor, theme) {
+      editor.setOption('theme', theme || "default")
+
+      // stop auto folding
+      editor.setOption('hmdAutoFold', 0)
+      editor.setOption('hmdFoldMath', false)
+
+      // unfold all folded parts
+      setTimeout(function () {
+        var marks = editor.getAllMarks()
+        for (var i = 0; i < marks.length; i++) {
+          var mark = marks[i]
+          if (/^hmd-/.test(mark.className)) mark.clear()
+        }
+      }, 200) // FIXME: the timeout is not determined
+
+      // stop hiding tokens
+      editor.setOption('hmdHideToken', '')
+
+      // stop aligining table columns
+      editor.setOption('hmdTableAlign', false)
+    },
+
+    /**
+     * Revert what `HyperMD.switchToNormal` does
+     * 
+     * @param {CodeMirror.EditorFromTextArea} editor Created by **HyperMD.fromTextArea**
+     * @param {string} [theme]
+     */
+    switchToHyperMD: function (editor, theme) {
+      editor.setOption('theme', theme || 'hypermd-light')
+      editor.setOption('hmdAutoFold', 200)
+      editor.setOption('hmdFoldMath', { interval: 200, preview: true })
+      editor.setOption('hmdHideToken', '(profile-1)')
+      editor.setOption('hmdTableAlign', { lineColor: '#999', rowsepColor: '#999' })
+    },
+
+    /**
+     * CodeMirror's `getLineTokens` might merge adjacent chars with same styles,
+     * but this one won't.
+     *
+     * This one will consume more memory.
+     *
+     * @param {CodeMirror.LineHandle} line
+     * @returns {string[]} every char's style
+     */
     getEveryCharToken: function (line) {
       var ans = new Array(line.text.length)
       var ss = line.styles

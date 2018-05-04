@@ -1,4 +1,4 @@
-/* global editor, CODEMIRROR_ROOT */
+/* global editor, is_running_demo, HyperMD */
 
 // the following code is just for test.
 // useless for you.
@@ -8,36 +8,8 @@ function click_bind(id, func, event) {
     btn.addEventListener(event || "click", func, false)
 }
 
-click_bind("raw_mode", function () {
-    editor.setOption('theme', 'default')
-
-    // stop auto folding
-    editor.setOption('hmdAutoFold', 0)
-    editor.setOption('hmdFoldMath', false)
-
-    // unfold all folded parts
-    setTimeout(function () {
-        var marks = editor.getAllMarks()
-        for (var i = 0; i < marks.length; i++) {
-            var mark = marks[i]
-            if (/^hmd-/.test(mark.className)) mark.clear()
-        }
-    }, 200) // FIXME: the timeout is not determined
-
-    // stop hiding tokens
-    editor.setOption('hmdHideToken', '')
-
-    // stop aligining table columns
-    editor.setOption('hmdTableAlign', false)
-})
-
-click_bind("hypermd_mode", function () {
-    editor.setOption('theme', 'hypermd-light')
-    editor.setOption('hmdAutoFold', 200)
-    editor.setOption('hmdFoldMath', { interval: 200, preview: true })
-    editor.setOption('hmdHideToken', '(profile-1)')
-    editor.setOption('hmdTableAlign', { lineColor: '#999', rowsepColor: '#999' })
-})
+click_bind("raw_mode", function () { HyperMD.switchToNormal(editor) })
+click_bind("hypermd_mode", function () { HyperMD.switchToHyperMD(editor) })
 
 !function hideSplash() {
     if (!window.editor) return setTimeout(hideSplash, 100)
@@ -49,7 +21,7 @@ click_bind("hypermd_mode", function () {
 // useless for you (maybe)
 
 !function CDNPatch() {
-    if (!/\.github\.|laobubu\.net/.test(location.hostname)) return
+    if (!is_running_demo) return
 
     // inject requirejs to display progress.
     // just for fun
@@ -58,45 +30,31 @@ click_bind("hypermd_mode", function () {
         document.getElementById('loadingFileName').textContent = url
         return old_requirejs_load.call(this, context, moduleId, url)
     }
-    
+
     // now seriously
-
+    // Reload CSS from CDN
     var node_modules_RE = /^.*node_modules\//ig
-    var CDNPrefix = "https://cdn.jsdelivr.net/npm/"
-
-    // Redirect style
-    // Load Scripts from CDN
     var styleLinks = Array.prototype.slice.call(document.querySelectorAll("link"))
-    var scripts_raw = Array.prototype.slice.call(document.querySelectorAll("script"))
-    var scripts = []
-
     styleLinks.forEach(function (link) {
         var href = link.href
         if (!node_modules_RE.test(href)) return
-        href = href.replace(node_modules_RE, CDNPrefix)
+        href = href.replace(node_modules_RE, demo_page_lib_baseurl)
 
         link.href = href
     })
-
-    scripts_raw.forEach(function (s) {
-        if (s.hasAttribute("data-requiremodule")) return // do not mess up with require.js
-
-        var src = s.getAttribute("src")
-        if (!node_modules_RE.test(src)) return
-
-        s.parentElement.removeChild(s)
-        scripts.push(s)
-    })
-
-    //FIXME: a weird bug with browser or require.js
-    setTimeout(function () {
-        scripts.forEach(function (link) {
-            var src = link.getAttribute("src")
-            src = src.replace(node_modules_RE, CDNPrefix)
-
-            var script = document.createElement("script")
-            script.setAttribute("src", src)
-            document.body.appendChild(script)
-        })
-    }, 0)
 }()
+
+function ajax_load_file(url, callback) {
+    var xmlhttp;
+    if (window.XMLHttpRequest) { xmlhttp = new XMLHttpRequest() }
+    else if (window.ActiveXObject) { xmlhttp = new ActiveXObject("Microsoft.XMLHTTP") }
+    if (xmlhttp != null) {
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                callback(xmlhttp.responseText)
+            }
+        }
+        xmlhttp.open("GET", url, true)
+        xmlhttp.send(null)
+    }
+}

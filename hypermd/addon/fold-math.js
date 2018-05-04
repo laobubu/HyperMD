@@ -4,18 +4,18 @@
 // Folding and rendering with MathJax
 
 (function (mod) {
-  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "codemirror/";
+  
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
-      require(CODEMIRROR_ROOT + "lib/codemirror"),
+      require("codemirror/lib/codemirror"),
       require("./../hypermd"),
-      require(CODEMIRROR_ROOT + "addon/display/panel")
+      require("codemirror/addon/display/panel")
     );
   else if (typeof define == "function" && define.amd) // AMD
     define([
-      CODEMIRROR_ROOT + "lib/codemirror",
+      "codemirror/lib/codemirror",
       "./../hypermd",
-      CODEMIRROR_ROOT + "addon/display/panel"
+      "codemirror/addon/display/panel"
     ], mod);
   else // Plain browser env
     mod(CodeMirror, HyperMD);

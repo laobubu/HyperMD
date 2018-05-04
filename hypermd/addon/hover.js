@@ -7,20 +7,22 @@
 /* global marked */
 
 (function (mod) {
-  var CODEMIRROR_ROOT = window.CODEMIRROR_ROOT || "codemirror/";
+  
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
-      require(CODEMIRROR_ROOT + "lib/codemirror"),
+      require("codemirror/lib/codemirror"),
+      require("marked/lib/marked"),
       require("./readlink")
     );
   else if (typeof define == "function" && define.amd) // AMD
     define([
-      CODEMIRROR_ROOT + "lib/codemirror",
+      "codemirror/lib/codemirror",
+      "marked/lib/marked",
       "./readlink"
     ], mod);
   else // Plain browser env
-    mod(CodeMirror);
-})(function (CodeMirror) {
+    mod(CodeMirror, marked);
+})(function (CodeMirror, marked) {
   "use strict";
 
   var HMDHover = function (cm) {
@@ -82,7 +84,7 @@
 
   /** if `marked` exists, use it; else, return safe html */
   function text2html(text) {
-    if (window.marked) return marked(text)
+    if (typeof marked === 'function') return marked(text)
     return "<pre>" + text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;') + "</pre>"
   }
 
