@@ -5,7 +5,7 @@
 //
 
 (function (mod) {
-  
+
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require("codemirror/lib/codemirror")
@@ -64,6 +64,7 @@
     this.placeholderURL = defaultOption.placeholderURL
 
     this._pasteHandle = this.pasteHandle.bind(this)
+    this._dropHandle = this.dropHandle.bind(this)
     this.updateUploader(this.uploadTo)
   }
 
@@ -141,11 +142,14 @@
   /**
    * upload a image and insert at the current cursor.
    * 
-   * @param {File} file
+   * @param {DataTransfer} data
    * @returns {boolean} handled or not
    */
-  Paste.prototype.doInsert = function (file) {
+  Paste.prototype.doInsert = function (data) {
     var self = this, cm = self.cm
+
+    if (!data || !data.files || 1 != data.files.length) return false
+    var file = data.files[0]
 
     if (!/image\//.test(file.type)) return false
     if (!this.uploader) return false
@@ -198,15 +202,29 @@
    * @param {ClipboardEvent} ev 
    */
   Paste.prototype.pasteHandle = function (cm, ev) {
-    var cd = ev.clipboardData || window.clipboardData
-    if (!cd || !cd.files || 1 != cd.files.length) return
-
-    if (!this.doInsert(cd.files[0])) return
-
+    if (!this.doInsert(ev.clipboardData || window.clipboardData)) return
     ev.preventDefault()
   }
-  Paste.prototype.bind = function () { this.cm.on('paste', this._pasteHandle) }
-  Paste.prototype.unbind = function () { this.cm.off('paste', this._pasteHandle) }
+
+  /** 
+   * 'drop' event handler
+   * 
+   * @param {DragEvent} ev 
+   */
+  Paste.prototype.dropHandle = function (cm, ev) {
+    if (!this.doInsert(ev.dataTransfer)) return
+    ev.preventDefault()
+  }
+
+  Paste.prototype.bind = function () {
+    this.cm.on('paste', this._pasteHandle)
+    this.cm.on('drop', this._dropHandle)
+  }
+
+  Paste.prototype.unbind = function () {
+    this.cm.off('paste', this._pasteHandle)
+    this.cm.off('drop', this._dropHandle)
+  }
 
   /** get Paste instance of `cm`. if not exists, create one. 
    * @returns {Paste} */
@@ -223,7 +241,7 @@
     enabled: false,
     uploadTo: 'sm.ms',
     // before image is uploaded, a placeholder is applied. see hypermd-image-uploading.svg
-    placeholderURL: 'Uploading.gif', 
+    placeholderURL: 'Uploading.gif',
   }
 
   CodeMirror.defineOption("hmdPasteImage", false, function (cm, newVal) {
