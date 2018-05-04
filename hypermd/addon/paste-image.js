@@ -8,15 +8,17 @@
 
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
-      require("codemirror/lib/codemirror")
+      require("codemirror/lib/codemirror"),
+      require("./../hypermd")
     );
   else if (typeof define == "function" && define.amd) // AMD
     define([
-      "codemirror/lib/codemirror"
+      "codemirror/lib/codemirror",
+      "./../hypermd",
     ], mod);
   else // Plain browser env
-    mod(CodeMirror);
-})(function (CodeMirror) {
+    mod(CodeMirror, HyperMD);
+})(function (CodeMirror, HyperMD) {
   "use strict";
 
   /** 
@@ -60,12 +62,27 @@
   function Paste(cm) {
     this.cm = cm
     this.enabled = false
+    this.enabledDrop = false
     this.uploadTo = 'sm.ms'
     this.placeholderURL = defaultOption.placeholderURL
 
-    this._pasteHandle = this.pasteHandle.bind(this)
-    this._dropHandle = this.dropHandle.bind(this)
     this.updateUploader(this.uploadTo)
+
+    // use FlipFlop to bind/unbind event listeners
+
+    var _pasteHandle = this.pasteHandle.bind(this)
+    var _dropHandle = this.dropHandle.bind(this)
+
+    this._ff_paste = new HyperMD.FlipFlop(
+      function () { cm.on('paste', _pasteHandle) },
+      function () { cm.off('paste', _pasteHandle) },
+      false
+    )
+    this._ff_drop = new HyperMD.FlipFlop(
+      function () { cm.on('drop', _dropHandle) },
+      function () { cm.off('drop', _dropHandle) },
+      false
+    )
   }
 
   /** @type {{[name:string]:function(file:File,callback:UploadCallback)}} */
@@ -212,18 +229,14 @@
    * @param {DragEvent} ev 
    */
   Paste.prototype.dropHandle = function (cm, ev) {
-    if (!this.doInsert(ev.dataTransfer)) return
+    var self = this, cm = this.cm, result = false
+    cm.operation(function () {
+      var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY })
+      cm.setCursor(pos)
+      result = self.doInsert(ev.dataTransfer)
+    })
+    if (!result) return
     ev.preventDefault()
-  }
-
-  Paste.prototype.bind = function () {
-    this.cm.on('paste', this._pasteHandle)
-    this.cm.on('drop', this._dropHandle)
-  }
-
-  Paste.prototype.unbind = function () {
-    this.cm.off('paste', this._pasteHandle)
-    this.cm.off('drop', this._dropHandle)
   }
 
   /** get Paste instance of `cm`. if not exists, create one. 
@@ -239,6 +252,7 @@
 
   var defaultOption = { // exposed options from Paste class
     enabled: false,
+    enabledDrop: false,
     uploadTo: 'sm.ms',
     // before image is uploaded, a placeholder is applied. see hypermd-image-uploading.svg
     placeholderURL: 'Uploading.gif',
@@ -246,8 +260,10 @@
 
   CodeMirror.defineOption("hmdPasteImage", false, function (cm, newVal) {
     // complete newCfg with default values
-    var paste = getPaste(cm)
+    
+    /** @type {typeof defaultOption} */ 
     var newCfg = {}
+    var paste = getPaste(cm)
 
     if (!newVal || newVal === true) newVal = { enabled: !!newVal }
     else if (/string|function/.test(typeof newVal)) newVal = { enabled: true, uploadTo: newVal }
@@ -261,10 +277,9 @@
 
     /////
 
-    if (paste.enabled != newCfg.enabled) {
-      newCfg.enabled ? paste.bind() : paste.unbind()
-    }
     paste.updateUploader(newCfg.uploadTo)
+    paste._ff_paste.setBool(newCfg && newCfg.enabled)
+    paste._ff_drop.setBool(newCfg && newCfg.enabledDrop)
 
     /////
     // write new values into cm

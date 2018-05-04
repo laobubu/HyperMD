@@ -17,6 +17,40 @@
   else // Plain browser env
     window.HyperMD = mod(window.CodeMirror)
 })(function (CodeMirror) {
+
+  /**
+   * Simple FlipFlop
+   * 
+   * @param {function} on_cb 
+   * @param {function} off_cb 
+   * @param {any} [initStatus] default: false (boolean)
+   * @param {string} [subkey] if get an object, use this key to retrive status. default: "enabled"
+   */
+  function FlipFlop(on_cb, off_cb, initStatus, subkey) {
+    this.on_cb = on_cb
+    this.off_cb = off_cb
+    this.status = typeof initStatus === 'undefined' ? false : initStatus
+    this.subkey = subkey || "enabled"
+  }
+
+  /**
+   * Update FlipFlop status, and trig callback function if needed
+   * 
+   * @param {any} status new status value. can be a object
+   * @param {boolean} [toBool] convert retrived value to boolean. default: false 
+   */
+  FlipFlop.prototype.set = function (status, toBool) {
+    var newVal = typeof status === 'object' ? status[this.subkey] : status
+    if (toBool) newVal = !!newVal
+    if (newVal === this.status) return
+    if (this.status = newVal) this.on_cb(this)
+    else this.off_cb(this)
+  }
+
+  FlipFlop.prototype.setBool = function (status) {
+    return this.set(status, true)
+  }
+
   var HyperMD = {
     /**
      * Initialize an editor from a <textarea>
@@ -70,8 +104,14 @@
         // copy, paste and upload image
         // if you don't need this, passing `false` as option value
         hmdPasteImage: {
-          enabled: true,
-          uploadTo: 'sm.ms', // can be a function(file, callback) , where file is Blob object and callback is function(imageURL, errorMsg)
+          enabled: true,     // paste image
+          enabledDrop: true, // drag'n'drop image file
+          /** `uploadTo` can be 
+           * 1. name of a built-in uploader (see addon/paste-image.js)
+           * 2. function(File, callback) where file is Blob object and callback is function(imageURL, errorMsg)
+           * 3. function(File) that returns Promise<string> 
+           */
+          uploadTo: 'sm.ms',
           placeholderURL: './hypermd/theme/hypermd-image-uploading.gif',
         },
 
@@ -267,6 +307,11 @@
 
       return ans
     },
+
+    /**
+     * Simple FlipFlop class with callback
+     */
+    FlipFlop: FlipFlop,
 
     /**
      * clean line measure caches (if needed) 
