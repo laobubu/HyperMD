@@ -172,6 +172,8 @@
     if (!this.uploader) return false
 
     var placeholderURL = this.placeholderURL
+    var blobURL = (placeholderURL.indexOf('<BlobURL>') !== -1 && typeof URL !== 'undefined') ? URL.createObjectURL(file) : null
+    if (blobURL) placeholderURL = placeholderURL.replace('<BlobURL>', blobURL)
 
     cm.operation(function () {
       cm.replaceSelection("![](" + placeholderURL + ")")
@@ -191,6 +193,9 @@
           cm.setCursor(pos)
           return
         }
+
+        // if a blobURL was created. revoke it
+        if (blobURL) URL.revokeObjectURL(blobURL)
 
         // replace `Uploading` with the URL
         var
@@ -254,14 +259,15 @@
     enabled: false,
     enabledDrop: false,
     uploadTo: 'sm.ms',
-    // before image is uploaded, a placeholder is applied. see hypermd-image-uploading.svg
-    placeholderURL: 'Uploading.gif',
+    // before image is uploaded, a placeholder is applied.
+    // you may use <BlobURL> to display what user just submitted
+    placeholderURL: '<BlobURL>?HyperMD-Uploading',
   }
 
   CodeMirror.defineOption("hmdPasteImage", false, function (cm, newVal) {
     // complete newCfg with default values
-    
-    /** @type {typeof defaultOption} */ 
+
+    /** @type {typeof defaultOption} */
     var newCfg = {}
     var paste = getPaste(cm)
 

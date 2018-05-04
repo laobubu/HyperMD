@@ -112,7 +112,7 @@
            * 3. function(File) that returns Promise<string> 
            */
           uploadTo: 'sm.ms',
-          placeholderURL: './hypermd/theme/hypermd-image-uploading.gif',
+          placeholderURL: '<BlobURL>?HyperMD-Uploading', // see hypermd-light theme
         },
 
         // (addon) hide-token
