@@ -5,6 +5,7 @@
 **Breaks the Wall** between *writing* and *preview*, in a Markdown Editor.
 
 [Online Demo](https://laobubu.net/HyperMD/)
+[中文介绍](./demo/README.zh-CN.md)
 
 ## Why use HyperMD?
 
@@ -31,7 +32,8 @@ You may use both original CodeMirror and HyperMD on the same page.
     - Fullscreen
     - Themes [^3]
 7. **Code Block Highlighting** language modes are loaded automatically
-8. **[And More...][doc]**
+8. **Upload Images** copy and paste, or drag'n'drop
+9. **[And More...][doc]**
 
 ## Quickstart
 

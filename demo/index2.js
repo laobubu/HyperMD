@@ -8,12 +8,21 @@ function click_bind(id, func, event) {
     btn.addEventListener(event || "click", func, false)
 }
 
-click_bind("raw_mode", function () { HyperMD.switchToNormal(editor) })
-click_bind("hypermd_mode", function () { HyperMD.switchToHyperMD(editor) })
-
 !function hideSplash() {
     if (!window.editor) return setTimeout(hideSplash, 100)
     document.getElementById('header').setAttribute('style', 'height:1px; overflow:hidden')
+}()
+
+!function chooseREADME() {
+    /** global demo_README_filename */
+    for (var i = 0; i < navigator.languages.length; i++) {
+        var lang = navigator.languages[i]
+
+        if (lang === "zh-CN") demo_README_filename = "demo/README.zh-CN.md"
+        else continue
+
+        break
+    }
 }()
 
 // Use CDN to load CodeMirror and other stuff

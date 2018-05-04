@@ -1,6 +1,7 @@
 var is_running_demo = /\.github\.|laobubu\.net/.test(location.hostname)
 var demo_page_baseurl = window.location.href.replace(/\?.*$/, '').replace(/\/[^\/]*$/, '/')
 var demo_page_lib_baseurl = is_running_demo ? "https://cdn.jsdelivr.net/npm/" : "node_modules/"
+var demo_README_filename = "README.md"
 
 if (requirejs) requirejs.config({
   // baseUrl: "node_modules/",                   // using local version
@@ -42,6 +43,10 @@ require([
   'codemirror/addon/fold/foldgutter',
   'codemirror/addon/fold/markdown-fold',
   'codemirror/addon/edit/continuelist',
+
+  'codemirror/addon/mode/overlay',
+  'codemirror/mode/markdown/markdown',
+  'codemirror/mode/gfm/gfm',
 
   'codemirror/addon/dialog/dialog',
   'codemirror/addon/search/search',
@@ -92,19 +97,28 @@ require([
 
   function init_editor() {
     // HyperMD magic. See document
-    var editor = HyperMD.fromTextArea(myTextarea)
-    editor.setSize("100%", 500)
+    var editor = HyperMD.fromTextArea(myTextarea, {
+      hmdPasteImage: {
+        enabled: true,
+        enabledDrop: true,
+        // uploadTo: (file, callback) => setTimeout(callback.bind(null, "uploaded.png"), 1000),
+      }
+    })
+    editor.setSize("100%", "100%")
 
     // for debugging
     window.CodeMirror = CodeMirror
     window.HyperMD = HyperMD
     window.editor = editor
     window.cm = editor
+
+    // for demo page only:
+    document.body.className += " loaded"
   }
 
   // ajax_load_file is declared in `index2.js`
   // If you don't need it, just init_editor()
-  ajax_load_file("README.md", function (text) {
+  ajax_load_file(demo_README_filename, function (text) {
     myTextarea.value = text
     init_editor()
   })
