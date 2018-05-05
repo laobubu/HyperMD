@@ -9,16 +9,20 @@
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require("codemirror/lib/codemirror"),
+      require("blueimp-canvas-to-blob"),
+      require("blueimp-load-image"),
       require("./../hypermd")
     );
   else if (typeof define == "function" && define.amd) // AMD
     define([
       "codemirror/lib/codemirror",
+      "blueimp-canvas-to-blob",
+      "blueimp-load-image",
       "./../hypermd",
     ], mod);
   else // Plain browser env
-    mod(CodeMirror, HyperMD);
-})(function (CodeMirror, HyperMD) {
+    mod(CodeMirror, dataURLtoBlob, loadImage, HyperMD);
+})(function (CodeMirror, dataURLtoBlob, loadImage, HyperMD) {
   "use strict";
 
   /** 
@@ -63,10 +67,15 @@
     this.cm = cm
     this.enabled = false
     this.enabledDrop = false
+    this.enableThumbnail = defaultOption.enableThumbnail
+    this.thumbnailMaxWidth = defaultOption.thumbnailMaxWidth
+    this.thumbnailMaxHeight = defaultOption.thumbnailMaxHeight
     this.uploadTo = 'sm.ms'
     this.placeholderURL = defaultOption.placeholderURL
-
+    
     this.updateUploader(this.uploadTo)
+
+    this._doInsertWithThumbnailHandle = this.doInsertWithThumbnail.bind(this)
 
     // use FlipFlop to bind/unbind event listeners
 
@@ -87,7 +96,8 @@
 
   /** @type {{[name:string]:function(file:File,callback:UploadCallback)}} */
   var builtInUploader = {
-    'sm.ms': function Upload_SmMs(file, callback) {
+    'sm.ms': function Upload_SmMs(file, thumbBlobIfAny, callback) {
+      // thumbBlobIfAny is ignored for sm.ms -> just upload the large file
       ajaxUpload(
         'https://sm.ms/api/upload',
         {
@@ -116,8 +126,8 @@
     if ('function' == type) {
       if (newUploader.length == 1) {
         // transform Promise style into callback style.
-        uploadFunc = function (file, callback) {
-          newUploader(file)
+        uploadFunc = function (file, thumbBlob, callback) {
+          newUploader(file, thumbBlob)
             .then(function (url) { callback(url, null) })
             .catch(function (err) { callback(null, err) })
         }
@@ -145,35 +155,22 @@
    * 
    * PasteImageUploader(aka. PasteImage Upload Function) has two forms:
    * 
-   * 1. ` ( file:File, callback: (url:string, err:string)=>void ) => void `
+   * 1. ` ( file:File, thumbBlob: Blob | null, callback: (url:string, err:string)=>void ) => void `
    *   - if failed to upload, the `url` shall be `null` and `err` shall be set.
-   * 2. ` ( file:File ) => Promise<string> `
+   * 2. ` ( file:File, thumbBlob: Blob | null ) => Promise<string> `
    */
   /**
    * The default upload function shall be overrided!
    */
-  Paste.prototype.uploader = function (file, callback) {
+  Paste.prototype.uploader = function (file, thumbBlobIfAny, callback) {
     callback(null, "Uploader is not configured")
   }
 
-  /**
-   * upload a image and insert at the current cursor.
-   * 
-   * @param {DataTransfer} data
-   * @returns {boolean} handled or not
-   */
-  Paste.prototype.doInsert = function (data) {
+  Paste.prototype.doInsertWithThumbnail = function (blob, thumbBlobIfAny, blobUrlIfAny) {
     var self = this, cm = self.cm
 
-    if (!data || !data.files || 1 != data.files.length) return false
-    var file = data.files[0]
-
-    if (!/image\//.test(file.type)) return false
-    if (!this.uploader) return false
-
     var placeholderURL = this.placeholderURL
-    var blobURL = (placeholderURL.indexOf('<BlobURL>') !== -1 && typeof URL !== 'undefined') ? URL.createObjectURL(file) : null
-    if (blobURL) placeholderURL = placeholderURL.replace('<BlobURL>', blobURL)
+    if (blobUrlIfAny) placeholderURL = placeholderURL.replace('<BlobURL>', blobUrlIfAny)
 
     cm.operation(function () {
       cm.replaceSelection("![](" + placeholderURL + ")")
@@ -183,9 +180,12 @@
       var bookmark = cm.setBookmark(pos)
 
       // start uploading
-      self.uploader(file, function (url, err) {
+      self.uploader(blob, thumbBlobIfAny, function (url, err) {
         pos = bookmark.find()
         bookmark.clear()
+
+        // if a blobURL was created. revoke it
+        if (blobUrlIfAny) URL.revokeObjectURL(blobUrlIfAny)
 
         // if failed to upload, show message
         if (!url) {
@@ -193,9 +193,6 @@
           cm.setCursor(pos)
           return
         }
-
-        // if a blobURL was created. revoke it
-        if (blobURL) URL.revokeObjectURL(blobURL)
 
         // replace `Uploading` with the URL
         var
@@ -216,6 +213,47 @@
     })
 
     return true
+  }
+
+  /**
+   * upload a image and insert at the current cursor.
+   * 
+   * @param {DataTransfer} data
+   * @returns {boolean} handled or not
+   */
+  Paste.prototype.doInsert = function (data) {
+    var self = this, cm = self.cm
+
+    if (!data || !data.files || 1 != data.files.length) return false
+    var file = data.files[0]
+
+    if (!/image\//.test(file.type)) return false
+    if (!this.uploader) return false
+
+    var useUploadImageAsPlaceholder = (this.placeholderURL.indexOf('<BlobURL>') !== -1 && typeof URL !== 'undefined')
+    if (useUploadImageAsPlaceholder) {
+      if (!this.enableThumbnail) { // if use full image
+        return this._doInsertWithThumbnailHandle(file, null, URL.createObjectURL(file));
+      }
+
+      // if thumbnail required
+      loadImage(file,
+        function (imageCanvas) {
+          imageCanvas.toBlob(function (thumbnailBlob) {
+            self._doInsertWithThumbnailHandle(file, thumbnailBlob, URL.createObjectURL(thumbnailBlob));
+          }, "image/jpeg", 0.85);
+        },
+        {
+          maxWidth: this.thumbnailMaxWidth,
+          maxHeight: this.thumbnailMaxHeight,
+          canvas: true
+        }
+      )
+      return true
+    }
+    else { // use user-defined placeholder that is not the current image
+      return this._doInsertWithThumbnailHandle(file, null, null);
+    }
   }
 
   /** 
@@ -259,9 +297,12 @@
     enabled: false,
     enabledDrop: false,
     uploadTo: 'sm.ms',
+    enableThumbnail: false, // true to show image thumbnail as placeholder, false to show full image
+    thumbnailMaxWidth: 260,
+    thumbnailMaxHeight: 140,
     // before image is uploaded, a placeholder is applied.
     // you may use <BlobURL> to display what user just submitted
-    placeholderURL: '<BlobURL>?HyperMD-Uploading',
+    placeholderURL: '<BlobURL>',
   }
 
   CodeMirror.defineOption("hmdPasteImage", false, function (cm, newVal) {
