@@ -72,6 +72,7 @@
     this.thumbnailMaxHeight = defaultOption.thumbnailMaxHeight
     this.uploadTo = 'sm.ms'
     this.placeholderURL = defaultOption.placeholderURL
+    this.placeholderURLNonImage = defaultOption.placeholderURLNonImage
     
     this.updateUploader(this.uploadTo)
 
@@ -166,10 +167,10 @@
     callback(null, "Uploader is not configured")
   }
 
-  Paste.prototype.doInsertWithThumbnail = function (blob, thumbBlobIfAny, blobUrlIfAny) {
+  Paste.prototype.doInsertWithThumbnail = function (blob, thumbBlobIfAny, blobUrlIfAny, isImage) {
     var self = this, cm = self.cm
 
-    var placeholderURL = this.placeholderURL
+    var placeholderURL = isImage ? this.placeholderURL : this.placeholderURLNonImage
     if (blobUrlIfAny) placeholderURL = placeholderURL.replace('<BlobURL>', blobUrlIfAny)
 
     cm.operation(function () {
@@ -189,7 +190,7 @@
 
         // if failed to upload, show message
         if (!url) {
-          alert("Failed to upload image\n\n" + err)
+          alert("Failed to upload file\n\n" + err)
           cm.setCursor(pos)
           return
         }
@@ -198,6 +199,11 @@
         var
           pos1 = { line: pos.line, ch: pos.ch - 1 - placeholderURL.length },
           pos2 = { line: pos.line, ch: pos.ch - 1 }
+
+        if (!isImage) { // if not image, replace the whole placeholder: ![](...)
+          pos1.ch = pos1.ch - 4
+          pos2.ch = pos2.ch + 1
+        }
         cm.replaceRange(url, pos1, pos2)
 
         // update `<img>` if the text is folded
@@ -227,21 +233,21 @@
     if (!data || !data.files || 1 != data.files.length) return false
     var file = data.files[0]
 
-    if (!/image\//.test(file.type)) return false
     if (!this.uploader) return false
+    var isImage = /image\//.test(file.type)
 
-    var useUploadImageAsPlaceholder = (this.placeholderURL.indexOf('<BlobURL>') !== -1 && typeof URL !== 'undefined')
+    var useUploadImageAsPlaceholder = (isImage && this.placeholderURL.indexOf('<BlobURL>') !== -1 && typeof URL !== 'undefined')
     if (useUploadImageAsPlaceholder) {
       if (!this.enableThumbnail) { // if use full image
-        return this._doInsertWithThumbnailHandle(file, null, URL.createObjectURL(file));
+        return this._doInsertWithThumbnailHandle(file, null, URL.createObjectURL(file), isImage)
       }
 
       // if thumbnail required
       loadImage(file,
         function (imageCanvas) {
           imageCanvas.toBlob(function (thumbnailBlob) {
-            self._doInsertWithThumbnailHandle(file, thumbnailBlob, URL.createObjectURL(thumbnailBlob));
-          }, "image/jpeg", 0.85);
+            self._doInsertWithThumbnailHandle(file, thumbnailBlob, URL.createObjectURL(thumbnailBlob), isImage)
+          }, "image/jpeg", 0.85)
         },
         {
           maxWidth: this.thumbnailMaxWidth,
@@ -252,7 +258,7 @@
       return true
     }
     else { // use user-defined placeholder that is not the current image
-      return this._doInsertWithThumbnailHandle(file, null, null);
+      return this._doInsertWithThumbnailHandle(file, null, null, isImage);
     }
   }
 
@@ -303,6 +309,7 @@
     // before image is uploaded, a placeholder is applied.
     // you may use <BlobURL> to display what user just submitted
     placeholderURL: '<BlobURL>',
+    placeholderURLNonImage: '/hypermd-image-spin.gif',
   }
 
   CodeMirror.defineOption("hmdPasteImage", false, function (cm, newVal) {
