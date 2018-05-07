@@ -19,8 +19,6 @@ declare global {
         rowsepColor?: string
       }
 
-      hmdLoadModeFrom: string
-
       // addon may declare more configrable items
     }
 
@@ -42,6 +40,16 @@ export interface cm_t extends CodeMirror.Editor, HyperMD.Editor {
 declare module "codemirror" {
   function defineMIME(mime: string, mode: string);
   function defineMode<T>(id: string, modefactory: ModeFactory<T>, alias: string | string[]): void;
+
+  // codemirror/mode/meta
+  interface ModeMeta {
+    name: string
+    mime: string
+    mode: string
+    ext?: string[]
+  }
+  function findModeByName(lang: string): ModeMeta
+  var modes: { [mode: string]: CodeMirror.Mode<any> }
 
   interface EditorConfiguration extends HyperMD.EditorConfiguration {
 

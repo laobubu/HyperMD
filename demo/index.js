@@ -95,7 +95,7 @@ require([
   'hypermd/addon/hover',
   // 'hypermd/addon/paste',
   'hypermd/addon/insert-file',
-  // 'hypermd/addon/mode-loader',
+  'hypermd/addon/mode-loader',
   // 'hypermd/addon/table-align',
 
 ], function (CodeMirror, HyperMD) {

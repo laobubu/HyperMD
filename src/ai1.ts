@@ -9,5 +9,6 @@ import "./mode/hypermd"
 import * as InsertFile from "./addon/insert-file"
 import * as ReadLink from "./addon/read-link"
 import * as Hover from "./addon/hover"
+import * as ModeLoader from "./addon/mode-loader"
 
-export { InsertFile, ReadLink, Hover }
+export { InsertFile, ReadLink, Hover, ModeLoader }
