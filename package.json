@@ -4,6 +4,8 @@
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
   "main": "index.js",
   "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -12,13 +14,17 @@
   "author": "laobubu <laobubu@gmail.com> (http://laobubu.net)",
   "license": "MIT",
   "devDependencies": {
+    "@types/codemirror": "^0.0.56",
     "mathjax": "^2.7.0",
-    "rollup": "^0.40.2",
+    "rollup": "^0.58.2",
+    "rollup-plugin-buble": "^0.19.2",
+    "rollup-plugin-typescript2": "^0.13.0",
     "turndown": "^4.0.1",
-    "turndown-plugin-gfm": "^1.0.1"
+    "turndown-plugin-gfm": "^1.0.1",
+    "typescript": "^2.8.3"
   },
   "dependencies": {
-    "marked": "^0.3.19",
-    "codemirror": "^5.37.0"
+    "codemirror": "^5.37.0",
+    "marked": "^0.3.19"
   }
 }

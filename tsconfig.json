@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "es2015",
+    "allowJs": true,
+    "target": "es6",
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es5",
+      "dom"
+    ]
+  },
+  "include": [
+    "hypermd/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

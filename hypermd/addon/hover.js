@@ -7,7 +7,6 @@
 /* global marked */
 
 (function (mod) {
-  
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require("codemirror/lib/codemirror"),

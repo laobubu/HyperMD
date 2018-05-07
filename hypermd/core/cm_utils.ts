@@ -1,0 +1,68 @@
+import { cm_t } from "./type"
+
+/**
+ * CodeMirror's `getLineTokens` might merge adjacent chars with same styles,
+ * but this one won't.
+ *
+ * This one will consume more memory.
+ *
+ * @param {CodeMirror.LineHandle} line
+ * @returns {string[]} every char's style
+ */
+export function getEveryCharToken(line: CodeMirror.LineHandle): string[] {
+  var ans = new Array(line.text.length)
+  var ss = line.styles
+  var i = 0
+
+  if (ss) {
+    // CodeMirror already parsed this line. Use cache
+    for (let j = 1; j < ss.length; j += 2) {
+      let i_to = ss[j], s = ss[j + 1]
+      while (i < i_to) ans[i++] = s
+    }
+  } else {
+    // Emmm... slow method
+    let cm = line.parent.cm || line.parent.parent.cm || line.parent.parent.parent.cm
+    let ss = cm.getLineTokens(line.lineNo())
+    for (let j = 0; j < ss.length; j++) {
+      let i_to = ss[j].end, s = ss[j].type
+      while (i < i_to) ans[i++] = s
+    }
+  }
+  return ans
+}
+
+/**
+ * clean line measure caches (if needed)
+ * and re-position cursor
+ *
+ * partially extracted from codemirror.js : function updateSelection(cm)
+ *
+ * @param {cm_t} cm
+ * @param {boolean} skipCacheCleaning
+ */
+function updateCursorDisplay(cm: cm_t, skipCacheCleaning: boolean) {
+  if (!skipCacheCleaning) {
+    // // only process affected lines?
+    // var lines = []
+    // var vfrom = cm.display.viewFrom, vto = cm.display.viewTo
+    // var selections = cm.listSelections()
+    // var line
+    // for (var i = 0; i < selections.length; i++) {
+    //   line = selections[i].head.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
+    //   line = selections[i].anchor.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
+    // }
+
+    var lvs = cm.display.view // LineView s
+    for (var i = 0; i < lvs.length; i++) {
+      // var j = lines.indexOf(lvs[i].line.lineNo())
+      // if (j === -1) continue
+
+      if (lvs[i].measure) lvs[i].measure.cache = {}
+    }
+  }
+
+  setTimeout(function () {
+    cm.display.input.showSelection(cm.display.input.prepareSelection())
+  }, 60) // wait for css style
+}
