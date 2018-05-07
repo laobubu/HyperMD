@@ -5,7 +5,6 @@ declare global {
     }
 
     interface EditorConfiguration {
-      hmdCursorDebounce?: boolean
       hmdAutoFold?: number
       hmdFoldMath?: {
         interval?: number

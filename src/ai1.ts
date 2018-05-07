@@ -11,5 +11,6 @@ import * as ReadLink from "./addon/read-link"
 import * as Hover from "./addon/hover"
 import * as Paste from "./addon/paste"
 import * as ModeLoader from "./addon/mode-loader"
+import * as CursorDebounce from "./addon/cursor-debounce"
 
-export { InsertFile, ReadLink, Hover, Paste, ModeLoader }
+export { InsertFile, ReadLink, Hover, Paste, ModeLoader, CursorDebounce }

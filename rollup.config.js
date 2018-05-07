@@ -11,6 +11,7 @@ const components = {
   "addon/hover": "Hover",
   "addon/paste": "Paste",
   "addon/mode-loader": "ModeLoader",
+  "addon/cursor-debounce": "CursorDebounce",
 }
 
 /** Third-party libs */
