@@ -90,7 +90,7 @@ require([
   // 'hypermd/addon/cursor-debounce',
   // 'hypermd/addon/fold',
   // 'hypermd/addon/fold-math',
-  'hypermd/addon/readlink',
+  'hypermd/addon/read-link',
   // 'hypermd/addon/click',
   'hypermd/addon/hover',
   // 'hypermd/addon/paste',

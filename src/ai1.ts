@@ -7,7 +7,7 @@ export * from "./core"
 
 import "./mode/hypermd"
 import * as InsertFile from "./addon/insert-file"
-import * as ReadLink from "./addon/readlink"
+import * as ReadLink from "./addon/read-link"
 import * as Hover from "./addon/hover"
 
 export { InsertFile, ReadLink, Hover }

@@ -8,7 +8,7 @@ import CodeMirror from 'codemirror'
 import marked from 'marked'
 import { Addon, FlipFlop } from '../core'
 import { cm_t } from '../core/type'
-import './readlink'
+import './read-link'
 
 
 /********************************************************************************** */

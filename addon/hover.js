@@ -1,6 +1,6 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('codemirror'), require('marked'), require('../core'), require('./readlink')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'codemirror', 'marked', '../core', './readlink'], factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('codemirror'), require('marked'), require('../core'), require('./read-link')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'codemirror', 'marked', '../core', './read-link'], factory) :
   (factory((global.HyperMD = global.HyperMD || {}, global.HyperMD.Hover = {}),global.CodeMirror,global.marked,null));
 }(this, (function (exports,CodeMirror,marked,core) { 'use strict';
 
@@ -106,15 +106,6 @@
       }
   };
   var getAddon = core.Addon.Getter(AddonAlias, Hover, defaultOption);
-  /********************************************************************************** */
-  /** ADDON HELPER:
-   * add a method named as "HelperName"
-   * to all CodeMirror editors */
-  var HelperName = "hmdMyHelper";
-  var HelperObject = function (foo, bar) {
-      // implement your helper method
-  };
-  CodeMirror.defineExtension(HelperName, HelperObject);
 
   exports.text2html = text2html;
   exports.defaultOption = defaultOption;

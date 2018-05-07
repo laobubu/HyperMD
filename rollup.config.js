@@ -7,7 +7,7 @@ import typescript from 'rollup-plugin-typescript2'
 const components = {
   "mode/hypermd": null, // exported nothing
   "addon/insert-file": "InsertFile",
-  "addon/readlink": "ReadLink",
+  "addon/read-link": "ReadLink",
   "addon/hover": "Hover",
 }
 
