@@ -8,14 +8,21 @@ if (requirejs) requirejs.config({
   // baseUrl: "https://cdn.jsdelivr.net/npm/",   // or use CDN
   baseUrl: demo_page_lib_baseurl,
   paths: {
-    // Some CDNs treat lib files differently. If CodeMirror failed to load, Uncomment this line to fix it:
-    // ( see http://stackoverflow.com/questions/36500713/loading-codemirror-with-requirejs-from-cdn )
-    // "codemirror/lib": "codemirror/",
-
     // HyperMD is not from node_modules nor CDN:
     // "hypermd": "./hypermd",
-    "hypermd": demo_page_baseurl + "hypermd",
+    "hypermd": demo_page_baseurl + "dist",
   },
+  // Remove `packages` if you occur errors with CDN
+  packages: [
+    {
+      name: 'codemirror',
+      main: 'lib/codemirror'
+    },
+    {
+      name: 'marked',
+      main: 'lib/marked'
+    }
+  ],
   waitSeconds: 15
 })
 
@@ -28,7 +35,7 @@ require([
   ///////////////////////////////////////
 
   'codemirror/lib/codemirror',
-  'hypermd/hypermd',
+  'hypermd/core',
 
   ///////////////////////////////////////
   /// CodeMirror                      ///
@@ -79,17 +86,17 @@ require([
 
   'hypermd/mode/hypermd',
 
-  'hypermd/addon/hide-token',
-  'hypermd/addon/cursor-debounce',
-  'hypermd/addon/fold',
-  'hypermd/addon/fold-math',
+  // 'hypermd/addon/hide-token',
+  // 'hypermd/addon/cursor-debounce',
+  // 'hypermd/addon/fold',
+  // 'hypermd/addon/fold-math',
   'hypermd/addon/readlink',
-  'hypermd/addon/click',
+  // 'hypermd/addon/click',
   'hypermd/addon/hover',
-  'hypermd/addon/paste',
-  'hypermd/addon/paste-image',
-  'hypermd/addon/mode-loader',
-  'hypermd/addon/table-align',
+  // 'hypermd/addon/paste',
+  'hypermd/addon/insert-file',
+  // 'hypermd/addon/mode-loader',
+  // 'hypermd/addon/table-align',
 
 ], function (CodeMirror, HyperMD) {
   'use strict';

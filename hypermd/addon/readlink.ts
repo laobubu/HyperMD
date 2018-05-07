@@ -5,7 +5,7 @@
 //
 
 import CodeMirror from 'codemirror'
-import { Addon, debounce } from '../core/index'
+import { Addon, debounce } from '../core'
 import { cm_t } from '../core/type'
 
 interface Link {
@@ -86,8 +86,8 @@ export const getAddon = Addon.Getter(AddonAlias, AddonClassCtor)
 /** HYPERMD HELPER DECLARATION */
 
 const HelperName = "hmdReadLink"
-const HelperObject = function (this: cm_t, footNoteName: string) {
-  return getAddon(this).read(footNoteName)
+const HelperObject = function (this: cm_t, footNoteName: string, line?: number) {
+  return getAddon(this).read(footNoteName, line)
 }
 
 declare global {

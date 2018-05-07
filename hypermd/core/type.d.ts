@@ -30,7 +30,6 @@ declare global {
       // addon may declare more methods and properties (aka. helpers in CodeMirror)
 
       //TODO: remove these methods:
-      hmdHoverInit(): void
       hmdClickInit(): void
     }
   }

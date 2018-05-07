@@ -5,9 +5,8 @@
 //
 
 import CodeMirror from 'codemirror'
-import { Addon, FlipFlop } from '../core/index'
+import { Addon, FlipFlop } from '../core'
 import { cm_t } from '../core/type'
-import './readlink'
 
 export interface HandlerAction {
   setPlaceholder(placeholder: HTMLElement)
@@ -183,7 +182,7 @@ class InsertFile implements Addon.Addon, InserFileOptions {
     cm.operation(() => {
       var pos = cm.getCursor()
       var placeholderContainer = document.createElement("span")
-      var marker = cm.markText(pos, pos, {
+      var marker = cm.markText(pos, { line: pos.line, ch: pos.ch + 1 }, {
         replacedWith: placeholderContainer,
         clearOnEnter: false,
         handleMouseEvents: false,
@@ -279,8 +278,6 @@ export const getAddon = Addon.Getter(AddonAlias, AddonClassCtor)
 CodeMirror.defineOption(OptionName, false,
   function (cm: cm_t, newVal: OptionValueType) {
     const enabled = !!newVal
-
-    cm.hmd.insertFile
 
     if (!enabled || newVal === true) {
       newVal = { byDrop: enabled, byPaste: enabled }

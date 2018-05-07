@@ -1,11 +1,11 @@
 // HyperMD, copyright (c) by laobubu
-// Distributed under an MIT license: http://laobubu.net/hypermd/LICENSE
+// Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
 // when click with `alt` or `ctrl`, do something special
 //
 
 (function (mod) {
-  
+
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require("codemirror/lib/codemirror"),

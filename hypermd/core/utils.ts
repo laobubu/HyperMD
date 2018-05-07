@@ -1,4 +1,10 @@
-// Common js utils
+/**
+ * Provides some universal utils
+ *
+ * @internal Part of HyperMD core.
+ *
+ * You shall NOT import this file; please import "core" instead
+ */
 
 export class FlipFlop<T=boolean> {
   /**

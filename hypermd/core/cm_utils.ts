@@ -1,3 +1,11 @@
+/**
+ * CodeMirror-related utils
+ *
+ * @internal Part of HyperMD core.
+ *
+ * You shall NOT import this file; please import "core" instead
+ */
+
 import { cm_t } from "./type"
 
 /**

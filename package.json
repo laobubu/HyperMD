@@ -15,6 +15,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/codemirror": "^0.0.56",
+    "@types/marked": "^0.3.0",
     "mathjax": "^2.7.0",
     "rollup": "^0.58.2",
     "rollup-plugin-buble": "^0.19.2",

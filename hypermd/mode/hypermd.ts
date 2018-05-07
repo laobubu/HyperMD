@@ -497,6 +497,7 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
   for (var attr in modeConfig) {
     gfmConfig[attr] = modeConfig[attr];
   }
+  gfmConfig["name"] = "gfm" // must be this
 
   var finalMode = CodeMirror.overlayMode(CodeMirror.getMode(config, gfmConfig), hypermdOverlay);
 

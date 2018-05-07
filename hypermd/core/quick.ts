@@ -1,3 +1,11 @@
+/**
+ * Ready-to-use functions that powers up your Markdown editor
+ *
+ * @internal Part of HyperMD core.
+ *
+ * You shall NOT import this file; please import "core" instead
+ */
+
 import CodeMirror from "codemirror"
 import { cm_t } from "./type"
 
@@ -37,6 +45,10 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
     // (addon) cursor-debounce
     // cheap mouse could make unexpected selection. use this to fix.
     hmdCursorDebounce: true,
+
+    // (addon) hover
+    // (dependencies) addon/readlink
+    hmdHover: true,
 
     // (addon) fold
     // turn images and links into what you want to see
@@ -83,11 +95,6 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
   }
 
   var cm = CodeMirror.fromTextArea(textArea, final_config) as any as cm_t
-
-  // (addon) hover
-  // (dependencies) addon/readlink
-  // tooltips on footnotes
-  if (typeof cm['hmdHoverInit'] === 'function') cm.hmdHoverInit()
 
   // (addon) click
   // (dependencies) addon/readlink
