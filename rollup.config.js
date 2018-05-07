@@ -9,6 +9,7 @@ const components = {
   "addon/insert-file": "InsertFile",
   "addon/read-link": "ReadLink",
   "addon/hover": "Hover",
+  "addon/paste": "Paste",
   "addon/mode-loader": "ModeLoader",
 }
 

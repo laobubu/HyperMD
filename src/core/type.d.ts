@@ -11,7 +11,6 @@ declare global {
         interval?: number
         preview?: boolean | HTMLElement
       }
-      hmdPaste?: boolean
 
       hmdHideToken?: string
       hmdTableAlign: {

@@ -93,7 +93,7 @@ require([
   'hypermd/addon/read-link',
   // 'hypermd/addon/click',
   'hypermd/addon/hover',
-  // 'hypermd/addon/paste',
+  'hypermd/addon/paste',
   'hypermd/addon/insert-file',
   'hypermd/addon/mode-loader',
   // 'hypermd/addon/table-align',
