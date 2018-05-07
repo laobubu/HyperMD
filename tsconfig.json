@@ -10,7 +10,7 @@
     ]
   },
   "include": [
-    "hypermd/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules"

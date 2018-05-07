@@ -163,16 +163,3 @@ export class Hover implements Addon.Addon, HoverOptions {
 
 declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: Hover } } }
 export const getAddon = Addon.Getter(AddonAlias, Hover, defaultOption)
-
-/********************************************************************************** */
-/** ADDON HELPER:
- * add a method named as "HelperName"
- * to all CodeMirror editors */
-
-const HelperName = "hmdMyHelper"
-const HelperObject = function (this: cm_t, foo: string, bar: string) {
-  // implement your helper method
-}
-
-declare global { namespace HyperMD { interface Editor { [HelperName]: typeof HelperObject } } }
-CodeMirror.defineExtension(HelperName, HelperObject)

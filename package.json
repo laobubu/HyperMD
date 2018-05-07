@@ -2,7 +2,7 @@
   "name": "hypermd",
   "version": "0.1.0",
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
-  "main": "index.js",
+  "main": "lib/hypermd_ai1.js",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",

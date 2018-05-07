@@ -9,8 +9,8 @@ if (requirejs) requirejs.config({
   baseUrl: demo_page_lib_baseurl,
   paths: {
     // HyperMD is not from node_modules nor CDN:
-    // "hypermd": "./hypermd",
-    "hypermd": demo_page_baseurl + "dist",
+    // "hypermd": "./",
+    "hypermd": demo_page_baseurl + "./",
   },
   // Remove `packages` if you occur errors with CDN
   packages: [

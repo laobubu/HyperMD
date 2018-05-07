@@ -1,4 +1,5 @@
 .gitignore
+.editorconfig
 node_modules/
 demo/
 index.html
@@ -6,3 +7,5 @@ tmp/
 tests/
 dev/
 docs/
+src/
+rollup.config.js
