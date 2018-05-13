@@ -231,6 +231,7 @@
         span.cm-hmd-footnote:not(.cm-formatting){
             display: inline-block;
             vertical-align: bottom;
+            min-width: 1em;
             color: #666;
             cursor: text !important;
             text-decoration: none;
