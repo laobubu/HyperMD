@@ -146,7 +146,7 @@
 
     .cm-hmd-list-indent,
     .cm-hmd-list-indent + .cm-formatting-list,
-    pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child 
+    pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child
     {
         display: inline-block;
         width: $list-indent-width;
@@ -158,7 +158,7 @@
         &.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting) {
             /**
              *- xxx      <- without any space to indent the bullet
-             *  xxxxxx   <- this is level2 line, but only one indent <span>. 
+             *  xxxxxx   <- this is level2 line, but only one indent <span>.
              */
             padding-left: $list-indent-width;
         }
@@ -231,7 +231,7 @@
         span.cm-hmd-footnote:not(.cm-formatting){
             display: inline-block;
             vertical-align: bottom;
-            min-width: 4em;
+            min-width: 1em;
             color: #666;
             cursor: text !important;
             text-decoration: none;
