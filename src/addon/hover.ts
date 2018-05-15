@@ -6,7 +6,7 @@
 
 import CodeMirror from 'codemirror'
 import marked from 'marked'
-import { Addon, FlipFlop } from '../core'
+import { Addon, FlipFlop, expandRange } from '../core'
 import { cm_t } from '../core/type'
 import './read-link'
 
@@ -108,22 +108,21 @@ export class Hover implements Addon.Addon, HoverOptions {
       return
     }
 
-    if (!(
-      target.nodeName == "SPAN" &&
-      /cm-hmd-barelink\b/.test(className) &&
-      !/cm-formatting\b/.test(className)
-    )) {
+    if (target.nodeName !== "SPAN" || !/cm-hmd-barelink\b/.test(className)) {
       this.hideInfo()
       return
     }
 
     var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY })
-    var url = target.textContent
+    var footnote = null
 
-    if (/cm-hmd-footref-lead/.test(className)) url = "^" + target.nextElementSibling.textContent
-    else if (/cm-hmd-footref/.test(className)) url = "^" + url
+    var range = expandRange(cm, pos, "hmd-barelink")
+    if (range) {
+      let text = cm.getRange(range.from, range.to)
+      text = text.substr(1, text.length - 2)
+      if (text) footnote = cm.hmdReadLink(text, pos.line)
+    }
 
-    var footnote = cm.hmdReadLink(url, pos.line)
     if (!footnote) {
       this.hideInfo()
       return

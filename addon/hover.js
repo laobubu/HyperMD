@@ -65,19 +65,19 @@
       if (target == this.tooltipDiv || (target.compareDocumentPosition && (target.compareDocumentPosition(this.tooltipDiv) & 8) == 8)) {
           return;
       }
-      if (!(target.nodeName == "SPAN" &&
-          /cm-hmd-barelink\b/.test(className) &&
-          !/cm-formatting\b/.test(className))) {
+      if (target.nodeName !== "SPAN" || !/cm-hmd-barelink\b/.test(className)) {
           this.hideInfo();
           return;
       }
       var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY });
-      var url = target.textContent;
-      if (/cm-hmd-footref-lead/.test(className))
-          { url = "^" + target.nextElementSibling.textContent; }
-      else if (/cm-hmd-footref/.test(className))
-          { url = "^" + url; }
-      var footnote = cm.hmdReadLink(url, pos.line);
+      var footnote = null;
+      var range = core.expandRange(cm, pos, "hmd-barelink");
+      if (range) {
+          var text = cm.getRange(range.from, range.to);
+          text = text.substr(1, text.length - 2);
+          if (text)
+              { footnote = cm.hmdReadLink(text, pos.line); }
+      }
       if (!footnote) {
           this.hideInfo();
           return;
