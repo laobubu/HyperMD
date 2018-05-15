@@ -51,10 +51,18 @@ function npm_run(command) {
 
 function compile_sass(sourceFilename) {
   console.log("[SCSS] Compiling " + sourceFilename)
+  var outputFilename = sourceFilename.replace(/\.s[ac]ss$/, ".css")
   var proc = sass.render({
     file: sourceFilename,
-    outFile: sourceFilename.replace(/\.s[ac]ss$/, ".css")
+    outFile: outputFilename
   }, function (err, result) {
     if (err) console.log(err)
+    else {
+      fs.writeFile(outputFilename, result.css, function (err) {
+        if (!err) {
+          //file written on disk
+        }
+      });
+    }
   })
 }

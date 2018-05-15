@@ -58,6 +58,7 @@ declare module "codemirror" {
 
   interface Editor extends Doc {
     display: any
+    options: any
 
     getAllMarks(): TextMarker[]
 

@@ -228,17 +228,12 @@
             margin-left: - $footnote-left-indent;
         }
 
-        span.cm-hmd-footnote:not(.cm-formatting){
-            display: inline-block;
-            vertical-align: bottom;
-            min-width: 1em;
+        span.cm-hmd-footnote{
             color: #666;
             cursor: text !important;
             text-decoration: none;
 
-            &.cm-hmd-footnote-real { // [^something] , not [something]
-                 + span.cm-url, + span.cm-url + span.cm-url { color: inherit }
-            }
+            ~ span.cm-url:not(.cm-link) { color: inherit }
         }
     }
 

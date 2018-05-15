@@ -50,6 +50,11 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
     // (dependencies) addon/readlink
     hmdHover: true,
 
+    // (addon) click
+    // (dependencies) addon/readlink
+    // click to follow links and footnotes
+    hmdClick: true,
+
     // (addon) fold
     // turn images and links into what you want to see
     hmdAutoFold: 200,
@@ -95,11 +100,6 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
   }
 
   var cm = CodeMirror.fromTextArea(textArea, final_config) as any as cm_t
-
-  // (addon) click
-  // (dependencies) addon/readlink
-  // click to follow links and footnotes
-  // if (typeof cm['hmdClickInit'] === 'function') cm.hmdClickInit()
 
   return cm
 }

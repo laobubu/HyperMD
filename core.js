@@ -134,6 +134,10 @@
           // (addon) hover
           // (dependencies) addon/readlink
           hmdHover: true,
+          // (addon) click
+          // (dependencies) addon/readlink
+          // click to follow links and footnotes
+          hmdClick: true,
           // (addon) fold
           // turn images and links into what you want to see
           hmdAutoFold: 200,
@@ -172,10 +176,6 @@
           }
       }
       var cm = CodeMirror.fromTextArea(textArea, final_config);
-      // (addon) click
-      // (dependencies) addon/readlink
-      // click to follow links and footnotes
-      // if (typeof cm['hmdClickInit'] === 'function') cm.hmdClickInit()
       return cm;
   }
   /**
