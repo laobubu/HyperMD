@@ -175,8 +175,7 @@
       // (addon) click
       // (dependencies) addon/readlink
       // click to follow links and footnotes
-      if (typeof cm['hmdClickInit'] === 'function')
-          { cm.hmdClickInit(); }
+      // if (typeof cm['hmdClickInit'] === 'function') cm.hmdClickInit()
       return cm;
   }
   /**
@@ -261,6 +260,76 @@
       }
       return ans;
   }
+  /**
+   * return a range in which every char has the given style (aka. token type).
+   * assuming char at `pos` already has the style.
+   *
+   * the result will NOT span lines.
+   *
+   * @param style aka. token type
+   * @see exapndRange2 if you want to span lines
+   */
+  function expandRange(cm, pos, style) {
+      var line = pos.line;
+      var from = { line: line, ch: 0 };
+      var to = { line: line, ch: pos.ch };
+      var styleRE = new RegExp("(?:^|\\s)" + style + "(?:\\s|$)");
+      var tokens = cm.getLineTokens(line);
+      var iSince;
+      for (iSince = 0; iSince < tokens.length; iSince++) {
+          if (tokens[iSince].end >= pos.ch)
+              { break; }
+      }
+      if (iSince === tokens.length)
+          { return null; }
+      for (var i = iSince; i < tokens.length; i++) {
+          var token = tokens[i];
+          if (styleRE.test(token.type))
+              { to.ch = token.end; }
+          else
+              { break; }
+      }
+      for (var i = iSince; i >= 0; i--) {
+          var token = tokens[i];
+          if (!styleRE.test(token.type)) {
+              from.ch = token.end;
+              break;
+          }
+      }
+      return { from: from, to: to };
+  }
+  /**
+   * clean line measure caches (if needed)
+   * and re-position cursor
+   *
+   * partially extracted from codemirror.js : function updateSelection(cm)
+   *
+   * @param {cm_t} cm
+   * @param {boolean} skipCacheCleaning
+   */
+  function updateCursorDisplay(cm, skipCacheCleaning) {
+      if (!skipCacheCleaning) {
+          // // only process affected lines?
+          // var lines = []
+          // var vfrom = cm.display.viewFrom, vto = cm.display.viewTo
+          // var selections = cm.listSelections()
+          // var line
+          // for (var i = 0; i < selections.length; i++) {
+          //   line = selections[i].head.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
+          //   line = selections[i].anchor.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
+          // }
+          var lvs = cm.display.view; // LineView s
+          for (var i = 0; i < lvs.length; i++) {
+              // var j = lines.indexOf(lvs[i].line.lineNo())
+              // if (j === -1) continue
+              if (lvs[i].measure)
+                  { lvs[i].measure.cache = {}; }
+          }
+      }
+      setTimeout(function () {
+          cm.display.input.showSelection(cm.display.input.prepareSelection());
+      }, 60); // wait for css style
+  }
 
   /**
    * Utils for HyperMD addons
@@ -310,6 +379,8 @@
   exports.switchToNormal = switchToNormal;
   exports.switchToHyperMD = switchToHyperMD;
   exports.getEveryCharToken = getEveryCharToken;
+  exports.expandRange = expandRange;
+  exports.updateCursorDisplay = updateCursorDisplay;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

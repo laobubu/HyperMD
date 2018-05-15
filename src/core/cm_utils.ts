@@ -41,6 +41,46 @@ export function getEveryCharToken(line: CodeMirror.LineHandle): string[] {
 }
 
 /**
+ * return a range in which every char has the given style (aka. token type).
+ * assuming char at `pos` already has the style.
+ *
+ * the result will NOT span lines.
+ *
+ * @param style aka. token type
+ * @see exapndRange2 if you want to span lines
+ */
+export function expandRange(cm: cm_t, pos: CodeMirror.Position, style: string) {
+  var line = pos.line
+  var from: CodeMirror.Position = { line, ch: 0 }
+  var to: CodeMirror.Position = { line, ch: pos.ch }
+
+  var styleRE = new RegExp("(?:^|\\s)" + style + "(?:\\s|$)")
+  var tokens = cm.getLineTokens(line)
+
+  var iSince
+  for (iSince = 0; iSince < tokens.length; iSince++) {
+    if (tokens[iSince].end >= pos.ch) break
+  }
+  if (iSince === tokens.length) return null
+
+  for (var i = iSince; i < tokens.length; i++) {
+    var token = tokens[i]
+    if (styleRE.test(token.type)) to.ch = token.end
+    else break
+  }
+
+  for (var i = iSince; i >= 0; i--) {
+    var token = tokens[i]
+    if (!styleRE.test(token.type)) {
+      from.ch = token.end
+      break
+    }
+  }
+
+  return { from, to }
+}
+
+/**
  * clean line measure caches (if needed)
  * and re-position cursor
  *
@@ -49,7 +89,7 @@ export function getEveryCharToken(line: CodeMirror.LineHandle): string[] {
  * @param {cm_t} cm
  * @param {boolean} skipCacheCleaning
  */
-function updateCursorDisplay(cm: cm_t, skipCacheCleaning: boolean) {
+export function updateCursorDisplay(cm: cm_t, skipCacheCleaning: boolean) {
   if (!skipCacheCleaning) {
     // // only process affected lines?
     // var lines = []

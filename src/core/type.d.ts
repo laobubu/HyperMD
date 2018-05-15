@@ -23,10 +23,7 @@ declare global {
     interface Editor {
       hmd: HelperCollection;    // containing some HyperMD addon/helper instances
 
-      // addon may declare more methods and properties (aka. helpers in CodeMirror)
-
-      //TODO: remove these methods:
-      hmdClickInit(): void
+      // addon may declare more methods and properties (aka. "Extension" in CodeMirror)
     }
   }
 }
@@ -63,6 +60,14 @@ declare module "codemirror" {
     display: any
 
     getAllMarks(): TextMarker[]
+
+    /**
+     * This is a (much) cheaper version of getTokenAt useful for when you just need the type of the token at a given position,
+     * and no other information.
+     *
+     * Will return null for unstyled tokens, and a string, potentially containing multiple space-separated style names, otherwise.
+     */
+    getTokenTypeAt(pos: Position): string
   }
 
   interface TextMarker {

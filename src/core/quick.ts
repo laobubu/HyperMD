@@ -99,7 +99,7 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
   // (addon) click
   // (dependencies) addon/readlink
   // click to follow links and footnotes
-  if (typeof cm['hmdClickInit'] === 'function') cm.hmdClickInit()
+  // if (typeof cm['hmdClickInit'] === 'function') cm.hmdClickInit()
 
   return cm
 }

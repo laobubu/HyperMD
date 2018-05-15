@@ -4,8 +4,11 @@
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
   "main": "lib/hypermd_ai1.js",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
+    "build": "npm run build_js && npm run build_css",
+    "build_js": "rollup -c",
+    "build_css": "node dev/dev.js",
+    "dev": "node dev/dev.js --dev",
+    "watch_js": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -17,10 +20,13 @@
     "@types/codemirror": "^0.0.56",
     "@types/marked": "^0.3.0",
     "@types/requirejs": "^2.1.31",
+    "express": "^4.16.3",
+    "glob": "^7.1.2",
     "mathjax": "^2.7.0",
     "rollup": "^0.58.2",
     "rollup-plugin-buble": "^0.19.2",
     "rollup-plugin-typescript2": "^0.13.0",
+    "sass": "^1.3.2",
     "turndown": "^4.0.1",
     "turndown-plugin-gfm": "^1.0.1",
     "typescript": "^2.8.3"

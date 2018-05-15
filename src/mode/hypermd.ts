@@ -10,18 +10,62 @@ import CodeMirror from "codemirror"
 import "codemirror/mode/gfm/gfm"
 import "codemirror/addon/mode/overlay"
 
+const possibleTokenChars: string = "`\\[]()<>_*~$|^@:!#+\""   // chars that could form a token (like "**" or "`")
+
+const meanlessCharsRE = new RegExp("^[^\\" + possibleTokenChars.split("").join("\\") + "]+")  // RegExp that match one or more meanless chars
 const listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/  // this regex is from CodeMirror's sourcecode
 const tableTitleSepRE = /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/ // find  |:-----:|:-----:| line
 
-const insideValues = {
-  math: 1,
-  listSpace: 2,
-  tableTitleSep: 4, // a line like |:-----:|:-----:|
+const enum insideValues {
+  math = 1,
+  listSpace = 2,
+  tableTitleSep = 4, // a line like |:-----:|:-----:|
 }
 
-const nstyleValues = {
-  /* ....xxxx [standalone]  */ DEL: 0x01, EM: 0x02, STRONG: 0x04, ESCAPE: 0x08,
-  /* ####.... link relative */ LINK: 0x10, BARELINK: 0x20, FOOTREF: 0x30, FOOTREF_BEGIN: 0x40, FOOTNOTE_NAME: 0x50,  // FOOTREF_BEGIN: ^ is not scanned
+const enum nstyleValues {
+  /* offset 0-7 [standalone bits]  */
+
+  _style_mask = 0xFF,
+  _style_offset = 0,
+
+  DEL = 1 << 0,
+  EM = 1 << 1,
+  STRONG = 1 << 2,
+  ESCAPE = 1 << 3,
+
+  /* offset 8-15 link relative */
+
+  _link_mask = 0xFF00,
+  _link_offset = 8,
+
+  LINK = 1 << _link_offset,           // [Link](url)    [text] part
+  LINK_URL = 2 << _link_offset,       // [Link](url)    (url) part
+  BARELINK = 3 << _link_offset,       // [BareLink]
+  FOOTREF = 4 << _link_offset,        // [^ref]         ONLY CHARS AFTER ^
+  FOOTREF_BEGIN = 5 << _link_offset,  // [^ref]         the first two chars [^
+  FOOTNOTE_NAME = 6 << _link_offset,  // [^footnote]:
+}
+
+/** these styles only need 1 bit to record the status */
+const nstyleStandalone = [
+  nstyleValues.DEL,
+  nstyleValues.EM,
+  nstyleValues.STRONG,
+  nstyleValues.ESCAPE,
+]
+
+/** style strings */
+const HMDStyles = {
+  // ESCAPE
+  [nstyleValues.ESCAPE]: "hmd-escape ",
+
+  // Link related
+  [nstyleValues.LINK]: "hmd-link ",
+  [nstyleValues.LINK_URL]: "hmd-link-url ",
+  [nstyleValues.BARELINK]: "hmd-barelink ",
+  [nstyleValues.FOOTREF]: "hmd-barelink hmd-footref ",
+  [nstyleValues.FOOTREF_BEGIN]: "hmd-barelink hmd-footref hmd-footref-lead ",
+  [nstyleValues.FOOTNOTE_NAME]: "hmd-footnote line-HyperMD-footnote ",
 }
 
 CodeMirror.defineMode("hypermd", function (config, modeConfig) {
@@ -374,107 +418,130 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
 
       ///////////////////////////////////////////////////////////////////
       // now process mixable (non-exclusive) styles
-      // if nstyle changes, do `return` at once
 
       const nstyle = state.nstyle
-      const ns_link = nstyle & 0xF0
+      let ns_link: nstyleValues = nstyle & nstyleValues._link_mask
+
       var ans = ""
 
-      // current style is ....
+      // initialize style string by `nstyle`
+      for (let s of nstyleStandalone) if (nstyle & s) ans += HMDStyles[s]
+      if (ns_link) ans += HMDStyles[ns_link]
 
-      if (ns_link !== 0) {
-        switch (ns_link) {
-          case nstyleValues.FOOTNOTE_NAME:
-            ans += "hmd-footnote "
-            break
-          case nstyleValues.FOOTREF_BEGIN:
-            ans += "hmd-footref-lead "
-          case nstyleValues.FOOTREF:
-            ans += "hmd-footref "
-          case nstyleValues.BARELINK:
-            ans += "hmd-barelink "
-          // case nstyleValues.LINK:  // HyperMD mode doesn't care about normal link
+      ///////////////////////////////////////////////////////////////////
+      // Update nstyle if needed
+      //
+      // NOTE:
+      // 0. when activating a nstyle (usually `state.nstyle |= xxx`),
+      //    do not forget `ans += HMDStyles[xxx]`
+      // 1. once nstyle changes, no matter activating or de-activating,
+      //    you MUST `return ans` immediately!
+
+      { /// LINK related
+
+        if (ns_link === 0) {
+          // try to find a beginning
+
+          if (stream.match(/^\[([^\]]+)\]/, false)) {
+            // found! now decide `ns_link`
+
+            stream.next()
+
+            if (atBeginning && stream.match(/^(?:[^\]]+)\]\:/, false)) {
+              // found a beginning of footnote
+              ns_link = nstyleValues.FOOTNOTE_NAME
+            } else if (stream.match(/^(?:[^\]]+)\](?:[^\[\(]|$)/, false)) {
+              // find a bare link
+              if (stream.peek() === '^') {
+                // a [bare link] could be a [^footref]
+                ns_link = nstyleValues.FOOTREF_BEGIN
+              } else {
+                ns_link = nstyleValues.BARELINK
+              }
+            } else {
+              // find a normal link text
+              ns_link = nstyleValues.LINK
+            }
+
+            // apply changes and prevent further HyperMD parsing work
+            state.nstyle |= ns_link
+            ans += HMDStyles[ns_link]
+
+            return ans
+          }
+        } else {
+          // current is inside a link. check if we shall change status
+
+          // making any change to `ns_link` will prevent further HyperMD parsing work
+          let new_ns_link: nstyleValues = null
+
+          switch (ns_link) {
+            case nstyleValues.FOOTREF_BEGIN:
+              // caught the "^"
+              new_ns_link = nstyleValues.FOOTREF
+              stream.next()
+              break
+            case nstyleValues.FOOTREF:
+            case nstyleValues.BARELINK:
+              if (stream.eat(']')) new_ns_link = 0
+              break
+            case nstyleValues.FOOTNOTE_NAME:
+              if (stream.match(']:')) new_ns_link = 0
+              break
+            case nstyleValues.LINK:
+              // entering LINK_URL status because the next char must be ( , which is guranteed.
+              if (stream.eat(']')) new_ns_link = nstyleValues.LINK_URL
+              break
+            case nstyleValues.LINK_URL:
+              if (stream.match(/^"(?:[^"\\]|\\.)*"/)) {
+                // skip quoted stuff (could contains parentheses )
+                // note: escaped char is handled in `ESCAPE related` part
+              } else if (stream.eat(')')) {
+                // find the tail
+                new_ns_link = 0
+              }
+              break
+          }
+
+          if (new_ns_link !== null) {
+            // apply changes and prevent further HyperMD parsing work
+            state.nstyle = nstyle & ~nstyleValues._link_mask | new_ns_link
+            return ans
+          }
         }
       }
 
-      ///////////////////////////////////////
-      /// start changing nstyle (if needed)
-
-      /// exiting escape
-
-      if (nstyle & nstyleValues.ESCAPE) {
-        ans += "hmd-escape hmd-escape-char "
-        state.nstyle -= nstyleValues.ESCAPE
-
-        stream.next()
-        return ans
-      }
-
-      /// entering escape?
-
-      if (stream.match(/^\\(?=.)/)) {
-        // found the backslash
-        state.nstyle |= nstyleValues.ESCAPE
-        ans += "formatting-hmd-escape hmd-escape hmd-escape-backslash "
-        return ans
-      }
-
-      /// enter/exit a link/footref/bare-link/footnote
-
-      if (ns_link === 0) {
-        if (stream.match(/^\[([^\]]+)\]/, false)) {
-          /// found a start
+      { /// ESCAPE related
+        if (nstyle & nstyleValues.ESCAPE) {
           stream.next()
-          if (atBeginning && stream.match(/^(?:[^\]]+)\]\:/, false)) {
-            // found a beginning of footnote
-            state.nstyle |= nstyleValues.FOOTNOTE_NAME
-            ans += "hmd-footnote line-HyperMD-footnote "
-          } else if (stream.match(/^(?:[^\]]+)\](?:[^\[\(]|$)/, false)) {
-            // a [bare link] could be a [^footref]
-            if (stream.peek() === '^') {
-              state.nstyle |= nstyleValues.FOOTREF_BEGIN
-              ans += "hmd-barelink hmd-footref "
-            } else {
-              state.nstyle |= nstyleValues.BARELINK
-              ans += "hmd-barelink "
-            }
-          } else {
-            state.nstyle |= nstyleValues.LINK
-          }
+          state.nstyle -= nstyleValues.ESCAPE
           return ans
         }
-      } else {
-        // current is inside a link
-        switch (ns_link) {
-          case nstyleValues.FOOTREF_BEGIN:
-            // caught the "^"
-            state.nstyle = nstyle & ~0xF0 | nstyleValues.FOOTREF
-            stream.next()
-            return ans
-          case nstyleValues.FOOTREF:
-          case nstyleValues.BARELINK:
-          case nstyleValues.LINK:
-            if (stream.eat(']')) {
-              state.nstyle = nstyle & ~0xF0
-              return ans
-            }
-          case nstyleValues.FOOTNOTE_NAME:
-            if (stream.match(']:')) {
-              state.nstyle = nstyle & ~0xF0
-              return ans
-            }
+
+        /// entering escape?
+        if (stream.match(/^\\(?=.)/)) {
+          // found the backslash
+          state.nstyle |= nstyleValues.ESCAPE
+          ans += HMDStyles[nstyleValues.ESCAPE]
+
+          ans += "hmd-escape-backslash "
+          return ans
         }
       }
 
-      /// skip some normal Markdown inline stuff
+      { /// DEL, EM, STRONG etc. simple styles
+        // since these styles are not coverd by HMDStyles,
+        // we can do it simplier: change nstyle and return immediatly
+        if (stream.match("**")) { state.nstyle ^= nstyleValues.STRONG; return ans }
+        if (stream.match("__")) { state.nstyle ^= nstyleValues.STRONG; return ans }
+        if (stream.match(/^[*_]/)) { state.nstyle ^= nstyleValues.EM; return ans }
+        if (stream.match("~~")) { state.nstyle ^= nstyleValues.DEL; return ans }
+      }
 
-      if (stream.match("**")) { state.nstyle ^= nstyleValues.STRONG; return ans }
-      if (stream.match("__")) { state.nstyle ^= nstyleValues.STRONG; return ans }
-      if (stream.match(/^[*_]/)) { state.nstyle ^= nstyleValues.EM; return ans }
-      if (stream.match("~~")) { state.nstyle ^= nstyleValues.DEL; return ans }
+      ///////////////////////////////////////////////////////////////////
+      // Finally, if nothing changed, move on
 
-      /// finally, if nothing changed, move on
-      stream.next()
+      if (!stream.match(meanlessCharsRE)) stream.next()
       return (ans.length !== 0 ? ans : null)
     }
   };

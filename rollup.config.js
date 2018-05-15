@@ -63,7 +63,12 @@ const fix_core_path_in_single_file = function (sourcePath, id) {
 
 const the_plugins = [
   typescript(),
-  buble({ namedFunctionExpressions: false })
+  buble({
+    namedFunctionExpressions: false,
+    transforms: {
+      dangerousForOf: true,   // simplify `for (let i=0;i...)` to `for (let it of arr)`
+    }
+  })
 ]
 
 var configs = [
