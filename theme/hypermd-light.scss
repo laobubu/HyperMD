@@ -317,10 +317,14 @@
         width: auto;
         max-width: 95%;
         height: auto;
-        &.hmd-image-loading {
+        &.hmd-image-loading,
+        &.hmd-image-error {
             min-width: 24px;
             min-height: 24px;
             background: #eeeeee url(hypermd-image-spin.gif) no-repeat center center;
+        }
+        &.hmd-image-error {
+            background-image: url(hypermd-image-error.png);
         }
     }
 

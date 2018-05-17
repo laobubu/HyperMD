@@ -356,10 +356,13 @@
   max-width: 95%;
   height: auto;
 }
-.cm-s-hypermd-light img.hmd-image.hmd-image-loading {
+.cm-s-hypermd-light img.hmd-image.hmd-image-loading, .cm-s-hypermd-light img.hmd-image.hmd-image-error {
   min-width: 24px;
   min-height: 24px;
   background: #eeeeee url(hypermd-image-spin.gif) no-repeat center center;
+}
+.cm-s-hypermd-light img.hmd-image.hmd-image-error {
+  background-image: url(hypermd-image-error.png);
 }
 .cm-s-hypermd-light span.cm-math-2 {
   font-size: 13.2pt;

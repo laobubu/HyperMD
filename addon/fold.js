@@ -13,7 +13,7 @@
           var cm = stream.cm;
           var imgRE = /\bimage-marker\b/;
           var urlRE = /\bformatting-link-string\b/; // matches the parentheses
-          if (imgRE.test(token.type)) {
+          if (imgRE.test(token.type) && token.string === "!") {
               var lineNo = stream.lineNo;
               // find the begin and end of url part
               var url_begin = stream.findNext(urlRE);
@@ -22,15 +22,40 @@
               var to = { line: lineNo, ch: url_end.token.end };
               var rngReq = stream.requestRange(from, to);
               if (rngReq === exports.RequestRangeResult.OK) {
+                  var url;
+                  var title;
+                  { // extract the URL
+                      var rawurl = cm.getRange(// get the URL or footnote name in the parentheses
+                      { line: lineNo, ch: url_begin.token.start + 1 }, { line: lineNo, ch: url_end.token.start });
+                      if (url_end.token.string === "]") {
+                          var tmp = cm.hmdReadLink(rawurl, lineNo);
+                          if (!tmp)
+                              { return null; } // Yup! bad URL?!
+                          rawurl = tmp.content;
+                      }
+                      url = readLink.splitLink(rawurl).url;
+                  }
+                  { // extract the title
+                      title = cm.getRange({ line: lineNo, ch: from.ch + 2 }, { line: lineNo, ch: url_begin.token.start - 1 });
+                  }
                   var img = document.createElement("img");
-                  img.height = 100;
-                  img.width = 100;
-                  img.src = "https://codemirror.net/doc/logo.png";
                   var marker = cm.markText(from, to, {
                       collapsed: true,
                       replacedWith: img,
                   });
+                  img.addEventListener('load', function () {
+                      img.classList.remove("hmd-image-loading");
+                      marker.changed();
+                  }, false);
+                  img.addEventListener('error', function () {
+                      img.classList.remove("hmd-image-loading");
+                      img.classList.add("hmd-image-error");
+                      marker.changed();
+                  }, false);
                   img.addEventListener('click', function () { return breakMark(cm, marker); }, false);
+                  img.className = "hmd-image hmd-image-loading";
+                  img.src = url;
+                  img.title = title;
                   return marker;
               }
               else {
