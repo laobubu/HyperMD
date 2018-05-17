@@ -1,8 +1,8 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Skeleton for most Addons
-// NOTE: some parts might be useless for you, feel free to delete them.
+// (Alt + / Ctrl +) Click to open link / jump to footnote / toggle TODO
+// With custom ClickHandler supported
 //
 
 import CodeMirror from 'codemirror'
