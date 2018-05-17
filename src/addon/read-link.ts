@@ -85,14 +85,35 @@ export const getAddon = Addon.Getter(AddonAlias, AddonClassCtor)
 
 /** HYPERMD HELPER DECLARATION */
 
-const HelperName = "hmdReadLink"
-const HelperObject = function (this: cm_t, footNoteName: string, line?: number) {
+function readLink(this: cm_t, footNoteName: string, line?: number) {
   return getAddon(this).read(footNoteName, line)
+}
+
+/**
+ *
+ * @param content eg. `http://laobubu.net/page "The Page"` or just a URL
+ */
+export function splitLink(content: string) {
+  // remove title part (if exists)
+  content = content.trim()
+  var url = content, title = ""
+  var mat = content.match(/^(\S+)\s+("(?:[^"\\]+|\\.)+"|[^"\s].*)/)
+  if (mat) {
+    url = mat[1]
+    title = mat[2]
+    if (title.charAt(0) === '"') title = title.substr(1, title.length - 2).replace(/\\"/g, '"')
+  }
+
+  return { url, title }
 }
 
 declare global {
   namespace HyperMD {
-    interface Editor { [HelperName]: typeof HelperObject }
+    interface Editor {
+      hmdReadLink: typeof readLink
+      hmdSplitLink: typeof splitLink
+    }
   }
 }
-CodeMirror.defineExtension(HelperName, HelperObject)
+CodeMirror.defineExtension("hmdReadLink", readLink)
+CodeMirror.defineExtension("hmdSplitLink", splitLink)

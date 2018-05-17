@@ -13,6 +13,7 @@
    *
    * You shall NOT import this file; please import "core" instead
    */
+  /** Simple FlipFlop */
   var FlipFlop = function(on_cb, off_cb, state, subkey) {
       if ( state === void 0 ) state = false;
       if ( subkey === void 0 ) subkey = "enabled";
@@ -42,9 +43,7 @@
   FlipFlop.prototype.setBool = function (state) {
       return this.set(state, true);
   };
-  /**
-   * execute a function, and async retry if it doesn't returns true
-   */
+  /** async run a function, and retry up to 5 times until it returns true */
   function tryToRun(fn, times) {
       times = ~~times || 5;
       var delayTime = 250;
@@ -140,13 +139,13 @@
           hmdClick: true,
           // (addon) fold
           // turn images and links into what you want to see
-          hmdAutoFold: 200,
+          hmdFold: true,
           // (addon) fold-math
           // MathJax support. Both `$` and `$$` are supported
-          hmdFoldMath: {
-              interval: 200,
-              preview: true // providing a preview while composing math
-          },
+          // hmdFoldMath: {
+          //   interval: 200,      // auto folding interval
+          //   preview: true       // providing a preview while composing math
+          // },
           // (addon) paste
           // copy and paste HTML content
           // NOTE: only works when `turndown` is loaded before HyperMD
@@ -189,18 +188,8 @@
    */
   function switchToNormal(editor, theme) {
       editor.setOption('theme', theme || "default");
-      // stop auto folding
-      editor.setOption('hmdAutoFold', 0);
-      editor.setOption('hmdFoldMath', false);
       // unfold all folded parts
-      setTimeout(function () {
-          var marks = editor.getAllMarks();
-          for (var i = 0; i < marks.length; i++) {
-              var mark = marks[i];
-              if (/^hmd-/.test(mark.className))
-                  { mark.clear(); }
-          }
-      }, 200); // FIXME: the timeout is not determined
+      editor.setOption('hmdFold', false);
       // stop hiding tokens
       editor.setOption('hmdHideToken', '');
       // stop aligining table columns
@@ -214,8 +203,7 @@
    */
   function switchToHyperMD(editor, theme) {
       editor.setOption('theme', theme || 'hypermd-light');
-      editor.setOption('hmdAutoFold', 200);
-      editor.setOption('hmdFoldMath', { interval: 200, preview: true });
+      editor.setOption('hmdFold', true); // TODO: add math here
       editor.setOption('hmdHideToken', '(profile-1)');
       editor.setOption('hmdTableAlign', { lineColor: '#999', rowsepColor: '#999' });
   }

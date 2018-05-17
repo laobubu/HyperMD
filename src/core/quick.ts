@@ -57,14 +57,14 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
 
     // (addon) fold
     // turn images and links into what you want to see
-    hmdAutoFold: 200,
+    hmdFold: true,
 
     // (addon) fold-math
     // MathJax support. Both `$` and `$$` are supported
-    hmdFoldMath: {
-      interval: 200,      // auto folding interval
-      preview: true       // providing a preview while composing math
-    },
+    // hmdFoldMath: {
+    //   interval: 200,      // auto folding interval
+    //   preview: true       // providing a preview while composing math
+    // },
 
     // (addon) paste
     // copy and paste HTML content
@@ -116,18 +116,8 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
 export function switchToNormal(editor: cm_t, theme?: string) {
   editor.setOption('theme', theme || "default")
 
-  // stop auto folding
-  editor.setOption('hmdAutoFold', 0)
-  editor.setOption('hmdFoldMath', false)
-
   // unfold all folded parts
-  setTimeout(function () {
-    var marks = editor.getAllMarks()
-    for (var i = 0; i < marks.length; i++) {
-      var mark = marks[i]
-      if (/^hmd-/.test(mark.className)) mark.clear()
-    }
-  }, 200) // FIXME: the timeout is not determined
+  editor.setOption('hmdFold', false)
 
   // stop hiding tokens
   editor.setOption('hmdHideToken', '')
@@ -144,8 +134,7 @@ export function switchToNormal(editor: cm_t, theme?: string) {
  */
 export function switchToHyperMD(editor: cm_t, theme: string) {
   editor.setOption('theme', theme || 'hypermd-light')
-  editor.setOption('hmdAutoFold', 200)
-  editor.setOption('hmdFoldMath', { interval: 200, preview: true })
+  editor.setOption('hmdFold', true) // TODO: add math here
   editor.setOption('hmdHideToken', '(profile-1)')
   editor.setOption('hmdTableAlign', { lineColor: '#999', rowsepColor: '#999' })
 }

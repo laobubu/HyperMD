@@ -88,7 +88,7 @@ require([
 
   // 'hypermd/addon/hide-token',
   'hypermd/addon/cursor-debounce',
-  // 'hypermd/addon/fold',
+  'hypermd/addon/fold',
   // 'hypermd/addon/fold-math',
   'hypermd/addon/read-link',
   'hypermd/addon/click',

@@ -11,6 +11,7 @@ const components = {
   "addon/hover": "Hover",
   "addon/click": "Click",
   "addon/paste": "Paste",
+  "addon/fold": "Fold",
   "addon/mode-loader": "ModeLoader",
   "addon/cursor-debounce": "CursorDebounce",
 }
@@ -19,7 +20,7 @@ const components = {
 const globalNames = {
   codemirror: "CodeMirror",
   marked: "marked",
-  mathjax: "MathJax", // not really avaliable though
+  mathjax: "MathJax", // not always avaliable though
   hypermd: "HyperMD",
 }
 

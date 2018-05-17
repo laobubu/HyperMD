@@ -1,3 +1,5 @@
+import { Position, Position } from "../../node_modules/@types/codemirror/index";
+
 declare global {
   namespace HyperMD {
     interface HelperCollection extends Object {
@@ -5,12 +7,6 @@ declare global {
     }
 
     interface EditorConfiguration {
-      hmdAutoFold?: number
-      hmdFoldMath?: {
-        interval?: number
-        preview?: boolean | HTMLElement
-      }
-
       hmdHideToken?: string
       hmdTableAlign: {
         lineColor?: string
@@ -33,6 +29,19 @@ export interface cm_t extends CodeMirror.Editor, HyperMD.Editor {
 }
 
 declare module "codemirror" {
+  /// SOME LEGACY METHODS
+
+  var modes: { [mode: string]: CodeMirror.Mode<any> }
+
+  /**
+   * Compare two positions, return 0 if they are the same,
+   * a negative number when a is less, and a positive number otherwise.
+   */
+  function cmpPos(a: Position, b: Position): number;
+
+
+  /// MODE AND MIME
+
   function defineMIME(mime: string, mode: string);
   function defineMode<T>(id: string, modefactory: ModeFactory<T>, alias: string | string[]): void;
 
@@ -44,7 +53,6 @@ declare module "codemirror" {
     ext?: string[]
   }
   function findModeByName(lang: string): ModeMeta
-  var modes: { [mode: string]: CodeMirror.Mode<any> }
 
   interface EditorConfiguration extends HyperMD.EditorConfiguration {
 
@@ -74,6 +82,28 @@ declare module "codemirror" {
   interface TextMarker {
     changed(): void
     className: string
+
+    /**
+     * Fired when the cursor enters the marked range.
+     * From this event handler, the editor state may be inspected but not modified,
+     * with the exception that the range on which the event fires may be cleared.
+     */
+    on(eventName: 'beforeCursorEnter', handler: (instance: CodeMirror.Editor) => void): void;
+    off(eventName: 'beforeCursorEnter', handler: (instance: CodeMirror.Editor) => void): void;
+
+    /**
+     * Fired when the range is cleared, either through cursor movement in combination
+     * with `clearOnEnter` or through a call to its clear() method.
+     *
+     * Will only be fired once per handle.
+     *
+     * Note that deleting the range through text editing does not fire this event,
+     * because an undo action might bring the range back into existence.
+     *
+     * `from` and `to` give the part of the document that the range spanned when it was cleared.
+     */
+    on(eventName: 'clear', handler: (instance: CodeMirror.Editor, from: CodeMirror.Position, to: CodeMirror.Position) => void): void;
+    off(eventName: 'clear', handler: (instance: CodeMirror.Editor, from: CodeMirror.Position, to: CodeMirror.Position) => void): void;
   }
 
   interface LineHandle {
@@ -81,5 +111,7 @@ declare module "codemirror" {
     parent: any
 
     lineNo(): number
+
+    markedSpans?: { from: number | null, to: number | null, marker: TextMarker }[]
   }
 }

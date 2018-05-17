@@ -61,14 +61,32 @@
   var AddonClassCtor = ReadLink;
   var getAddon = core.Addon.Getter(AddonAlias, AddonClassCtor);
   /** HYPERMD HELPER DECLARATION */
-  var HelperName = "hmdReadLink";
-  var HelperObject = function (footNoteName, line) {
+  function readLink(footNoteName, line) {
       return getAddon(this).read(footNoteName, line);
-  };
-  CodeMirror.defineExtension(HelperName, HelperObject);
+  }
+  /**
+   *
+   * @param content eg. `http://laobubu.net/page "The Page"` or just a URL
+   */
+  function splitLink(content) {
+      // remove title part (if exists)
+      content = content.trim();
+      var url = content, title = "";
+      var mat = content.match(/^(\S+)\s+("(?:[^"\\]+|\\.)+"|[^"\s].*)/);
+      if (mat) {
+          url = mat[1];
+          title = mat[2];
+          if (title.charAt(0) === '"')
+              { title = title.substr(1, title.length - 2).replace(/\\"/g, '"'); }
+      }
+      return { url: url, title: title };
+  }
+  CodeMirror.defineExtension("hmdReadLink", readLink);
+  CodeMirror.defineExtension("hmdSplitLink", splitLink);
 
   exports.ReadLink = ReadLink;
   exports.getAddon = getAddon;
+  exports.splitLink = splitLink;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

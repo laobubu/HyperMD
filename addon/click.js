@@ -165,10 +165,8 @@
               var t = text.replace(/^\!?\[/, '');
               if ((mat = t.match(/[^\\]\]\((.+)\)$/)) // .](url) image / link without ref
               ) {
-                  url = mat[1];
                   // remove title part (if exists)
-                  mat = url.match(/^"([^"]+)"|^\S+/);
-                  url = mat[1] || mat[0];
+                  url = cm.hmdSplitLink(mat[1]).url;
               }
               else if ((mat = t.match(/[^\\]\]\[(.+)\]$/)) || // .][ref] image / link with ref
                   (mat = text.match(/^\[(.+)\](?:\:\s*)?$/)) // [barelink] or [^ref] or [footnote]:
@@ -180,8 +178,7 @@
                       { url = null; }
                   else {
                       // remove title part (if exists)
-                      mat = t2.content.match(/^"([^"]+)"|^\S+/);
-                      url = mat[1] || mat[0];
+                      url = cm.hmdSplitLink(t2.content).url;
                   }
               }
               else if ((mat = text.match(/^\<(.+)\>$/)) || // <http://laobubu.net>

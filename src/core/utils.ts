@@ -6,6 +6,7 @@
  * You shall NOT import this file; please import "core" instead
  */
 
+/** Simple FlipFlop */
 export class FlipFlop<T=boolean> {
   /**
    * Simple FlipFlop
@@ -44,9 +45,7 @@ export class FlipFlop<T=boolean> {
   }
 }
 
-/**
- * execute a function, and async retry if it doesn't returns true
- */
+/** async run a function, and retry up to 5 times until it returns true */
 export function tryToRun(fn, times) {
   times = ~~times || 5
   var delayTime = 250
