@@ -8,7 +8,7 @@
 import CodeMirror from 'codemirror'
 import { Addon, FlipFlop, expandRange } from '../core'
 import { cm_t } from '../core/type'
-import './read-link'
+import { splitLink } from './read-link'
 
 
 /********************************************************************************** */
@@ -244,7 +244,7 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
         (mat = t.match(/[^\\]\]\((.+)\)$/))     // .](url)     image / link without ref
       ) {
         // remove title part (if exists)
-        url = cm.hmdSplitLink(mat[1]).url
+        url = splitLink(mat[1]).url
       } else if (
         (mat = t.match(/[^\\]\]\[(.+)\]$/)) ||  // .][ref]     image / link with ref
         (mat = text.match(/^\[(.+)\](?:\:\s*)?$/))        // [barelink] or [^ref] or [footnote]:
@@ -255,7 +255,7 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
         if (!t2) url = null
         else {
           // remove title part (if exists)
-          url = cm.hmdSplitLink(t2.content).url
+          url = splitLink(t2.content).url
         }
 
       } else if (

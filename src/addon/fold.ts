@@ -8,7 +8,7 @@
 import CodeMirror, { TextMarker, Position, Token } from 'codemirror'
 import { Addon, FlipFlop, debounce } from '../core'
 import { cm_t } from '../core/type'
-import './read-link'
+import { splitLink } from './read-link'
 
 const DEBUG = false
 
@@ -88,7 +88,7 @@ export var builtinFolder: builtinFolderContainer<FolderFunc> = {
 
       if (rngReq === RequestRangeResult.OK) {
         var text = cm.getRange(from, to)
-        var { url, title } = cm.hmdSplitLink(text.substr(1, text.length - 2))
+        var { url, title } = splitLink(text.substr(1, text.length - 2))
 
         var img = document.createElement("span")
         img.setAttribute("class", "hmd-link-icon")

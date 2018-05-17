@@ -1,8 +1,8 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('codemirror'), require('../core'), require('./read-link')) :
   typeof define === 'function' && define.amd ? define(['exports', 'codemirror', '../core', './read-link'], factory) :
-  (factory((global.HyperMD = global.HyperMD || {}, global.HyperMD.Fold = {}),global.CodeMirror,null));
-}(this, (function (exports,CodeMirror,core) { 'use strict';
+  (factory((global.HyperMD = global.HyperMD || {}, global.HyperMD.Fold = {}),global.CodeMirror,global.HyperMD,global.HyperMD.ReadLink));
+}(this, (function (exports,CodeMirror,core,readLink) { 'use strict';
 
   CodeMirror = CodeMirror && CodeMirror.hasOwnProperty('default') ? CodeMirror['default'] : CodeMirror;
 
@@ -60,7 +60,7 @@
               var rngReq = stream.requestRange(from, to);
               if (rngReq === exports.RequestRangeResult.OK) {
                   var text = cm.getRange(from, to);
-                  var ref = cm.hmdSplitLink(text.substr(1, text.length - 2));
+                  var ref = readLink.splitLink(text.substr(1, text.length - 2));
                   var url = ref.url;
                   var title = ref.title;
                   var img = document.createElement("span");

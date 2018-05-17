@@ -1,7 +1,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('codemirror'), require('../core'), require('codemirror/mode/meta')) :
   typeof define === 'function' && define.amd ? define(['exports', 'codemirror', '../core', 'codemirror/mode/meta'], factory) :
-  (factory((global.HyperMD = global.HyperMD || {}, global.HyperMD.ModeLoader = {}),global.CodeMirror,null));
+  (factory((global.HyperMD = global.HyperMD || {}, global.HyperMD.ModeLoader = {}),global.CodeMirror,global.HyperMD));
 }(this, (function (exports,CodeMirror,core) { 'use strict';
 
   CodeMirror = CodeMirror && CodeMirror.hasOwnProperty('default') ? CodeMirror['default'] : CodeMirror;

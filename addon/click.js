@@ -1,8 +1,8 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('codemirror'), require('../core'), require('./read-link')) :
   typeof define === 'function' && define.amd ? define(['exports', 'codemirror', '../core', './read-link'], factory) :
-  (factory((global.HyperMD = global.HyperMD || {}, global.HyperMD.Click = {}),global.CodeMirror,null));
-}(this, (function (exports,CodeMirror,core) { 'use strict';
+  (factory((global.HyperMD = global.HyperMD || {}, global.HyperMD.Click = {}),global.CodeMirror,global.HyperMD,global.HyperMD.ReadLink));
+}(this, (function (exports,CodeMirror,core,readLink) { 'use strict';
 
   CodeMirror = CodeMirror && CodeMirror.hasOwnProperty('default') ? CodeMirror['default'] : CodeMirror;
 
@@ -166,7 +166,7 @@
               if ((mat = t.match(/[^\\]\]\((.+)\)$/)) // .](url) image / link without ref
               ) {
                   // remove title part (if exists)
-                  url = cm.hmdSplitLink(mat[1]).url;
+                  url = readLink.splitLink(mat[1]).url;
               }
               else if ((mat = t.match(/[^\\]\]\[(.+)\]$/)) || // .][ref] image / link with ref
                   (mat = text.match(/^\[(.+)\](?:\:\s*)?$/)) // [barelink] or [^ref] or [footnote]:
@@ -178,7 +178,7 @@
                       { url = null; }
                   else {
                       // remove title part (if exists)
-                      url = cm.hmdSplitLink(t2.content).url;
+                      url = readLink.splitLink(t2.content).url;
                   }
               }
               else if ((mat = text.match(/^\<(.+)\>$/)) || // <http://laobubu.net>

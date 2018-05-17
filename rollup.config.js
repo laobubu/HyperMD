@@ -3,6 +3,31 @@ import * as path from 'path'
 import buble from 'rollup-plugin-buble'
 import typescript from 'rollup-plugin-typescript2'
 
+const srcDir = path.join(__dirname, "src")
+
+/**
+ * an alternative to `path.relative`
+ * 0. works well on Windows
+ * 1. never use backslash \
+ * 2. return "./" if empty
+ * 3. always ends with "/"
+ */
+function relativePath(srcdir, dstdir) {
+  // NodeJS maybe have bugs on Windows, with drive letters
+  // substr() is a workaround
+  // https://github.com/nodejs/node/issues/17413
+  if (/win/i.test(process.platform) && /^[a-zA-Z]\:/.test(srcdir)) {
+    srcdir = srcdir.substr(3)
+    dstdir = dstdir.substr(3)
+  }
+
+  var reldir = path.relative(srcdir, dstdir)
+  if (!reldir) reldir = "./"
+  else reldir = reldir.replace(/\\/g, '/') + "/"
+
+  return reldir
+}
+
 /** HyperMD components */
 const components = {
   "mode/hypermd": null, // exported nothing
@@ -17,12 +42,37 @@ const components = {
 }
 
 /** Third-party libs */
-const globalNames = {
+var globalNamesReal = {
   codemirror: "CodeMirror",
   marked: "marked",
   mathjax: "MathJax", // not always avaliable though
   hypermd: "HyperMD",
+  HyperMD: "HyperMD",
 }
+
+var globalNames = new Proxy(globalNamesReal, {
+  get(target, name) {
+    var ans = globalNamesReal[name]
+    if (!ans) {
+      if (!/node_modules/.test(name) && path.isAbsolute(name)) {
+        // Are you trying to import "HyperMD.XXX" ?
+        var moduleDir = path.dirname(name)
+        var moduleName = path.basename(name)
+
+        var moduleExpr = relativePath(srcDir, moduleDir) + moduleName
+        var HyperMDAlias = components[moduleExpr]
+
+        if (HyperMDAlias) ans = "HyperMD." + HyperMDAlias
+        else if (/\/core$/.test(moduleExpr)) ans = "HyperMD"
+        else console.log(
+          "[WARN] " + name + " is not exported to global HyperMD namespace.\n" +
+          "       which shall be defined in rollup.config.js, 'HyperMD components' part"
+        )
+      }
+    }
+    return ans
+  }
+})
 
 const external_tester = id_or_FilePath => {
   return id_or_FilePath in globalNames || !/^[\.\/]|^\w\:|\.ts$/.test(id_or_FilePath)
@@ -39,27 +89,19 @@ const external_tester = id_or_FilePath => {
 const fix_core_path_in_single_file = function (sourcePath, id) {
   if (!path.isAbsolute(id)) return id // external libs
 
-  if (/\bcore[\\\/]/.test(id)) {
-    // ./src/core.js doesnot exists.
-    // but ./core.js does
-    id = path.resolve("./src/core")
-  }
-
   var srcdir = path.dirname(sourcePath)
   var dstdir = path.dirname(id)
-
-  // substr() is a workaround on Windows
-  // https://github.com/nodejs/node/issues/17413
-  if (/win/i.test(process.platform)) {
-    srcdir = srcdir.substr(3)
-    dstdir = dstdir.substr(3)
-  }
-
-  var reldir = path.relative(srcdir, dstdir)
-  if (!reldir) reldir = "./"
-  else reldir = reldir.replace(/\\/g, '/') + "/"
+  var reldir = relativePath(srcdir, dstdir)
 
   var tmp = reldir + path.basename(id)
+
+  if (/core\//.test(tmp)) {
+    // core.ts exports everything of core/*.ts
+    // so all you need is just importing one `core`
+    console.log("[WARN] You shall import 'core' instead of 'core/*' in " + sourcePath)
+    tmp = tmp.replace(/core\/.+$/, 'core')
+  }
+
   return tmp
 }
 
