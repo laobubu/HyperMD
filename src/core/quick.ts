@@ -57,14 +57,18 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
 
     // (addon) fold
     // turn images and links into what you want to see
-    hmdFold: true,
+    hmdFold: {
+      image: true,
+      link: true,
+      math: true, // (addon) fold-math
+    },
 
     // (addon) fold-math
-    // MathJax support. Both `$` and `$$` are supported
-    // hmdFoldMath: {
-    //   interval: 200,      // auto folding interval
-    //   preview: true       // providing a preview while composing math
-    // },
+    // Tex Formular Rendering. Both `$` and `$$` are supported
+    // See src/addon/fold-math.ts, or read the document to learn more
+    hmdFoldMath: {
+      // renderer: HyperMD.FoldMath.StupidRenderer
+    },
 
     // (addon) paste
     // copy and paste HTML content

@@ -30,26 +30,29 @@
    * @param {boolean} [toBool] convert retrived value to boolean. default: false
    */
   FlipFlop.prototype.set = function (state, toBool) {
-      var newVal = typeof state === 'object' ? state[this.subkey] : state;
+      var newVal = (typeof state === 'object' && state) ? state[this.subkey] : state;
       if (toBool)
           { newVal = !!newVal; }
       if (newVal === this.state)
           { return; }
       if (this.state = newVal)
-          { this.on_cb(this); }
+          { this.on_cb(newVal); }
       else
-          { this.off_cb(this); }
+          { this.off_cb(newVal); }
   };
   FlipFlop.prototype.setBool = function (state) {
       return this.set(state, true);
   };
-  /** async run a function, and retry up to 5 times until it returns true */
-  function tryToRun(fn, times) {
+  /** async run a function, and retry up to N times until it returns true */
+  function tryToRun(fn, times, onFailed) {
       times = ~~times || 5;
       var delayTime = 250;
       function nextCycle() {
-          if (!times--)
-              { return; }
+          if (!times--) {
+              if (onFailed)
+                  { onFailed(); }
+              return;
+          }
           try {
               if (fn())
                   { return; }
@@ -139,13 +142,17 @@
           hmdClick: true,
           // (addon) fold
           // turn images and links into what you want to see
-          hmdFold: true,
+          hmdFold: {
+              image: true,
+              link: true,
+              math: true,
+          },
           // (addon) fold-math
-          // MathJax support. Both `$` and `$$` are supported
-          // hmdFoldMath: {
-          //   interval: 200,      // auto folding interval
-          //   preview: true       // providing a preview while composing math
-          // },
+          // Tex Formular Rendering. Both `$` and `$$` are supported
+          // See src/addon/fold-math.ts, or read the document to learn more
+          hmdFoldMath: {
+          // renderer: HyperMD.FoldMath.StupidRenderer
+          },
           // (addon) paste
           // copy and paste HTML content
           // NOTE: only works when `turndown` is loaded before HyperMD

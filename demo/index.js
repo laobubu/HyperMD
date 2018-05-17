@@ -7,16 +7,22 @@ if (requirejs) requirejs.config({
   // baseUrl: "node_modules/",                   // using local version
   // baseUrl: "https://cdn.jsdelivr.net/npm/",   // or use CDN
   baseUrl: demo_page_lib_baseurl,
+
   paths: {
     // HyperMD is not from node_modules nor CDN:
     // "hypermd": "./",
     "hypermd": demo_page_baseurl + "./",
   },
+
   // Remove `packages` if you occur errors with CDN
   packages: [
     {
       name: 'codemirror',
       main: 'lib/codemirror'
+    },
+    {
+      name: 'mathjax',
+      main: 'MathJax.js'
     },
     {
       name: 'marked',
@@ -89,7 +95,7 @@ require([
   // 'hypermd/addon/hide-token',
   'hypermd/addon/cursor-debounce',
   'hypermd/addon/fold',
-  // 'hypermd/addon/fold-math',
+  'hypermd/addon/fold-math',
   'hypermd/addon/read-link',
   'hypermd/addon/click',
   'hypermd/addon/hover',
@@ -109,7 +115,11 @@ require([
         enabled: true,
         enabledDrop: true,
         // uploadTo: (file, callback) => setTimeout(callback.bind(null, "uploaded.png"), 1000),
-      }
+      },
+      hmdFoldMath: {
+        onPreview: function (s) { console.log("Preview math: ", s) },
+        onPreviewEnd: function () { console.log("Preview end") }
+      },
     })
     editor.setSize("100%", "100%")
 

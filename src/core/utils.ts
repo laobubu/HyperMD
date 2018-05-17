@@ -17,8 +17,8 @@ export class FlipFlop<T=boolean> {
    * @param {string} [subkey] if get an object, use this key to retrive status. default: "enabled"
    */
   constructor(
-    private on_cb: Function,
-    private off_cb: Function,
+    private on_cb: (s: T) => void,
+    private off_cb: (s: T) => void,
     public state: T = (false as any as T),
     private subkey: string = "enabled"
   ) {
@@ -30,14 +30,14 @@ export class FlipFlop<T=boolean> {
    * @param {T|object} state new status value. can be a object
    * @param {boolean} [toBool] convert retrived value to boolean. default: false
    */
-  set(state: T | object, toBool: boolean) {
-    let newVal: T = typeof state === 'object' ? state[this.subkey] : state
+  set(state: T | object, toBool?: boolean) {
+    let newVal: T = (typeof state === 'object' && state) ? state[this.subkey] : state
 
     if (toBool) newVal = !!newVal as any as T
 
     if (newVal === this.state) return
-    if (this.state = newVal) this.on_cb(this)
-    else this.off_cb(this)
+    if (this.state = newVal) this.on_cb(newVal)
+    else this.off_cb(newVal)
   }
 
   setBool(state: boolean) {
@@ -45,13 +45,16 @@ export class FlipFlop<T=boolean> {
   }
 }
 
-/** async run a function, and retry up to 5 times until it returns true */
-export function tryToRun(fn, times) {
+/** async run a function, and retry up to N times until it returns true */
+export function tryToRun(fn: () => boolean, times?: number, onFailed?: Function) {
   times = ~~times || 5
   var delayTime = 250
 
   function nextCycle() {
-    if (!times--) return
+    if (!times--) {
+      if (onFailed) onFailed()
+      return
+    }
 
     try { if (fn()) return }
     catch (e) { }

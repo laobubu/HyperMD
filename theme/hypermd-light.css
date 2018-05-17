@@ -10,7 +10,7 @@
   line-height: 1.5;
   font-size: 12pt;
 }
-.cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content code, .cm-s-hypermd-light span.cm-inline-code, .cm-s-hypermd-light pre.HyperMD-codeblock, .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light span.cm-math {
+.cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content code, .cm-s-hypermd-light span.cm-inline-code, .cm-s-hypermd-light pre.HyperMD-codeblock, .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.hmd-fold-math-placeholder {
   font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 .cm-s-hypermd-light .cm-header, .cm-s-hypermd-light .cm-strong {
@@ -88,7 +88,7 @@
 .cm-s-hypermd-light span.cm-error {
   color: #f00;
 }
-.cm-s-hypermd-light span.cm-math {
+.cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.hmd-fold-math-placeholder {
   color: #300;
   font-style: italic;
   background: rgba(255, 255, 238, 0.4);
@@ -360,18 +360,6 @@
   min-width: 24px;
   min-height: 24px;
   background: #eeeeee url(hypermd-image-spin.gif) no-repeat center center;
-}
-.cm-s-hypermd-light img.hmd-image[src$="?HyperMD-Uploading"] {
-  outline: 2px dashed #CCC;
-  animation: HyperMD-uploading-blink 2s infinite;
-}
-@keyframes HyperMD-uploading-blink {
-  0%, 100% {
-    opacity: 0.7;
-  }
-  50% {
-    opacity: 0.4;
-  }
 }
 .cm-s-hypermd-light span.cm-math-2 {
   font-size: 13.2pt;

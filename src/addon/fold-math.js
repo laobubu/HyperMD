@@ -4,7 +4,7 @@
 // Folding and rendering with MathJax
 
 (function (mod) {
-  
+
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(
       require("codemirror/lib/codemirror"),
@@ -494,7 +494,7 @@
     if (newCfg.MathRenderer !== fold.MathRenderer) {
       fold._rendererReady = false
     }
-    
+
     // if auto-rendering is enabled, but renderer is not ready...
     if (!fold._rendererReady && newCfg.interval) {
       HyperMD.tryToRun(function(){

@@ -322,19 +322,14 @@
             min-height: 24px;
             background: #eeeeee url(hypermd-image-spin.gif) no-repeat center center;
         }
-
-        &[src$="?HyperMD-Uploading"] {
-            outline: 2px dashed #CCC;
-            animation: HyperMD-uploading-blink 2s infinite;
-        }
-
-        @keyframes HyperMD-uploading-blink {
-            0%, 100% { opacity: 0.7 }
-            50% { opacity: 0.4 }
-        }
     }
 
     /// math blocks
+
+    span.hmd-fold-math-placeholder {
+      // when math is not fully rendered. a placeholder with raw Tex expression is presented
+      @extend .cm-math;
+    }
 
     span.cm-math-2 { font-size: 1.1 * $fs }
 

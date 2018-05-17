@@ -1,5 +1,3 @@
-import { Position, Position } from "../../node_modules/@types/codemirror/index";
-
 declare global {
   namespace HyperMD {
     interface HelperCollection extends Object {
@@ -88,8 +86,8 @@ declare module "codemirror" {
      * From this event handler, the editor state may be inspected but not modified,
      * with the exception that the range on which the event fires may be cleared.
      */
-    on(eventName: 'beforeCursorEnter', handler: (instance: CodeMirror.Editor) => void): void;
-    off(eventName: 'beforeCursorEnter', handler: (instance: CodeMirror.Editor) => void): void;
+    on(eventName: 'beforeCursorEnter', handler: (this: CodeMirror.Editor) => void): void;
+    off(eventName: 'beforeCursorEnter', handler: (this: CodeMirror.Editor) => void): void;
 
     /**
      * Fired when the range is cleared, either through cursor movement in combination
@@ -102,8 +100,8 @@ declare module "codemirror" {
      *
      * `from` and `to` give the part of the document that the range spanned when it was cleared.
      */
-    on(eventName: 'clear', handler: (instance: CodeMirror.Editor, from: CodeMirror.Position, to: CodeMirror.Position) => void): void;
-    off(eventName: 'clear', handler: (instance: CodeMirror.Editor, from: CodeMirror.Position, to: CodeMirror.Position) => void): void;
+    on(eventName: 'clear', handler: (this: CodeMirror.Editor, from: CodeMirror.Position, to: CodeMirror.Position) => void): void;
+    off(eventName: 'clear', handler: (this: CodeMirror.Editor, from: CodeMirror.Position, to: CodeMirror.Position) => void): void;
   }
 
   interface LineHandle {

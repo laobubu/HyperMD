@@ -1,8 +1,9 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Skeleton for most Addons
-// NOTE: some parts might be useless for you, feel free to delete them.
+// Turn Markdown text into real images, link icons ...
+//
+// You may set `hmdFold.customFolders` option to fold more, where `customFolders` is Array<FolderFunc>
 //
 
 import CodeMirror, { TextMarker, Position, Token } from 'codemirror'
@@ -13,7 +14,56 @@ import { splitLink } from './read-link'
 const DEBUG = false
 
 /********************************************************************************** */
+/**
+ * 1. Check if `token` is a **BEGINNING TOKEN** of fold-able text (eg. "!" for images)
+ * 2. Use `stream.findNext` to find the end of the text to be folded (eg. ")" or "]" of link/URL, for images)
+ * 3. Compose a range `{from, to}`
+ *    - `from` is always `{ line: stream.lineNo, ch: token.start }`
+ * 4. Check if `stream.requestRange(from, to)` returns `RequestRangeResult.OK`
+ *    - if not ok, return `null` immediately.
+ * 5. Use `stream.cm.markText(from, to, options)` to fold text, and return the marker
+ *
+ * @param token current checking token. a shortcut to `stream.lineTokens[stream.i_token]`
+ * @returns a TextMarker if folded.
+ */
+export type FolderFunc = (stream: FoldStream, token: CodeMirror.Token) => CodeMirror.TextMarker;
 
+/** FolderFunc may use FoldStream to lookup for tokens */
+export interface FoldStream {
+  readonly cm: cm_t
+
+  readonly line: CodeMirror.LineHandle
+  readonly lineNo: number
+  readonly lineTokens: Token[]    // always same as cm.getLineTokens(line)
+  readonly i_token: number        // current token's index
+
+  /**
+   * Find next Token that matches the condition AFTER current token (whose index is `i_token`), or a given position
+   * This function will NOT make the stream precede!
+   *
+   * @param condition a RegExp to check token.type, or a function check the Token
+   * @param maySpanLines by default the searching will not span lines
+   */
+  findNext(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean, since?: Position): { lineNo: number, token: Token, i_token: number }
+
+  /**
+   * In current line, find next Token that matches the condition SINCE the token with given index
+   * This function will NOT make the stream precede!
+   *
+   * @param condition a RegExp to check token.type, or a function check the Token
+   * @param i_token_since default: i_token+1 (the next of current token)
+   */
+  findNext(condition: RegExp | ((token: Token) => boolean), i_token_since: number): { lineNo: number, token: Token, i_token: number }
+
+  /**
+   * Before creating a TextMarker, check if the range is good to use.
+   *
+   * Do NOT create TextMarker unless this returns `RequestRangeResult.OK`
+   */
+  requestRange(from: Position, to: Position): RequestRangeResult
+}
+
+/********************************************************************************** */
 /** define all built-in folder types */
 export interface builtinFolderContainer<T> {
   image: T,
@@ -51,12 +101,7 @@ export var builtinFolder: builtinFolderContainer<FolderFunc> = {
           }
         )
 
-        img.addEventListener('click', () => {
-          var pos = marker.find()
-          marker.clear()
-          cm.setCursor(pos.from)
-          cm.focus()
-        }, false)
+        img.addEventListener('click', () => breakMark(cm, marker), false)
         return marker
       } else {
         if (DEBUG) {
@@ -103,12 +148,7 @@ export var builtinFolder: builtinFolderContainer<FolderFunc> = {
           }
         )
 
-        img.addEventListener('click', () => {
-          var pos = marker.find()
-          marker.clear()
-          cm.setCursor(pos.from)
-          cm.focus()
-        }, false)
+        img.addEventListener('click', () => breakMark(cm, marker), false)
         return marker
       } else {
         if (DEBUG) {
@@ -121,53 +161,25 @@ export var builtinFolder: builtinFolderContainer<FolderFunc> = {
   },
 }
 
-/** FolderFunc may use FoldStream to lookup for tokens */
-export interface FoldStream {
-  readonly cm: cm_t
+/********************************************************************************** */
+/** UTILS */
 
-  readonly line: CodeMirror.LineHandle
-  readonly lineNo: number
-  readonly lineTokens: Token[]    // always same as cm.getLineTokens(line)
-  readonly i_token: number        // current token's index
-
-  /**
-   * Find next Token that matches the condition AFTER current token (whose index is `i_token`)
-   * This function will NOT make the stream precede!
-   *
-   * @param condition a RegExp to check token.type, or a function check the Token
-   * @param maySpanLines by default the searching will not span lines
-   */
-  findNext(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean): { lineNo: number, token: Token, i_token: number }
-
-  /**
-   * Find next Token that matches the condition SINCE the token with given index
-   * This function will NOT make the stream precede!
-   *
-   * @param condition a RegExp to check token.type, or a function check the Token
-   * @param i_token_since default: i_token+1 (the next of current token)
-   */
-  findNext(condition: RegExp | ((token: Token) => boolean), i_token_since: number): { lineNo: number, token: Token, i_token: number }
-
-  /**
-   * Before creating a TextMarker, check if the range is good to use.
-   *
-   * Do NOT create TextMarker unless this returns `RequestRangeResult.OK`
-   */
-  requestRange(from: Position, to: Position): RequestRangeResult
+/** break a TextMarker, move cursor to where marker is */
+export function breakMark(cm: cm_t, marker: TextMarker, chOffset?: number) {
+  cm.operation(function () {
+    var pos = marker.find().from
+    pos = { line: pos.line, ch: pos.ch + ~~chOffset }
+    cm.setCursor(pos)
+    cm.focus()
+    marker.clear()
+  })
 }
-
-/**
- * A FolderFunc may check if `token` is a **BEGINNING TOKEN** of fold-able text, and fold it
- *
- * @param token current checking token. a shortcut to `stream.lineTokens[stream.i_token]`
- * @returns a TextMarker if folded.
- */
-export type FolderFunc = (stream: FoldStream, token: CodeMirror.Token) => CodeMirror.TextMarker;
 
 /********************************************************************************** */
 /** ADDON OPTIONS */
 
 export interface FoldOptions extends Addon.AddonOptions, builtinFolderContainer<boolean> {
+  math?: boolean // only works when fold-math addon presents
   customFolders: { [type: string]: FolderFunc }
 }
 
@@ -271,12 +283,25 @@ export class Fold implements Addon.Addon, FoldStream {
   public lineTokens: Token[]    // always same as cm.getLineTokens(line)
   public i_token: number
 
-  findNext(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number): { lineNo: number, token: Token, i_token: number } {
+  findNext(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number, since?: Position): { lineNo: number, token: Token, i_token: number } {
     var lineNo = this.lineNo
     var tokens = this.lineTokens
     var token: Token = null
 
-    var i_token = typeof varg === 'number' ? varg : (this.i_token + 1)
+    var i_token: number
+
+    if (varg === true && !since) {
+      since = { line: lineNo + 1, ch: 0 }
+    } else if (varg === false && since) {
+      if (since.line !== lineNo) return null
+      for (i_token = 0; i_token < tokens.length; i_token++) {
+        if (tokens[i_token].start >= since.ch) break
+      }
+    } else if (typeof varg === 'number') {
+      i_token = varg
+    } else {
+      i_token = this.i_token + 1
+    }
 
     for (; i_token < tokens.length; i_token++) {
       var token_tmp = tokens[i_token]
@@ -288,11 +313,18 @@ export class Fold implements Addon.Addon, FoldStream {
 
     if (!token && varg === true) {
       const cm = this.cm
-      cm.eachLine(+ 1, cm.lastLine(), (line_i) => {
+      cm.eachLine(since.line, cm.lastLine() + 1, (line_i) => {
         lineNo = line_i.lineNo()
         tokens = cm.getLineTokens(lineNo)
 
-        for (i_token = 0; i_token < tokens.length; i_token++) {
+        i_token = 0
+        if (lineNo === since.line) {
+          for (; i_token < tokens.length; i_token++) {
+            if (tokens[i_token].start >= since.ch) break
+          }
+        }
+
+        for (; i_token < tokens.length; i_token++) {
           var token_tmp = tokens[i_token]
           if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
             token = token_tmp
@@ -436,7 +468,7 @@ export class Fold implements Addon.Addon, FoldStream {
         } else {
           var { from, to } = marker.find();
           (this.folded[type] || (this.folded[type] = [])).push(marker)
-          marker.on('clear', (cm, from, to) => {
+          marker.on('clear', (from, to) => {
             var markers = this.folded[type]
             var idx: number
             if (markers && (idx = markers.indexOf(marker)) !== -1) markers.splice(idx, 1)

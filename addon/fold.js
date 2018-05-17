@@ -30,12 +30,7 @@
                       collapsed: true,
                       replacedWith: img,
                   });
-                  img.addEventListener('click', function () {
-                      var pos = marker.find();
-                      marker.clear();
-                      cm.setCursor(pos.from);
-                      cm.focus();
-                  }, false);
+                  img.addEventListener('click', function () { return breakMark(cm, marker); }, false);
                   return marker;
               }
               else {
@@ -71,12 +66,7 @@
                       collapsed: true,
                       replacedWith: img,
                   });
-                  img.addEventListener('click', function () {
-                      var pos = marker.find();
-                      marker.clear();
-                      cm.setCursor(pos.from);
-                      cm.focus();
-                  }, false);
+                  img.addEventListener('click', function () { return breakMark(cm, marker); }, false);
                   return marker;
               }
               else {
@@ -88,6 +78,18 @@
           return null;
       },
   };
+  /********************************************************************************** */
+  /** UTILS */
+  /** break a TextMarker, move cursor to where marker is */
+  function breakMark(cm, marker, chOffset) {
+      cm.operation(function () {
+          var pos = marker.find().from;
+          pos = { line: pos.line, ch: pos.ch + ~~chOffset };
+          cm.setCursor(pos);
+          cm.focus();
+          marker.clear();
+      });
+  }
   var defaultOption = {
       image: false,
       link: false,
@@ -167,11 +169,28 @@
       }
       ff.setBool(status);
   };
-  Fold.prototype.findNext = function (condition, varg) {
+  Fold.prototype.findNext = function (condition, varg, since) {
       var lineNo = this.lineNo;
       var tokens = this.lineTokens;
       var token = null;
-      var i_token = typeof varg === 'number' ? varg : (this.i_token + 1);
+      var i_token;
+      if (varg === true && !since) {
+          since = { line: lineNo + 1, ch: 0 };
+      }
+      else if (varg === false && since) {
+          if (since.line !== lineNo)
+              { return null; }
+          for (i_token = 0; i_token < tokens.length; i_token++) {
+              if (tokens[i_token].start >= since.ch)
+                  { break; }
+          }
+      }
+      else if (typeof varg === 'number') {
+          i_token = varg;
+      }
+      else {
+          i_token = this.i_token + 1;
+      }
       for (; i_token < tokens.length; i_token++) {
           var token_tmp = tokens[i_token];
           if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
@@ -181,10 +200,17 @@
       }
       if (!token && varg === true) {
           var cm = this.cm;
-          cm.eachLine(+1, cm.lastLine(), function (line_i) {
+          cm.eachLine(since.line, cm.lastLine() + 1, function (line_i) {
               lineNo = line_i.lineNo();
               tokens = cm.getLineTokens(lineNo);
-              for (i_token = 0; i_token < tokens.length; i_token++) {
+              i_token = 0;
+              if (lineNo === since.line) {
+                  for (; i_token < tokens.length; i_token++) {
+                      if (tokens[i_token].start >= since.ch)
+                          { break; }
+                  }
+              }
+              for (; i_token < tokens.length; i_token++) {
                   var token_tmp = tokens[i_token];
                   if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
                       token = token_tmp;
@@ -315,7 +341,7 @@
                       var from = ref.from;
                       var to = ref.to;
                   (this$1.folded[type] || (this$1.folded[type] = [])).push(marker);
-                  marker.on('clear', function (cm, from, to) {
+                  marker.on('clear', function (from, to) {
                       var markers = this$1.folded[type];
                       var idx;
                       if (markers && (idx = markers.indexOf(marker)) !== -1)
@@ -391,6 +417,7 @@
   var getAddon = core.Addon.Getter(AddonAlias, Fold, defaultOption /** if has options */);
 
   exports.builtinFolder = builtinFolder;
+  exports.breakMark = breakMark;
   exports.defaultOption = defaultOption;
   exports.Fold = Fold;
   exports.getAddon = getAddon;

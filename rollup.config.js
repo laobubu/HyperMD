@@ -37,6 +37,7 @@ const components = {
   "addon/click": "Click",
   "addon/paste": "Paste",
   "addon/fold": "Fold",
+  "addon/fold-math": "FoldMath",
   "addon/mode-loader": "ModeLoader",
   "addon/cursor-debounce": "CursorDebounce",
 }

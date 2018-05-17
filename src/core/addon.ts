@@ -24,7 +24,7 @@ export function Getter<T extends Addon>(
   defaultOption?: object
 ): (cm: cm_t) => T {
   return function (cm) {
-    if (!cm.hmd) cm.hmd = {}
+    if (!cm.hmd) cm.hmd = {} as HyperMD.HelperCollection
     if (!cm.hmd[name]) {
       var inst = new ClassCtor(cm)
       cm.hmd[name] = inst

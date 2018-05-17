@@ -39,7 +39,7 @@ export const defaultOption: MyOptions = {
 }
 
 const OptionName = "hmdMyAddon"
-type OptionValueType = Partial<MyOptions> | boolean
+type OptionValueType = Partial<MyOptions> | boolean;
 
 CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionValueType) {
   const enabled = !!newVal
