@@ -17,9 +17,11 @@ const listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/  // this regex is from CodeMirro
 const tableTitleSepRE = /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/ // find  |:-----:|:-----:| line
 
 const enum insideValues {
-  math = 1,
-  listSpace = 2,
-  tableTitleSep = 4, // a line like |:-----:|:-----:|
+  nothing = 0,
+  math,
+  listSpace,
+  codeFence,
+  tableTitleSep, // a line like |:-----:|:-----:|
 }
 
 const enum nstyleValues {
@@ -72,13 +74,12 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
   function startState() {
     return {
       atBeginning: true,  //at the beginning of one line, quotes are skipped
-      insideCodeFence: false,
       quoteLevel: 0,
       nstyle: 0,   // non-exclusive statuses, stored in bit format. see nstyleValues
       table: null, // if inside a table, the table ID (volatile and maybe duplicate)
       tableCol: 0, // current table Column Number
       tableRow: 0, // current table row number
-      inside: null, // see insideValues
+      inside: insideValues.nothing, // see insideValues
       listSpaceStack: [], // spaces for every levels like [1, 2, 2] ...
       // NOTICE: listSpaceStack[0] could be 0, (eg. ordered list, or " - "'s leading space is missing)
       //         if meet the situation, do not return any token, otherwise CodeMirror would crash
@@ -99,7 +100,6 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       return {
         // structure of `s` is defined in startState; do a deep copy for it
         atBeginning: s.atBeginning,
-        insideCodeFence: s.insideCodeFence,
         quoteLevel: s.quoteLevel,
         nstyle: s.nstyle,
         table: s.table,
@@ -121,7 +121,7 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       s.tableRow = 0
       s.nstyle = 0
 
-      if (s.insideCodeFence) return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
+      if (s.inside === insideValues.codeFence) return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
       return null
     },
     token(stream, state) {
@@ -130,16 +130,27 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       var start = stream.pos
       var retToken, tmp, tmp2, tmp3
 
-      if (state.inside === insideValues.math) {
-        if (
-          (start === 0 || stream.string.charAt(start - 1) !== "\\") &&
-          stream.match(state.extra)
-        ) {
-          state.inside = null
-          return "formatting formatting-math formatting-math-end math math-" + state.extra.length
-        }
-        stream.next()
-        return "math math-" + state.extra.length
+      switch (state.inside) {
+        case insideValues.math:
+          if (
+            (start === 0 || stream.string.charAt(start - 1) !== "\\") &&
+            stream.match(state.extra)
+          ) {
+            state.inside = insideValues.nothing
+            return "formatting formatting-math formatting-math-end math math-" + state.extra.length
+          }
+          if (!stream.match(/^(?:[^\$\\]+|\\.)+/)) stream.next() // skip chars that can't be "$" or "$$"
+          return "math math-" + state.extra.length
+
+        case insideValues.codeFence:
+          state.combineTokens = true
+          if (start === 0 && stream.match(/^```\s*$/)) {
+            // reach the end of CodeFence
+            state.inside = insideValues.nothing
+            return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg line-HyperMD-codeblock-end"
+          }
+          stream.skipToEnd()
+          return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
       }
 
       //////////////////////////////////////////////////////////////////
@@ -170,18 +181,8 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
          */
         if (stream.match(/^```/)) {  // toggle state for codefence
           state.combineTokens = true
-          state.insideCodeFence = !state.insideCodeFence
-          var fence_type = state.insideCodeFence ? 'begin' : 'end'
-          return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg line-HyperMD-codeblock-" + fence_type
-        }
-
-        /**
-         * if insideCodeFence, nothing to process.
-         */
-        if (state.insideCodeFence) {
-          stream.skipToEnd()
-          state.combineTokens = true
-          return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
+          state.inside = insideValues.codeFence
+          return "line-HyperMD-codeblock line-background-HyperMD-codeblock-bg line-HyperMD-codeblock-begin"
         }
 
         //FIXME: tranditional code block is buggy and shall be deprecated!
@@ -385,7 +386,8 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       /// NOTE: only the pipe chars whose nstyle === 0 can construct a table
       ///       no need to worry about nstyle stuff
 
-      if (state.nstyle === 0 && stream.eat('|')) {
+      const canMakeTable = state.nstyle === 0 && !state.listSpaceStack.length && !state.inside
+      if (canMakeTable && stream.eat('|')) {
         var ans = ""
         if (!state.table) {
           if (!/^\s*\|/.test(stream.string) && !tableTitleSepRE.test(stream.lookAhead(1))) {
@@ -425,8 +427,8 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       var ans = ""
 
       // initialize style string by `nstyle`
-      for (let s of nstyleStandalone) if (nstyle & s) ans += HMDStyles[s]
-      if (ns_link) ans += HMDStyles[ns_link]
+      for (let s of nstyleStandalone) if (nstyle & s) ans += HMDStyles[s] || ""
+      if (ns_link) ans += HMDStyles[ns_link] || ""
 
       ///////////////////////////////////////////////////////////////////
       // Update nstyle if needed

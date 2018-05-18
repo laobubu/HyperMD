@@ -167,13 +167,12 @@
               }
               text = cm.getRange(range.from, range.to);
               // now extract the URL. boring job
-              var t = text.replace(/^\!?\[/, ''); // remove first left squre parentheses
-              if ((mat = t.match(/[^\\]\]\((.+)\)$/)) // .](url) image / link without ref
+              if ((mat = text.match(/[^\\]\]\((.+)\)$/)) // .](url) image / link without ref
               ) {
                   // remove title part (if exists)
                   url = readLink.splitLink(mat[1]).url;
               }
-              else if ((mat = t.match(/[^\\]\]\[(.+)\]$/)) || // .][ref] image / link with ref
+              else if ((mat = text.match(/[^\\]\]\[(.+)\]$/)) || // .][ref] image / link with ref
                   (mat = text.match(/^\[(.+)\]\[\]$/)) || // [ref][]
                   (mat = text.match(/^\[(.+)\](?:\:\s*)?$/)) // [barelink] or [^ref] or [footnote]:
               ) {

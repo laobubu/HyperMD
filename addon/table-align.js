@@ -76,16 +76,17 @@
           }
           columnSpan.appendChild(measureHelper);
           lineSpan.appendChild(columnSpan);
-          this$1.updateStyle();
       };
       this.ff_enable = new core.FlipFlop(
       /* ON  */ function () {
           cm.on("renderLine", this$1._procLine);
-          document.head.appendChild(this$1.styleEl);
+          cm.on("update", this$1.updateStyle);
           cm.refresh();
+          document.head.appendChild(this$1.styleEl);
       }, 
       /* OFF */ function () {
           cm.off("renderLine", this$1._procLine);
+          cm.off("update", this$1.updateStyle);
           document.head.removeChild(this$1.styleEl);
       });
   };

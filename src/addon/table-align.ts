@@ -60,11 +60,13 @@ export class TableAlign implements Addon.Addon, TableAlignOptions {
     this.ff_enable = new FlipFlop(
       /* ON  */() => {
         cm.on("renderLine", this._procLine)
-        document.head.appendChild(this.styleEl)
+        cm.on("update", this.updateStyle)
         cm.refresh()
+        document.head.appendChild(this.styleEl)
       },
       /* OFF */() => {
         cm.off("renderLine", this._procLine)
+        cm.off("update", this.updateStyle)
         document.head.removeChild(this.styleEl)
       }
     )
@@ -114,8 +116,6 @@ export class TableAlign implements Addon.Addon, TableAlignOptions {
     }
     columnSpan.appendChild(measureHelper)
     lineSpan.appendChild(columnSpan)
-
-    this.updateStyle()
   }
 
   /** create a invisible helper to measure column content width */
