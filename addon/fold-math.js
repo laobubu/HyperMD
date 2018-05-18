@@ -193,22 +193,8 @@
           { this.onChanged(finished_expr); }
   };
   MathJaxRenderer.prototype.isReady = function () {
-      switch (MathJaxRenderer._mathjax_loading) {
-          case 2:
-              this.isReady = function () { return true; };
-              return true;
-          case 0:
-              if (typeof MathJax !== 'undefined') {
-                  MathJax.Hub.Register.StartupHook("End", function () {
-                      MathJaxRenderer._mathjax_loading = 2;
-                  });
-                  MathJaxRenderer._mathjax_loading = 1;
-              }
-          default:
-              return false;
-      }
+      return typeof MathJax === 'object' && MathJax.isReady;
   };
-  MathJaxRenderer._mathjax_loading = 0; // 0= not loaded  1= loading  2= ready
   var defaultOption = {
       renderer: null,
       onPreview: null,

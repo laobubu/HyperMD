@@ -261,24 +261,8 @@ export class MathJaxRenderer implements MathRenderer {
       this.onChanged(finished_expr)
   }
 
-  private static _mathjax_loading: number = 0 // 0= not loaded  1= loading  2= ready
-
   public isReady() {
-    switch (MathJaxRenderer._mathjax_loading) {
-      case 2:
-        this.isReady = () => true
-        return true
-
-      case 0:
-        if (typeof MathJax !== 'undefined') {
-          MathJax.Hub.Register.StartupHook("End", function () {
-            MathJaxRenderer._mathjax_loading = 2
-          });
-          MathJaxRenderer._mathjax_loading = 1
-        }
-      default:
-        return false
-    }
+    return typeof MathJax === 'object' && MathJax.isReady
   }
 }
 
