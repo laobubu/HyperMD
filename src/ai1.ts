@@ -13,7 +13,8 @@ import * as Click from "./addon/click"
 import * as Paste from "./addon/paste"
 import * as Fold from "./addon/fold"
 import * as FoldMath from "./addon/fold-math"
+import * as TableAlign from "./addon/table-align"
 import * as ModeLoader from "./addon/mode-loader"
 import * as CursorDebounce from "./addon/cursor-debounce"
 
-export { InsertFile, ReadLink, Hover, Click, Paste, Fold, FoldMath, ModeLoader, CursorDebounce }
+export { InsertFile, ReadLink, Hover, Click, Paste, Fold, FoldMath, TableAlign, ModeLoader, CursorDebounce }

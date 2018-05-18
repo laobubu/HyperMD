@@ -40,6 +40,13 @@ span.hmd-link-icon:after {
   content: "»";
 }
 
+pre.HyperMD-table-row {
+  white-space: pre;
+}
+pre.HyperMD-table-row .hmd-table-column {
+  display: inline-block;
+}
+
 span.hmd-fold-math,
 span.cm-hmd-table-sep {
   display: inline-block;

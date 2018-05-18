@@ -11,8 +11,8 @@ import { cm_t } from '../core/type'
 
 
 /********************************************************************************** */
-/** ADDON EXTENSION:
- * add a method named as "ExtName" to all CodeMirror editors */
+//#region CodeMirror Extension
+// add a method named as "ExtName" to all CodeMirror editors
 
 const ExtName = "hmdMyExtension"
 export const ExtObject = function (this: cm_t, foo: string, bar: string) {
@@ -22,9 +22,10 @@ export const ExtObject = function (this: cm_t, foo: string, bar: string) {
 declare global { namespace HyperMD { interface Editor { [ExtName]: typeof ExtObject } } }
 CodeMirror.defineExtension(ExtName, ExtObject)
 
+//#endregion
 
 /********************************************************************************** */
-/** ADDON OPTIONS */
+//#region Addon Options
 
 export interface MyOptions extends Addon.AddonOptions {
   enabled: boolean
@@ -41,7 +42,7 @@ export const defaultOption: MyOptions = {
 const OptionName = "hmdMyAddon"
 type OptionValueType = Partial<MyOptions> | boolean;
 
-CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionValueType) {
+CodeMirror.defineOption(OptionName, defaultOption, function (cm: cm_t, newVal: OptionValueType) {
   const enabled = !!newVal
 
   if (!enabled || typeof newVal === "boolean") {
@@ -61,9 +62,10 @@ CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionVal
 
 declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
 
+//#endregion
 
 /********************************************************************************** */
-/** ADDON CLASS */
+//#region Addon Class
 
 const AddonAlias = "myAddon"
 export class MyAddon implements Addon.Addon, MyOptions /* if needed */ {
@@ -72,6 +74,7 @@ export class MyAddon implements Addon.Addon, MyOptions /* if needed */ {
   public ff_enable: FlipFlop  // bind/unbind events
 
   constructor(public cm: cm_t) {
+    // options will be initialized to defaultOption (if exists)
     // add your code here
 
     this.ff_enable = new FlipFlop(
@@ -81,8 +84,8 @@ export class MyAddon implements Addon.Addon, MyOptions /* if needed */ {
   }
 }
 
+//#endregion
 
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: MyAddon } } }
-
-/** ADDON GETTER: Only one addon instance allowed in a editor */
+/** ADDON GETTER (Singleton Pattern): a editor can have only one MyAddon instance */
 export const getAddon = Addon.Getter(AddonAlias, MyAddon, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: MyAddon } } }

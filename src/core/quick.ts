@@ -90,8 +90,7 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
     // (addon) table-align
     // adjust table separators' margin, making table columns aligned
     hmdTableAlign: {
-      lineColor: '#999',   // color of vertical lines
-      rowsepColor: '#999',  // color of the horizontal line, can be null (means transparent)
+      enabled: true
     },
   }
 
@@ -138,8 +137,8 @@ export function switchToNormal(editor: cm_t, theme?: string) {
  */
 export function switchToHyperMD(editor: cm_t, theme: string) {
   editor.setOption('theme', theme || 'hypermd-light')
-  editor.setOption('hmdFold', true) // TODO: add math here
+  editor.setOption('hmdFold', true)
   editor.setOption('hmdHideToken', '(profile-1)')
-  editor.setOption('hmdTableAlign', { lineColor: '#999', rowsepColor: '#999' })
+  editor.setOption('hmdTableAlign', true)
 }
 

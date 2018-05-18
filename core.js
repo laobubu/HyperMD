@@ -170,8 +170,7 @@
           // (addon) table-align
           // adjust table separators' margin, making table columns aligned
           hmdTableAlign: {
-              lineColor: '#999',
-              rowsepColor: '#999',
+              enabled: true
           },
       };
       if (typeof config === 'object') {
@@ -210,9 +209,9 @@
    */
   function switchToHyperMD(editor, theme) {
       editor.setOption('theme', theme || 'hypermd-light');
-      editor.setOption('hmdFold', true); // TODO: add math here
+      editor.setOption('hmdFold', true);
       editor.setOption('hmdHideToken', '(profile-1)');
-      editor.setOption('hmdTableAlign', { lineColor: '#999', rowsepColor: '#999' });
+      editor.setOption('hmdTableAlign', true);
   }
 
   /**
@@ -304,21 +303,12 @@
    */
   function updateCursorDisplay(cm, skipCacheCleaning) {
       if (!skipCacheCleaning) {
-          // // only process affected lines?
-          // var lines = []
-          // var vfrom = cm.display.viewFrom, vto = cm.display.viewTo
-          // var selections = cm.listSelections()
-          // var line
-          // for (var i = 0; i < selections.length; i++) {
-          //   line = selections[i].head.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
-          //   line = selections[i].anchor.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
-          // }
           var lvs = cm.display.view; // LineView s
-          for (var i = 0; i < lvs.length; i++) {
-              // var j = lines.indexOf(lvs[i].line.lineNo())
-              // if (j === -1) continue
-              if (lvs[i].measure)
-                  { lvs[i].measure.cache = {}; }
+          for (var i = 0, list = lvs; i < list.length; i += 1) {
+              var lineView = list[i];
+
+              if (lineView.measure)
+                  { lineView.measure.cache = {}; }
           }
       }
       setTimeout(function () {

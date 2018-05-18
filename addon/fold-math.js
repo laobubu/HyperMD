@@ -210,7 +210,7 @@
   };
   MathJaxRenderer._mathjax_loading = 0; // 0= not loaded  1= loading  2= ready
   var defaultOption = {
-      renderer: null /*StupidRenderer*/,
+      renderer: null,
       onPreview: null,
       onPreviewEnd: null,
   };
@@ -227,8 +227,7 @@
       this.ff_pv = new core.FlipFlop(
       /** CHANGED */ function (expr) { this$1.onPreview && this$1.onPreview(expr); }, 
       /** HIDE*/ function () { this$1.onPreviewEnd && this$1.onPreviewEnd(); }, null);
-      for (var k in defaultOption)
-          { this$1[k] = defaultOption[k]; }
+      // options will be initialized to defaultOption (if exists)
   };
   var OptionName = "hmdFoldMath";
   CodeMirror.defineOption(OptionName, defaultOption, function (cm, newVal) {

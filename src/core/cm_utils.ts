@@ -89,24 +89,11 @@ export function expandRange(cm: cm_t, pos: CodeMirror.Position, style: string) {
  * @param {cm_t} cm
  * @param {boolean} skipCacheCleaning
  */
-export function updateCursorDisplay(cm: cm_t, skipCacheCleaning: boolean) {
+export function updateCursorDisplay(cm: cm_t, skipCacheCleaning?: boolean) {
   if (!skipCacheCleaning) {
-    // // only process affected lines?
-    // var lines = []
-    // var vfrom = cm.display.viewFrom, vto = cm.display.viewTo
-    // var selections = cm.listSelections()
-    // var line
-    // for (var i = 0; i < selections.length; i++) {
-    //   line = selections[i].head.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
-    //   line = selections[i].anchor.line; if (line >= vfrom && line <= vto && lines.indexOf(line) === -1) lines.push(line)
-    // }
-
-    var lvs = cm.display.view // LineView s
-    for (var i = 0; i < lvs.length; i++) {
-      // var j = lines.indexOf(lvs[i].line.lineNo())
-      // if (j === -1) continue
-
-      if (lvs[i].measure) lvs[i].measure.cache = {}
+    var lvs = cm.display.view as any[] // LineView s
+    for (var lineView of lvs) {
+      if (lineView.measure) lineView.measure.cache = {}
     }
   }
 

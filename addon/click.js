@@ -7,6 +7,9 @@
   CodeMirror = CodeMirror && CodeMirror.hasOwnProperty('default') ? CodeMirror['default'] : CodeMirror;
 
   // HyperMD, copyright (c) by laobubu
+  //#endregion
+  /********************************************************************************** */
+  //#region defaultClickHandler
   var defaultClickHandler = function (info, cm) {
       var text = info.text;
       var type = info.type;
@@ -113,9 +116,9 @@
       for (var k in defaultOption)
           { inst[k] = newCfg[k]; }
   });
+  //#endregion
   /********************************************************************************** */
-  /** ADDON CLASS */
-  var AddonAlias = "click";
+  //#region ADDON CLASS
   var Click = function(cm) {
       var this$1 = this;
 
@@ -213,6 +216,8 @@
       /* ON  */ function () { this$1.lineDiv.addEventListener("mousedown", this$1._mouseDown, false); }, 
       /* OFF */ function () { this$1.lineDiv.removeEventListener("mousedown", this$1._mouseDown, false); });
   };
+  //#endregion
+  var AddonAlias = "click";
   /** ADDON GETTER: Only one addon instance allowed in a editor */
   var getAddon = core.Addon.Getter(AddonAlias, Click, defaultOption);
 

@@ -12,7 +12,7 @@ import { splitLink } from './read-link'
 
 
 /********************************************************************************** */
-/** CLICK HANDLER */
+//#region CLICK HANDLER
 
 export type TargetType = "image" | "link" | "footref" | "url" | "todo"
 export interface ClickInfo {
@@ -36,6 +36,10 @@ export interface ClickInfo {
  * Custom handler may return `false` to prevent HyperMD's default behavior.
  */
 export type ClickHandler = (info: ClickInfo, cm: cm_t) => (false | void)
+//#endregion
+
+/********************************************************************************** */
+//#region defaultClickHandler
 
 export const defaultClickHandler: ClickHandler = (info, cm) => {
   var { text, type, url, pos } = info
@@ -125,8 +129,10 @@ const makeBackButton = (function () {
   }
 })();
 
+//#endregion
+
 /********************************************************************************** */
-/** ADDON OPTIONS */
+//#region ADDON OPTIONS
 
 export interface ClickOptions extends Addon.AddonOptions {
   enabled: boolean
@@ -163,11 +169,10 @@ CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionVal
 
 declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
 
+//#endregion
 
 /********************************************************************************** */
-/** ADDON CLASS */
-
-const AddonAlias = "click"
+//#region ADDON CLASS
 export class Click implements Addon.Addon, ClickOptions /* if needed */ {
   enabled: boolean;
   handler: ClickHandler;
@@ -288,7 +293,9 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
   }
 }
 
+//#endregion
 
+const AddonAlias = "click"
 declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: Click } } }
 
 /** ADDON GETTER: Only one addon instance allowed in a editor */

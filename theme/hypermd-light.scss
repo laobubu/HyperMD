@@ -196,7 +196,7 @@
     span.cm-formatting-task // task list checkbox
     {
         @extend %monospace;
-        white-space: nowrap;
+        white-space: pre;
         display: inline-block;
         height: 1em;
         line-height: 1em;
@@ -401,13 +401,25 @@
             width: 1em;
             text-align: center;
             box-sizing: content-box;
-            font-family: monospace;
+            font-weight: normal;
+
+            &:before {
+                content: ' ';
+                margin-left: 1px;
+                top: 0;
+                width: 0;
+                height: 100%;
+                position: absolute;
+                border-left: 1px dashed #999;
+            }
+        }
+
+        img.hmd-image {
+            max-width: 100%; //FIXME: don't know why
         }
 
         &.HyperMD-table-rowsep {
             line-height: .5em;
-            overflow: hidden;
-            text-shadow: 0 1px #FFF, 0 -1px #FFF, 1px 0 #FFF, -1px 0 #FFF;
         }
 
         &.HyperMD-table-row-0 {
@@ -469,6 +481,9 @@
         &.HyperMD-table-row {
             span.cm-hmd-table-sep {
                 color: transparent;
+                &:before {
+                  border-left: 1px solid #666;
+                }
             }
         }
 

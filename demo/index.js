@@ -102,20 +102,15 @@ require([
   'hypermd/addon/paste',
   'hypermd/addon/insert-file',
   'hypermd/addon/mode-loader',
-  // 'hypermd/addon/table-align',
+  'hypermd/addon/table-align',
 
 ], function (CodeMirror, HyperMD) {
   'use strict';
   var myTextarea = document.getElementById('demo')
 
   function init_editor() {
-    // HyperMD magic. See document
+    // HyperMD magic. See https://laobubu.net/HyperMD/docs/
     var editor = HyperMD.fromTextArea(myTextarea, {
-      hmdPasteImage: {
-        enabled: true,
-        enabledDrop: true,
-        // uploadTo: (file, callback) => setTimeout(callback.bind(null, "uploaded.png"), 1000),
-      },
       hmdFoldMath: {
         onPreview: function (s) { console.log("Preview math: ", s) },
         onPreviewEnd: function () { console.log("Preview end") }

@@ -6,11 +6,6 @@ declare global {
 
     interface EditorConfiguration {
       hmdHideToken?: string
-      hmdTableAlign: {
-        lineColor?: string
-        rowsepColor?: string
-      }
-
       // addon may declare more configrable items
     }
 

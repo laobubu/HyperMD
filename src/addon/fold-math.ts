@@ -294,7 +294,7 @@ export interface FoldMathOptions {
 }
 
 export var defaultOption: FoldMathOptions = {
-  renderer: null/*StupidRenderer*/,  // let HyperMD detect, StupidRenderer or MathJaxRenderer
+  renderer: null,  // use null to let HyperMD choose StupidRenderer or MathJaxRenderer
   onPreview: null,
   onPreviewEnd: null,
 }
@@ -306,7 +306,7 @@ export var defaultOption: FoldMathOptions = {
  */
 class FoldMath implements Addon.Addon, FoldMathOptions {
   constructor(public cm: cm_t) {
-    for (var k in defaultOption) this[k] = defaultOption[k]
+    // options will be initialized to defaultOption (if exists)
   }
 
   /** Use a FlipFlop to emit events! How smart I am! */

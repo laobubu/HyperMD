@@ -38,6 +38,7 @@ const components = {
   "addon/paste": "Paste",
   "addon/fold": "Fold",
   "addon/fold-math": "FoldMath",
+  "addon/table-align": "TableAlign",
   "addon/mode-loader": "ModeLoader",
   "addon/cursor-debounce": "CursorDebounce",
 }

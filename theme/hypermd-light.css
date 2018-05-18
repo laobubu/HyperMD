@@ -269,7 +269,7 @@
   color: #fff;
 }
 .cm-s-hypermd-light span.cm-formatting-task {
-  white-space: nowrap;
+  white-space: pre;
   display: inline-block;
   height: 1em;
   line-height: 1em;
@@ -419,12 +419,22 @@
   width: 1em;
   text-align: center;
   box-sizing: content-box;
-  font-family: monospace;
+  font-weight: normal;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row span.cm-hmd-table-sep:before {
+  content: " ";
+  margin-left: 1px;
+  top: 0;
+  width: 0;
+  height: 100%;
+  position: absolute;
+  border-left: 1px dashed #999;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row img.hmd-image {
+  max-width: 100%;
 }
 .cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-rowsep {
   line-height: 0.5em;
-  overflow: hidden;
-  text-shadow: 0 1px #FFF, 0 -1px #FFF, 1px 0 #FFF, -1px 0 #FFF;
 }
 .cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 {
   font-weight: bold;
@@ -469,6 +479,9 @@
 }
 .cm-s-hypermd-light pre.HyperMD-token-hidden.HyperMD-table-row span.cm-hmd-table-sep {
   color: transparent;
+}
+.cm-s-hypermd-light pre.HyperMD-token-hidden.HyperMD-table-row span.cm-hmd-table-sep:before {
+  border-left: 1px solid #666;
 }
 .cm-s-hypermd-light pre.HyperMD-token-hidden.HyperMD-table-rowsep {
   color: transparent;
