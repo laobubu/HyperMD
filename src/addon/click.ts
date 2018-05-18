@@ -41,10 +41,11 @@ export const defaultClickHandler: ClickHandler = (info, cm) => {
   var { text, type, url, pos } = info
 
   if (type === 'url' || type === 'link') {
-    var footnoteRef = text.match(/\[[^\[\]]+\]$/) // bare link test. assume no escaping char inside
+    var footnoteRef = text.match(/\[[^\[\]]+\](?:\[\])?$/) // bare link, footref or [foot][] . assume no escaping char inside
     if (footnoteRef && info.altKey) {
       // extract footnote part (with square brackets), then jump to the footnote
       text = footnoteRef[0]
+      if (text.slice(-2) === '[]') text = text.slice(0, -2) // remove [] of [foot][]
       type = "footref"
     } else if ((info.ctrlKey || info.altKey) && url) {
       // just open URL
@@ -61,7 +62,7 @@ export const defaultClickHandler: ClickHandler = (info, cm) => {
 
   if (type === 'footref') {
     // Jump to FootNote
-    const footnote_name = text.substr(1, text.length - 2)
+    const footnote_name = text.slice(1, -1)
     const footnote = cm.hmdReadLink(footnote_name, pos.line)
     if (footnote) {
       makeBackButton(cm, footnote.line, pos)
@@ -238,7 +239,7 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
       text = cm.getRange(range.from, range.to)
 
       // now extract the URL. boring job
-      let t = text.replace(/^\!?\[/, '')
+      let t = text.replace(/^\!?\[/, '') // remove first left squre parentheses
 
       if (
         (mat = t.match(/[^\\]\]\((.+)\)$/))     // .](url)     image / link without ref
@@ -247,6 +248,7 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
         url = splitLink(mat[1]).url
       } else if (
         (mat = t.match(/[^\\]\]\[(.+)\]$/)) ||  // .][ref]     image / link with ref
+        (mat = text.match(/^\[(.+)\]\[\]$/)) ||  // [ref][]
         (mat = text.match(/^\[(.+)\](?:\:\s*)?$/))        // [barelink] or [^ref] or [footnote]:
       ) {
         if (isBareLink && mat[1].charAt(0) === '^') type = 'footref'

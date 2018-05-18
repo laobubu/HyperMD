@@ -437,7 +437,8 @@
                       return ans;
                   }
               }
-              { /// DEL, EM, STRONG etc. simple styles
+              if ((state.nstyle & 255 /* _style_mask */) !== 0 || !/\w/.test(stream.string.charAt(stream.pos - 1))) {
+                  /// DEL, EM, STRONG etc. simple styles
                   // since these styles are not coverd by HMDStyles,
                   // we can do it simplier: change nstyle and return immediatly
                   if (stream.match("**")) {
@@ -448,7 +449,11 @@
                       state.nstyle ^= 4 /* STRONG */;
                       return ans;
                   }
-                  if (stream.match(/^[*_]/)) {
+                  if (stream.eat("*")) {
+                      state.nstyle ^= 2 /* EM */;
+                      return ans;
+                  }
+                  if (stream.eat("_")) {
                       state.nstyle ^= 2 /* EM */;
                       return ans;
                   }

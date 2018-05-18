@@ -529,12 +529,14 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
         }
       }
 
-      { /// DEL, EM, STRONG etc. simple styles
+      if ((state.nstyle & nstyleValues._style_mask) !== 0 || !/\w/.test(stream.string.charAt(stream.pos - 1))) {
+        /// DEL, EM, STRONG etc. simple styles
         // since these styles are not coverd by HMDStyles,
         // we can do it simplier: change nstyle and return immediatly
         if (stream.match("**")) { state.nstyle ^= nstyleValues.STRONG; return ans }
         if (stream.match("__")) { state.nstyle ^= nstyleValues.STRONG; return ans }
-        if (stream.match(/^[*_]/)) { state.nstyle ^= nstyleValues.EM; return ans }
+        if (stream.eat("*")) { state.nstyle ^= nstyleValues.EM; return ans }
+        if (stream.eat("_")) { state.nstyle ^= nstyleValues.EM; return ans }
         if (stream.match("~~")) { state.nstyle ^= nstyleValues.DEL; return ans }
       }
 

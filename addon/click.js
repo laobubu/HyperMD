@@ -13,10 +13,12 @@
       var url = info.url;
       var pos = info.pos;
       if (type === 'url' || type === 'link') {
-          var footnoteRef = text.match(/\[[^\[\]]+\]$/); // bare link test. assume no escaping char inside
+          var footnoteRef = text.match(/\[[^\[\]]+\](?:\[\])?$/); // bare link, footref or [foot][] . assume no escaping char inside
           if (footnoteRef && info.altKey) {
               // extract footnote part (with square brackets), then jump to the footnote
               text = footnoteRef[0];
+              if (text.slice(-2) === '[]')
+                  { text = text.slice(0, -2); } // remove [] of [foot][]
               type = "footref";
           }
           else if ((info.ctrlKey || info.altKey) && url) {
@@ -34,7 +36,7 @@
       }
       if (type === 'footref') {
           // Jump to FootNote
-          var footnote_name = text.substr(1, text.length - 2);
+          var footnote_name = text.slice(1, -1);
           var footnote = cm.hmdReadLink(footnote_name, pos.line);
           if (footnote) {
               makeBackButton(cm, footnote.line, pos);
@@ -162,13 +164,14 @@
               }
               text = cm.getRange(range.from, range.to);
               // now extract the URL. boring job
-              var t = text.replace(/^\!?\[/, '');
+              var t = text.replace(/^\!?\[/, ''); // remove first left squre parentheses
               if ((mat = t.match(/[^\\]\]\((.+)\)$/)) // .](url) image / link without ref
               ) {
                   // remove title part (if exists)
                   url = readLink.splitLink(mat[1]).url;
               }
               else if ((mat = t.match(/[^\\]\]\[(.+)\]$/)) || // .][ref] image / link with ref
+                  (mat = text.match(/^\[(.+)\]\[\]$/)) || // [ref][]
                   (mat = text.match(/^\[(.+)\](?:\:\s*)?$/)) // [barelink] or [^ref] or [footnote]:
               ) {
                   if (isBareLink && mat[1].charAt(0) === '^')
