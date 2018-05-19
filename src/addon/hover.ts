@@ -108,7 +108,8 @@ export class Hover implements Addon.Addon, HoverOptions {
       return
     }
 
-    if (target.nodeName !== "SPAN" || !/cm-hmd-barelink\b/.test(className)) {
+    var mat: RegExpMatchArray
+    if (target.nodeName !== "SPAN" || !(mat = className.match(/(?:^|\s)cm-(hmd-barelink|hmd-link-url-s)(?:\s|$)/))) {
       this.hideInfo()
       return
     }
@@ -116,10 +117,11 @@ export class Hover implements Addon.Addon, HoverOptions {
     var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY })
     var footnote = null
 
-    var range = expandRange(cm, pos, "hmd-barelink")
+    const hover_type = mat[1] // hmd-barelink|hmd-link-url-s
+    var range = expandRange(cm, pos, hover_type)
     if (range) {
       let text = cm.getRange(range.from, range.to)
-      text = text.substr(1, text.length - 2)
+      text = text.slice(1, -1)
       if (text) footnote = cm.hmdReadLink(text, pos.line)
     }
 

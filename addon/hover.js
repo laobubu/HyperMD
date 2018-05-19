@@ -65,16 +65,18 @@
       if (target == this.tooltipDiv || (target.compareDocumentPosition && (target.compareDocumentPosition(this.tooltipDiv) & 8) == 8)) {
           return;
       }
-      if (target.nodeName !== "SPAN" || !/cm-hmd-barelink\b/.test(className)) {
+      var mat;
+      if (target.nodeName !== "SPAN" || !(mat = className.match(/(?:^|\s)cm-(hmd-barelink|hmd-link-url-s)(?:\s|$)/))) {
           this.hideInfo();
           return;
       }
       var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY });
       var footnote = null;
-      var range = core.expandRange(cm, pos, "hmd-barelink");
+      var hover_type = mat[1]; // hmd-barelink|hmd-link-url-s
+      var range = core.expandRange(cm, pos, hover_type);
       if (range) {
           var text = cm.getRange(range.from, range.to);
-          text = text.substr(1, text.length - 2);
+          text = text.slice(1, -1);
           if (text)
               { footnote = cm.hmdReadLink(text, pos.line); }
       }

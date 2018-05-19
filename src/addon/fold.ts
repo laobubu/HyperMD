@@ -320,19 +320,25 @@ export class Fold implements Addon.Addon, FoldStream {
     var tokens = this.lineTokens
     var token: Token = null
 
-    var i_token: number
+    var i_token: number = this.i_token + 1
+    var maySpanLines = false
 
-    if (varg === true && !since) {
-      since = { line: lineNo + 1, ch: 0 }
-    } else if (varg === false && since) {
-      if (since.line !== lineNo) return null
-      for (i_token = 0; i_token < tokens.length; i_token++) {
-        if (tokens[i_token].start >= since.ch) break
-      }
+    if (varg === true) {
+      maySpanLines = true
     } else if (typeof varg === 'number') {
       i_token = varg
-    } else {
-      i_token = this.i_token + 1
+    }
+
+    if (since) {
+      if (since.line > lineNo) {
+        i_token = tokens.length // just ignore current line
+      } else if (since.line < lineNo) {
+        // hmmm... we shall NEVER go back
+      } else {
+        for (; i_token < tokens.length; i_token++) {
+          if (tokens[i_token].start >= since.ch) break
+        }
+      }
     }
 
     for (; i_token < tokens.length; i_token++) {
@@ -343,14 +349,15 @@ export class Fold implements Addon.Addon, FoldStream {
       }
     }
 
-    if (!token && varg === true) {
+    if (!token && maySpanLines) {
       const cm = this.cm
-      cm.eachLine(since.line, cm.lastLine() + 1, (line_i) => {
+      const startLine = Math.max(since ? since.line : 0, lineNo + 1)
+      cm.eachLine(startLine, cm.lastLine() + 1, (line_i) => {
         lineNo = line_i.lineNo()
         tokens = cm.getLineTokens(lineNo)
 
         i_token = 0
-        if (lineNo === since.line) {
+        if (since && lineNo === since.line) {
           for (; i_token < tokens.length; i_token++) {
             if (tokens[i_token].start >= since.ch) break
           }

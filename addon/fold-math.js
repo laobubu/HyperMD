@@ -23,6 +23,8 @@
       var tokenLength = maySpanLines ? 2 : 1; // "$$" or "$"
       // CodeMirror GFM mode split "$$" into two tokens, so do a extra check.
       if (tokenLength == 2 && token.string.length == 1) {
+          if (DEBUG)
+              { console.log("[FoldMath] $$ is splitted into 2 tokens"); }
           var nextToken = stream.lineTokens[stream.i_token + 1];
           if (!nextToken || !mathBeginRE.test(nextToken.type))
               { return null; }

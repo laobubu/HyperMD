@@ -198,23 +198,25 @@
       var lineNo = this.lineNo;
       var tokens = this.lineTokens;
       var token = null;
-      var i_token;
-      if (varg === true && !since) {
-          since = { line: lineNo + 1, ch: 0 };
-      }
-      else if (varg === false && since) {
-          if (since.line !== lineNo)
-              { return null; }
-          for (i_token = 0; i_token < tokens.length; i_token++) {
-              if (tokens[i_token].start >= since.ch)
-                  { break; }
-          }
+      var i_token = this.i_token + 1;
+      var maySpanLines = false;
+      if (varg === true) {
+          maySpanLines = true;
       }
       else if (typeof varg === 'number') {
           i_token = varg;
       }
-      else {
-          i_token = this.i_token + 1;
+      if (since) {
+          if (since.line > lineNo) {
+              i_token = tokens.length; // just ignore current line
+          }
+          else if (since.line < lineNo) ;
+          else {
+              for (; i_token < tokens.length; i_token++) {
+                  if (tokens[i_token].start >= since.ch)
+                      { break; }
+              }
+          }
       }
       for (; i_token < tokens.length; i_token++) {
           var token_tmp = tokens[i_token];
@@ -223,13 +225,14 @@
               break;
           }
       }
-      if (!token && varg === true) {
+      if (!token && maySpanLines) {
           var cm = this.cm;
-          cm.eachLine(since.line, cm.lastLine() + 1, function (line_i) {
+          var startLine = Math.max(since ? since.line : 0, lineNo + 1);
+          cm.eachLine(startLine, cm.lastLine() + 1, function (line_i) {
               lineNo = line_i.lineNo();
               tokens = cm.getLineTokens(lineNo);
               i_token = 0;
-              if (lineNo === since.line) {
+              if (since && lineNo === since.line) {
                   for (; i_token < tokens.length; i_token++) {
                       if (tokens[i_token].start >= since.ch)
                           { break; }

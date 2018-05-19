@@ -1,13 +1,11 @@
 // CodeMirror, copyright (c) by laobubu
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 //
-// This is a patch to GFM mode. Supports:
-// 1. footnote: style "hmd-footnote"
-// 2. bare link: e.g. "please visit [page1] to continue", forwarding to footnote named as "page1"
+// This is a patch to markdown mode. Supports lots of new features
 //
 
 import CodeMirror from "codemirror"
-import "codemirror/mode/gfm/gfm"
+import "codemirror/mode/markdown/markdown"
 import "codemirror/addon/mode/overlay"
 
 const possibleTokenChars: string = "`\\[]()<>_*~$|^@:!#+\""   // chars that could form a token (like "**" or "`")
@@ -40,12 +38,18 @@ const enum nstyleValues {
   _link_mask = 0xFF00,
   _link_offset = 8,
 
-  LINK = 1 << _link_offset,           // [Link](url)    [text] part
-  LINK_URL = 2 << _link_offset,       // [Link](url)    (url) part
+  LINK = 1 << _link_offset,           // [Link](url) or [Link][foot]  [text] part
+  LINK_URL = 2 << _link_offset,       // [Link](url)    (url)  part
+  LINK_URL_S = 7 << _link_offset,     // [Link][foot]   [foot] part
   BARELINK = 3 << _link_offset,       // [BareLink]
   FOOTREF = 4 << _link_offset,        // [^ref]         ONLY CHARS AFTER ^
   FOOTREF_BEGIN = 5 << _link_offset,  // [^ref]         the first two chars [^
   FOOTNOTE_NAME = 6 << _link_offset,  // [^footnote]:
+
+  /* offset 16-23 [standalone helper bits] */
+
+  _helper_mask = 0xFF0000,
+  _helper_offset = 16,
 }
 
 /** these styles only need 1 bit to record the status */
@@ -64,6 +68,7 @@ const HMDStyles = {
   // Link related
   [nstyleValues.LINK]: "hmd-link ",
   [nstyleValues.LINK_URL]: "hmd-link-url ",
+  [nstyleValues.LINK_URL_S]: "hmd-link-url hmd-link-url-s ",
   [nstyleValues.BARELINK]: "hmd-barelink ",
   [nstyleValues.FOOTREF]: "hmd-barelink hmd-footref ",
   [nstyleValues.FOOTREF_BEGIN]: "hmd-barelink hmd-footref hmd-footref-lead ",
@@ -444,7 +449,7 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
         if (ns_link === 0) {
           // try to find a beginning
 
-          if (stream.match(/^\[([^\]]+)\]/, false)) {
+          if (stream.match(/^\[((?:[^\]\\\`]|\\.|\`[^\`]*\`)+)\](?=[\[\(\s]|$)/, false)) {
             // found! now decide `ns_link`
 
             stream.next()
@@ -491,23 +496,33 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
               if (stream.match(']:')) new_ns_link = 0
               break
             case nstyleValues.LINK:
-              // entering LINK_URL status because the next char must be ( , which is guranteed.
-              if (stream.eat(']')) new_ns_link = nstyleValues.LINK_URL
+              // entering LINK_URL status because the next char must be ( or [
+              if (stream.eat(']')) {
+                if (stream.peek() === '[') new_ns_link = nstyleValues.LINK_URL_S
+                else new_ns_link = nstyleValues.LINK_URL
+              }
               break
             case nstyleValues.LINK_URL:
+            case nstyleValues.LINK_URL_S:
+              let rightParentheses = (ns_link === nstyleValues.LINK_URL_S) ? ']' : ')'
               if (stream.match(/^"(?:[^"\\]|\\.)*"/)) {
                 // skip quoted stuff (could contains parentheses )
                 // note: escaped char is handled in `ESCAPE related` part
-              } else if (stream.eat(')')) {
+                return ans // URL part doesnot need further styling
+              } else if (stream.eat(rightParentheses)) {
                 // find the tail
                 new_ns_link = 0
+              } else {
+                // just skip meanless chars
+                if (!stream.match(/^[^\]\)\\]+|^\\./)) stream.next()
+                return ans // URL part doesnot need further styling
               }
               break
           }
 
           if (new_ns_link !== null) {
             // apply changes and prevent further HyperMD parsing work
-            state.nstyle = nstyle & ~nstyleValues._link_mask | new_ns_link
+            state.nstyle = state.nstyle & ~nstyleValues._link_mask | new_ns_link
             return ans
           }
         }
@@ -550,9 +565,12 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
     }
   };
 
-  var gfmConfig = {
-    name: "gfm",
+  var markdownConfig = {
+    name: "markdown",
     highlightFormatting: true,
+    taskLists: true,
+    strikethrough: true,
+    emoji: true,
     tokenTypeOverrides: {
       hr: "line-HyperMD-hr hr",
       // HyperMD needs to know the level of header/indent. using tokenTypeOverrides is not enough
@@ -566,11 +584,11 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
     },
   };
   for (var attr in modeConfig) {
-    gfmConfig[attr] = modeConfig[attr];
+    markdownConfig[attr] = modeConfig[attr];
   }
-  gfmConfig["name"] = "gfm" // must be this
+  markdownConfig["name"] = "markdown" // must be this
 
-  var finalMode = CodeMirror.overlayMode(CodeMirror.getMode(config, gfmConfig), hypermdOverlay);
+  var finalMode = CodeMirror.overlayMode(CodeMirror.getMode(config, markdownConfig), hypermdOverlay);
 
   // // now deal with indent method
   // var baseIndent = finalMode.indent;
@@ -580,6 +598,6 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
   // }
 
   return finalMode
-}, "gfm");
+}, "markdown");
 
 CodeMirror.defineMIME("text/x-hypermd", "hypermd");

@@ -1,6 +1,6 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('codemirror'), require('codemirror/mode/gfm/gfm'), require('codemirror/addon/mode/overlay')) :
-  typeof define === 'function' && define.amd ? define(['codemirror', 'codemirror/mode/gfm/gfm', 'codemirror/addon/mode/overlay'], factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('codemirror'), require('codemirror/mode/markdown/markdown'), require('codemirror/addon/mode/overlay')) :
+  typeof define === 'function' && define.amd ? define(['codemirror', 'codemirror/mode/markdown/markdown', 'codemirror/addon/mode/overlay'], factory) :
   (factory(global.CodeMirror));
 }(this, (function (CodeMirror) { 'use strict';
 
@@ -22,6 +22,7 @@
   HMDStyles[8 /* ESCAPE */] = "hmd-escape ";
   HMDStyles[256 /* LINK */] = "hmd-link ";
   HMDStyles[512 /* LINK_URL */] = "hmd-link-url ";
+  HMDStyles[1792 /* LINK_URL_S */] = "hmd-link-url hmd-link-url-s ";
   HMDStyles[768 /* BARELINK */] = "hmd-barelink ";
   HMDStyles[1024 /* FOOTREF */] = "hmd-barelink hmd-footref ";
   HMDStyles[1280 /* FOOTREF_BEGIN */] = "hmd-barelink hmd-footref hmd-footref-lead ";
@@ -357,7 +358,7 @@
               { /// LINK related
                   if (ns_link === 0) {
                       // try to find a beginning
-                      if (stream.match(/^\[([^\]]+)\]/, false)) {
+                      if (stream.match(/^\[((?:[^\]\\\`]|\\.|\`[^\`]*\`)+)\](?=[\[\(\s]|$)/, false)) {
                           // found! now decide `ns_link`
                           stream.next();
                           if (atBeginning && stream.match(/^(?:[^\]]+)\]\:/, false)) {
@@ -404,21 +405,37 @@
                                   { new_ns_link = 0; }
                               break;
                           case 256 /* LINK */:
-                              // entering LINK_URL status because the next char must be ( , which is guranteed.
-                              if (stream.eat(']'))
-                                  { new_ns_link = 512 /* LINK_URL */; }
+                              // entering LINK_URL status because the next char must be ( or [
+                              if (stream.eat(']')) {
+                                  if (stream.peek() === '[')
+                                      { new_ns_link = 1792 /* LINK_URL_S */; }
+                                  else
+                                      { new_ns_link = 512 /* LINK_URL */; }
+                              }
                               break;
                           case 512 /* LINK_URL */:
-                              if (stream.match(/^"(?:[^"\\]|\\.)*"/)) ;
-                              else if (stream.eat(')')) {
+                          case 1792 /* LINK_URL_S */:
+                              var rightParentheses = (ns_link === 1792 /* LINK_URL_S */) ? ']' : ')';
+                              if (stream.match(/^"(?:[^"\\]|\\.)*"/)) {
+                                  // skip quoted stuff (could contains parentheses )
+                                  // note: escaped char is handled in `ESCAPE related` part
+                                  return ans; // URL part doesnot need further styling
+                              }
+                              else if (stream.eat(rightParentheses)) {
                                   // find the tail
                                   new_ns_link = 0;
+                              }
+                              else {
+                                  // just skip meanless chars
+                                  if (!stream.match(/^[^\]\)\\]+|^\\./))
+                                      { stream.next(); }
+                                  return ans; // URL part doesnot need further styling
                               }
                               break;
                       }
                       if (new_ns_link !== null) {
                           // apply changes and prevent further HyperMD parsing work
-                          state.nstyle = nstyle & ~65280 /* _link_mask */ | new_ns_link;
+                          state.nstyle = state.nstyle & ~65280 /* _link_mask */ | new_ns_link;
                           return ans;
                       }
                   }
@@ -470,9 +487,12 @@
               return (ans.length !== 0 ? ans : null);
           }
       };
-      var gfmConfig = {
-          name: "gfm",
+      var markdownConfig = {
+          name: "markdown",
           highlightFormatting: true,
+          taskLists: true,
+          strikethrough: true,
+          emoji: true,
           tokenTypeOverrides: {
               hr: "line-HyperMD-hr hr",
               // HyperMD needs to know the level of header/indent. using tokenTypeOverrides is not enough
@@ -486,10 +506,10 @@
           },
       };
       for (var attr in modeConfig) {
-          gfmConfig[attr] = modeConfig[attr];
+          markdownConfig[attr] = modeConfig[attr];
       }
-      gfmConfig["name"] = "gfm"; // must be this
-      var finalMode = CodeMirror.overlayMode(CodeMirror.getMode(config, gfmConfig), hypermdOverlay);
+      markdownConfig["name"] = "markdown"; // must be this
+      var finalMode = CodeMirror.overlayMode(CodeMirror.getMode(config, markdownConfig), hypermdOverlay);
       // // now deal with indent method
       // var baseIndent = finalMode.indent;
       // finalMode.indent = function (state, textAfter) {
@@ -497,7 +517,7 @@
       //   return baseIndent ? baseIndent(state, textAfter) : CodeMirror.Pass
       // }
       return finalMode;
-  }, "gfm");
+  }, "markdown");
   CodeMirror.defineMIME("text/x-hypermd", "hypermd");
 
 })));
