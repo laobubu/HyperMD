@@ -40,6 +40,7 @@ const components = {
   "addon/fold-math": "FoldMath",
   "addon/table-align": "TableAlign",
   "addon/mode-loader": "ModeLoader",
+  "addon/hide-token": "HideToken",
   "addon/cursor-debounce": "CursorDebounce",
 }
 

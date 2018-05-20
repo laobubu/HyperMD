@@ -15,6 +15,7 @@ import * as Fold from "./addon/fold"
 import * as FoldMath from "./addon/fold-math"
 import * as TableAlign from "./addon/table-align"
 import * as ModeLoader from "./addon/mode-loader"
+import * as HideToken from "./addon/hide-token"
 import * as CursorDebounce from "./addon/cursor-debounce"
 
-export { InsertFile, ReadLink, Hover, Click, Paste, Fold, FoldMath, TableAlign, ModeLoader, CursorDebounce }
+export { InsertFile, ReadLink, Hover, Click, Paste, Fold, FoldMath, TableAlign, ModeLoader, HideToken, CursorDebounce }

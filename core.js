@@ -159,7 +159,7 @@
           hmdPaste: true,
           // (addon) hide-token
           // hide/show Markdown tokens like `**`
-          hmdHideToken: "(profile-1)",
+          hmdHideToken: true,
           // (addon) mode-loader
           // auto load mode to highlight code blocks
           // by providing a URL prefix, pointing to your CodeMirror
@@ -169,9 +169,7 @@
           hmdLoadModeFrom: "~codemirror/",
           // (addon) table-align
           // adjust table separators' margin, making table columns aligned
-          hmdTableAlign: {
-              enabled: true
-          },
+          hmdTableAlign: true,
       };
       if (typeof config === 'object') {
           for (var key in config) {
@@ -194,12 +192,9 @@
    */
   function switchToNormal(editor, theme) {
       editor.setOption('theme', theme || "default");
-      // unfold all folded parts
-      editor.setOption('hmdFold', false);
-      // stop hiding tokens
-      editor.setOption('hmdHideToken', '');
-      // stop aligining table columns
-      editor.setOption('hmdTableAlign', false);
+      editor.setOption('hmdFold', false); // unfold all folded parts
+      editor.setOption('hmdHideToken', false); // stop hiding tokens
+      editor.setOption('hmdTableAlign', false); // stop aligining table columns
   }
   /**
    * Revert what `HyperMD.switchToNormal` does
@@ -210,9 +205,90 @@
   function switchToHyperMD(editor, theme) {
       editor.setOption('theme', theme || 'hypermd-light');
       editor.setOption('hmdFold', true);
-      editor.setOption('hmdHideToken', '(profile-1)');
+      editor.setOption('hmdHideToken', true);
       editor.setOption('hmdTableAlign', true);
   }
+
+  /*!
+    The following few functions are from CodeMirror's source code.
+
+    MIT License
+
+    Copyright (C) 2017 by Marijn Haverbeke <marijnh@gmail.com> and others
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+
+    */
+  /**
+   * Find the view element corresponding to a given line. Return null when the line isn't visible.
+   *
+   * @see codemirror\src\measurement\position_measurement.js 5.37.0
+   * @param n lineNo
+   */
+  function findViewIndex(cm, n) {
+      if (n >= cm.display.viewTo)
+          { return null; }
+      n -= cm.display.viewFrom;
+      if (n < 0)
+          { return null; }
+      var view = cm.display.view;
+      for (var i = 0; i < view.length; i++) {
+          n -= view[i].size;
+          if (n < 0)
+              { return i; }
+      }
+  }
+  /**
+   * Find a line view that corresponds to the given line number.
+   *
+   * @see codemirror\src\measurement\position_measurement.js 5.37.0
+   */
+  function findViewForLine(cm, lineN) {
+      if (lineN >= cm.display.viewFrom && lineN < cm.display.viewTo)
+          { return cm.display.view[findViewIndex(cm, lineN)]; }
+      var ext = cm.display.externalMeasured;
+      if (ext && lineN >= ext.lineN && lineN < ext.lineN + ext.size)
+          { return ext; }
+  }
+  /**
+   * Find a line map (mapping character offsets to text nodes) and a
+   * measurement cache for the given line number. (A line view might
+   * contain multiple lines when collapsed ranges are present.)
+   *
+   * @see codemirror\src\measurement\position_measurement.js 5.37.0
+   */
+  function mapFromLineView(lineView, line, lineN) {
+      if (lineView.line == line)
+          { return { map: lineView.measure.map, cache: lineView.measure.cache, before: false }; }
+      for (var i = 0; i < lineView.rest.length; i++)
+          { if (lineView.rest[i] == line)
+              { return { map: lineView.measure.maps[i], cache: lineView.measure.caches[i], before: false }; } }
+      for (var i$1 = 0; i$1 < lineView.rest.length; i$1++)
+          { if (lineView.rest[i$1].lineNo() > lineN)
+              { return { map: lineView.measure.maps[i$1], cache: lineView.measure.caches[i$1], before: true }; } }
+  }
+
+  var cm_internal = /*#__PURE__*/Object.freeze({
+    findViewIndex: findViewIndex,
+    findViewForLine: findViewForLine,
+    mapFromLineView: mapFromLineView
+  });
 
   /**
    * CodeMirror-related utils
@@ -363,6 +439,7 @@
   exports.fromTextArea = fromTextArea;
   exports.switchToNormal = switchToNormal;
   exports.switchToHyperMD = switchToHyperMD;
+  exports.cm_internal = cm_internal;
   exports.getEveryCharToken = getEveryCharToken;
   exports.expandRange = expandRange;
   exports.updateCursorDisplay = updateCursorDisplay;

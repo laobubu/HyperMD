@@ -2,17 +2,20 @@ declare global {
   namespace HyperMD {
     interface HelperCollection extends Object {
       // Editor.hmd Object
+      // @see AddonAlias in src/addon/skeleton.ts
+      // @see getAddon in src/core/addon.ts
     }
 
     interface EditorConfiguration {
-      hmdHideToken?: string
-      // addon may declare more configrable items
+      // addon may declare option items in its own .ts file
+      // @see OptionName in src/addon/skeleton.ts
     }
 
     interface Editor {
       hmd: HelperCollection;    // containing some HyperMD addon/helper instances
 
       // addon may declare more methods and properties (aka. "Extension" in CodeMirror)
+      // @see ExtName in src/addon/skeleton.ts
     }
   }
 }
@@ -106,5 +109,18 @@ declare module "codemirror" {
     lineNo(): number
 
     markedSpans?: { from: number | null, to: number | null, marker: TextMarker }[]
+  }
+
+  /** CodeMirror internal Object */
+  interface LineView {
+    line: LineHandle
+    rest: LineHandle[]
+    measure?: {
+      cache?: object
+      map?: (number | Text | HTMLSpanElement)[]   // HTMLSpanElement is for folded stuff like <span class="CodeMirror-widget" role="presentation" cm-ignore-events="true">
+
+      caches?: object[]
+      maps?: (number | Text | HTMLSpanElement)[][]
+    }
   }
 }

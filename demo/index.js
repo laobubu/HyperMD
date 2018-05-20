@@ -92,7 +92,7 @@ require([
 
   'hypermd/mode/hypermd',
 
-  // 'hypermd/addon/hide-token',
+  'hypermd/addon/hide-token',
   'hypermd/addon/cursor-debounce',
   'hypermd/addon/fold',
   'hypermd/addon/fold-math',

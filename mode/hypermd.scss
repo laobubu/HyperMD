@@ -52,6 +52,10 @@ span.cm-hmd-table-sep {
     vertical-align: middle;
 }
 
+span.hmd-hidden-token {
+    background: #9C0 !important;
+}
+
 pre.HyperMD-token-hidden > span > span{
      &.cm-formatting-em
     ,&.cm-formatting-strong

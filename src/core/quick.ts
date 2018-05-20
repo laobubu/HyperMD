@@ -77,7 +77,7 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
 
     // (addon) hide-token
     // hide/show Markdown tokens like `**`
-    hmdHideToken: "(profile-1)",
+    hmdHideToken: true,
 
     // (addon) mode-loader
     // auto load mode to highlight code blocks
@@ -89,9 +89,7 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
 
     // (addon) table-align
     // adjust table separators' margin, making table columns aligned
-    hmdTableAlign: {
-      enabled: true
-    },
+    hmdTableAlign: true,
   }
 
   if (typeof config === 'object') {
@@ -118,15 +116,9 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
  */
 export function switchToNormal(editor: cm_t, theme?: string) {
   editor.setOption('theme', theme || "default")
-
-  // unfold all folded parts
-  editor.setOption('hmdFold', false)
-
-  // stop hiding tokens
-  editor.setOption('hmdHideToken', '')
-
-  // stop aligining table columns
-  editor.setOption('hmdTableAlign', false)
+  editor.setOption('hmdFold', false)  // unfold all folded parts
+  editor.setOption('hmdHideToken', false) // stop hiding tokens
+  editor.setOption('hmdTableAlign', false)  // stop aligining table columns
 }
 
 /**
@@ -138,7 +130,7 @@ export function switchToNormal(editor: cm_t, theme?: string) {
 export function switchToHyperMD(editor: cm_t, theme: string) {
   editor.setOption('theme', theme || 'hypermd-light')
   editor.setOption('hmdFold', true)
-  editor.setOption('hmdHideToken', '(profile-1)')
+  editor.setOption('hmdHideToken', true)
   editor.setOption('hmdTableAlign', true)
 }
 

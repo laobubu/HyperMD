@@ -449,7 +449,7 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
         if (ns_link === 0) {
           // try to find a beginning
 
-          if (stream.match(/^\[((?:[^\]\\\`]|\\.|\`[^\`]*\`)+)\](?=[\[\(\s]|$)/, false)) {
+          if (stream.match(/^\[((?:[^\]\\\`]|\\.|\`[^\`]*\`)+)\](?=[\[\(\:\s]|$)/, false)) {
             // found! now decide `ns_link`
 
             stream.next()

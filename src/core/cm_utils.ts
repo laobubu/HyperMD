@@ -6,7 +6,10 @@
  * You shall NOT import this file; please import "core" instead
  */
 
+import * as cm_internal from "./cm_internal"
 import { cm_t } from "./type"
+
+export { cm_internal }
 
 /**
  * CodeMirror's `getLineTokens` might merge adjacent chars with same styles,
