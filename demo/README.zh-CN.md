@@ -1,6 +1,6 @@
 # HyperMD
 
-![HyperMD Markdown Editor](./demo/logo.png)
+![HyperMD Markdown Editor](../demo/logo.png)
 
 **打破** Markdown *写作* 和 *预览* 的 **次元壁**！
 
@@ -38,7 +38,7 @@ HyperMD 是一组 [CodeMirror] 插件、模式和主题。
 ## 快速开始
 
 首先，推荐使用 [RequireJS] 来载入依赖项，这也是 HyperMD 开发时的做法。
-如果你想使用 HTML 标签逐个导入 CSS 和 JS，请参考 <./docs/examples/ai1.html>。
+如果你想使用 HTML 标签逐个导入 CSS 和 JS，请参考 <../docs/examples/ai1.html>。
 
 在导入 CSS 样式、载入并配置了 [RequireJS] 之后，照着 `demo/index.js` 里面的方式初始化编辑器即可。
 

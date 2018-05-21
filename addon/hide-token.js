@@ -295,8 +295,11 @@
                   { cpos_line_changed = true; }
           }
           // refresh cursor position if needed
-          if (cpos_line_changed)
-              { core.updateCursorDisplay(cm, true); }
+          if (cpos_line_changed) {
+              core.updateCursorDisplay(cm, true);
+              if (cm.hmd.tableAlign && cm.hmd.tableAlign.enabled)
+                  { cm.hmd.tableAlign.updateStyle(); }
+          }
       });
   };
   //#endregion

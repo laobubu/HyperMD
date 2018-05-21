@@ -1,7 +1,8 @@
 var is_running_demo = /\.github\.|laobubu\.net/.test(location.hostname)
-var demo_page_baseurl = window.location.href.replace(/\?.*$/, '').replace(/\/[^\/]*$/, '/')
+
+var demo_page_baseurl = window.location.href.replace(/[\?\#].*$/, '').replace(/\/[^\/]*$/, '/')
 var demo_page_lib_baseurl = is_running_demo ? "https://cdn.jsdelivr.net/npm/" : "node_modules/"
-var demo_README_filename = "README.md"
+var demo_filename = "README.md"
 
 if (requirejs) requirejs.config({
   // baseUrl: "node_modules/",                   // using local version
@@ -109,50 +110,42 @@ require([
   'use strict';
   var myTextarea = document.getElementById('demo')
 
-  function init_editor() {
-    // HyperMD magic. See https://laobubu.net/HyperMD/docs/
-    var editor = HyperMD.fromTextArea(myTextarea, {
-      hmdFoldMath: {
-        onPreview: function (s) { console.log("Preview math: ", s) },
-        onPreviewEnd: function () { console.log("Preview end") }
-      },
-      hmdClick: clickHandler,
-    })
-    editor.setSize("100%", "100%")
-
-    // for debugging
-    window.CodeMirror = CodeMirror
-    window.HyperMD = HyperMD
-    window.editor = editor
-    window.cm = editor
-
-    // for demo page only:
-    document.body.className += " loaded"
-  }
-
-  // ajax_load_file is declared in `index2.js`
-  // If you don't need it, just init_editor()
-  ajax_load_file(demo_README_filename, function (text) {
-    myTextarea.value = text
-    init_editor()
+  // HyperMD magic. See https://laobubu.net/HyperMD/docs/
+  var editor = HyperMD.fromTextArea(myTextarea, {
+    hmdFoldMath: {
+      onPreview: function (s) { console.log("Preview math: ", s) },
+      onPreviewEnd: function () { console.log("Preview end") }
+    },
+    hmdClick: clickHandler,
   })
+  editor.setSize("100%", "100%")
+
+  // for debugging
+  window.CodeMirror = CodeMirror
+  window.HyperMD = HyperMD
+  window.editor = editor
+  window.cm = editor
+
+  // for demo page only:
+  document.body.className += " loaded"
+  load_and_update_editor(demo_filename)
 })
+
+var allowDirectOpen = /directOpen/.test(window.location.search)
 
 function clickHandler(info, cm) {
   if (info.type === "link" || info.type === "url") {
     var url = info.url
-    if ((info.ctrlKey || info.altKey) && /\.(?:md|markdown)$/.test(url)) {
+    if ((allowDirectOpen || info.ctrlKey || info.altKey) && /\.(?:md|markdown)$/.test(url)) {
       // open a link whose URL is *.md with ajax_load_file
       // and supress HyperMD default behavoir
-      var editor_area = document.getElementById("editor_area")
-      var clzName = editor_area.className
-      editor_area.className = clzName + " loading_file"
-
-      ajax_load_file(url, function (text) {
-        editor.setValue(text)
-        editor_area.className = clzName
-      })
-
+      load_and_update_editor(url) // see index2.js
+      return false
+    } else if (allowDirectOpen && url) {
+      window.open(url)
+      return false
+    } else if (/^\[(?:Try out|试试看)\]$/i.test(info.text)) {
+      demo_tryout(info) // see index2.js
       return false
     }
   }
