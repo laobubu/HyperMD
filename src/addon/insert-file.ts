@@ -25,6 +25,9 @@ export interface HandlerAction {
    * Call this when FileHandler's job is done (no matter success or fail)
    */
   finish(text: string, cursor?: number)
+
+  marker: CodeMirror.TextMarker
+  cm: cm_t
 }
 export type FileHandler = (files: FileList, action: HandlerAction) => boolean
 
@@ -121,7 +124,7 @@ export const DefaultFileHandler: FileHandler = function (files, action) {
 
     if (--unfinishedCount === 0) {
       let texts = uploads.map(it => `![${it.name}](${it.url})`)
-      action.finish(texts.join("\n"))
+      action.finish(texts.join(" ") + " ")
     }
   }
 
@@ -180,23 +183,30 @@ class InsertFile implements Addon.Addon, InserFileOptions {
     var handled = false
 
     cm.operation(() => {
-      var pos = cm.getCursor()
+      // create a placeholder
+      cm.replaceSelection(".")
+      var posTo = cm.getCursor()
+      var posFrom = { line: posTo.line, ch: posTo.ch - 1 }
+
       var placeholderContainer = document.createElement("span")
-      var marker = cm.markText(pos, { line: pos.line, ch: pos.ch + 1 }, {
+      var marker = cm.markText(posFrom, posTo, {
         replacedWith: placeholderContainer,
         clearOnEnter: false,
         handleMouseEvents: false,
       })
 
       var action: HandlerAction = {
+        marker, cm,
+
         finish: (text, cursor) => cm.operation(() => {
-          pos = marker.find().from
-          cm.replaceRange(text, pos, pos)
+          var range = marker.find()
+          var posFrom = range.from, posTo = range.to
+          cm.replaceRange(text, posFrom, posTo)
           marker.clear()
 
           if (typeof cursor === 'number') cm.setCursor({
-            line: pos.line,
-            ch: pos.ch + cursor,
+            line: posFrom.line,
+            ch: posFrom.ch + cursor,
           })
         }),
 

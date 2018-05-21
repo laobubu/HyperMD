@@ -81,7 +81,7 @@
               { URL.revokeObjectURL(uploads[index].blobURL); }
           if (--unfinishedCount === 0) {
               var texts = uploads.map(function (it) { return ("![" + (it.name) + "](" + (it.url) + ")"); });
-              action.finish(texts.join("\n"));
+              action.finish(texts.join(" ") + " ");
           }
       }
       function Upload_SmMs(file, index) {
@@ -145,22 +145,27 @@
       var fileHandlers = (typeof this.fileHandler === 'function') ? [this.fileHandler] : this.fileHandler;
       var handled = false;
       cm.operation(function () {
-          var pos = cm.getCursor();
+          // create a placeholder
+          cm.replaceSelection(".");
+          var posTo = cm.getCursor();
+          var posFrom = { line: posTo.line, ch: posTo.ch - 1 };
           var placeholderContainer = document.createElement("span");
-          var marker = cm.markText(pos, { line: pos.line, ch: pos.ch + 1 }, {
+          var marker = cm.markText(posFrom, posTo, {
               replacedWith: placeholderContainer,
               clearOnEnter: false,
               handleMouseEvents: false,
           });
           var action = {
+              marker: marker, cm: cm,
               finish: function (text, cursor) { return cm.operation(function () {
-                  pos = marker.find().from;
-                  cm.replaceRange(text, pos, pos);
+                  var range = marker.find();
+                  var posFrom = range.from, posTo = range.to;
+                  cm.replaceRange(text, posFrom, posTo);
                   marker.clear();
                   if (typeof cursor === 'number')
                       { cm.setCursor({
-                          line: pos.line,
-                          ch: pos.ch + cursor,
+                          line: posFrom.line,
+                          ch: posFrom.ch + cursor,
                       }); }
               }); },
               setPlaceholder: function (el) {
