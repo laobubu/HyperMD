@@ -174,9 +174,10 @@
                   // CodeMirror breaks [text] and (url)
                   // Let HyperMD mode handle it!
                   var tmp_range = core.expandRange(cm, { line: pos.line, ch: range.to.ch + 1 }, "url");
-                  range.to = tmp_range.to;
+                  if (tmp_range)
+                      { range.to = tmp_range.to; }
               }
-              text = cm.getRange(range.from, range.to);
+              text = cm.getRange(range.from, range.to).trim();
               // now extract the URL. boring job
               if ((mat = text.match(/[^\\]\]\((.+)\)$/)) // .](url) image / link without ref
               ) {

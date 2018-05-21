@@ -10,11 +10,11 @@ import "codemirror/addon/mode/overlay"
 
 const possibleTokenChars: string = "`\\[]()<>_*~$|^@:!#+\""   // chars that could form a token (like "**" or "`")
 
-const meanlessCharsRE = new RegExp("^[^\\" + possibleTokenChars.split("").join("\\") + "]+")  // RegExp that match one or more meanless chars
+const meanlessCharsRE = new RegExp("^[^\\" + possibleTokenChars.split("").join("\\") + "\\s]+")  // RegExp that match one or more meanless chars
 const listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/  // this regex is from CodeMirror's sourcecode
 const tableTitleSepRE = /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/ // find  |:-----:|:-----:| line
 const urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i // from CodeMirror/mode/gfm
-const url2RE = /^\.{0,2}\/\S+/
+const url2RE = /^\.{0,2}\/[^\>\s]+/
 
 const enum insideValues {
   nothing = 0,
@@ -48,6 +48,7 @@ const enum nstyleValues {
   FOOTREF_BEGIN = 6 << _link_offset,  // [^ref]         the first two chars [^
   FOOTNOTE_NAME = 7 << _link_offset,  // [^footnote]:
   FOOTNOTE_URL = 8 << _link_offset,   // [^foot]: http://xxx   the URL (if exists)
+  URL_A = 9 << _link_offset,          // <http://xxx>   url with angle brackets
 
   /* offset 16-23 [standalone helper bits] */
 
@@ -77,6 +78,7 @@ const HMDStyles = {
   [nstyleValues.FOOTREF_BEGIN]: "hmd-barelink hmd-footref hmd-footref-lead ",
   [nstyleValues.FOOTNOTE_NAME]: "hmd-footnote line-HyperMD-footnote ",
   [nstyleValues.FOOTNOTE_URL]: "hmd-footnote-url ",
+  [nstyleValues.URL_A]: "url ",
 }
 
 CodeMirror.defineMode("hypermd", function (config, modeConfig) {
@@ -137,7 +139,8 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       state.combineTokens = null;
 
       var start = stream.pos
-      var retToken, tmp, tmp2, tmp3
+      var retToken
+      var tmp: RegExpMatchArray
 
       switch (state.inside) {
         case insideValues.math:
@@ -459,6 +462,7 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       //    you MUST `return ans` immediately!
 
       { /// LINK related
+        let new_ns_link: nstyleValues = null
 
         if (ns_link === 0) {
           // try to find a beginning
@@ -470,31 +474,38 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
 
             if (atBeginning && stream.match(/^(?:[^\]]+)\]\:/, false)) {
               // found a beginning of footnote
-              ns_link = nstyleValues.FOOTNOTE_NAME
+              new_ns_link = nstyleValues.FOOTNOTE_NAME
             } else if (stream.match(/^(?:[^\]]+)\](?:[^\[\(]|$)/, false)) {
               // find a bare link
               if (stream.peek() === '^') {
                 // a [bare link] could be a [^footref]
-                ns_link = nstyleValues.FOOTREF_BEGIN
+                new_ns_link = nstyleValues.FOOTREF_BEGIN
               } else {
-                ns_link = nstyleValues.BARELINK
+                new_ns_link = nstyleValues.BARELINK
               }
             } else {
               // find a normal link text
-              ns_link = nstyleValues.LINK
+              new_ns_link = nstyleValues.LINK
             }
+          } else if (tmp = stream.match(/^\<([^\>]+)\>/, false)) {
+            if (urlRE.test(tmp[1]) || url2RE.test(tmp[1])) {
+              // found <http://laobubu.github.io/> or <./xxx.html>
+              stream.next() // eat "<"
+              ans += "formatting formatting-url "
+              new_ns_link = nstyleValues.URL_A
+            }
+          }
 
+          if (new_ns_link !== null) {
             // apply changes and prevent further HyperMD parsing work
-            state.nstyle |= ns_link
-            ans += HMDStyles[ns_link]
-
+            state.nstyle |= new_ns_link
+            ans += HMDStyles[new_ns_link]
             return ans
           }
         } else {
           // current is inside a link. check if we shall change status
 
           // making any change to `ns_link` will prevent further HyperMD parsing work
-          let new_ns_link: nstyleValues = null
 
           switch (ns_link) {
             case nstyleValues.FOOTREF_BEGIN:
@@ -540,6 +551,16 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
                 return ans // URL part doesnot need further styling
               }
               break
+            case nstyleValues.URL_A:
+              if (stream.eat(">")) {
+                // find the tail
+                ans += "formatting formatting-url "
+                new_ns_link = 0
+              } else {
+                stream.match(urlRE) || stream.match(url2RE) || stream.next()
+                return ans // URL part doesnot need further styling
+              }
+              break
           }
 
           if (new_ns_link !== null) {
@@ -582,7 +603,8 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       ///////////////////////////////////////////////////////////////////
       // Finally, if nothing changed, move on
 
-      if (!stream.match(meanlessCharsRE)) stream.next()
+      if (stream.match(urlRE)) ans += "url "
+      else if (!stream.match(meanlessCharsRE)) stream.next()
       return (ans.length !== 0 ? ans : null)
     }
   };

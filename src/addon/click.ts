@@ -238,10 +238,10 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
         // CodeMirror breaks [text] and (url)
         // Let HyperMD mode handle it!
         let tmp_range = expandRange(cm, { line: pos.line, ch: range.to.ch + 1 }, "url")
-        range.to = tmp_range.to
+        if (tmp_range) range.to = tmp_range.to
       }
 
-      text = cm.getRange(range.from, range.to)
+      text = cm.getRange(range.from, range.to).trim()
 
       // now extract the URL. boring job
 

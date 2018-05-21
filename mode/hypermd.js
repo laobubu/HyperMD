@@ -19,11 +19,11 @@
 
   // CodeMirror, copyright (c) by laobubu
   var possibleTokenChars = "`\\[]()<>_*~$|^@:!#+\""; // chars that could form a token (like "**" or "`")
-  var meanlessCharsRE = new RegExp("^[^\\" + possibleTokenChars.split("").join("\\") + "]+"); // RegExp that match one or more meanless chars
+  var meanlessCharsRE = new RegExp("^[^\\" + possibleTokenChars.split("").join("\\") + "\\s]+"); // RegExp that match one or more meanless chars
   var listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/; // this regex is from CodeMirror's sourcecode
   var tableTitleSepRE = /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/; // find  |:-----:|:-----:| line
   var urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i; // from CodeMirror/mode/gfm
-  var url2RE = /^\.{0,2}\/\S+/;
+  var url2RE = /^\.{0,2}\/[^\>\s]+/;
   /** these styles only need 1 bit to record the status */
   var nstyleStandalone = [
       1 /* DEL */,
@@ -41,6 +41,7 @@
   HMDStyles[1536 /* FOOTREF_BEGIN */] = "hmd-barelink hmd-footref hmd-footref-lead ";
   HMDStyles[1792 /* FOOTNOTE_NAME */] = "hmd-footnote line-HyperMD-footnote ";
   HMDStyles[2048 /* FOOTNOTE_URL */] = "hmd-footnote-url ";
+  HMDStyles[2304 /* URL_A */] = "url ";
   CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       function startState() {
           return {
@@ -382,6 +383,7 @@
               // 1. once nstyle changes, no matter activating or de-activating,
               //    you MUST `return ans` immediately!
               { /// LINK related
+                  var new_ns_link = null;
                   if (ns_link === 0) {
                       // try to find a beginning
                       if (stream.match(/^\[((?:[^\]\\\`]|\\.|\`[^\`]*\`)+)\]/, false)) {
@@ -389,32 +391,41 @@
                           stream.next();
                           if (atBeginning && stream.match(/^(?:[^\]]+)\]\:/, false)) {
                               // found a beginning of footnote
-                              ns_link = 1792 /* FOOTNOTE_NAME */;
+                              new_ns_link = 1792 /* FOOTNOTE_NAME */;
                           }
                           else if (stream.match(/^(?:[^\]]+)\](?:[^\[\(]|$)/, false)) {
                               // find a bare link
                               if (stream.peek() === '^') {
                                   // a [bare link] could be a [^footref]
-                                  ns_link = 1536 /* FOOTREF_BEGIN */;
+                                  new_ns_link = 1536 /* FOOTREF_BEGIN */;
                               }
                               else {
-                                  ns_link = 1024 /* BARELINK */;
+                                  new_ns_link = 1024 /* BARELINK */;
                               }
                           }
                           else {
                               // find a normal link text
-                              ns_link = 256 /* LINK */;
+                              new_ns_link = 256 /* LINK */;
                           }
+                      }
+                      else if (tmp = stream.match(/^\<([^\>]+)\>/, false)) {
+                          if (urlRE.test(tmp[1]) || url2RE.test(tmp[1])) {
+                              // found <http://laobubu.github.io/> or <./xxx.html>
+                              stream.next(); // eat "<"
+                              ans += "formatting formatting-url ";
+                              new_ns_link = 2304 /* URL_A */;
+                          }
+                      }
+                      if (new_ns_link !== null) {
                           // apply changes and prevent further HyperMD parsing work
-                          state.nstyle |= ns_link;
-                          ans += HMDStyles[ns_link];
+                          state.nstyle |= new_ns_link;
+                          ans += HMDStyles[new_ns_link];
                           return ans;
                       }
                   }
                   else {
                       // current is inside a link. check if we shall change status
                       // making any change to `ns_link` will prevent further HyperMD parsing work
-                      var new_ns_link = null;
                       switch (ns_link) {
                           case 1536 /* FOOTREF_BEGIN */:
                               // caught the "^"
@@ -463,6 +474,17 @@
                                   // just skip meanless chars
                                   if (!stream.match(/^[^\]\)\\]+|^\\./))
                                       { stream.next(); }
+                                  return ans; // URL part doesnot need further styling
+                              }
+                              break;
+                          case 2304 /* URL_A */:
+                              if (stream.eat(">")) {
+                                  // find the tail
+                                  ans += "formatting formatting-url ";
+                                  new_ns_link = 0;
+                              }
+                              else {
+                                  stream.match(urlRE) || stream.match(url2RE) || stream.next();
                                   return ans; // URL part doesnot need further styling
                               }
                               break;
@@ -516,7 +538,9 @@
               }
               ///////////////////////////////////////////////////////////////////
               // Finally, if nothing changed, move on
-              if (!stream.match(meanlessCharsRE))
+              if (stream.match(urlRE))
+                  { ans += "url "; }
+              else if (!stream.match(meanlessCharsRE))
                   { stream.next(); }
               return (ans.length !== 0 ? ans : null);
           }
