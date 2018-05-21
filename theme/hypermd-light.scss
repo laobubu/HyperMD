@@ -86,13 +86,19 @@
         }
     }
 
-    span.cm-header   { color: #333; }
-    span.cm-header-1 { font-weight: 600; font-size: $fs * 2 }
-    span.cm-header-2 { font-weight: 600; font-size: $fs * 1.5 }
-    span.cm-header-3 { font-size: $fs * 1.2 }
-
     pre.HyperMD-header {
-        line-height: 1.5;
+        // see https://github.com/laobubu/HyperMD/issues/25
+        line-height: 1.5 !important;
+        font-family: inherit !important;
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+        border-left: 0 !important;
+
+        color: #333;
+
+        &.HyperMD-header-1 { font-weight: 600; font-size: $fs * 2 }
+        &.HyperMD-header-2 { font-weight: 600; font-size: $fs * 1.5 }
+        &.HyperMD-header-3 { font-size: $fs * 1.2 }
 
         &.HyperMD-header-1,
         &.HyperMD-header-2 {

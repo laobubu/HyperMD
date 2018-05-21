@@ -124,22 +124,24 @@
   height: 1px;
   background: #eee;
 }
-.cm-s-hypermd-light span.cm-header {
+.cm-s-hypermd-light pre.HyperMD-header {
+  line-height: 1.5 !important;
+  font-family: inherit !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  border-left: 0 !important;
   color: #333;
 }
-.cm-s-hypermd-light span.cm-header-1 {
+.cm-s-hypermd-light pre.HyperMD-header.HyperMD-header-1 {
   font-weight: 600;
   font-size: 24pt;
 }
-.cm-s-hypermd-light span.cm-header-2 {
+.cm-s-hypermd-light pre.HyperMD-header.HyperMD-header-2 {
   font-weight: 600;
   font-size: 18pt;
 }
-.cm-s-hypermd-light span.cm-header-3 {
+.cm-s-hypermd-light pre.HyperMD-header.HyperMD-header-3 {
   font-size: 14.4pt;
-}
-.cm-s-hypermd-light pre.HyperMD-header {
-  line-height: 1.5;
 }
 .cm-s-hypermd-light pre.HyperMD-header-line {
   color: rgba(0, 0, 0, 0.3);
