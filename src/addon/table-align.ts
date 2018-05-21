@@ -99,38 +99,39 @@ export class TableAlign implements Addon.Addon, TableAlignOptions {
 
     var columnIdx = 0
     var columnSpan = this.makeColumn(columnIdx)
-    var measureHelper = this.makeMeasureHelper(columnIdx)
+    var columnContentSpan = columnSpan.firstElementChild
     for (const el of lineSpanChildren) {
       if (el.nodeType === Node.ELEMENT_NODE && /cm-hmd-table-sep/.test((el as HTMLElement).className)) {
         // found a "|", and a column is finished
         columnIdx++
-        columnSpan.appendChild(measureHelper)
+        columnSpan.appendChild(columnContentSpan)
         lineSpan.appendChild(columnSpan)
         lineSpan.appendChild(el)
 
         columnSpan = this.makeColumn(columnIdx)
-        measureHelper = this.makeMeasureHelper(columnIdx)
+        columnContentSpan = columnSpan.firstElementChild
       } else {
-        columnSpan.appendChild(el)
+        columnContentSpan.appendChild(el)
       }
     }
-    columnSpan.appendChild(measureHelper)
+    columnSpan.appendChild(columnContentSpan)
     lineSpan.appendChild(columnSpan)
   }
 
-  /** create a invisible helper to measure column content width */
-  makeMeasureHelper(index: number): HTMLSpanElement {
-    var span = document.createElement("span")
-    span.className = "hmd-table-column-mhelper"
-    return span
-  }
-
-  /** create a <span> container as column, note that its last child must be a measureHelper */
+  /**
+   * create a <span> container as column,
+   * note that put content into column.firstElementChild
+   */
   makeColumn(index: number): HTMLSpanElement {
     var span = document.createElement("span")
     span.className = "hmd-table-column hmd-table-column-" + index
     span.setAttribute("data-column", "" + index)
-    span.setAttribute("style", "position:relative;white-space:pre")
+
+    var span2 = document.createElement("span")
+    span2.className = "hmd-table-column-content"
+    span2.setAttribute("data-column", "" + index)
+
+    span.appendChild(span2)
     return span
   }
 
@@ -138,19 +139,19 @@ export class TableAlign implements Addon.Addon, TableAlignOptions {
   measure() {
     const cm = this.cm
     const lineDiv = cm.display.lineDiv as HTMLDivElement // contains every <pre> line
-    const measureHelpers = lineDiv.querySelectorAll(".hmd-table-column-mhelper")
+    const contentSpans = lineDiv.querySelectorAll(".hmd-table-column-content")
 
     /** every table's every column's width in px */
     var ans: { [tableID: string]: number[] } = {}
 
-    for (let i = 0; i < measureHelpers.length; i++) {
-      const measureHelper = measureHelpers[i] as HTMLSpanElement
-      const column = measureHelper.parentElement as HTMLSpanElement
+    for (let i = 0; i < contentSpans.length; i++) {
+      const contentSpan = contentSpans[i] as HTMLSpanElement
+      const column = contentSpan.parentElement as HTMLSpanElement
       const line = column.parentElement.parentElement as HTMLPreElement
 
       const tableID = line.className.match(/HyperMD-table_(\S+)/)[1]
       const columnIdx = ~~column.getAttribute("data-column")
-      const width = measureHelper.offsetLeft
+      const width = contentSpan.offsetWidth + 1 // +1 because browsers turn 311.3 into 312
 
       if (!(tableID in ans)) ans[tableID] = []
       var columnWidths = ans[tableID]

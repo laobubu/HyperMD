@@ -43,7 +43,8 @@ span.hmd-link-icon:after {
 pre.HyperMD-table-row {
   white-space: pre;
 }
-pre.HyperMD-table-row .hmd-table-column {
+pre.HyperMD-table-row .hmd-table-column,
+pre.HyperMD-table-row .hmd-table-column-content {
   display: inline-block;
 }
 

@@ -57,24 +57,24 @@
           var lineSpanChildren = Array.prototype.slice.call(lineSpan.childNodes, 0);
           var columnIdx = 0;
           var columnSpan = this$1.makeColumn(columnIdx);
-          var measureHelper = this$1.makeMeasureHelper(columnIdx);
+          var columnContentSpan = columnSpan.firstElementChild;
           for (var i = 0, list = lineSpanChildren; i < list.length; i += 1) {
               var el$1 = list[i];
 
               if (el$1.nodeType === Node.ELEMENT_NODE && /cm-hmd-table-sep/.test(el$1.className)) {
                   // found a "|", and a column is finished
                   columnIdx++;
-                  columnSpan.appendChild(measureHelper);
+                  columnSpan.appendChild(columnContentSpan);
                   lineSpan.appendChild(columnSpan);
                   lineSpan.appendChild(el$1);
                   columnSpan = this$1.makeColumn(columnIdx);
-                  measureHelper = this$1.makeMeasureHelper(columnIdx);
+                  columnContentSpan = columnSpan.firstElementChild;
               }
               else {
-                  columnSpan.appendChild(el$1);
+                  columnContentSpan.appendChild(el$1);
               }
           }
-          columnSpan.appendChild(measureHelper);
+          columnSpan.appendChild(columnContentSpan);
           lineSpan.appendChild(columnSpan);
       };
       this.ff_enable = new core.FlipFlop(
@@ -90,34 +90,34 @@
           document.head.removeChild(this$1.styleEl);
       });
   };
-  /** create a invisible helper to measure column content width */
-  TableAlign.prototype.makeMeasureHelper = function (index) {
-      var span = document.createElement("span");
-      span.className = "hmd-table-column-mhelper";
-      return span;
-  };
-  /** create a <span> container as column, note that its last child must be a measureHelper */
+  /**
+   * create a <span> container as column,
+   * note that put content into column.firstElementChild
+   */
   TableAlign.prototype.makeColumn = function (index) {
       var span = document.createElement("span");
       span.className = "hmd-table-column hmd-table-column-" + index;
       span.setAttribute("data-column", "" + index);
-      span.setAttribute("style", "position:relative;white-space:pre");
+      var span2 = document.createElement("span");
+      span2.className = "hmd-table-column-content";
+      span2.setAttribute("data-column", "" + index);
+      span.appendChild(span2);
       return span;
   };
   /** Measure all visible tables and columns */
   TableAlign.prototype.measure = function () {
       var cm = this.cm;
       var lineDiv = cm.display.lineDiv; // contains every <pre> line
-      var measureHelpers = lineDiv.querySelectorAll(".hmd-table-column-mhelper");
+      var contentSpans = lineDiv.querySelectorAll(".hmd-table-column-content");
       /** every table's every column's width in px */
       var ans = {};
-      for (var i = 0; i < measureHelpers.length; i++) {
-          var measureHelper = measureHelpers[i];
-          var column = measureHelper.parentElement;
+      for (var i = 0; i < contentSpans.length; i++) {
+          var contentSpan = contentSpans[i];
+          var column = contentSpan.parentElement;
           var line = column.parentElement.parentElement;
           var tableID = line.className.match(/HyperMD-table_(\S+)/)[1];
           var columnIdx = ~~column.getAttribute("data-column");
-          var width = measureHelper.offsetLeft;
+          var width = contentSpan.offsetWidth + 1; // +1 because browsers turn 311.3 into 312
           if (!(tableID in ans))
               { ans[tableID] = []; }
           var columnWidths = ans[tableID];

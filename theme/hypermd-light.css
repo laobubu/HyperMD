@@ -297,11 +297,12 @@
 }
 .cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote {
   color: #666;
-  cursor: text !important;
+  cursor: text;
   text-decoration: none;
 }
-.cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote ~ span.cm-url:not(.cm-link) {
+.cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote ~ span.cm-url:not(.cm-hmd-footnote-url) {
   color: inherit;
+  cursor: text;
 }
 .cm-s-hypermd-light pre.HyperMD-codeblock {
   line-height: 1em;
@@ -336,7 +337,7 @@
   vertical-align: text-top;
 }
 .cm-s-hypermd-light span.cm-url, .cm-s-hypermd-light span.cm-link, .cm-s-hypermd-light .cm-link + .CodeMirror-widget {
-  cursor: pointer !important;
+  cursor: pointer;
 }
 .cm-s-hypermd-light span.hmd-link-icon {
   background: url(hypermd-image-link.png) no-repeat center center;
@@ -417,6 +418,20 @@
   content: "Back";
   color: #f7f7f7;
 }
+.cm-s-hypermd-light pre.HyperMD-table-row {
+  line-height: 1.5;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row > span {
+  display: inline-block;
+  border: 1px solid #999;
+  border-top: 0;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 > span {
+  border-top: 1px solid #999;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-title-has_rowsep > span {
+  border-bottom: 0;
+}
 .cm-s-hypermd-light pre.HyperMD-table-row span.cm-hmd-table-sep {
   width: 1em;
   text-align: center;
@@ -430,7 +445,7 @@
   width: 0;
   height: 100%;
   position: absolute;
-  border-left: 1px dashed #999;
+  border-left: 1px solid #999;
 }
 .cm-s-hypermd-light pre.HyperMD-table-row img.hmd-image {
   max-width: 100%;
@@ -440,6 +455,9 @@
 }
 .cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 {
   font-weight: bold;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row .hmd-table-column-content {
+  padding: 2px 5px;
 }
 .cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content {
   background-color: #000;
@@ -478,6 +496,9 @@
 .cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-rowsep, .cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-hr {
   color: transparent;
   text-shadow: none;
+}
+.cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-rowsep > span {
+  background: url("data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==") repeat-x 0px center;
 }
 .cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-row span.cm-hmd-table-sep {
   color: transparent;

@@ -236,10 +236,13 @@
 
         span.cm-hmd-footnote{
             color: #666;
-            cursor: text !important;
+            cursor: text;
             text-decoration: none;
 
-            ~ span.cm-url:not(.cm-link) { color: inherit }
+            ~ span.cm-url:not(.cm-hmd-footnote-url) {
+                color: inherit;
+                cursor: text;
+            }
         }
     }
 
@@ -298,7 +301,7 @@
     }
 
     span.cm-url, span.cm-link, .cm-link + .CodeMirror-widget {
-        cursor: pointer  !important
+        cursor: pointer;
     }
 
     span.hmd-link-icon {
@@ -403,6 +406,24 @@
     /// hpyermd table
 
     pre.HyperMD-table-row {
+        line-height: 1.5;
+
+        $border-style: 1px solid #999;
+
+        > span {
+            display: inline-block;
+            border: $border-style;
+            border-top: 0;
+        }
+
+        &.HyperMD-table-row-0 > span {
+            border-top: $border-style;
+        }
+
+        &.HyperMD-table-title-has_rowsep > span {
+            border-bottom: 0;
+        }
+
         span.cm-hmd-table-sep {
             width: 1em;
             text-align: center;
@@ -416,7 +437,7 @@
                 width: 0;
                 height: 100%;
                 position: absolute;
-                border-left: 1px dashed #999;
+                border-left: $border-style;
             }
         }
 
@@ -431,6 +452,10 @@
         &.HyperMD-table-row-0 {
             // title row
             font-weight: bold;
+        }
+
+        .hmd-table-column-content {
+            padding: 2px 5px;
         }
     }
 
@@ -486,6 +511,10 @@
         {
             color: transparent;
             text-shadow: none;
+        }
+
+        &.HyperMD-table-rowsep > span {
+            background: url('data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==') repeat-x 0px center;
         }
 
         &.HyperMD-table-row {

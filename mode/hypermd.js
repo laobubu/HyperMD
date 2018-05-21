@@ -11,6 +11,7 @@
   var meanlessCharsRE = new RegExp("^[^\\" + possibleTokenChars.split("").join("\\") + "]+"); // RegExp that match one or more meanless chars
   var listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/; // this regex is from CodeMirror's sourcecode
   var tableTitleSepRE = /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/; // find  |:-----:|:-----:| line
+  var urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i; // from CodeMirror/mode/gfm
   /** these styles only need 1 bit to record the status */
   var nstyleStandalone = [
       1 /* DEL */,
@@ -22,11 +23,12 @@
   HMDStyles[8 /* ESCAPE */] = "hmd-escape ";
   HMDStyles[256 /* LINK */] = "hmd-link ";
   HMDStyles[512 /* LINK_URL */] = "hmd-link-url ";
-  HMDStyles[1792 /* LINK_URL_S */] = "hmd-link-url hmd-link-url-s ";
-  HMDStyles[768 /* BARELINK */] = "hmd-barelink ";
-  HMDStyles[1024 /* FOOTREF */] = "hmd-barelink hmd-footref ";
-  HMDStyles[1280 /* FOOTREF_BEGIN */] = "hmd-barelink hmd-footref hmd-footref-lead ";
-  HMDStyles[1536 /* FOOTNOTE_NAME */] = "hmd-footnote line-HyperMD-footnote ";
+  HMDStyles[768 /* LINK_URL_S */] = "hmd-link-url hmd-link-url-s ";
+  HMDStyles[1024 /* BARELINK */] = "hmd-barelink ";
+  HMDStyles[1280 /* FOOTREF */] = "hmd-barelink hmd-footref ";
+  HMDStyles[1536 /* FOOTREF_BEGIN */] = "hmd-barelink hmd-footref hmd-footref-lead ";
+  HMDStyles[1792 /* FOOTNOTE_NAME */] = "hmd-footnote line-HyperMD-footnote ";
+  HMDStyles[2048 /* FOOTNOTE_URL */] = "hmd-footnote-url ";
   CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       function startState() {
           return {
@@ -282,11 +284,23 @@
               switch (state.inside) {
                   case 4 /* tableTitleSep */:
                       /// tableTitleSep line doesn't need any styling
+                      state.combineTokens = false;
+                      var ans = "";
                       if (stream.match(/^(?:\:\s*)?-+(?:\s*\:)?/)) {
-                          state.combineTokens = false;
-                          return "hmd-table-title-dash line-HyperMD-table-row line-HyperMD-table-rowsep ";
+                          ans += "hmd-table-title-dash line-HyperMD-table-row line-HyperMD-table-rowsep ";
                       }
-                      break;
+                      else if (stream.eat("|")) {
+                          if (state.tableCol === 0) {
+                              ans += "line-HyperMD-table_" + state.table + " ";
+                              ans += "line-HyperMD-table-row line-HyperMD-table-row-" + state.tableRow + " ";
+                          }
+                          ans += "hmd-table-sep hmd-table-sep-" + state.tableCol;
+                          state.tableCol++;
+                      }
+                      else {
+                          stream.eatWhile(/^[^\|\-\:]+/) || stream.next();
+                      }
+                      return ans;
               }
               /// inline code
               if (stream.match(/^`[^`]*`?/)) {
@@ -363,16 +377,16 @@
                           stream.next();
                           if (atBeginning && stream.match(/^(?:[^\]]+)\]\:/, false)) {
                               // found a beginning of footnote
-                              ns_link = 1536 /* FOOTNOTE_NAME */;
+                              ns_link = 1792 /* FOOTNOTE_NAME */;
                           }
                           else if (stream.match(/^(?:[^\]]+)\](?:[^\[\(]|$)/, false)) {
                               // find a bare link
                               if (stream.peek() === '^') {
                                   // a [bare link] could be a [^footref]
-                                  ns_link = 1280 /* FOOTREF_BEGIN */;
+                                  ns_link = 1536 /* FOOTREF_BEGIN */;
                               }
                               else {
-                                  ns_link = 768 /* BARELINK */;
+                                  ns_link = 1024 /* BARELINK */;
                               }
                           }
                           else {
@@ -390,32 +404,40 @@
                       // making any change to `ns_link` will prevent further HyperMD parsing work
                       var new_ns_link = null;
                       switch (ns_link) {
-                          case 1280 /* FOOTREF_BEGIN */:
+                          case 1536 /* FOOTREF_BEGIN */:
                               // caught the "^"
-                              new_ns_link = 1024 /* FOOTREF */;
+                              new_ns_link = 1280 /* FOOTREF */;
                               stream.next();
                               break;
-                          case 1024 /* FOOTREF */:
-                          case 768 /* BARELINK */:
+                          case 1280 /* FOOTREF */:
+                          case 1024 /* BARELINK */:
                               if (stream.eat(']'))
                                   { new_ns_link = 0; }
                               break;
-                          case 1536 /* FOOTNOTE_NAME */:
-                              if (stream.match(']:'))
-                                  { new_ns_link = 0; }
+                          case 1792 /* FOOTNOTE_NAME */:
+                              if (stream.match(']:')) {
+                                  new_ns_link = 0;
+                                  var mat = stream.match(/^\s*(\S+)/, false);
+                                  if (mat && urlRE.test(mat[1]))
+                                      { new_ns_link = 2048 /* FOOTNOTE_URL */; }
+                              }
+                              break;
+                          case 2048 /* FOOTNOTE_URL */:
+                              stream.match(/^\s*\S+/) || stream.next();
+                              new_ns_link = 0;
                               break;
                           case 256 /* LINK */:
                               // entering LINK_URL status because the next char must be ( or [
                               if (stream.eat(']')) {
                                   if (stream.peek() === '[')
-                                      { new_ns_link = 1792 /* LINK_URL_S */; }
+                                      { new_ns_link = 768 /* LINK_URL_S */; }
                                   else
                                       { new_ns_link = 512 /* LINK_URL */; }
                               }
                               break;
                           case 512 /* LINK_URL */:
-                          case 1792 /* LINK_URL_S */:
-                              var rightParentheses = (ns_link === 1792 /* LINK_URL_S */) ? ']' : ')';
+                          case 768 /* LINK_URL_S */:
+                              var rightParentheses = (ns_link === 768 /* LINK_URL_S */) ? ']' : ')';
                               if (stream.match(/^"(?:[^"\\]|\\.)*"/)) {
                                   // skip quoted stuff (could contains parentheses )
                                   // note: escaped char is handled in `ESCAPE related` part

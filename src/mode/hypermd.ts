@@ -13,6 +13,7 @@ const possibleTokenChars: string = "`\\[]()<>_*~$|^@:!#+\""   // chars that coul
 const meanlessCharsRE = new RegExp("^[^\\" + possibleTokenChars.split("").join("\\") + "]+")  // RegExp that match one or more meanless chars
 const listRE = /^\s*(?:[*\-+]|[0-9]+([.)]))\s+/  // this regex is from CodeMirror's sourcecode
 const tableTitleSepRE = /^\s*\|?(?:\s*\:?\s*\-+\s*\:?\s*\|)*\s*\:?\s*\-+\s*\:?\s*\|?\s*$/ // find  |:-----:|:-----:| line
+const urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i // from CodeMirror/mode/gfm
 
 const enum insideValues {
   nothing = 0,
@@ -40,11 +41,12 @@ const enum nstyleValues {
 
   LINK = 1 << _link_offset,           // [Link](url) or [Link][foot]  [text] part
   LINK_URL = 2 << _link_offset,       // [Link](url)    (url)  part
-  LINK_URL_S = 7 << _link_offset,     // [Link][foot]   [foot] part
-  BARELINK = 3 << _link_offset,       // [BareLink]
-  FOOTREF = 4 << _link_offset,        // [^ref]         ONLY CHARS AFTER ^
-  FOOTREF_BEGIN = 5 << _link_offset,  // [^ref]         the first two chars [^
-  FOOTNOTE_NAME = 6 << _link_offset,  // [^footnote]:
+  LINK_URL_S = 3 << _link_offset,     // [Link][foot]   [foot] part
+  BARELINK = 4 << _link_offset,       // [BareLink]
+  FOOTREF = 5 << _link_offset,        // [^ref]         ONLY CHARS AFTER ^
+  FOOTREF_BEGIN = 6 << _link_offset,  // [^ref]         the first two chars [^
+  FOOTNOTE_NAME = 7 << _link_offset,  // [^footnote]:
+  FOOTNOTE_URL = 8 << _link_offset,   // [^foot]: http://xxx   the URL (if exists)
 
   /* offset 16-23 [standalone helper bits] */
 
@@ -73,6 +75,7 @@ const HMDStyles = {
   [nstyleValues.FOOTREF]: "hmd-barelink hmd-footref ",
   [nstyleValues.FOOTREF_BEGIN]: "hmd-barelink hmd-footref hmd-footref-lead ",
   [nstyleValues.FOOTNOTE_NAME]: "hmd-footnote line-HyperMD-footnote ",
+  [nstyleValues.FOOTNOTE_URL]: "hmd-footnote-url ",
 }
 
 CodeMirror.defineMode("hypermd", function (config, modeConfig) {
@@ -362,11 +365,21 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
       switch (state.inside) {
         case insideValues.tableTitleSep:
           /// tableTitleSep line doesn't need any styling
+          state.combineTokens = false
+          var ans = ""
           if (stream.match(/^(?:\:\s*)?-+(?:\s*\:)?/)) {
-            state.combineTokens = false
-            return "hmd-table-title-dash line-HyperMD-table-row line-HyperMD-table-rowsep "
+            ans += "hmd-table-title-dash line-HyperMD-table-row line-HyperMD-table-rowsep "
+          } else if (stream.eat("|")) {
+            if (state.tableCol === 0) {
+              ans += "line-HyperMD-table_" + state.table + " "
+              ans += "line-HyperMD-table-row line-HyperMD-table-row-" + state.tableRow + " "
+            }
+            ans += "hmd-table-sep hmd-table-sep-" + state.tableCol
+            state.tableCol++
+          } else {
+            stream.eatWhile(/^[^\|\-\:]+/) || stream.next()
           }
-          break
+          return ans
       }
 
       /// inline code
@@ -493,7 +506,15 @@ CodeMirror.defineMode("hypermd", function (config, modeConfig) {
               if (stream.eat(']')) new_ns_link = 0
               break
             case nstyleValues.FOOTNOTE_NAME:
-              if (stream.match(']:')) new_ns_link = 0
+              if (stream.match(']:')) {
+                new_ns_link = 0
+                let mat = stream.match(/^\s*(\S+)/, false)
+                if (mat && urlRE.test(mat[1])) new_ns_link = nstyleValues.FOOTNOTE_URL
+              }
+              break
+            case nstyleValues.FOOTNOTE_URL:
+              stream.match(/^\s*\S+/) || stream.next()
+              new_ns_link = 0
               break
             case nstyleValues.LINK:
               // entering LINK_URL status because the next char must be ( or [
