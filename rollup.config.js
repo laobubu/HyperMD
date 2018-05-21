@@ -2,8 +2,27 @@ import { writeFileSync } from 'fs'
 import * as path from 'path'
 import buble from 'rollup-plugin-buble'
 import typescript from 'rollup-plugin-typescript2'
+import { uglify } from 'rollup-plugin-uglify'
+
+const makeComponents = process.argv.includes("--no-components") === false
+const watchMode = process.argv.includes("-w")
+const makeAi1 = process.argv.includes("--with-ai1") || !watchMode
 
 const srcDir = path.join(__dirname, "src")
+
+const banner = `
+/*!
+ * HyperMD, copyright (c) by laobubu
+ * Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
+ *
+ * Break the Wall between writing and preview, in a Markdown Editor.
+ *
+ * HyperMD makes Markdown editor on web WYSIWYG, based on CodeMirror
+ *
+ * Homepage: http://laobubu.net/HyperMD/
+ * Issues: https://github.com/laobubu/HyperMD/issues
+ */
+`.trim()
 
 /**
  * an alternative to `path.relative`
@@ -128,6 +147,7 @@ var configs = [
       format: 'umd',
       name: "HyperMD",
       globals: globalNames,
+      banner,
     },
     plugins: the_plugins
   },
@@ -149,6 +169,7 @@ for (const id in components) {
       paths: fix_core_path_in_single_file,
       globals: globalNames,
       paths: id => fix_core_path_in_single_file(inputFullPath, id),
+      banner,
     },
     plugins: the_plugins
   }
@@ -162,7 +183,7 @@ for (const id in components) {
     ai1_imports.push(`import "./${id}"`)
   }
 
-  configs.push(configItem)
+  if (makeComponents) configs.push(configItem)
 }
 
 // generate all-in-one bundle file
@@ -181,7 +202,13 @@ ${ai1_exports.length ? ("export { " + ai1_exports.join(", ") + " }") : ("// No m
 
 // if not watch mode, build the all-in-one bundle
 
-if (process.argv.indexOf("-w") === -1) {
+if (makeAi1) {
+  var the_plugins2 = the_plugins.slice()
+  the_plugins2.splice(1, 0, uglify({
+    output: {
+      comments: /^!/,
+    },
+  }))
   configs.push({
     input: "./src/ai1.ts",
     external: external_tester,
@@ -190,8 +217,9 @@ if (process.argv.indexOf("-w") === -1) {
       format: 'umd',
       name: "HyperMD",
       globals: globalNames,
+      banner,
     },
-    plugins: the_plugins
+    plugins: the_plugins2
   })
 }
 

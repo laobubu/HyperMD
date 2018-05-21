@@ -1,4 +1,4 @@
-/*!
+/**
   The following few functions are from CodeMirror's source code.
 
   MIT License

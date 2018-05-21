@@ -1,3 +1,14 @@
+/*!
+ * HyperMD, copyright (c) by laobubu
+ * Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
+ *
+ * Break the Wall between writing and preview, in a Markdown Editor.
+ *
+ * HyperMD makes Markdown editor on web WYSIWYG, based on CodeMirror
+ *
+ * Homepage: http://laobubu.net/HyperMD/
+ * Issues: https://github.com/laobubu/HyperMD/issues
+ */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('codemirror')) :
   typeof define === 'function' && define.amd ? define(['exports', 'codemirror'], factory) :
@@ -209,7 +220,7 @@
       editor.setOption('hmdTableAlign', true);
   }
 
-  /*!
+  /**
     The following few functions are from CodeMirror's source code.
 
     MIT License
