@@ -4,7 +4,8 @@
 // useless for you.
 
 function hmdModeLineInfo(lineNo) {
-  var tokens = cm.getLineTokens(73)
+  if (lineNo === void 0) lineNo = cm.getCursor().line
+  var tokens = cm.getLineTokens(lineNo)
   tokens = tokens.map(function (t) {
     return [t.string, t.type, t.state.overlay]
   })

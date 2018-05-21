@@ -6,7 +6,7 @@
 //
 
 import CodeMirror from 'codemirror'
-import { Addon, FlipFlop, cm_internal } from '../core'
+import { Addon, FlipFlop, cm_internal, updateCursorDisplay, debounce } from '../core'
 import { cm_t } from '../core/type'
 
 const DEBUG = true
@@ -76,10 +76,12 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
       /* ON  */() => {
         cm.on("cursorActivity", this.cursorActivityHandler)
         cm.on("renderLine", this.renderLineHandler)
+        cm.on("update", this.update)
       },
       /* OFF */() => {
         cm.off("cursorActivity", this.cursorActivityHandler)
         cm.off("renderLine", this.renderLineHandler)
+        cm.off("update", this.update)
       }
     )
   }
@@ -218,6 +220,7 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
     const cm = this.cm
     const lineNo = line.lineNo()
     const lv = cm_internal.findViewForLine(cm, lineNo)
+    if (!lv || lv.hidden || !lv.measure) return -1
     const mapInfo = cm_internal.mapFromLineView(lv, line, lineNo)
 
     const map = mapInfo.map
@@ -269,14 +272,42 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
       }
     }
 
+    if (ans !== -1 && lv.measure.cache) lv.measure.cache = {} // clean cache
     return ans
   }
 
   cursorActivityHandler = (doc: CodeMirror.Doc) => {
+    this.update()
+  }
+
+  update = debounce(() => this.updateImmediately(), 100)
+
+  updateImmediately() {
     const cm = this.cm
     const cpos = cm.getCursor()
-    this.shownTokensStart = this.calcShownTokenStart()
-    this.procLine(cm.getLineHandle(cpos.line))
+
+    const sts_old = this.shownTokensStart
+    const sts_new = this.shownTokensStart = this.calcShownTokenStart()
+
+    let cpos_line_changed = false
+
+    // find the numbers of changed line
+    let changed_lines: number[] = []
+    for (const line_str in sts_old) changed_lines.push(~~line_str)
+    for (const line_str in sts_new) changed_lines.push(~~line_str)
+    changed_lines = changed_lines.sort((a, b) => (a - b)) // NOTE: numbers could be duplicated
+
+    // process every line, skipping duplicated numbers
+    let lastLine = -1
+    for (const line of changed_lines) {
+      if (line === lastLine) continue // duplicated
+      lastLine = line
+      const procAns = this.procLine(cm.getLineHandle(line))
+      if (procAns !== -1 && cpos.line === line) cpos_line_changed = true
+    }
+
+    // refresh cursor position if needed
+    if (cpos_line_changed) updateCursorDisplay(cm, true)
   }
 }
 

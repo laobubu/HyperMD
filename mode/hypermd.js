@@ -358,7 +358,7 @@
               { /// LINK related
                   if (ns_link === 0) {
                       // try to find a beginning
-                      if (stream.match(/^\[((?:[^\]\\\`]|\\.|\`[^\`]*\`)+)\](?=[\[\(\:\s]|$)/, false)) {
+                      if (stream.match(/^\[((?:[^\]\\\`]|\\.|\`[^\`]*\`)+)\]/, false)) {
                           // found! now decide `ns_link`
                           stream.next();
                           if (atBeginning && stream.match(/^(?:[^\]]+)\]\:/, false)) {

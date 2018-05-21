@@ -52,19 +52,19 @@
           this$1.procLine(line);
       };
       this.cursorActivityHandler = function (doc) {
-          var cm = this$1.cm;
-          var cpos = cm.getCursor();
-          this$1.shownTokensStart = this$1.calcShownTokenStart();
-          this$1.procLine(cm.getLineHandle(cpos.line));
+          this$1.update();
       };
+      this.update = core.debounce(function () { return this$1.updateImmediately(); }, 100);
       this.ff_enable = new core.FlipFlop(
       /* ON  */ function () {
           cm.on("cursorActivity", this$1.cursorActivityHandler);
           cm.on("renderLine", this$1.renderLineHandler);
+          cm.on("update", this$1.update);
       }, 
       /* OFF */ function () {
           cm.off("cursorActivity", this$1.cursorActivityHandler);
           cm.off("renderLine", this$1.renderLineHandler);
+          cm.off("update", this$1.update);
       });
   };
   /**
@@ -178,6 +178,8 @@
       var cm = this.cm;
       var lineNo = line.lineNo();
       var lv = core.cm_internal.findViewForLine(cm, lineNo);
+      if (!lv || lv.hidden || !lv.measure)
+          { return -1; }
       var mapInfo = core.cm_internal.mapFromLineView(lv, line, lineNo);
       var map = mapInfo.map;
       var nodeCount = map.length / 3;
@@ -225,7 +227,40 @@
               break;
           }
       }
+      if (ans !== -1 && lv.measure.cache)
+          { lv.measure.cache = {}; } // clean cache
       return ans;
+  };
+  HideToken.prototype.updateImmediately = function () {
+          var this$1 = this;
+
+      var cm = this.cm;
+      var cpos = cm.getCursor();
+      var sts_old = this.shownTokensStart;
+      var sts_new = this.shownTokensStart = this.calcShownTokenStart();
+      var cpos_line_changed = false;
+      // find the numbers of changed line
+      var changed_lines = [];
+      for (var line_str in sts_old)
+          { changed_lines.push(~~line_str); }
+      for (var line_str$1 in sts_new)
+          { changed_lines.push(~~line_str$1); }
+      changed_lines = changed_lines.sort(function (a, b) { return (a - b); }); // NOTE: numbers could be duplicated
+      // process every line, skipping duplicated numbers
+      var lastLine = -1;
+      for (var i = 0, list = changed_lines; i < list.length; i += 1) {
+          var line = list[i];
+
+              if (line === lastLine)
+              { continue; } // duplicated
+          lastLine = line;
+          var procAns = this$1.procLine(cm.getLineHandle(line));
+          if (procAns !== -1 && cpos.line === line)
+              { cpos_line_changed = true; }
+      }
+      // refresh cursor position if needed
+      if (cpos_line_changed)
+          { core.updateCursorDisplay(cm, true); }
   };
   //#endregion
   /** ADDON GETTER (Singleton Pattern): a editor can have only one MyAddon instance */

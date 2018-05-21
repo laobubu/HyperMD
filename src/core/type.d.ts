@@ -114,7 +114,10 @@ declare module "codemirror" {
   /** CodeMirror internal Object */
   interface LineView {
     line: LineHandle
+    lineN: number
     rest: LineHandle[]
+    hidden?: boolean
+    text: HTMLPreElement
     measure?: {
       cache?: object
       map?: (number | Text | HTMLSpanElement)[]   // HTMLSpanElement is for folded stuff like <span class="CodeMirror-widget" role="presentation" cm-ignore-events="true">
