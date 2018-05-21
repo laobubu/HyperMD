@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "es2015",
+    "allowJs": true,
+    "target": "es6",
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es5",
+      "es2015.iterable",
+      "dom"
+    ]
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,65 @@
+span.cm-formatting {
+    transition: opacity .15s;
+}
+
+%hidden-token {
+    width: 1px !important;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+span.hmd-hidden-token {
+    &.cm-formatting-em,
+    &.cm-formatting-strong,
+    &.cm-formatting-strikethrough,
+    &.cm-formatting-code,
+    &.cm-formatting-link {
+        @extend %hidden-token;
+    }
+}
+
+/* adding some CodeMirror-not-implemented styles' default style */
+span.cm-inline-code,
+span.cm-math {
+    color: #900;
+}
+
+
+div.HyperMD-hover > .HyperMD-hover-content {
+    background-color: #fff;
+    padding: .5em;
+    p {
+        margin: .2em 0;
+    }
+}
+
+.HyperMD-goback {
+    width: 1px;
+}
+div.HyperMD-goback-button {
+    background-color: #ddd;
+    color: #333;
+    text-align: center;
+    cursor: pointer;
+}
+
+span.hmd-link-icon:after {
+    content: "»"
+}
+
+pre.HyperMD-table-row {
+  white-space: pre;
+  .hmd-table-column,
+  .hmd-table-column-content {
+    display: inline-block;
+  }
+}
+
+span.hmd-fold-math,
+span.cm-hmd-table-sep {
+    display: inline-block;
+    vertical-align: middle;
+}

@@ -7,15 +7,28 @@ if (requirejs) requirejs.config({
   // baseUrl: "node_modules/",                   // using local version
   // baseUrl: "https://cdn.jsdelivr.net/npm/",   // or use CDN
   baseUrl: demo_page_lib_baseurl,
-  paths: {
-    // Some CDNs treat lib files differently. If CodeMirror failed to load, Uncomment this line to fix it:
-    // ( see http://stackoverflow.com/questions/36500713/loading-codemirror-with-requirejs-from-cdn )
-    // "codemirror/lib": "codemirror/",
 
+  paths: {
     // HyperMD is not from node_modules nor CDN:
-    // "hypermd": "./hypermd",
-    "hypermd": demo_page_baseurl + "hypermd",
+    // "hypermd": "./",
+    "hypermd": demo_page_baseurl + "./",
   },
+
+  // Remove `packages` if you occur errors with CDN
+  packages: [
+    {
+      name: 'codemirror',
+      main: 'lib/codemirror'
+    },
+    {
+      name: 'mathjax',
+      main: 'MathJax.js'
+    },
+    {
+      name: 'marked',
+      main: 'lib/marked'
+    }
+  ],
   waitSeconds: 15
 })
 
@@ -28,7 +41,7 @@ require([
   ///////////////////////////////////////
 
   'codemirror/lib/codemirror',
-  'hypermd/hypermd',
+  'hypermd/core',
 
   ///////////////////////////////////////
   /// CodeMirror                      ///
@@ -60,7 +73,7 @@ require([
   ///////////////////////////////////////
 
   // for addon/hover and more
-  // NOTE: if you use require.js, this is optional
+  // NOTE: if you use require.js, this line is optional
   //       because marked is declared as required in the addons' code
   'marked/lib/marked',
 
@@ -69,8 +82,9 @@ require([
   'turndown-plugin-gfm/dist/turndown-plugin-gfm',
 
   // for addon/fold-math
-  // NOTE: <script type="text/x-mathjax-config">...</script> is required before loading MathJax
-  //       see index.html
+  // NOTE: It's REQUIRED to declare a configuration before loading MathJax:
+  //       <script type="text/x-mathjax-config">...</script>
+  //       see index.html or docs/examples/ai1.html
   'mathjax/MathJax',
 
   ///////////////////////////////////////
@@ -83,11 +97,11 @@ require([
   'hypermd/addon/cursor-debounce',
   'hypermd/addon/fold',
   'hypermd/addon/fold-math',
-  'hypermd/addon/readlink',
+  'hypermd/addon/read-link',
   'hypermd/addon/click',
   'hypermd/addon/hover',
   'hypermd/addon/paste',
-  'hypermd/addon/paste-image',
+  'hypermd/addon/insert-file',
   'hypermd/addon/mode-loader',
   'hypermd/addon/table-align',
 
@@ -96,13 +110,13 @@ require([
   var myTextarea = document.getElementById('demo')
 
   function init_editor() {
-    // HyperMD magic. See document
+    // HyperMD magic. See https://laobubu.net/HyperMD/docs/
     var editor = HyperMD.fromTextArea(myTextarea, {
-      hmdPasteImage: {
-        enabled: true,
-        enabledDrop: true,
-        // uploadTo: (file, callback) => setTimeout(callback.bind(null, "uploaded.png"), 1000),
-      }
+      hmdFoldMath: {
+        onPreview: function (s) { console.log("Preview math: ", s) },
+        onPreviewEnd: function () { console.log("Preview end") }
+      },
+      hmdClick: clickHandler,
     })
     editor.setSize("100%", "100%")
 
@@ -123,3 +137,23 @@ require([
     init_editor()
   })
 })
+
+function clickHandler(info, cm) {
+  if (info.type === "link" || info.type === "url") {
+    var url = info.url
+    if ((info.ctrlKey || info.altKey) && /\.(?:md|markdown)$/.test(url)) {
+      // open a link whose URL is *.md with ajax_load_file
+      // and supress HyperMD default behavoir
+      var editor_area = document.getElementById("editor_area")
+      var clzName = editor_area.className
+      editor_area.className = clzName + " loading_file"
+
+      ajax_load_file(url, function (text) {
+        editor.setValue(text)
+        editor_area.className = clzName
+      })
+
+      return false
+    }
+  }
+}

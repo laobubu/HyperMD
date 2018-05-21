@@ -38,6 +38,13 @@ h2 {
     z-index: -100;
     top: 90px;
     bottom: 20px;
+    transition: opacity .4s;
+}
+
+#editor_area.loading_file {
+  cursor: default;
+  pointer-events: none;
+  opacity: .5;
 }
 
 body.loaded {
