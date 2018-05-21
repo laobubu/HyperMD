@@ -73,7 +73,7 @@ require([
   ///////////////////////////////////////
 
   // for addon/hover and more
-  // NOTE: if you use require.js, this is optional
+  // NOTE: if you use require.js, this line is optional
   //       because marked is declared as required in the addons' code
   'marked/lib/marked',
 
@@ -82,8 +82,9 @@ require([
   'turndown-plugin-gfm/dist/turndown-plugin-gfm',
 
   // for addon/fold-math
-  // NOTE: <script type="text/x-mathjax-config">...</script> is required before loading MathJax
-  //       see index.html
+  // NOTE: It's REQUIRED to declare a configuration before loading MathJax:
+  //       <script type="text/x-mathjax-config">...</script>
+  //       see index.html or docs/examples/ai1.html
   'mathjax/MathJax',
 
   ///////////////////////////////////////
@@ -115,6 +116,7 @@ require([
         onPreview: function (s) { console.log("Preview math: ", s) },
         onPreviewEnd: function () { console.log("Preview end") }
       },
+      hmdClick: clickHandler,
     })
     editor.setSize("100%", "100%")
 
@@ -135,3 +137,23 @@ require([
     init_editor()
   })
 })
+
+function clickHandler(info, cm) {
+  if (info.type === "link" || info.type === "url") {
+    var url = info.url
+    if ((info.ctrlKey || info.altKey) && /\.(?:md|markdown)$/.test(url)) {
+      // open a link whose URL is *.md with ajax_load_file
+      // and supress HyperMD default behavoir
+      var editor_area = document.getElementById("editor_area")
+      var clzName = editor_area.className
+      editor_area.className = clzName + " loading_file"
+
+      ajax_load_file(url, function (text) {
+        editor.setValue(text)
+        editor_area.className = clzName
+      })
+
+      return false
+    }
+  }
+}

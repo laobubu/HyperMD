@@ -38,20 +38,11 @@ You may use both original CodeMirror and HyperMD on the same page.
 ## Quickstart
 
 [RequireJS] is recommended and used during developing HyperMD.
+If you prefer importing all css/js with HTML tags manually, see <./docs/examples/ai1.html>.
 
-After importing related CSS files, [RequireJS],
-and other *optional* third-party libraries ([MathJax] etc...),
-you may copy and edit the initializing code from `demo/index.js`.
+Once you've loaded [RequireJS] and CSS files, you may set-up a editor like `demo/index.js` does.
 
-If you want to write `<script>` , `<link>` tags and import libs manually,
-Load these files **in sequence**, before initializing your editor:
-
-* **CSS Styles** ( see `index.html` )
-* **JS Libs** ( see `demo/index.js` )
-    - Third-party libraries are optional, except [marked]
-
-Once add-ons and stylesheets are loaded, you may initialize editor,
-turn your `<textarea>` into HyperMD editor, with few codes:
+Usually, to transform your `<textarea>` into HyperMD editor, all you need is just two lines:
 
 ```javascript
 var myTextarea = document.getElementById('input-area')

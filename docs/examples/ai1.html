@@ -10,23 +10,33 @@
 
 <body>
 
-  <p> Maybe you prefer the hard
-    <del>core</del> code way, want to import all libraries manually 🤘.</p>
+  <div id="loadingSplash" style="border: 1px solid #000; padding: 0 2em">
+    <p> Maybe you prefer the hard
+      <del>core</del> code way, want to import all libraries manually 🤘.</p>
 
-  <p>No problem! HyperMD provides ai1 (all-in-one) single-file bundle 🎁!</p>
+    <p>No problem! HyperMD provides ai1 (all-in-one) single-file bundle 🎁!</p>
 
-  <p>Check-out this page's source code. Just import all the stuff, without any trick!</p>
+    <p>Check-out this page's source code. It just imports all the stuff, without any trick!</p>
 
-  <p id="loadingPrompt">
-    <i>Loading all libraries, please wait for a while.</i>
-  </p>
+    <p>
+      <i>Loading all libraries, please wait for a while.</i>
+    </p>
+  </div>
 
   <textarea id="myTextarea" style="display:none">
 # Your HyperMD editor is here
 
 ![Logo](../../demo/logo.png)
 
-All built-in features are ready-to-go. You may manipulate the editor via `cm` or `HyperMD` global variables:
+Maybe you prefer the hard ~~core~~ code way, want to import all libraries manually 🤘.
+
+No problem! HyperMD provides ai1 (all-in-one) single-file bundle 🎁!
+
+**Check-out this page's source code.** It just imports all the stuff, without any trick!
+
+-------------------
+
+All built-in features are ready-to-go. You may manipulate the editor via `cm` or `HyperMD` global variables. Try out:
 
 1. `HyperMD.switchToNormal(cm)`
 2. `HyperMD.switchToHyperMD(cm)`
@@ -39,6 +49,8 @@ All built-in features are ready-to-go. You may manipulate the editor via `cm` or
 [cm-manual]: https://codemirror.net/doc/manual.html CodeMirror User manual
 </textarea>
 
+
+  <!-- ----------------------------------------------------------------------------------- -->
   <!-- CodeMirror -->
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror/lib/codemirror.css">
@@ -63,11 +75,14 @@ All built-in features are ready-to-go. You may manipulate the editor via `cm` or
 
   <!-- 3rd-party -->
 
+  <!-- for addon/hover -->
   <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.js"></script>
 
+  <!-- optional, for addon/paste -->
   <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
 
+  <!-- optional, for addon/fold-math -->
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         jax: ["input/TeX", "output/HTML-CSS","output/NativeMML","output/SVG"],
@@ -89,14 +104,23 @@ All built-in features are ready-to-go. You may manipulate the editor via `cm` or
   <!-- Let's ROCK -->
 
   <style>
+    html,
+    body {
+      background: #EEE;
+      min-height: 100%;
+    }
+
     .CodeMirror {
+      margin: auto;
       border: 1px solid #999;
       border-radius: 5px;
+      box-shadow: 0 1px 5px #AAA;
+      max-width: 1200px;
     }
   </style>
 
   <script>
-    document.getElementById('loadingPrompt').style.display = 'none' // hide the loading... line
+    document.getElementById('loadingSplash').style.display = 'none' // hide the loading... line
 
     var myTextarea = document.getElementById('myTextarea')
     var cm = HyperMD.fromTextArea(myTextarea, {
@@ -106,7 +130,7 @@ All built-in features are ready-to-go. You may manipulate the editor via `cm` or
 
     // and that's all
     // now you get a editor `cm` and you can do whatever you want
-    cm.setSize("100%", "600px")
+    cm.setSize(null, "900px") // set height
     cm.focus()
   </script>
 

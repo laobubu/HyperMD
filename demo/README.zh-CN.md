@@ -20,7 +20,7 @@ HyperMD 是一组 [CodeMirror] 插件、模式和主题。
     - 标题
     - 水平线
     - [x] 列表（支持层叠列表、待办事项框）
-    - [MathJax] 公式渲染，例如 $ e^{ i\pi } + 1 = 0 $ 或者公式块 [^4]
+    - TeX 公式渲染，例如 $ e^{ i\pi } + 1 = 0 $ 或者公式块 [^4]
     - 普通表格
 2. **按着 Alt 点击** 可以打开链接，或者跳到脚注 [^1]
 3. **代码块语法高亮** 支持数百种语言 [^2]
@@ -31,32 +31,25 @@ HyperMD 是一组 [CodeMirror] 插件、模式和主题。
     - Diff and Merge
     - 全屏
     - 各种主题 [^3]
-7. **自动载入语法高亮规则** 
+7. **自动载入语法高亮规则**
 8. **上传图片** 只需要复制粘贴，或者把文件拖进来就行了
 9. **[还有更多...][doc]**
 
 ## 快速开始
 
 首先，推荐使用 [RequireJS] 来载入依赖项，这也是 HyperMD 开发时的做法。
+如果你想使用 HTML 标签逐个导入 CSS 和 JS，请参考 <./docs/examples/ai1.html>。
 
-在导入 CSS 样式、[RequireJS] 和其他*可选的*第三方库（例如 [MathJax]）后，
-照着 `demo/index.js` 里面的方式初始化编辑器即可。
+在导入 CSS 样式、载入并配置了 [RequireJS] 之后，照着 `demo/index.js` 里面的方式初始化编辑器即可。
 
-如果你想自己用 `<script>`、`<link>` 标签导入那些库，可以参考：
-
-* **要导入的 CSS 文件** ：参考 `index.html`
-* **要导入的 JS 文件** ：参考 `demo/index.js` 源代码
-    - 第三方库都是可选的，除了 [marked]
-
-一切准备就绪后，只需要几行代码，
-就可以把你的 `<textarea>` 变成 HyperMD 编辑器：
+一切准备就绪后，只需要几行代码，就可以把你的 `<textarea>` 变成 HyperMD 编辑器：
 
 ```javascript
 var myTextarea = document.getElementById('input-area')
 var editor = HyperMD.fromTextArea(myTextarea)
 ```
 
-具体的配置选项可以参考：[doc] 。
+具体的配置选项可以查阅[参考文档][doc] 。
 
 ## 一起来搞事
 
