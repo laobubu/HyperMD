@@ -10,8 +10,8 @@
  * Issues: https://github.com/laobubu/HyperMD/issues
  */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('codemirror'), require('../core'), require('./fold'), require('mathjax')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'codemirror', '../core', './fold', 'mathjax'], factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('codemirror'), require('../core'), require('./fold')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'codemirror', '../core', './fold'], factory) :
   (factory((global.HyperMD = global.HyperMD || {}, global.HyperMD.FoldMath = {}),global.CodeMirror,global.HyperMD,global.HyperMD.Fold));
 }(this, (function (exports,CodeMirror,core,fold) { 'use strict';
 

@@ -8,7 +8,6 @@ import CodeMirror, { TextMarker, Position, Token } from 'codemirror'
 import { Addon, FlipFlop, debounce, tryToRun } from '../core'
 import { cm_t } from '../core/type'
 import { builtinFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
-import 'mathjax'
 
 const DEBUG = false
 
