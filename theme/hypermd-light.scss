@@ -93,6 +93,9 @@
         padding-left: 0 !important;
         margin-left: 0 !important;
         border-left: 0 !important;
+        > span > span:first-child {
+            margin-left: 0 !important;
+        }
 
         color: #333;
 

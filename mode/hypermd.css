@@ -4,10 +4,11 @@ span.cm-formatting {
 }
 
 span.hmd-hidden-token.cm-formatting-em, span.hmd-hidden-token.cm-formatting-strong, span.hmd-hidden-token.cm-formatting-strikethrough, span.hmd-hidden-token.cm-formatting-code, span.hmd-hidden-token.cm-formatting-link {
-  width: 0px !important;
+  width: 1px !important;
   height: 1px;
   opacity: 0;
   overflow: hidden;
+  vertical-align: middle;
   display: inline-block;
 }
 

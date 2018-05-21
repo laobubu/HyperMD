@@ -3,10 +3,11 @@ span.cm-formatting {
 }
 
 %hidden-token {
-    width: 0px !important;
+    width: 1px !important;
     height: 1px;
     opacity: 0;
     overflow: hidden;
+    vertical-align: middle;
     display: inline-block;
 }
 
