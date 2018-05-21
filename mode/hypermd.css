@@ -1,10 +1,10 @@
 @charset "UTF-8";
 span.cm-formatting {
-  transition: opacity 0.3s;
+  transition: opacity 0.15s;
 }
 
-pre.HyperMD-token-hidden > span > span.cm-formatting-em, pre.HyperMD-token-hidden > span > span.cm-formatting-strong, pre.HyperMD-token-hidden > span > span.cm-formatting-strikethrough, pre.HyperMD-token-hidden > span > span.cm-formatting-quote, pre.HyperMD-token-hidden > span > span.cm-formatting-code, pre.HyperMD-token-hidden > span > span.cm-formatting-header, pre.HyperMD-token-hidden > span > span.cm-formatting-link:not(.cm-hmd-footnote, .cm-hmd-barelink), pre.HyperMD-token-hidden > span > span.cm-hmd-escape-backslash, pre.HyperMD-token-hidden > span > span.cm-hmd-footref-lead {
-  width: 0px;
+span.hmd-hidden-token.cm-formatting-em, span.hmd-hidden-token.cm-formatting-strong, span.hmd-hidden-token.cm-formatting-strikethrough, span.hmd-hidden-token.cm-formatting-code, span.hmd-hidden-token.cm-formatting-link {
+  width: 0px !important;
   height: 1px;
   opacity: 0;
   overflow: hidden;
@@ -51,12 +51,4 @@ span.hmd-fold-math,
 span.cm-hmd-table-sep {
   display: inline-block;
   vertical-align: middle;
-}
-
-span.hmd-hidden-token {
-  background: #9C0 !important;
-}
-
-pre.HyperMD-token-hidden > span > span.cm-formatting-link.cm-hmd-barelink:not(.cm-hmd-footnote) {
-  opacity: 0.4;
 }

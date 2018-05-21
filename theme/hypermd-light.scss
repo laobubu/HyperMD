@@ -466,14 +466,18 @@
     }
 
     /// hide-token
-    pre.HyperMD-token-hidden {
+    span.hmd-hidden-token{
+        &.cm-formatting-task {
+            color: transparent !important;
+        }
+    }
+
+    pre.hmd-inactive-line {
         // background: aqua;  // just for debug
 
-        span.cm-formatting-task {
-            color: transparent;
-        }
-
-        &.HyperMD-hr {
+        &.HyperMD-table-rowsep,  // table line |:--------:|:-------:|
+        &.HyperMD-hr             // hr line    -------------
+        {
             color: transparent;
             text-shadow: none;
         }
@@ -481,15 +485,16 @@
         &.HyperMD-table-row {
             span.cm-hmd-table-sep {
                 color: transparent;
-                &:before {
-                  border-left: 1px solid #666;
-                }
             }
         }
 
-        &.HyperMD-table-rowsep {
-            color: transparent;
-            text-shadow: none;
+        span.cm-formatting-quote,
+        span.cm-formatting-header {
+            width: 0px !important;
+            height: 1px;
+            opacity: 0;
+            overflow: hidden;
+            display: inline-block;
         }
     }
 }

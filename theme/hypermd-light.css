@@ -470,22 +470,23 @@
   border-top-color: #000;
   border-top-color: rgba(0, 0, 0, 0.7);
 }
-.cm-s-hypermd-light pre.HyperMD-token-hidden span.cm-formatting-task {
-  color: transparent;
+.cm-s-hypermd-light span.hmd-hidden-token.cm-formatting-task {
+  color: transparent !important;
 }
-.cm-s-hypermd-light pre.HyperMD-token-hidden.HyperMD-hr {
-  color: transparent;
-  text-shadow: none;
-}
-.cm-s-hypermd-light pre.HyperMD-token-hidden.HyperMD-table-row span.cm-hmd-table-sep {
-  color: transparent;
-}
-.cm-s-hypermd-light pre.HyperMD-token-hidden.HyperMD-table-row span.cm-hmd-table-sep:before {
-  border-left: 1px solid #666;
-}
-.cm-s-hypermd-light pre.HyperMD-token-hidden.HyperMD-table-rowsep {
+.cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-rowsep, .cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-hr {
   color: transparent;
   text-shadow: none;
+}
+.cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-row span.cm-hmd-table-sep {
+  color: transparent;
+}
+.cm-s-hypermd-light pre.hmd-inactive-line span.cm-formatting-quote,
+.cm-s-hypermd-light pre.hmd-inactive-line span.cm-formatting-header {
+  width: 0px !important;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  display: inline-block;
 }
 
 div.HyperMD-math-preview {

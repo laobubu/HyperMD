@@ -7,10 +7,11 @@
   CodeMirror = CodeMirror && CodeMirror.hasOwnProperty('default') ? CodeMirror['default'] : CodeMirror;
 
   // HyperMD, copyright (c) by laobubu
-  var DEBUG = true;
+  var DEBUG = false;
   var defaultOption = {
       enabled: false,
-      tokenTypes: "em|strong|strikethrough|code|link".split("|"),
+      line: true,
+      tokenTypes: "em|strong|strikethrough|code|link|task".split("|"),
   };
   var OptionName = "hmdHideToken";
   CodeMirror.defineOption(OptionName, defaultOption, function (cm, newVal) {
@@ -36,6 +37,7 @@
   /********************************************************************************** */
   //#region Addon Class
   var hideClassName = "hmd-hidden-token";
+  var lineDeactiveClassName = "hmd-inactive-line";
   /**
    * 1. when renderLine, add "hmd-hidden-token" to each <span>
    * 2.
@@ -49,7 +51,7 @@
       /** a map storing shown tokens' beginning ch */
       this.shownTokensStart = {};
       this.renderLineHandler = function (cm, line, el) {
-          this$1.procLine(line);
+          this$1.procLine(line, el);
       };
       this.cursorActivityHandler = function (doc) {
           this$1.update();
@@ -60,11 +62,13 @@
           cm.on("cursorActivity", this$1.cursorActivityHandler);
           cm.on("renderLine", this$1.renderLineHandler);
           cm.on("update", this$1.update);
+          this$1.update();
       }, 
       /* OFF */ function () {
           cm.off("cursorActivity", this$1.cursorActivityHandler);
           cm.off("renderLine", this$1.renderLineHandler);
           cm.off("update", this$1.update);
+          cm.refresh();
       });
   };
   /**
@@ -87,8 +91,10 @@
       // i <- current token index
       for (var i = 0; i < lineTokens.length; i++) {
           var token = lineTokens[i];
-          if (i_cursor === -1 && token.end > cpos.ch) {
+          if (i_cursor === -1 && (token.end > cpos.ch || i === lineTokens.length - 1)) {
               i_cursor = i; // token of cursor, is found!
+              if (DEBUG)
+                  { console.log("--------TOKEN OF CURSOR FOUND AT ", i_cursor, token); }
           }
           var mat = token.type && token.type.match(formattingRE);
           if (mat) { // current token is a formatting-* token
@@ -172,9 +178,11 @@
    * @see this.shownTokensStart
    * @returns apperance changed since which char. -1 means nothing changed.
    */
-  HideToken.prototype.procLine = function (line) {
+  HideToken.prototype.procLine = function (line, pre) {
           var this$1 = this;
 
+      if (!line)
+          { return -1; }
       var cm = this.cm;
       var lineNo = line.lineNo();
       var lv = core.cm_internal.findViewForLine(cm, lineNo);
@@ -227,6 +235,22 @@
               break;
           }
       }
+      if (this.line && (pre = pre || lv.text)) {
+          var preClass = pre.className;
+          var preIsActive = preClass.indexOf(lineDeactiveClassName) === -1;
+          var preShouldActive = startChs !== null;
+          if (preIsActive != preShouldActive) {
+              if (DEBUG)
+                  { console.log("[hide-token] <pre>" + lineNo, preClass, "should ", preIsActive ? "deactive" : "active"); }
+              if (preShouldActive) {
+                  pre.className = preClass.replace(lineDeactiveClassName, "");
+              }
+              else {
+                  pre.className = preClass + " " + lineDeactiveClassName;
+              }
+              ans = 0;
+          }
+      }
       if (ans !== -1 && lv.measure.cache)
           { lv.measure.cache = {}; } // clean cache
       return ans;
@@ -237,7 +261,7 @@
       var cm = this.cm;
       var cpos = cm.getCursor();
       var sts_old = this.shownTokensStart;
-      var sts_new = this.shownTokensStart = this.calcShownTokenStart();
+      var sts_new = this.shownTokensStart = (this.enabled ? this.calcShownTokenStart() : {});
       var cpos_line_changed = false;
       // find the numbers of changed line
       var changed_lines = [];
@@ -246,21 +270,23 @@
       for (var line_str$1 in sts_new)
           { changed_lines.push(~~line_str$1); }
       changed_lines = changed_lines.sort(function (a, b) { return (a - b); }); // NOTE: numbers could be duplicated
-      // process every line, skipping duplicated numbers
-      var lastLine = -1;
-      for (var i = 0, list = changed_lines; i < list.length; i += 1) {
-          var line = list[i];
+      cm.operation(function () {
+          // process every line, skipping duplicated numbers
+          var lastLine = -1;
+          for (var i = 0, list = changed_lines; i < list.length; i += 1) {
+              var line = list[i];
 
-              if (line === lastLine)
-              { continue; } // duplicated
-          lastLine = line;
-          var procAns = this$1.procLine(cm.getLineHandle(line));
-          if (procAns !== -1 && cpos.line === line)
-              { cpos_line_changed = true; }
-      }
-      // refresh cursor position if needed
-      if (cpos_line_changed)
-          { core.updateCursorDisplay(cm, true); }
+                  if (line === lastLine)
+                  { continue; } // duplicated
+              lastLine = line;
+              var procAns = this$1.procLine(cm.getLineHandle(line));
+              if (procAns !== -1 && cpos.line === line)
+                  { cpos_line_changed = true; }
+          }
+          // refresh cursor position if needed
+          if (cpos_line_changed)
+              { core.updateCursorDisplay(cm, true); }
+      });
   };
   //#endregion
   /** ADDON GETTER (Singleton Pattern): a editor can have only one MyAddon instance */

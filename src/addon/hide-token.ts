@@ -9,19 +9,21 @@ import CodeMirror from 'codemirror'
 import { Addon, FlipFlop, cm_internal, updateCursorDisplay, debounce } from '../core'
 import { cm_t } from '../core/type'
 
-const DEBUG = true
+const DEBUG = false
 
 /********************************************************************************** */
 //#region Addon Options
 
 export interface MyOptions extends Addon.AddonOptions {
   enabled: boolean
+  line: boolean  // add `hmd-inactive-line` class to inactive lines' <pre>s
   tokenTypes: string[]
 }
 
 export const defaultOption: MyOptions = {
   enabled: false,
-  tokenTypes: "em|strong|strikethrough|code|link".split("|"),
+  line: true,
+  tokenTypes: "em|strong|strikethrough|code|link|task".split("|"),
 }
 
 const OptionName = "hmdHideToken"
@@ -57,6 +59,7 @@ declare global { namespace HyperMD { interface EditorConfiguration { [OptionName
 //#region Addon Class
 
 const hideClassName = "hmd-hidden-token"
+const lineDeactiveClassName = "hmd-inactive-line"
 
 /**
  * 1. when renderLine, add "hmd-hidden-token" to each <span>
@@ -64,6 +67,7 @@ const hideClassName = "hmd-hidden-token"
  */
 export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
   tokenTypes: string[];
+  line: boolean;
   enabled: boolean;
 
   public ff_enable: FlipFlop  // bind/unbind events
@@ -77,11 +81,13 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
         cm.on("cursorActivity", this.cursorActivityHandler)
         cm.on("renderLine", this.renderLineHandler)
         cm.on("update", this.update)
+        this.update()
       },
       /* OFF */() => {
         cm.off("cursorActivity", this.cursorActivityHandler)
         cm.off("renderLine", this.renderLineHandler)
         cm.off("update", this.update)
+        cm.refresh()
       }
     )
   }
@@ -90,7 +96,7 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
   shownTokensStart: { [line: number]: number[] } = {}
 
   renderLineHandler = (cm: cm_t, line: CodeMirror.LineHandle, el: HTMLPreElement) => {
-    this.procLine(line)
+    this.procLine(line, el)
   }
 
   /**
@@ -117,8 +123,9 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
     for (let i = 0; i < lineTokens.length; i++) {
       const token = lineTokens[i]
 
-      if (i_cursor === -1 && token.end > cpos.ch) {
+      if (i_cursor === -1 && (token.end > cpos.ch || i === lineTokens.length - 1)) {
         i_cursor = i // token of cursor, is found!
+        if (DEBUG) console.log("--------TOKEN OF CURSOR FOUND AT ", i_cursor, token)
       }
 
       let mat = token.type && token.type.match(formattingRE)
@@ -216,7 +223,9 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
    * @see this.shownTokensStart
    * @returns apperance changed since which char. -1 means nothing changed.
    */
-  procLine(line: CodeMirror.LineHandle): number {
+  procLine(line: CodeMirror.LineHandle, pre?: HTMLPreElement): number {
+    if (!line) return -1
+
     const cm = this.cm
     const lineNo = line.lineNo()
     const lv = cm_internal.findViewForLine(cm, lineNo)
@@ -272,6 +281,24 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
       }
     }
 
+    if (this.line && (pre = pre || lv.text)) {
+      const preClass = pre.className
+      const preIsActive = preClass.indexOf(lineDeactiveClassName) === -1
+      const preShouldActive = startChs !== null
+
+      if (preIsActive != preShouldActive) {
+        if (DEBUG) console.log("[hide-token] <pre>" + lineNo, preClass, "should ", preIsActive ? "deactive" : "active")
+
+        if (preShouldActive) {
+          pre.className = preClass.replace(lineDeactiveClassName, "")
+        } else {
+          pre.className = preClass + " " + lineDeactiveClassName
+        }
+
+        ans = 0
+      }
+    }
+
     if (ans !== -1 && lv.measure.cache) lv.measure.cache = {} // clean cache
     return ans
   }
@@ -287,7 +314,7 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
     const cpos = cm.getCursor()
 
     const sts_old = this.shownTokensStart
-    const sts_new = this.shownTokensStart = this.calcShownTokenStart()
+    const sts_new = this.shownTokensStart = (this.enabled ? this.calcShownTokenStart() : {})
 
     let cpos_line_changed = false
 
@@ -297,17 +324,19 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
     for (const line_str in sts_new) changed_lines.push(~~line_str)
     changed_lines = changed_lines.sort((a, b) => (a - b)) // NOTE: numbers could be duplicated
 
-    // process every line, skipping duplicated numbers
-    let lastLine = -1
-    for (const line of changed_lines) {
-      if (line === lastLine) continue // duplicated
-      lastLine = line
-      const procAns = this.procLine(cm.getLineHandle(line))
-      if (procAns !== -1 && cpos.line === line) cpos_line_changed = true
-    }
+    cm.operation(() => {
+      // process every line, skipping duplicated numbers
+      let lastLine = -1
+      for (const line of changed_lines) {
+        if (line === lastLine) continue // duplicated
+        lastLine = line
+        const procAns = this.procLine(cm.getLineHandle(line))
+        if (procAns !== -1 && cpos.line === line) cpos_line_changed = true
+      }
 
-    // refresh cursor position if needed
-    if (cpos_line_changed) updateCursorDisplay(cm, true)
+      // refresh cursor position if needed
+      if (cpos_line_changed) updateCursorDisplay(cm, true)
+    })
   }
 }
 

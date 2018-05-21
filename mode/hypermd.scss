@@ -1,13 +1,23 @@
 span.cm-formatting {
-    transition: opacity .3s;
+    transition: opacity .15s;
 }
 
 %hidden-token {
-    width: 0px;
+    width: 0px !important;
     height: 1px;
     opacity: 0;
     overflow: hidden;
     display: inline-block;
+}
+
+span.hmd-hidden-token {
+    &.cm-formatting-em,
+    &.cm-formatting-strong,
+    &.cm-formatting-strikethrough,
+    &.cm-formatting-code,
+    &.cm-formatting-link {
+        @extend %hidden-token;
+    }
 }
 
 /* adding some CodeMirror-not-implemented styles' default style */
@@ -50,29 +60,4 @@ span.hmd-fold-math,
 span.cm-hmd-table-sep {
     display: inline-block;
     vertical-align: middle;
-}
-
-span.hmd-hidden-token {
-    background: #9C0 !important;
-}
-
-pre.HyperMD-token-hidden > span > span{
-     &.cm-formatting-em
-    ,&.cm-formatting-strong
-    ,&.cm-formatting-strikethrough
-    ,&.cm-formatting-quote
-    ,&.cm-formatting-code
-    ,&.cm-formatting-header
-    ,&.cm-formatting-link:not(.cm-hmd-footnote, .cm-hmd-barelink)
-    ,&.cm-hmd-escape-backslash
-    ,&.cm-formatting-header
-    ,&.cm-hmd-footref-lead
-//  ,&.cm-formatting-code-block
-    {
-        @extend %hidden-token;
-    }
-
-    &.cm-formatting-link.cm-hmd-barelink:not(.cm-hmd-footnote) {
-        opacity: 0.4;
-    }
 }
