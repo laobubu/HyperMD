@@ -1,4 +1,5 @@
 .gitignore
+.rpt2_cache
 .editorconfig
 node_modules/
 demo/
@@ -9,3 +10,4 @@ dev/
 docs/
 src/
 rollup.config.js
+tsconfig.json

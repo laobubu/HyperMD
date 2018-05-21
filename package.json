@@ -1,6 +1,6 @@
 {
   "name": "hypermd",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
   "main": "lib/hypermd_ai1.js",
   "scripts": {
@@ -12,8 +12,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "markdown"
+    "markdown",
+    "codemirror",
+    "wysiwyg"
   ],
+  "homepage": "https://laobubu.net/HyperMD/",
   "author": "laobubu <laobubu@gmail.com> (http://laobubu.net)",
   "license": "MIT",
   "devDependencies": {
