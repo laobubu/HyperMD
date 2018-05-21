@@ -7,6 +7,7 @@
   CodeMirror = CodeMirror && CodeMirror.hasOwnProperty('default') ? CodeMirror['default'] : CodeMirror;
 
   // HyperMD, copyright (c) by laobubu
+  var DEBUG = true;
   var defaultOption = {
       enabled: false,
       tokenTypes: "em|strong|strikethrough|code|link".split("|"),
@@ -45,12 +46,16 @@
       // options will be initialized to defaultOption (if exists)
       // add your code here
       this.cm = cm;
+      /** a map storing shown tokens' beginning ch */
+      this.shownTokensStart = {};
       this.renderLineHandler = function (cm, line, el) {
           this$1.procLine(line);
       };
-      this.lastShown = [];
       this.cursorActivityHandler = function (doc) {
-          this$1.recovery();
+          var cm = this$1.cm;
+          var cpos = cm.getCursor();
+          this$1.shownTokensStart = this$1.calcShownTokenStart();
+          this$1.procLine(cm.getLineHandle(cpos.line));
       };
       this.ff_enable = new core.FlipFlop(
       /* ON  */ function () {
@@ -62,11 +67,111 @@
           cm.off("renderLine", this$1.renderLineHandler);
       });
   };
-  HideToken.prototype.recovery = function () {
-      var lastShown = this.lastShown;
-      
-      lastShown.splice(0);
+  /**
+   * fetch cursor position and re-calculate shownTokensStart
+   */
+  HideToken.prototype.calcShownTokenStart = function () {
+      var cm = this.cm;
+      var cpos = cm.getCursor();
+      var tokenTypes = this.tokenTypes;
+      var formattingRE = new RegExp(("\\sformatting-(" + (tokenTypes.join("|")) + ")\\s"));
+      var ans = {};
+      var lineTokens = cm.getLineTokens(cpos.line);
+      var i_cursor = -1;
+      var fstack = [];
+      var currentType = null;
+      var tokens_to_show = [];
+      if (DEBUG)
+          { console.log("-----------calcShownTokenStart"); }
+      // construct fstack until we find current char's position
+      // i <- current token index
+      for (var i = 0; i < lineTokens.length; i++) {
+          var token = lineTokens[i];
+          if (i_cursor === -1 && token.end > cpos.ch) {
+              i_cursor = i; // token of cursor, is found!
+          }
+          var mat = token.type && token.type.match(formattingRE);
+          if (mat) { // current token is a formatting-* token
+              var type = mat[1]; // type without "formatting-"
+              if (type !== currentType) {
+                  // change the `fstack` (push or pop)
+                  // and, if token on cursor is found, stop searching
+                  var fstack_top = fstack[fstack.length - 1];
+                  if (fstack_top && fstack_top[1] === type) {
+                      fstack.pop();
+                      if (i_cursor !== -1 || token.end === cpos.ch) {
+                          tokens_to_show.push(fstack_top[0], token);
+                          break;
+                      }
+                  }
+                  else {
+                      fstack.push([token, type]);
+                      if (i_cursor !== -1) {
+                          // token on cursor, is a beginning formatting token
+                          tokens_to_show.push(token);
+                          var testRE = new RegExp(("\\sformatting-" + type + "\\s"));
+                          if (DEBUG)
+                              { console.log("-> cursor token already found. ", token, testRE); }
+                          for (i += 1; i < lineTokens.length; i++) {
+                              var token2 = lineTokens[i];
+                              if (token2.type && testRE.test(token2.type)) {
+                                  // found the ending formatting token
+                                  tokens_to_show.push(token2);
+                                  if (DEBUG)
+                                      { console.log(token2, token2.type); }
+                                  break;
+                              }
+                          }
+                          break;
+                      }
+                  }
+                  if (DEBUG)
+                      { console.log(fstack.map(function (x) { return ((x[0].start) + " " + (x[1])); })); }
+                  currentType = type;
+              }
+          }
+          else {
+              if (i_cursor !== -1) { // token on cursor, is found
+                  if (fstack.length > 0) {
+                      // token on cursor, is wrapped by a formatting token
+                      var ref = fstack.pop();
+                          var token_1 = ref[0];
+                          var type$1 = ref[1];
+                      var testRE$1 = new RegExp(("\\sformatting-" + type$1 + "\\s"));
+                      if (DEBUG)
+                          { console.log("cursor is wrapped by ", type$1, token_1, "..."); }
+                      tokens_to_show.push(token_1);
+                      for (i += 1; i < lineTokens.length; i++) {
+                          var token2$1 = lineTokens[i];
+                          if (token2$1.type && testRE$1.test(token2$1.type)) {
+                              // found the ending formatting token
+                              tokens_to_show.push(token2$1);
+                              if (DEBUG)
+                                  { console.log("to ", token2$1, token2$1.type); }
+                              break;
+                          }
+                      }
+                  }
+                  break;
+              }
+              currentType = null;
+          }
+          if (i_cursor !== -1 && fstack.length === 0)
+              { break; } // cursor is not wrapped by formatting-*
+      }
+      var ans_of_line = ans[cpos.line] = [];
+      for (var i$1 = 0, list = tokens_to_show; i$1 < list.length; i$1 += 1) {
+          var it = list[i$1];
+
+              ans_of_line.push(it.start);
+      }
+      return ans;
   };
+  /**
+   * hide/show <span>s in one line
+   * @see this.shownTokensStart
+   * @returns apperance changed since which char. -1 means nothing changed.
+   */
   HideToken.prototype.procLine = function (line) {
           var this$1 = this;
 
@@ -76,10 +181,14 @@
       var mapInfo = core.cm_internal.mapFromLineView(lv, line, lineNo);
       var map = mapInfo.map;
       var nodeCount = map.length / 3;
+      var startChs = (lineNo in this.shownTokensStart) ? this.shownTokensStart[lineNo].sort(function (a, b) { return (a - b); }) : null;
+      var ans = -1;
       for (var idx = 0, i = 0; idx < nodeCount; idx++, i += 3) {
+          var start = map[i];
+          var end = map[i + 1];
           var text = map[i + 2];
           var span = text.parentElement;
-          if (text.nodeType !== Node.TEXT_NODE || !span)
+          if (text.nodeType !== Node.TEXT_NODE || !span || !/^span$/i.test(span.nodeName))
               { continue; }
           var spanClass = span.className;
           for (var i$1 = 0, list = this$1.tokenTypes; i$1 < list.length; i$1 += 1) {
@@ -89,13 +198,34 @@
                   // ignore footnote names, footrefs, barelinks
                   continue;
               }
-              if (spanClass.indexOf("cm-formatting-" + type + " ") !== -1) {
-                  // found one! do hiding
-                  span.className += " " + hideClassName;
-                  break;
+              if (spanClass.indexOf("cm-formatting-" + type + " ") === -1)
+                  { continue; }
+              // found one! decide next action, hide or show?
+              var toHide = true;
+              if (startChs && startChs.length > 0) {
+                  while (startChs[0] < start)
+                      { startChs.shift(); } // remove passed chars
+                  toHide = (startChs[0] !== start); // hide if not hit
               }
+              // hide or show token
+              if (toHide) {
+                  if (spanClass.indexOf(hideClassName) === -1) {
+                      span.className += " " + hideClassName;
+                      if (ans === -1)
+                          { ans = start; }
+                  }
+              }
+              else {
+                  if (spanClass.indexOf(hideClassName) !== -1) {
+                      span.className = spanClass.replace(hideClassName, "");
+                      if (ans === -1)
+                          { ans = start; }
+                  }
+              }
+              break;
           }
       }
+      return ans;
   };
   //#endregion
   /** ADDON GETTER (Singleton Pattern): a editor can have only one MyAddon instance */
