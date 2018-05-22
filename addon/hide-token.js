@@ -79,6 +79,7 @@
           cm.off("cursorActivity", this$1.cursorActivityHandler);
           cm.off("renderLine", this$1.renderLineHandler);
           cm.off("update", this$1.update);
+          this$1.update.stop();
           cm.refresh();
       });
   };
