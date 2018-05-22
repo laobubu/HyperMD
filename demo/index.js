@@ -1,7 +1,7 @@
 var is_running_demo = /\.github\.|laobubu\.net/.test(location.hostname)
 
-var demo_page_baseurl = window.location.href.replace(/[\?\#].*$/, '').replace(/\/[^\/]*$/, '/')
-var demo_page_lib_baseurl = is_running_demo ? "https://cdn.jsdelivr.net/npm/" : "node_modules/"
+var demo_page_baseurl = window.location.href.replace(/[\?\#].*$/, '').replace(/\/[^\/]+$/, '/')
+var demo_page_lib_baseurl = is_running_demo ? "https://cdn.jsdelivr.net/npm/" : (demo_page_baseurl + "node_modules/")
 var demo_filename = "README.md"
 
 if (requirejs) requirejs.config({
@@ -60,11 +60,6 @@ require([
 
   'codemirror/addon/mode/overlay',
   'codemirror/mode/markdown/markdown',
-  'codemirror/mode/gfm/gfm',
-
-  'codemirror/addon/dialog/dialog',
-  'codemirror/addon/search/search',
-  'codemirror/addon/search/jump-to-line',
 
   // Just for fun. Not really useful.
   // 'codemirror/keymap/vim',
