@@ -50,8 +50,8 @@
         }
     }
     span.cm-error { color: #f00; }
-    span.cm-math { @extend %monospace; color: #300; font-style: italic; background: rgba(#ffe,.4); }
-    span.cm-formatting-math {color: #CAA}
+    span.cm-math { @extend %monospace; font-style: italic; background: rgba(#ffe,.4); }
+    span.cm-formatting-math { color: #CAA; font-weight: inherit; }
 
     .CodeMirror-activeline-background { background: #e8f2ff; }
     .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
@@ -280,8 +280,7 @@
     }
 
     // note: this is a background style
-    div.HyperMD-codeblock-bg,
-    div.HyperMD-codeblock-indented-bg {
+    div.HyperMD-codeblock-bg {
         background-color: rgba(#eee, .5);
     }
 
@@ -363,7 +362,7 @@
         color: #922;
         font-size: 90%;
 
-        &:not(.cm-formatting) {
+        &:not(.cm-formatting):not(.cm-hmd-indented-code) {
             display: inline-block;
             background-color: rgba(#eee, .5);
             border-radius: 4px;
