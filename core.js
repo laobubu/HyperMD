@@ -437,13 +437,13 @@
       return dst;
   }
 
-  var Addon$1 = /*#__PURE__*/Object.freeze({
+  var addon = /*#__PURE__*/Object.freeze({
     Addon: Addon,
     Getter: Getter,
     migrateOption: migrateOption
   });
 
-  exports.Addon = Addon$1;
+  exports.Addon = addon;
   exports.FlipFlop = FlipFlop;
   exports.tryToRun = tryToRun;
   exports.debounce = debounce;
