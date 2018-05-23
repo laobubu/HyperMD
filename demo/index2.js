@@ -12,6 +12,11 @@ function hmdModeLineInfo(lineNo) {
   return tokens
 }
 
+function hmdReloadCSS() {
+  var styleLinks = Array.prototype.slice.call(document.querySelectorAll("link"))
+  styleLinks.forEach(function (link) { link.href += "?" + +new Date() })
+}
+
 function click_bind(id, func, event) {
   var btn = document.getElementById(id)
   btn.addEventListener(event || "click", func, false)

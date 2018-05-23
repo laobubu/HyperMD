@@ -8,6 +8,10 @@
 .cm-s-hypermd-light {
     $fs: 12pt;  //default font-size
 
+    $footnote-padding: 40px;
+    $quote-margin: 2px;
+    $quote-padding: 20px;
+
     // font-family: Avenir, 'Lucida Grande', Calibri, 'Trebuchet MS', Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', STHeiti, 'Microsoft Jhenghei', 'Nanum Gothic', sans-serif;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	-webkit-font-smoothing: antialiased;
@@ -120,9 +124,6 @@
 
     /// blockquote
 
-    $quote-margin: 2px;
-    $quote-padding: 20px;
-
     pre.HyperMD-quote
     {
         &:before {
@@ -137,9 +138,15 @@
     }
     @for $i from 1 through 6 {
         pre.HyperMD-quote-#{$i} {
-            padding-left: $quote-margin + ($quote-padding) * ($i);
+            $padding-left: $quote-margin + ($quote-padding) * ($i);
+            padding-left: $padding-left;
+
             &:before {
                 width: $quote-padding * $i;
+            }
+
+            &.HyperMD-footnote {
+                padding-left: $padding-left + $footnote-padding;
             }
         }
     }
@@ -224,13 +231,13 @@
     }
 
     /// footnote for link and image
+    // note: footnote can be inside a blockquote
     pre.HyperMD-footnote {
-        $footnote-left-indent: 4em;
         font-size: $fs * 0.85;
-        padding-left: $footnote-left-indent;
+        padding-left: $footnote-padding;
 
         > span > span:first-child {
-            margin-left: - $footnote-left-indent;
+            margin-left: - $footnote-padding;
         }
 
         span.cm-hmd-footnote{
@@ -346,8 +353,8 @@
 
     /// other Markdown stuff
 
-    span.cm-hmd-escape-backslash { color: #999; }
-    span.cm-escape-char { color: #666 }
+    span.cm-hmd-escape-backslash { color: #CAA; }
+    span.cm-hmd-escape-char { color: #666 }
     span.cm-hmd-footref {
         display: inline-block;
         font-size: .7em;
@@ -523,6 +530,7 @@
         }
 
         span.cm-formatting-quote,
+        span.cm-hmd-escape-backslash,
         span.cm-formatting-header {
             width: 0px !important;
             height: 1px;

@@ -9,6 +9,8 @@ import { assign } from "../core";
 import "codemirror/mode/markdown/markdown"
 import "codemirror/mode/stex/stex"
 
+const urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i // from CodeMirror/mode/gfm
+
 type TokenFunc = (stream: CodeMirror.StringStream, state: HyperMDState) => string
 
 interface MarkdownStateLine {
@@ -70,8 +72,25 @@ interface HyperMDState extends MarkdownState {
 
   hmdInnerMode: CodeMirror.Mode<any>
   hmdInnerState: any
+
+  hmdLinkType: LinkType
+  hmdEscaped: string // if not null, means current char is escaped and with a given style
 }
 
+const enum LinkType {
+  NONE = 0,
+  BARELINK,  // [link]
+  FOOTREF,   // [^ref]
+  NORMAL,    // [text](url) or [text][doc]
+  FOOTNOTE,  // [footnote]:
+  MAYBE_FOOTNOTE_URL, // things after colon
+}
+
+const linkStyle = {
+  [LinkType.BARELINK]: "hmd-barelink",
+  [LinkType.FOOTREF]: "hmd-barelink hmd-footref",
+  [LinkType.FOOTNOTE]: "hmd-footnote line-HyperMD-footnote",
+}
 
 CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   var modeCfg = {
@@ -106,12 +125,15 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     ans.hmdInnerExitTag = null
     ans.hmdInnerExitStyle = null
     ans.hmdInnerMode = null
+    ans.hmdEscaped = null
+    ans.hmdLinkType = LinkType.NONE
     return ans
   }
 
   newMode.copyState = function (s) {
     var ans = rawMode.copyState(s) as HyperMDState
     const keys: (keyof HyperMDState)[] = [
+      "hmdLinkType", "hmdEscaped",
       "hmdTable", "hmdOverride",
       "hmdInnerMode", "hmdInnerExitTag", "hmdInnerExitStyle",
     ]
@@ -136,8 +158,12 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     const wasInCodeFence = state.code === -1
     const firstTokenOnLine = stream.column() === state.indentation
 
+    const wasLinkText = state.linkText
+
     var ans = ""
     var tmp: RegExpMatchArray
+
+    //#region Math
 
     if (!state.code && (tmp = stream.match(/^\${1,2}/, false))) {
       let tag = tmp[0], mathLevel = tag.length
@@ -151,11 +177,25 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       }
     }
 
+    //#endregion
+
+    //#region end of an escaped char
+    if (state.hmdEscaped) {
+      ans = state.hmdEscaped + " hmd-escape-char"
+      state.hmdEscaped = null
+      stream.next()
+      return ans
+    }
+    //#endregion
+
     // now enter markdown
 
     ans += " " + (rawMode.token(stream, state) || "")
+    var current = stream.current()
 
-    if (firstTokenOnLine && state.header > 0) {
+    //#region Header, indentedCode, CodeFence
+
+    if (state.header) {
       if (!state.prevLine.header) {
         ans += " line-HyperMD-header line-HyperMD-header-" + state.header
       } else {
@@ -167,7 +207,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       ans += " hmd-indented-code"
     }
 
-    if (state.quote && stream.current().charAt(0) !== ">") {
+    if (state.quote && current.charAt(0) !== ">") {
       ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
     }
 
@@ -177,6 +217,60 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       if (!inCodeFence) ans += " line-HyperMD-codeblock-end"
       else if (!wasInCodeFence) ans += " line-HyperMD-codeblock-begin"
     }
+
+    //#endregion
+
+    //#region Link, BareLink, Footnote etc
+
+    if (wasLinkText !== state.linkText) {
+      if (!wasLinkText) {
+        // entering a link
+        tmp = stream.match(/^([^\]]+)\](\(| ?\[|\:)?/, false) || ["](", "", "("] // make a fake link
+        if (!tmp[2]) { // barelink
+          if (tmp[1].charAt(0) === "^") {
+            state.hmdLinkType = LinkType.FOOTREF
+          } else {
+            state.hmdLinkType = LinkType.BARELINK
+          }
+        } else if (tmp[2] === ":") { // footnote
+          state.hmdLinkType = LinkType.FOOTNOTE
+        } else {
+          state.hmdLinkType = LinkType.NORMAL
+        }
+      } else {
+        // leaving a link
+        if (state.hmdLinkType in linkStyle) ans += " " + linkStyle[state.hmdLinkType]
+
+        if (state.hmdLinkType === LinkType.FOOTNOTE) {
+          state.hmdLinkType = LinkType.MAYBE_FOOTNOTE_URL
+        } else {
+          state.hmdLinkType = LinkType.NONE
+        }
+      }
+    }
+
+    if (state.hmdLinkType !== LinkType.NONE) {
+      if (state.hmdLinkType in linkStyle) ans += " " + linkStyle[state.hmdLinkType]
+
+      if (state.hmdLinkType === LinkType.MAYBE_FOOTNOTE_URL) {
+        if (!/^(?:\]\:)?\s*$/.test(current)) { // not spaces
+          if (urlRE.test(current)) ans += " hmd-footnote-url"
+          state.hmdLinkType = LinkType.NONE // since then, can't be url anymore
+        }
+      }
+    }
+
+    //#endregion
+
+    //#region start of an escaped char
+    if (/formatting-escape/.test(ans) && current.length === 2) {
+      // CodeMirror merge backslash and escaped char into one token, which is not good
+      state.hmdEscaped = ans.replace("formatting-escape", "escape")
+      ans += " hmd-escape-backslash"
+      stream.pos--
+      return ans
+    }
+    //#endregion
 
     return ans.trim() || null
   }
