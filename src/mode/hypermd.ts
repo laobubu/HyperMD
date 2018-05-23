@@ -10,6 +10,7 @@ import "codemirror/mode/markdown/markdown"
 import "codemirror/mode/stex/stex"
 
 const urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i // from CodeMirror/mode/gfm
+const url2RE = /^\.{0,2}\/[^\>\s]+/
 
 type TokenFunc = (stream: CodeMirror.StringStream, state: HyperMDState) => string
 
@@ -155,6 +156,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   newMode.token = function (stream, state) {
     if (state.hmdOverride) return state.hmdOverride(stream, state)
 
+    const wasInHTML = !!state.htmlState
     const wasInCodeFence = state.code === -1
     const firstTokenOnLine = stream.column() === state.indentation
 
@@ -165,7 +167,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
     //#region Math
 
-    if (!state.code && (tmp = stream.match(/^\${1,2}/, false))) {
+    if (!state.code && !wasInHTML && (tmp = stream.match(/^\${1,2}/, false))) {
       let tag = tmp[0], mathLevel = tag.length
       if (mathLevel === 2 || stream.string.indexOf(tag, stream.pos + mathLevel) !== -1) {
         // $$ may span lines, $ must be paired
@@ -193,84 +195,96 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     ans += " " + (rawMode.token(stream, state) || "")
     var current = stream.current()
 
-    //#region Header, indentedCode, CodeFence
+    const inHTML = !!state.htmlState
 
-    if (state.header) {
-      if (!state.prevLine.header) {
-        ans += " line-HyperMD-header line-HyperMD-header-" + state.header
-      } else {
-        ans += " line-HyperMD-header-line line-HyperMD-header-line-" + state.header
-      }
+    if (inHTML != wasInHTML) {
+      if (inHTML) ans += " hmd-html-begin"
+      else ans += " hmd-html-end"
     }
 
-    if (state.indentedCode) {
-      ans += " hmd-indented-code"
-    }
+    if (!inHTML) {
 
-    if (state.quote && current.charAt(0) !== ">") {
-      ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
-    }
+      //#region Header, indentedCode, CodeFence
 
-    const inCodeFence = state.code === -1
-    if (firstTokenOnLine && (wasInCodeFence || inCodeFence)) {
-      ans += " line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
-      if (!inCodeFence) ans += " line-HyperMD-codeblock-end"
-      else if (!wasInCodeFence) ans += " line-HyperMD-codeblock-begin"
-    }
-
-    //#endregion
-
-    //#region Link, BareLink, Footnote etc
-
-    if (wasLinkText !== state.linkText) {
-      if (!wasLinkText) {
-        // entering a link
-        tmp = stream.match(/^([^\]]+)\](\(| ?\[|\:)?/, false) || ["](", "", "("] // make a fake link
-        if (!tmp[2]) { // barelink
-          if (tmp[1].charAt(0) === "^") {
-            state.hmdLinkType = LinkType.FOOTREF
-          } else {
-            state.hmdLinkType = LinkType.BARELINK
-          }
-        } else if (tmp[2] === ":") { // footnote
-          state.hmdLinkType = LinkType.FOOTNOTE
+      if (state.header) {
+        if (!state.prevLine.header) {
+          ans += " line-HyperMD-header line-HyperMD-header-" + state.header
         } else {
-          state.hmdLinkType = LinkType.NORMAL
+          ans += " line-HyperMD-header-line line-HyperMD-header-line-" + state.header
         }
-      } else {
-        // leaving a link
+      }
+
+      if (state.indentedCode) {
+        ans += " hmd-indented-code"
+      }
+
+      if (state.quote && current.charAt(0) !== ">") {
+        ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
+      }
+
+      const inCodeFence = state.code === -1
+      if (firstTokenOnLine && (wasInCodeFence || inCodeFence)) {
+        ans += " line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
+        if (!inCodeFence) ans += " line-HyperMD-codeblock-end"
+        else if (!wasInCodeFence) ans += " line-HyperMD-codeblock-begin"
+      }
+
+      //#endregion
+
+      //#region Link, BareLink, Footnote etc
+
+      if (wasLinkText !== state.linkText) {
+        if (!wasLinkText) {
+          // entering a link
+          tmp = stream.match(/^([^\]]+)\](\(| ?\[|\:)?/, false) || ["](", "", "("] // make a fake link
+          if (!tmp[2]) { // barelink
+            if (tmp[1].charAt(0) === "^") {
+              state.hmdLinkType = LinkType.FOOTREF
+            } else {
+              state.hmdLinkType = LinkType.BARELINK
+            }
+          } else if (tmp[2] === ":") { // footnote
+            state.hmdLinkType = LinkType.FOOTNOTE
+          } else {
+            state.hmdLinkType = LinkType.NORMAL
+          }
+        } else {
+          // leaving a link
+          if (state.hmdLinkType in linkStyle) ans += " " + linkStyle[state.hmdLinkType]
+
+          if (state.hmdLinkType === LinkType.FOOTNOTE) {
+            state.hmdLinkType = LinkType.MAYBE_FOOTNOTE_URL
+          } else {
+            state.hmdLinkType = LinkType.NONE
+          }
+        }
+      }
+
+      if (state.hmdLinkType !== LinkType.NONE) {
         if (state.hmdLinkType in linkStyle) ans += " " + linkStyle[state.hmdLinkType]
 
-        if (state.hmdLinkType === LinkType.FOOTNOTE) {
-          state.hmdLinkType = LinkType.MAYBE_FOOTNOTE_URL
-        } else {
-          state.hmdLinkType = LinkType.NONE
+        if (state.hmdLinkType === LinkType.MAYBE_FOOTNOTE_URL) {
+          if (!/^(?:\]\:)?\s*$/.test(current)) { // not spaces
+            if (urlRE.test(current) || url2RE.test(current)) ans += " hmd-footnote-url"
+            else ans = ans.replace("string url", "")
+            state.hmdLinkType = LinkType.NONE // since then, can't be url anymore
+          }
         }
       }
-    }
 
-    if (state.hmdLinkType !== LinkType.NONE) {
-      if (state.hmdLinkType in linkStyle) ans += " " + linkStyle[state.hmdLinkType]
+      //#endregion
 
-      if (state.hmdLinkType === LinkType.MAYBE_FOOTNOTE_URL) {
-        if (!/^(?:\]\:)?\s*$/.test(current)) { // not spaces
-          if (urlRE.test(current)) ans += " hmd-footnote-url"
-          state.hmdLinkType = LinkType.NONE // since then, can't be url anymore
-        }
+      //#region start of an escaped char
+      if (/formatting-escape/.test(ans) && current.length === 2) {
+        // CodeMirror merge backslash and escaped char into one token, which is not good
+        state.hmdEscaped = ans.replace("formatting-escape", "escape")
+        ans += " hmd-escape-backslash"
+        stream.pos--
+        return ans
       }
-    }
+      //#endregion
 
-    //#endregion
-
-    //#region start of an escaped char
-    if (/formatting-escape/.test(ans) && current.length === 2) {
-      // CodeMirror merge backslash and escaped char into one token, which is not good
-      state.hmdEscaped = ans.replace("formatting-escape", "escape")
-      ans += " hmd-escape-backslash"
-      stream.pos--
-      return ans
     }
-    //#endregion
 
     return ans.trim() || null
   }

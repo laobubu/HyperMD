@@ -244,11 +244,6 @@
             color: #666;
             cursor: text;
             text-decoration: none;
-
-            ~ span.cm-url:not(.cm-hmd-footnote-url) {
-                color: inherit;
-                cursor: text;
-            }
         }
     }
 
