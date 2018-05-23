@@ -52,6 +52,15 @@ const getTurndownService = (function () {
 export type PasteConvertor = (html: string) => string | void
 export const defaultConvertor: PasteConvertor =
   (html) => {
+    // strip <a> without href
+    html = html.replace(/<a([^>]*)>(.*?)<\/a>/ig, (s, attrs, content) => {
+      if (!/href=/i.test(attrs)) return content
+      return s
+    })
+
+    // maybe you don't need to convert, if there is no img/link/header...
+    if (!/\<(?:(?:hr|img)|\/(?:h\d|strong|em|strikethrough|a|b|i|del)\>)/i.test(html)) return null
+
     const turndownService = getTurndownService()
     if (turndownService) return turndownService.turndown(html)
 
