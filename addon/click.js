@@ -18,6 +18,7 @@
   CodeMirror = CodeMirror && CodeMirror.hasOwnProperty('default') ? CodeMirror['default'] : CodeMirror;
 
   // HyperMD, copyright (c) by laobubu
+  var emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   //#endregion
   /********************************************************************************** */
   //#region defaultClickHandler
@@ -203,6 +204,10 @@
                   (mat = [null, text]) // http://laobubu.netlast possibility: plain url w/o < >
               ) {
                   url = mat[1];
+              }
+              if (url) {
+                  if (emailRE.test(url))
+                      { url = "mailto:" + url; }
               }
           }
           else if (styles.match(/\sformatting-task\s/)) {

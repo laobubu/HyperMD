@@ -10,6 +10,7 @@ import { Addon, FlipFlop, expandRange } from '../core'
 import { cm_t } from '../core/type'
 import { splitLink } from './read-link'
 
+const emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 /********************************************************************************** */
 //#region CLICK HANDLER
@@ -270,6 +271,10 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
         (mat = [null, text])                   // http://laobubu.net    last possibility: plain url w/o < >
       ) {
         url = mat[1]
+      }
+
+      if (url) {
+        if (emailRE.test(url)) url = "mailto:" + url
       }
 
     } else if (styles.match(/\sformatting-task\s/)) {
