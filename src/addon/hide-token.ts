@@ -121,7 +121,7 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
 
     // construct fstack until we find current char's position
     // i <- current token index
-    for (let i = 0; i < lineTokens.length; i++) {
+    for (var i = 0; i < lineTokens.length; i++) {
       const token = lineTokens[i]
 
       if (i_cursor === -1 && (token.end > cpos.ch || i === lineTokens.length - 1)) {
@@ -216,6 +216,13 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
       ans_of_line.push(it.start)
     }
 
+    if (i >= lineTokens.length - 1) {
+      for (const stack_it of fstack) {
+        let pos = stack_it[0].start
+        if (ans_of_line.indexOf(pos) === -1) ans_of_line.push(pos)
+      }
+    }
+
     return ans
   }
 
@@ -236,7 +243,7 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
     const map = mapInfo.map
     const nodeCount = map.length / 3
 
-    const startChs = (lineNo in this.shownTokensStart) ? this.shownTokensStart[lineNo].sort((a, b) => (a - b)) : null
+    const startChs = (lineNo in this.shownTokensStart) ? this.shownTokensStart[lineNo].slice().sort((a, b) => (a - b)) : null
 
     let ans = -1
 
@@ -323,7 +330,7 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
     let changed_lines: number[] = []
     for (const line_str in sts_old) changed_lines.push(~~line_str)
     for (const line_str in sts_new) changed_lines.push(~~line_str)
-    changed_lines = changed_lines.sort((a, b) => (a - b)) // NOTE: numbers could be duplicated
+    changed_lines.sort((a, b) => (a - b)) // NOTE: numbers could be duplicated
 
     cm.operation(() => {
       // process every line, skipping duplicated numbers

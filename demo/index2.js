@@ -93,6 +93,7 @@ window.onpopstate = function (ev) {
   if (info && info.title) {
     document.title = info.title
     $base.href = current_baseuri = info.current_baseuri
+    editor_area.className = editor_area.className.replace(" loading-file", "")
     editor.setValue(info.text)
   } else if (/^\#\.?\//.test(location.hash)) {
     // oops... bad status

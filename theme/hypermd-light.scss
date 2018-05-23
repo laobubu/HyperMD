@@ -68,10 +68,6 @@
         vertical-align: middle;
     }
 
-    pre.CodeMirror-line {
-        word-break: break-all;
-    }
-
     /// Headers
     // in fact stdheader has no special meaning; they are just normal headers
     // legacy naming problem
@@ -417,6 +413,7 @@
             display: inline-block;
             border: $border-style;
             border-top: 0;
+            margin-right: 50px; // leave space for hscroller
         }
 
         &.HyperMD-table-row-0 > span {

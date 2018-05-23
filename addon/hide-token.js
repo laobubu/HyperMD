@@ -183,6 +183,15 @@
 
               ans_of_line.push(it.start);
       }
+      if (i >= lineTokens.length - 1) {
+          for (var i$2 = 0, list$1 = fstack; i$2 < list$1.length; i$2 += 1) {
+              var stack_it = list$1[i$2];
+
+                  var pos = stack_it[0].start;
+              if (ans_of_line.indexOf(pos) === -1)
+                  { ans_of_line.push(pos); }
+          }
+      }
       return ans;
   };
   /**
@@ -203,7 +212,7 @@
       var mapInfo = core.cm_internal.mapFromLineView(lv, line, lineNo);
       var map = mapInfo.map;
       var nodeCount = map.length / 3;
-      var startChs = (lineNo in this.shownTokensStart) ? this.shownTokensStart[lineNo].sort(function (a, b) { return (a - b); }) : null;
+      var startChs = (lineNo in this.shownTokensStart) ? this.shownTokensStart[lineNo].slice().sort(function (a, b) { return (a - b); }) : null;
       var ans = -1;
       for (var idx = 0, i = 0; idx < nodeCount; idx++, i += 3) {
           var start = map[i];
@@ -281,7 +290,7 @@
           { changed_lines.push(~~line_str); }
       for (var line_str$1 in sts_new)
           { changed_lines.push(~~line_str$1); }
-      changed_lines = changed_lines.sort(function (a, b) { return (a - b); }); // NOTE: numbers could be duplicated
+      changed_lines.sort(function (a, b) { return (a - b); }); // NOTE: numbers could be duplicated
       cm.operation(function () {
           // process every line, skipping duplicated numbers
           var lastLine = -1;
