@@ -88,8 +88,8 @@ const enum TableType {
   NORMAL,     // | table | column |
 }
 
-const SimpleTableRE = /^\s*[^|].*?\s\|\s.*?[^|]\s*$/
-const SimpleTableLooseRE = /^\s*[^\|].*\s*\|/ // unfinished | row
+const SimpleTableRE = /^\s*[^|].*?\|.*[^|]\s*$/
+const SimpleTableLooseRE = /^\s*[^\|].*\|/ // unfinished | row
 const SimpleTableSepRE = /^(?:\s*\:?\s*\-+\s*\:?\s*\|)+\s*\:?\s*\-+\s*\:?\s*$/ // :-----:|:-----:
 const NormalTableRE = /^\s*\|\s.*?\s\|\s.*?\s\|\s*$/
 const NormalTableLooseRE = /^\s*\|/ // | unfinished row
@@ -357,33 +357,55 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       //#endregion
 
       //#region [Table] Creating Table and style Table Separators
-      if (!ans.trim() && modeCfg.table && (current === "|" || (current === " " && stream.eat("|")))) {
-        // if not inside a table, try to construct one
-        if (!tableType) {
-          if (SimpleTableRE.test(stream.string) && SimpleTableSepRE.test(stream.lookAhead(1))) tableType = TableType.SIMPLE
-          else if (NormalTableRE.test(stream.string) && NormalTableSepRE.test(stream.lookAhead(1))) tableType = TableType.NORMAL
 
-          if (state.hmdTable = tableType) {
-            // successfully made one
-            state.hmdTableID = "T" + stream.lineOracle.line
-            state.hmdTableRow = state.hmdTableCol = 0
-          }
+
+      if (!ans.trim() && modeCfg.table) {
+        // string is unformatted
+
+        let isTableSep = false
+
+        if (current === " ") {
+          // maybe is " " before "|"
+          if (stream.match(/^\|\s?/)) isTableSep = true
+        } else if (current === "|") {
+          // is "|"
+          stream.eat(" ") // maybe "| " ? try to eat a space
+          isTableSep = true
+        } else if (current.charAt(0) === "|") {
+          // is "|xxxxxx", separate "|" and "xxxxxx"
+          stream.pos = stream.start + 1 // rewind to end of "|"
+          stream.eat(" ") // try to eat a space
+          isTableSep = true
+        } else if (tmp = current.match(/\s?\|/)) {
+          // break unformatted "text|char" into "text" and "|char"
+          stream.pos = stream.start + tmp.index // rewind
         }
 
-        // then
-        if (tableType) {
-          const row = state.hmdTableRow
-          const col = state.hmdTableCol++
-          if (col == 0) ans += ` line-HyperMD-table_${state.hmdTableID} line-HyperMD-table-${tableType} line-HyperMD-table-row line-HyperMD-table-row-${row}`
-          ans += ` hmd-table-sep hmd-table-sep-${col}`
+        if (isTableSep) {
+          // if not inside a table, try to construct one
+          if (!tableType) {
+            if (SimpleTableRE.test(stream.string) && SimpleTableSepRE.test(stream.lookAhead(1))) tableType = TableType.SIMPLE
+            else if (NormalTableRE.test(stream.string) && NormalTableSepRE.test(stream.lookAhead(1))) tableType = TableType.NORMAL
 
-          if (tableType === TableType.NORMAL && (firstTokenOfLine || stream.match(/^\s*$/, false))) {
-            // Normal style table has extra `|` at the start / end of lines
-            ans += ` hmd-table-sep-dummy`
+            if (state.hmdTable = tableType) {
+              // successfully made one
+              state.hmdTableID = "T" + stream.lineOracle.line
+              state.hmdTableRow = state.hmdTableCol = 0
+            }
           }
 
-          // try to eat one more space
-          stream.eat(" ")
+          // then
+          if (tableType) {
+            const row = state.hmdTableRow
+            const col = state.hmdTableCol++
+            if (col == 0) ans += ` line-HyperMD-table_${state.hmdTableID} line-HyperMD-table-${tableType} line-HyperMD-table-row line-HyperMD-table-row-${row}`
+            ans += ` hmd-table-sep hmd-table-sep-${col}`
+
+            if (tableType === TableType.NORMAL && (firstTokenOfLine || stream.match(/^\s*$/, false))) {
+              // Normal style table has extra `|` at the start / end of lines
+              ans += ` hmd-table-sep-dummy`
+            }
+          }
         }
       }
       //#endregion
