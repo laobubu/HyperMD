@@ -11,8 +11,12 @@
     $footnote-padding: 40px;
     $quote-margin: 2px;
     $quote-padding: 20px;
+    $list-margin: 10px;
+    $list-indent: 30px;
+    $list-bullet-width: 30px;
+    $list-margin-after-line: .3em;
+    $table-border-style: 1px solid #999;
 
-    // font-family: Avenir, 'Lucida Grande', Calibri, 'Trebuchet MS', Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', STHeiti, 'Microsoft Jhenghei', 'Nanum Gothic', sans-serif;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	-webkit-font-smoothing: antialiased;
 
@@ -153,50 +157,47 @@
 
     /// list
 
-    $list-indent-width: 2em;
-    $list-wrapped-indent: 0.2em;
-
-    .cm-hmd-list-indent,
-    .cm-hmd-list-indent + .cm-formatting-list,
-    pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child
-    {
+    span.cm-hmd-list-indent {
         display: inline-block;
-        width: $list-indent-width;
-        box-sizing: border-box;
-        border-left: 1px dashed #eee;
-        vertical-align: middle;
+        width: $list-indent;
         text-align: right;
+        white-space: pre;
+        box-sizing: border-box;
+        border-right: 1px dashed #CCC;
+        overflow: hidden;
+        font-size: .5em;
+        line-height: 200%;
+    }
 
-        &.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting) {
-            /**
-             *- xxx      <- without any space to indent the bullet
-             *  xxxxxx   <- this is level2 line, but only one indent <span>.
-             */
-            padding-left: $list-indent-width;
+    pre.HyperMD-list-line {
+        > span > span:first-child {
+            margin-left: - $list-indent - $list-bullet-width;
         }
 
-        &.cm-hmd-list-indent-1 {
-            display: inline;
-            border-left: 0;
+        > span > span:first-child.cm-formatting-list,
+        &.HyperMD-list-line-nobullet > span > span:first-child {
+            margin-left: - $list-indent;
+            width: $list-bullet-width;
         }
 
-        &.cm-hmd-list-indent-corrupted {
-            background: rgba(#F00, 0.4);
+        &:not(.HyperMD-list-line-nobullet) {
+            padding-top: $list-margin-after-line;
         }
     }
 
     @for $i from 1 through 6 {
         pre.HyperMD-list-line-#{$i} {
-            $indent_i: $list-indent-width * $i + $list-wrapped-indent;
+            $indent_i: $list-indent * $i + $list-margin;
             padding-left: $indent_i;
-            > span > span:first-child {
-                margin-left: - $indent_i - $list-wrapped-indent;
-            }
         }
     }
 
-    .cm-formatting-list
+    span.cm-formatting-list
     {
+        text-align: right;
+        display: inline-block;
+        white-space: pre;
+        width: $list-bullet-width;
         font-family: 'HyperMD-Bullets';
         color: #666;
         &.cm-list-2 {
@@ -257,7 +258,8 @@
     pre.HyperMD-codeblock {
         @extend %monospace;
         line-height: 1em;
-        font-size: inherit;
+        font-size: 90%;
+        color: #922;
 
         // &.hmd-codeblock-indent {
         span.cm-inline-code {
@@ -408,17 +410,15 @@
     pre.HyperMD-table-row {
         line-height: 1.5;
 
-        $border-style: 1px solid #999;
-
         > span {
             display: inline-block;
-            border: $border-style;
+            border: $table-border-style;
             border-top: 0;
             margin-right: 50px; // leave space for hscroller
         }
 
         &.HyperMD-table-row-0 > span {
-            border-top: $border-style;
+            border-top: $table-border-style;
         }
 
         &.HyperMD-table-title-has_rowsep > span {
@@ -438,7 +438,7 @@
                 width: 0;
                 height: 100%;
                 position: absolute;
-                border-left: $border-style;
+                border-left: $table-border-style;
             }
         }
 
@@ -532,6 +532,10 @@
             opacity: 0;
             overflow: hidden;
             display: inline-block;
+        }
+
+        span.cm-hmd-list-indent {
+            border-right: 0;
         }
     }
 }

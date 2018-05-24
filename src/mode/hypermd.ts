@@ -9,6 +9,7 @@ import { assign } from "../core";
 import "codemirror/mode/markdown/markdown"
 import "codemirror/mode/stex/stex"
 
+const listRE = /^(?:[*\-+]|^[0-9]+([.)]))\s+/
 const urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i // from CodeMirror/mode/gfm
 const url2RE = /^\.{0,2}\/[^\>\s]+/
 
@@ -75,7 +76,11 @@ interface HyperMDState extends MarkdownState {
   hmdInnerState: any
 
   hmdLinkType: LinkType
-  hmdEscaped: string // if not null, means current char is escaped and with a given style
+  hmdNextMaybe: NextMaybe
+}
+
+const enum NextMaybe {
+  NONE = 0,
 }
 
 const enum LinkType {
@@ -106,6 +111,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       // HyperMD needs to know the level of header/indent. using tokenTypeOverrides is not enough
       // header: "line-HyperMD-header header",
       // quote: "line-HyperMD-quote quote",
+      // Note: there are some list related process below
       list1: "list-1",
       list2: "list-2",
       list3: "list-3",
@@ -126,15 +132,15 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     ans.hmdInnerExitTag = null
     ans.hmdInnerExitStyle = null
     ans.hmdInnerMode = null
-    ans.hmdEscaped = null
     ans.hmdLinkType = LinkType.NONE
+    ans.hmdNextMaybe = NextMaybe.NONE
     return ans
   }
 
   newMode.copyState = function (s) {
     var ans = rawMode.copyState(s) as HyperMDState
     const keys: (keyof HyperMDState)[] = [
-      "hmdLinkType", "hmdEscaped",
+      "hmdLinkType", "hmdNextMaybe",
       "hmdTable", "hmdOverride",
       "hmdInnerMode", "hmdInnerExitTag", "hmdInnerExitStyle",
     ]
@@ -158,7 +164,8 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
     const wasInHTML = !!state.htmlState
     const wasInCodeFence = state.code === -1
-    const firstTokenOnLine = stream.column() === state.indentation
+    const bol = stream.start === 0
+    const firstTokenOfLine = stream.column() === state.indentation
 
     const wasLinkText = state.linkText
 
@@ -181,30 +188,32 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
     //#endregion
 
-    //#region end of an escaped char
-    if (state.hmdEscaped) {
-      ans = state.hmdEscaped + " hmd-escape-char"
-      state.hmdEscaped = null
-      stream.next()
-      return ans
-    }
-    //#endregion
-
     // now enter markdown
 
     ans += " " + (rawMode.token(stream, state) || "")
     var current = stream.current()
 
     const inHTML = !!state.htmlState
+    const inCodeFence = state.code === -1
+    const inMarkdown = !(inHTML || inCodeFence || wasInCodeFence || wasInHTML)
 
     if (inHTML != wasInHTML) {
       if (inHTML) ans += " hmd-html-begin"
       else ans += " hmd-html-end"
     }
 
-    if (!inHTML) {
+    if (wasInCodeFence || inCodeFence) {
+      if (!state.localMode || !wasInCodeFence) ans = ans.replace("inline-code", "")
+      ans += " line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
+      if (inCodeFence !== wasInCodeFence) {
+        if (!inCodeFence) ans += " line-HyperMD-codeblock-end"
+        else if (!wasInCodeFence) ans += " line-HyperMD-codeblock-begin"
+      }
+    }
 
-      //#region Header, indentedCode, CodeFence
+    if (inMarkdown) {
+
+      //#region Header, indentedCode, quote
 
       if (state.header) {
         if (!state.prevLine.header) {
@@ -222,11 +231,26 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
       }
 
-      const inCodeFence = state.code === -1
-      if (firstTokenOnLine && (wasInCodeFence || inCodeFence)) {
-        ans += " line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
-        if (!inCodeFence) ans += " line-HyperMD-codeblock-end"
-        else if (!wasInCodeFence) ans += " line-HyperMD-codeblock-begin"
+      //#endregion
+
+      //#region List
+
+      let tokenIsIndent = bol && /^\s+$/.test(current)
+      let tokenIsListBullet = state.list && /formatting-list/.test(ans)
+
+      if (tokenIsListBullet || (tokenIsIndent && (state.list || stream.match(listRE, false)))) {
+        let listLevel = state.listStack && state.listStack.length || 0
+        if (tokenIsIndent) {
+          if (stream.match(listRE, false)) { // next token is 1. 2. or bullet
+            if (!state.list) listLevel++
+          } else {
+            ans += ` line-HyperMD-list-line-nobullet line-HyperMD-list-line line-HyperMD-list-line-${listLevel}`
+          }
+          ans += ` hmd-list-indent hmd-list-indent-${listLevel}`
+        } else if (tokenIsListBullet) {
+          // no space before bullet!
+          ans += ` line-HyperMD-list-line line-HyperMD-list-line-${listLevel}`
+        }
       }
 
       //#endregion
@@ -275,11 +299,20 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       //#endregion
 
       //#region start of an escaped char
-      if (/formatting-escape/.test(ans) && current.length === 2) {
+      if (/formatting-escape/.test(ans) && current.length > 1) {
         // CodeMirror merge backslash and escaped char into one token, which is not good
-        state.hmdEscaped = ans.replace("formatting-escape", "escape")
+        // Use hmdOverride to separate them
+
+        let escapedLength = current.length - 1
+        let escapedCharStyle = ans.replace("formatting-escape", "escape") + " hmd-escape-char"
+        state.hmdOverride = (stream, state) => { // one-time token() func
+          stream.pos += escapedLength
+          state.hmdOverride = null
+          return escapedCharStyle.trim()
+        }
+
         ans += " hmd-escape-backslash"
-        stream.pos--
+        stream.pos -= escapedLength
         return ans
       }
       //#endregion
