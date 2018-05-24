@@ -16,6 +16,7 @@
     $list-bullet-width: 30px;
     $list-margin-after-line: .3em;
     $table-border-style: 1px solid #999;
+    $table-row1-height: 9px;
 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	-webkit-font-smoothing: antialiased;
@@ -421,33 +422,29 @@
             border-top: $table-border-style;
         }
 
-        &.HyperMD-table-title-has_rowsep > span {
-            border-bottom: 0;
-        }
-
         span.cm-hmd-table-sep {
-            width: 1em;
-            text-align: center;
+            width: 1.5em;
             box-sizing: content-box;
             font-weight: normal;
 
-            &:before {
+            &.cm-hmd-table-sep-dummy {
+                width: 1em;
+            }
+
+            &:not(.cm-hmd-table-sep-dummy):before {
                 content: ' ';
-                margin-left: 1px;
+                margin-left: .5em;
                 top: 0;
                 width: 0;
                 height: 100%;
                 position: absolute;
                 border-left: $table-border-style;
+                pointer-events: none;
             }
         }
 
         img.hmd-image {
             max-width: 100%; //FIXME: don't know why
-        }
-
-        &.HyperMD-table-rowsep {
-            line-height: .5em;
         }
 
         &.HyperMD-table-row-0 {
@@ -456,7 +453,32 @@
         }
 
         .hmd-table-column-content {
-            padding: 2px 5px;
+            // do NOT delete padding, otherwise measuring will be inaccurate!
+            // something about layout Grid and Block Formatting Contexts
+            padding: ($table-row1-height / 2) 1px;
+        }
+
+        &.HyperMD-table-row-1 {
+            // :----: | :-----: | dash line
+            line-height: $table-row1-height;
+
+            > span { border-bottom: 0 }
+            .hmd-table-column-content { padding: 1px }
+        }
+
+        &.HyperMD-table-row-0 {
+            > span { border-bottom: 0 }
+            span.hmd-table-column-content { padding-bottom: 1px }
+        }
+
+        &.HyperMD-table-row-2 {
+            span.hmd-table-column-content { padding-top: 1px }
+        }
+
+        &.HyperMD-table-1 > span {
+            // for simple table , leave extra padding to first/last column
+            span:first-child { padding-left: .7em }
+            span:last-child { padding-right: .7em }
         }
     }
 
@@ -507,14 +529,14 @@
     pre.hmd-inactive-line {
         // background: aqua;  // just for debug
 
-        &.HyperMD-table-rowsep,  // table line |:--------:|:-------:|
+        &.HyperMD-table-row-1,  // table line |:--------:|:-------:|
         &.HyperMD-hr             // hr line    -------------
         {
             color: transparent;
             text-shadow: none;
         }
 
-        &.HyperMD-table-rowsep > span {
+        &.HyperMD-table-row-1 > span {
             background: url('data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==') repeat-x 0px center;
         }
 
