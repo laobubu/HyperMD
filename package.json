@@ -36,8 +36,10 @@
     "turndown-plugin-gfm": "^1.0.1",
     "typescript": "^2.8.3"
   },
+  "peerDependencies": {
+    "codemirror": "^5.37.0"
+  },
   "dependencies": {
-    "codemirror": "^5.37.0",
     "marked": "^0.3.19"
   }
 }
