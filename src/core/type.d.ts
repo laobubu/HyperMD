@@ -41,6 +41,9 @@ declare module "codemirror" {
   function defineMIME(mime: string, mode: string);
   function defineMode<T>(id: string, modefactory: ModeFactory<T>, alias: string | string[]): void;
 
+  function startState<T>(mode: Mode<T>): T;
+  function copyState<T>(mode: Mode<T>, state: T): T;
+
   // codemirror/mode/meta
   interface ModeMeta {
     name: string

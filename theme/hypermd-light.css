@@ -89,12 +89,12 @@
   color: #f00;
 }
 .cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.hmd-fold-math-placeholder {
-  color: #300;
   font-style: italic;
   background: rgba(255, 255, 238, 0.4);
 }
 .cm-s-hypermd-light span.cm-formatting-math {
   color: #CAA;
+  font-weight: inherit;
 }
 .cm-s-hypermd-light .CodeMirror-activeline-background {
   background: #e8f2ff;
@@ -323,8 +323,7 @@
   border-bottom: 1px solid #CCC;
   border-radius: 0 0 4px 4px;
 }
-.cm-s-hypermd-light div.HyperMD-codeblock-bg,
-.cm-s-hypermd-light div.HyperMD-codeblock-indented-bg {
+.cm-s-hypermd-light div.HyperMD-codeblock-bg {
   background-color: rgba(238, 238, 238, 0.5);
 }
 .cm-s-hypermd-light .cm-formatting-link + .cm-formatting-link-string,
@@ -388,7 +387,7 @@
   color: #922;
   font-size: 90%;
 }
-.cm-s-hypermd-light span.cm-inline-code:not(.cm-formatting) {
+.cm-s-hypermd-light span.cm-inline-code:not(.cm-formatting):not(.cm-hmd-indented-code) {
   display: inline-block;
   background-color: rgba(238, 238, 238, 0.5);
   border-radius: 4px;

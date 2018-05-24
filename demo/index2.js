@@ -7,9 +7,14 @@ function hmdModeLineInfo(lineNo) {
   if (lineNo === void 0) lineNo = cm.getCursor().line
   var tokens = cm.getLineTokens(lineNo)
   tokens = tokens.map(function (t) {
-    return [t.string, t.type, t.state.overlay]
+    return [t.string, t.type, t.state]
   })
   return tokens
+}
+
+function hmdReloadCSS() {
+  var styleLinks = Array.prototype.slice.call(document.querySelectorAll("link"))
+  styleLinks.forEach(function (link) { link.href += "?" + +new Date() })
 }
 
 function click_bind(id, func, event) {

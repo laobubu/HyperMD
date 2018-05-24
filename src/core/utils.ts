@@ -95,3 +95,24 @@ export function debounce(fn: Function, delay: number): { (): void; stop(): void 
 
   return ans
 }
+
+/**
+ * Polyfill of Object.assign
+ */
+export function assign(target: object, varArgs: object): object {
+  var to = Object(target)
+
+  for (var index = 1; index < arguments.length; index++) {
+    var nextSource = arguments[index];
+
+    if (nextSource != null) { // Skip over if undefined or null
+      for (var nextKey in nextSource) {
+        // Avoid bugs when hasOwnProperty is shadowed
+        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+          to[nextKey] = nextSource[nextKey]
+        }
+      }
+    }
+  }
+  return to
+}
