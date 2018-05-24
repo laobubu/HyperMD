@@ -17,5 +17,6 @@ import * as TableAlign from "./addon/table-align"
 import * as ModeLoader from "./addon/mode-loader"
 import * as HideToken from "./addon/hide-token"
 import * as CursorDebounce from "./addon/cursor-debounce"
+import * as KeyMap from "./keymap/hypermd"
 
-export { InsertFile, ReadLink, Hover, Click, Paste, Fold, FoldMath, TableAlign, ModeLoader, HideToken, CursorDebounce }
+export { InsertFile, ReadLink, Hover, Click, Paste, Fold, FoldMath, TableAlign, ModeLoader, HideToken, CursorDebounce, KeyMap }

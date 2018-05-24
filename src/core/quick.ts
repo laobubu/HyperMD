@@ -34,7 +34,7 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
       "HyperMD-goback"  // (addon: click) 'back' button for footnotes
     ],
 
-    keyMap: "hypermd",
+    keyMap: ("hypermd" in CodeMirror.keyMap) ? "hypermd" : "default",
 
     hmdInsertFile: {
       byDrop: true,

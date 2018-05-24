@@ -15,14 +15,14 @@ const url2RE = /^\.{0,2}\/[^\>\s]+/
 
 type TokenFunc = (stream: CodeMirror.StringStream, state: HyperMDState) => string
 
-interface MarkdownStateLine {
+export interface MarkdownStateLine {
   stream: CodeMirror.StringStream,
   header?: boolean
   hr?: boolean
   fencedCodeEnd?: boolean
 }
 
-interface MarkdownState {
+export interface MarkdownState {
   f: TokenFunc,
 
   prevLine: MarkdownStateLine,
@@ -51,7 +51,7 @@ interface MarkdownState {
   setext: 0 | 1 | 2, // current line is afxHeader before ---- ======
   hr: boolean,
   taskList: boolean,
-  list: boolean,
+  list: true | null | false, // true: bullet, null: list text, false: not a list
   listStack: number[],
   quote: number,
   indentedCode: boolean,
@@ -65,7 +65,7 @@ interface MarkdownState {
   indentationDiff?: number, // indentation minus list's indentation
 }
 
-interface HyperMDState extends MarkdownState {
+export interface HyperMDState extends MarkdownState {
   hmdTable: TableType
   hmdTableID: string
   hmdTableCol: number
@@ -82,7 +82,7 @@ interface HyperMDState extends MarkdownState {
   hmdNextMaybe: NextMaybe
 }
 
-const enum TableType {
+export const enum TableType {
   NONE = 0,
   SIMPLE,     //   table | column
   NORMAL,     // | table | column |
@@ -95,11 +95,11 @@ const NormalTableRE = /^\s*\|\s.*?\s\|\s.*?\s\|\s*$/
 const NormalTableLooseRE = /^\s*\|/ // | unfinished row
 const NormalTableSepRE = /^\s*\|(?:\s*\:?\s*---+\s*\:?\s*\|){2,}\s*$/ // find  |:-----:|:-----:| line
 
-const enum NextMaybe {
+export const enum NextMaybe {
   NONE = 0,
 }
 
-const enum LinkType {
+export const enum LinkType {
   NONE = 0,
   BARELINK,  // [link]
   FOOTREF,   // [^ref]

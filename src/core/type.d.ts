@@ -51,7 +51,7 @@ declare module "codemirror" {
    * are not specified in the default order (Shift-Cmd-Ctrl-Alt) */
   type KeyMap = { [keyName: string]: Command | ((cm: Editor) => void) }
 
-  type Command =
+  type BuiltinCommand =
     "selectAll" | //Select the whole content of the editor.
     "singleSelection" | //When multiple selections are present, this deselects all but the primary selection.
     "killLine" | //Emacs-style line killing. Deletes the part of the line after the cursor. If that consists only of whitespace, the newline at the end of the line is also deleted.
@@ -107,8 +107,13 @@ declare module "codemirror" {
     "newlineAndIndentContinueMarkdownList" // 'codemirror/addon/edit/continuelist'
     ;
 
+  type Command = keyof CommandFunctions
   var keyMap: { [keymapName: string]: KeyMap }
-  var commands: { [command: string]: (cm: cm_t) => void }
+  var commands: CommandFunctions
+
+  interface CommandFunctions extends Record<BuiltinCommand, (cm: cm_t) => void> {
+    hmdNewline: (cm: cm_t) => void
+  }
 
   function normalizeKeyMap(keymap: KeyMap): object;
 
@@ -146,6 +151,8 @@ declare module "codemirror" {
     getTokenTypeAt(pos: Position): string
 
     execCommand(cmd: Command): void
+
+    replaceSelections(replacements: string[]): void
   }
 
   interface TextMarker {
