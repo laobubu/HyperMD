@@ -430,7 +430,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
             if (col == 0) ans += ` line-HyperMD-table_${state.hmdTableID} line-HyperMD-table-${tableType} line-HyperMD-table-row line-HyperMD-table-row-${row}`
             ans += ` hmd-table-sep hmd-table-sep-${col}`
 
-            if (tableType === TableType.NORMAL && (firstTokenOfLine || stream.match(/^\s*$/, false))) {
+            if (tableType === TableType.NORMAL && (col == 0 || stream.match(/^\s*$/, false))) {
               // Normal style table has extra `|` at the start / end of lines
               ans += ` hmd-table-sep-dummy`
             }
@@ -438,6 +438,11 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         }
       }
       //#endregion
+
+      if (tableType && state.hmdTableRow === 1) {
+        // fix a stupid problem:    :------: is not emoji
+        if (/emoji/.test(ans)) ans = ""
+      }
     }
 
     return ans.trim() || null

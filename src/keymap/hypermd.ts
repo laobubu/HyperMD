@@ -61,7 +61,43 @@ export function newline(cm: cm_t) {
     }
 
     if (!handled) {
-      const inTable = eolState.hmdTable
+      const table = rangeEmpty ? eolState.hmdTable : TableType.NONE
+      if (table != TableType.NONE) {
+        if (/^[\s\|]+$/.test(line) && (cm.getStateAfter(pos.line + 1) as HyperMDState).hmdTable !== table) {
+          // this is a empty row, end the table
+          cm.replaceRange("", { line: pos.line, ch: 0 }, { line: pos.line, ch: line.length })
+          replacements.push("\n")
+        } else {
+          // insert new row
+          const lineRemain = line.substr(pos.ch)
+          let textOnLeft = ""
+          let textOnRight = ""
+
+          const chState = cm.getTokenAt(pos).state as HyperMDState
+          let i = 0
+          while (i++ < chState.hmdTableCol) textOnLeft += " | "
+          i--
+          while (i++ < eolState.hmdTableCol) textOnRight += " | "
+
+          textOnLeft = textOnLeft.trim()
+          textOnRight = textOnRight.trim()
+
+          cm.replaceRange(textOnRight, { line: pos.line, ch: pos.ch + 1 }, { line: pos.line, ch: line.length })
+
+          if (lineRemain) {
+            // remove last char that stick to cursor
+            let bookmark = cm.setBookmark({ line: pos.line, ch: pos.ch + 1 })
+            setTimeout(() => {
+              let bpos = bookmark.find() as any as CodeMirror.Position
+              cm.replaceRange("", { line: bpos.line, ch: bpos.ch - 1 }, bpos)
+              bookmark.clear()
+            }, 0);
+          }
+
+          replacements.push(lineRemain + "\n" + textOnLeft)
+        }
+        handled = true
+      }
     }
 
     if (!handled) {
