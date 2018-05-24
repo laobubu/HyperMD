@@ -61,6 +61,7 @@ const components = {
   "addon/mode-loader": "ModeLoader",
   "addon/hide-token": "HideToken",
   "addon/cursor-debounce": "CursorDebounce",
+  "keymap/hypermd": "KeyMap",
 }
 
 /** Third-party libs */
