@@ -77,6 +77,17 @@
         vertical-align: middle;
     }
 
+    /// TOC
+    span.cm-hmd-toc {
+        font-size: $fs * 2;
+        color: #999;
+    }
+
+    /// OrgMode
+    span.cm-hmd-orgmode-markup {
+        @extend %monospace;
+    }
+
     /// Headers
     // in fact stdheader has no special meaning; they are just normal headers
     // legacy naming problem

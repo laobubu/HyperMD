@@ -116,7 +116,10 @@ const linkStyle = {
 
 CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   var modeCfg = {
+    math: true,
     table: true,
+    toc: true, // support [TOC] in a single line
+    orgModeMarkup: true, // support OrgMode-like Markup like #+TITLE: my document
 
     fencedCodeBlockHighlighting: true,
     name: "markdown",
@@ -192,24 +195,50 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
     const wasLinkText = state.linkText
 
+    let inMarkdown = !(wasInCodeFence || wasInHTML)
+
     var ans = ""
     var tmp: RegExpMatchArray
 
-    //#region Math
+    if (inMarkdown) {
+      // now implement some extra features that require higher priority than CodeMirror's markdown
 
-    if (!state.code && !wasInHTML && (tmp = stream.match(/^\${1,2}/, false))) {
-      let tag = tmp[0], mathLevel = tag.length
-      if (mathLevel === 2 || stream.string.indexOf(tag, stream.pos + mathLevel) !== -1) {
-        // $$ may span lines, $ must be paired
-        ans += enterMode(stream, state, "stex", tag) || ""
-        ans += " formatting formatting-math formatting-math-begin math math-" + mathLevel
-        state.hmdInnerStyle = "math"
-        state.hmdInnerExitStyle = "formatting formatting-math formatting-math-end math math-" + mathLevel
-        return ans
+      //#region Math
+      if (modeCfg.math && (tmp = stream.match(/^\${1,2}/, false))) {
+        let tag = tmp[0], mathLevel = tag.length
+        if (mathLevel === 2 || stream.string.indexOf(tag, stream.pos + mathLevel) !== -1) {
+          // $$ may span lines, $ must be paired
+          ans += enterMode(stream, state, "stex", tag) || ""
+          ans += " formatting formatting-math formatting-math-begin math math-" + mathLevel
+          state.hmdInnerStyle = "math"
+          state.hmdInnerExitStyle = "formatting formatting-math formatting-math-end math math-" + mathLevel
+          return ans
+        }
       }
-    }
+      //#endregion
 
-    //#endregion
+      //#region [OrgMode] markup
+      if (bol && modeCfg.orgModeMarkup && (tmp = stream.match(/^\#\+(\w+\:?)\s*/))) {
+        // Support #+TITLE: This is the title of the document
+
+        if (!stream.eol()) {
+          state.hmdOverride = (stream, state) => {
+            stream.skipToEnd()
+            state.hmdOverride = null
+            return "string hmd-orgmode-markup"
+          }
+        }
+
+        return "meta formatting-hmd-orgmode-markup hmd-orgmode-markup line-HyperMD-orgmode-markup"
+      }
+      //#endregion
+
+      //#region [TOC] in a single line
+      if (bol && modeCfg.toc && stream.match(/^\[TOC\]\s*$/i)) {
+        return "meta line-HyperMD-toc hmd-toc"
+      }
+      //#endregion
+    }
 
     // now enter markdown
 
@@ -218,7 +247,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
     const inHTML = !!state.htmlState
     const inCodeFence = state.code === -1
-    const inMarkdown = !(inHTML || inCodeFence || wasInCodeFence || wasInHTML)
+    inMarkdown = inMarkdown && !(inHTML || inCodeFence)
 
     if (inHTML != wasInHTML) {
       if (inHTML) ans += " hmd-html-begin"
