@@ -164,7 +164,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       "hmdLinkType", "hmdNextMaybe",
       "hmdTable", "hmdTableID", "hmdTableCol", "hmdTableRow",
       "hmdOverride",
-      "hmdInnerMode", "hmdInnerExitTag", "hmdInnerExitStyle",
+      "hmdInnerMode", "hmdInnerStyle", "hmdInnerExitTag", "hmdInnerExitStyle",
     ]
     for (const key of keys) ans[key] = s[key]
 
