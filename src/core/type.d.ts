@@ -49,7 +49,9 @@ declare module "codemirror" {
    *
    * When a map contains multi-stoke bindings or keys with modifiers that
    * are not specified in the default order (Shift-Cmd-Ctrl-Alt) */
-  type KeyMap = { [keyName: string]: Command | ((cm: Editor) => void) }
+  type KeyMap = {
+    [keyName: string]: Command | ((cm: Editor) => void) | string
+  }
 
   type BuiltinCommand =
     "selectAll" | //Select the whole content of the editor.
@@ -113,6 +115,8 @@ declare module "codemirror" {
 
   interface CommandFunctions extends Record<BuiltinCommand, (cm: cm_t) => void> {
     hmdNewline: (cm: cm_t) => void
+    hmdShiftTab: (cm: cm_t) => void
+    hmdTab: (cm: cm_t) => void
   }
 
   function normalizeKeyMap(keymap: KeyMap): object;

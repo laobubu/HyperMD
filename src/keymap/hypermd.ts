@@ -269,11 +269,13 @@ assign(CodeMirror.commands, {
 })
 
 const defaultKeyMap = CodeMirror.keyMap["default"]
-export var keyMap: CodeMirror.KeyMap = assign({}, defaultKeyMap, {
+export var keyMap: CodeMirror.KeyMap =  {
   "Shift-Tab": "hmdShiftTab",
   "Tab": "hmdTab",
   "Enter": "hmdNewline",
-})
+
+  fallthrough: "default",
+}
 
 keyMap = CodeMirror.normalizeKeyMap(keyMap) as CodeMirror.KeyMap
 CodeMirror.keyMap["hypermd"] = keyMap
