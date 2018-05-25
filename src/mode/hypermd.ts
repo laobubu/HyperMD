@@ -295,7 +295,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         ans += " hmd-indented-code"
       }
 
-      if (state.quote && current.charAt(0) !== ">") {
+      if (state.quote && stream.eol()) {
         ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
       }
 
