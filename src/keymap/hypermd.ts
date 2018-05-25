@@ -4,7 +4,7 @@
 // powerful keymap for HyperMD and Markdown modes
 //
 
-import CodeMirror, { Token } from 'codemirror'
+import CodeMirror, { Token, Position } from 'codemirror'
 import { cm_t } from '../core/type'
 import { assign, TokenSeeker, repeat } from '../core';
 import { HyperMDState, TableType } from "../mode/hypermd"
@@ -22,6 +22,7 @@ import { HyperMDState, TableType } from "../mode/hypermd"
 const LoQRE = /^(\s*)(>[> ]*|[*+-] \[[x ]\]\s|[*+-]\s|(\d+)([.)]))(\s*)/,
   emptyLoQRE = /^(\s*)(>[> ]*|[*+-] \[[x ]\]|[*+-]|(\d+)[.)])(\s*)$/,
   unorderedListRE = /[*+-]\s/;
+const isRealTableSep = (token: Token) => /hmd-table-sep/.test(token.type) && !/hmd-table-sep-dummy/.test(token.type);
 
 /** continue list / quote / insert table row */
 export function newline(cm: cm_t) {
@@ -105,6 +106,55 @@ export function newline(cm: cm_t) {
   cm.replaceSelections(replacements)
 }
 
+/** unindent or move cursor into prev table cell */
+export function shiftTab(cm: cm_t) {
+  var selections = cm.listSelections()
+  var replacements: string[] = []
+
+  var tokenSeeker = new TokenSeeker(cm)
+
+  for (let i = 0; i < selections.length; i++) {
+    var range = selections[i]
+    var pos = range.head
+    const eolState = cm.getStateAfter(pos.line) as HyperMDState
+
+    if (eolState.hmdTable && eolState.hmdTableRow >= 2) {
+      tokenSeeker.setPos(pos.line, pos.ch)
+      const isNormalTable = eolState.hmdTable === TableType.NORMAL  // leading and ending | is not omitted
+      var line = pos.line
+      var lineText = cm.getLine(line)
+      var chStart = 0, chEnd = 0
+      var rightPipe = tokenSeeker.findPrev(isRealTableSep)
+
+      if (rightPipe) { // prev cell is in this line
+        var leftPipe = tokenSeeker.findPrev(isRealTableSep, rightPipe.i_token - 1)
+        chStart = leftPipe ? leftPipe.token.end : 0
+        chEnd = rightPipe.token.start
+
+        if (chStart == 0 && isNormalTable) chStart += lineText.match(/^\s*\|/)[0].length
+      } else { // jump to prev line, last cell
+        line--
+        lineText = cm.getLine(line)
+        tokenSeeker.setPos(line, lineText.length)
+        var leftPipe = tokenSeeker.findPrev(isRealTableSep)
+        chStart = leftPipe.token.end
+        chEnd = lineText.length
+
+        if (isNormalTable) chEnd -= lineText.match(/\|\s*$/)[0].length
+      }
+
+      chStart += lineText.slice(chStart).match(/^\s*/)[0].length
+      if (chStart > 0 && lineText.substr(chStart - 1, 2) === ' |') chStart--
+      chEnd -= lineText.slice(chStart, chEnd).match(/\s*$/)[0].length
+
+      cm.setSelection({ line, ch: chStart }, { line, ch: chEnd })
+      return
+    }
+  }
+
+  cm.execCommand("indentAuto")
+}
+
 /** insert tab or move cursor into next table cell */
 export function tab(cm: cm_t) {
   var selections = cm.listSelections()
@@ -127,7 +177,6 @@ export function tab(cm: cm_t) {
       const isNormalTable = eolState.hmdTable === TableType.NORMAL  // leading and ending | is not omitted
 
       tokenSeeker.setPos(pos.line, pos.ch)
-      const isRealTableSep = (token: Token) => /hmd-table-sep/.test(token.type) && !/hmd-table-sep-dummy/.test(token.type);
       var nextSep = tokenSeeker.findNext(isRealTableSep, tokenSeeker.i_token)
 
       /** start of next cell's text */
@@ -215,12 +264,13 @@ function incrementRemainingMarkdownListNumbers(cm, pos) {
 
 assign(CodeMirror.commands, {
   hmdNewline: newline,
+  hmdShiftTab: shiftTab,
   hmdTab: tab,
 })
 
 const defaultKeyMap = CodeMirror.keyMap["default"]
 export var keyMap: CodeMirror.KeyMap = assign({}, defaultKeyMap, {
-  "Shift-Tab": "indentLess",
+  "Shift-Tab": "hmdShiftTab",
   "Tab": "hmdTab",
   "Enter": "hmdNewline",
 })
