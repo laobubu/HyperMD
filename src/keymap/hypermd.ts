@@ -4,9 +4,9 @@
 // powerful keymap for HyperMD and Markdown modes
 //
 
-import CodeMirror from 'codemirror'
+import CodeMirror, { Token } from 'codemirror'
 import { cm_t } from '../core/type'
-import { assign } from '../core';
+import { assign, TokenSeeker, repeat } from '../core';
 import { HyperMDState, TableType } from "../mode/hypermd"
 
 /**
@@ -23,6 +23,7 @@ const LoQRE = /^(\s*)(>[> ]*|[*+-] \[[x ]\]\s|[*+-]\s|(\d+)([.)]))(\s*)/,
   emptyLoQRE = /^(\s*)(>[> ]*|[*+-] \[[x ]\]|[*+-]|(\d+)[.)])(\s*)$/,
   unorderedListRE = /[*+-]\s/;
 
+/** continue list / quote / insert table row */
 export function newline(cm: cm_t) {
   if (cm.getOption("disableInput")) return CodeMirror.Pass
 
@@ -81,8 +82,8 @@ export function newline(cm: cm_t) {
           while (i++ < eolState.hmdTableCol) textOnRight += " | "
 
           if (table === TableType.NORMAL) {
-            textOnLeft = textOnLeft.replace(/^\s+/,'')
-            textOnRight = textOnRight.replace(/\s+$/,'')
+            textOnLeft = textOnLeft.replace(/^\s+/, '')
+            textOnRight = textOnRight.replace(/\s+$/, '')
           }
 
           if (lineRemain.length > 1) {
@@ -102,6 +103,76 @@ export function newline(cm: cm_t) {
   }
 
   cm.replaceSelections(replacements)
+}
+
+/** insert tab or move cursor into next table cell */
+export function tab(cm: cm_t) {
+  var selections = cm.listSelections()
+  var replacements: string[] = []
+
+  var tokenSeeker = new TokenSeeker(cm)
+
+  for (let i = 0; i < selections.length; i++) {
+    var range = selections[i]
+    var pos = range.head
+    const rangeEmpty = (range as any).empty() as boolean
+    const eolState = cm.getStateAfter(pos.line) as HyperMDState
+
+    let line = cm.getLine(pos.line)
+
+    if (eolState.hmdTable && eolState.hmdTableRow >= 2) {
+      // yeah, we are inside a table
+      // setCursor and exit current function
+
+      const isNormalTable = eolState.hmdTable === TableType.NORMAL  // leading and ending | is not omitted
+
+      tokenSeeker.setPos(pos.line, pos.ch)
+      const isRealTableSep = (token: Token) => /hmd-table-sep/.test(token.type) && !/hmd-table-sep-dummy/.test(token.type);
+      var nextSep = tokenSeeker.findNext(isRealTableSep, tokenSeeker.i_token)
+
+      /** start of next cell's text */
+      let ch = 0
+      let lineNo = pos.line
+
+      if (nextSep) {
+        // found next separator in current line
+        ch = nextSep.token.start + 1 // skip "|"
+      } else {
+        // Maybe next line?
+        ch = 0
+        lineNo = pos.line + 1
+
+        const nextEolState = cm.getStateAfter(lineNo) as HyperMDState
+
+        if (!nextEolState.hmdTable) {
+          // next line is not a table. let's insert a row!
+          line = ""
+          if (isNormalTable) { line += "| "; ch += 2 }
+          line += repeat(" | ", eolState.hmdTableCol - (isNormalTable ? 2 : 0)).join("")
+          if (isNormalTable) line += " |"
+
+          // insert the text
+          cm.replaceRange(line + "\n", { ch: 0, line: lineNo }, { ch: 0, line: lineNo })
+        } else {
+          // locate first row
+          line = cm.getLine(lineNo)
+          if (isNormalTable) ch = line.indexOf("|") + 1
+        }
+      }
+
+
+      ch = ch + line.slice(ch).match(/^\s*/)[0].length // skip spaces
+      if (ch > 0 && line.substr(ch - 1, 2) === ' |') ch--
+
+      let chEnd = ch + line.slice(ch).match(/^\S*/)[0].length
+
+      cm.setSelection({ line: lineNo, ch: ch }, { line: lineNo, ch: chEnd })
+
+      return
+    }
+  }
+
+  cm.execCommand("defaultTab")
 }
 
 // Auto-updating Markdown list numbers when a new item is added to the
@@ -142,11 +213,15 @@ function incrementRemainingMarkdownListNumbers(cm, pos) {
   } while (nextItem);
 }
 
-CodeMirror.commands['hmdNewline'] = (cm: cm_t) => newline(cm)
+assign(CodeMirror.commands, {
+  hmdNewline: newline,
+  hmdTab: tab,
+})
 
 const defaultKeyMap = CodeMirror.keyMap["default"]
 export var keyMap: CodeMirror.KeyMap = assign({}, defaultKeyMap, {
   "Shift-Tab": "indentLess",
+  "Tab": "hmdTab",
   "Enter": "hmdNewline",
 })
 
