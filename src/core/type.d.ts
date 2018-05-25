@@ -152,7 +152,11 @@ declare module "codemirror" {
 
     execCommand(cmd: Command): void
 
-    replaceSelections(replacements: string[]): void
+    listSelections(): { anchor: CodeMirror.Position; head: CodeMirror.Position; empty(): boolean }[];
+    replaceSelections(replacements: string[], select?: "around" | "start"): void;
+
+    startOperation(): void;
+    endOperation(): void;
   }
 
   interface TextMarker {

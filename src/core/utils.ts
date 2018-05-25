@@ -100,21 +100,32 @@ export function debounce(fn: Function, delay: number): { (): void; stop(): void 
  * Polyfill of Object.assign
  */
 
-export function assign<A, B>(target: A, varArgs: B): (A & B);
-export function assign<A>(target: A, ...sources): A;
+export const assign: ((target, ...sources) => any) =
+  Object['assign'] ||
+  function (target, ...sources) {
+    var to = Object(target)
+    const hasOwnProperty = Object.prototype.hasOwnProperty
 
-export function assign<A>(target: A, ...sources): (A) {
-  var to = Object(target)
-
-  for (const nextSource of sources) {
-    if (nextSource != null) { // Skip over if undefined or null
-      for (var nextKey in nextSource) {
-        // Avoid bugs when hasOwnProperty is shadowed
-        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-          to[nextKey] = nextSource[nextKey]
+    for (const nextSource of sources) {
+      if (nextSource != null) { // Skip over if undefined or null
+        for (var nextKey in nextSource) {
+          // Avoid bugs when hasOwnProperty is shadowed
+          if (hasOwnProperty.call(nextSource, nextKey)) {
+            to[nextKey] = nextSource[nextKey]
+          }
         }
       }
     }
+    return to
   }
-  return to
+
+/**
+ * a fallback for new Array(count).fill(data)
+ */
+
+export function repeat<T>(item: T, count: number): T[] {
+  var ans = new Array(count) as T[]
+  if (ans['fill']) ans['fill'](item)
+  else for (let i = 0; i < count; i++) ans[i] = item
+  return ans
 }

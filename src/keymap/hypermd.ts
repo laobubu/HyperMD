@@ -26,9 +26,10 @@ const LoQRE = /^(\s*)(>[> ]*|[*+-] \[[x ]\]\s|[*+-]\s|(\d+)([.)]))(\s*)/,
 export function newline(cm: cm_t) {
   if (cm.getOption("disableInput")) return CodeMirror.Pass
 
+  const selections = cm.listSelections()
   var replacements: string[] = []
 
-  for (const range of cm.listSelections()) {
+  for (const range of selections) {
     var pos = range.head
     const rangeEmpty = (range as any).empty() as boolean
     const eolState = cm.getStateAfter(pos.line) as HyperMDState
@@ -79,22 +80,16 @@ export function newline(cm: cm_t) {
           i--
           while (i++ < eolState.hmdTableCol) textOnRight += " | "
 
-          textOnLeft = textOnLeft.trim()
-          textOnRight = textOnRight.trim()
-
-          cm.replaceRange(textOnRight, { line: pos.line, ch: pos.ch + 1 }, { line: pos.line, ch: line.length })
-
-          if (lineRemain) {
-            // remove last char that stick to cursor
-            let bookmark = cm.setBookmark({ line: pos.line, ch: pos.ch + 1 })
-            setTimeout(() => {
-              let bpos = bookmark.find() as any as CodeMirror.Position
-              cm.replaceRange("", { line: bpos.line, ch: bpos.ch - 1 }, bpos)
-              bookmark.clear()
-            }, 0);
+          if (table === TableType.NORMAL) {
+            textOnLeft = textOnLeft.replace(/^\s+/,'')
+            textOnRight = textOnRight.replace(/\s+$/,'')
           }
 
-          replacements.push(lineRemain + "\n" + textOnLeft)
+          if (lineRemain.length > 1) {
+            cm.replaceRange(lineRemain.slice(1), { line: pos.line, ch: pos.ch + 1 }, { line: pos.line, ch: line.length })
+          }
+
+          replacements.push(textOnRight + "\n" + textOnLeft)
         }
         handled = true
       }
