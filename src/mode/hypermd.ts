@@ -303,7 +303,8 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
       //#region List
 
-      let tokenIsIndent = bol && /^\s+$/.test(current)
+      let maxNonCodeIndentation = (state.listStack[state.listStack.length - 1] || 0) + 3
+      let tokenIsIndent = bol && /^\s+$/.test(current) && stream.indentation() <= maxNonCodeIndentation
       let tokenIsListBullet = state.list && /formatting-list/.test(ans)
 
       if (tokenIsListBullet || (tokenIsIndent && (state.list || stream.match(listRE, false)))) {
