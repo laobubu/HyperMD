@@ -17,6 +17,8 @@
     $list-margin-after-line: .3em;
     $table-border-style: 1px solid #999;
     $table-row1-height: 9px;
+    $table-sep-width: 15px;
+    $table-sep-image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=';
 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	-webkit-font-smoothing: antialiased;
@@ -434,7 +436,8 @@
         }
 
         span.cm-hmd-table-sep {
-            width: 1.5em;
+            width: $table-sep-width;
+            text-align: center;
             box-sizing: content-box;
             font-weight: normal;
 
@@ -443,13 +446,13 @@
             }
 
             &:not(.cm-hmd-table-sep-dummy):before {
-                content: ' ';
-                margin-left: .5em;
+                content: '|';
+                color: transparent;
                 top: 0;
-                width: 0;
                 height: 100%;
                 position: absolute;
-                border-left: $table-border-style;
+                // border-left: $table-border-style;
+                background: url(#{$table-sep-image}) repeat-y center 0px;
                 pointer-events: none;
             }
         }
@@ -488,8 +491,8 @@
 
         &.HyperMD-table-1 > span {
             // for simple table , leave extra padding to first/last column
-            span:first-child { padding-left: .7em }
-            span:last-child { padding-right: .7em }
+            span:first-child { padding-left: $table-sep-width / 2 }
+            span:last-child { padding-right: $table-sep-width / 2 }
         }
     }
 
