@@ -31,8 +31,9 @@ export class TokenSeeker {
   i_token: number                   // current token's index
 
   /**
-   * Find next Token that matches the condition AFTER current token (whose index is `i_token`), or a given position
-   * This function will NOT make the stream precede!
+   * Find next Token that matches the condition AFTER current token (whose index is `i_token`), or SINCE a given position
+   *
+   * This function will NOT make the stream precede! Use `setPos` to change position.
    *
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param maySpanLines by default the searching will not span lines
@@ -41,7 +42,8 @@ export class TokenSeeker {
 
   /**
    * In current line, find next Token that matches the condition SINCE the token with given index
-   * This function will NOT make the stream precede!
+   *
+   * This function will NOT make the stream precede! Use `setPos` to change position.
    *
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param i_token_since default: i_token+1 (the next of current token)
@@ -109,6 +111,100 @@ export class TokenSeeker {
 
     return token ? { lineNo, token, i_token } : null
   }
+
+
+  /**
+   * Reversely find next Token that matches the condition BEFORE current token (whose index is `i_token`), or SINCE a given position
+   *
+   * This function will NOT make the stream rewind! Use `setPos` to change position.
+   *
+   * @param condition a RegExp to check token.type, or a function check the Token
+   * @param maySpanLines by default the searching will not span lines
+   */
+  findPrev(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean, since?: Position): { lineNo: number, token: Token, i_token: number }
+
+  /**
+   * In current line, reversely find next Token that matches the condition SINCE the token with given index
+   *
+   * This function will NOT make the stream rewind! Use `setPos` to change position.
+   *
+   * @param condition a RegExp to check token.type, or a function check the Token
+   * @param i_token_since default: i_token-1 (the prev of current token)
+   */
+  findPrev(condition: RegExp | ((token: Token) => boolean), i_token_since: number): { lineNo: number, token: Token, i_token: number }
+
+
+  findPrev(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number, since?: Position): { lineNo: number, token: Token, i_token: number } {
+    var lineNo = this.lineNo
+    var tokens = this.lineTokens
+    var token: Token = null
+
+    var i_token: number = this.i_token - 1
+    var maySpanLines = false
+
+    if (varg === true) {
+      maySpanLines = true
+    } else if (typeof varg === 'number') {
+      i_token = varg
+    }
+
+    if (since) {
+      if (since.line < lineNo) {
+        i_token = -1 // just ignore current line
+      } else if (since.line > lineNo) {
+        // hmmm... we shall NEVER go forward
+      } else {
+        for (; i_token < tokens.length; i_token++) {
+          if (tokens[i_token].start >= since.ch) break
+        }
+      }
+    }
+
+    if (i_token >= tokens.length) i_token = tokens.length - 1
+
+    for (; i_token >= 0; i_token--) {
+      var token_tmp = tokens[i_token]
+      if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+        token = token_tmp
+        break
+      }
+    }
+
+    if (!token && maySpanLines) {
+      const cm = this.cm
+      const startLine = Math.min(since ? since.line : cm.lastLine(), lineNo - 1)
+      const endLine = cm.firstLine()
+
+      // cm.eachLine doesn't support reversed searching
+      // use while... loop to iterate
+
+      lineNo = startLine + 1
+      while (!token && endLine <= --lineNo) {
+        const line_i = cm.getLineHandle(lineNo)
+        tokens = cm.getLineTokens(lineNo)
+
+        i_token = 0
+        if (since && lineNo === since.line) {
+          for (; i_token < tokens.length; i_token++) {
+            if (tokens[i_token].start >= since.ch) break
+          }
+        }
+
+        if (i_token >= tokens.length) i_token = tokens.length - 1
+
+        for (; i_token >= 0; i_token--) {
+          var token_tmp = tokens[i_token]
+          if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+            token = token_tmp
+            break // FOUND token !
+          }
+        }
+      }
+    }
+
+    return token ? { lineNo, token, i_token } : null
+  }
+
 
   setPos(ch: number);
   setPos(line: number | CodeMirror.LineHandle, ch: number);
