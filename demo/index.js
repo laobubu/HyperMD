@@ -101,6 +101,8 @@ require([
   'hypermd/addon/mode-loader',
   'hypermd/addon/table-align',
 
+  'hypermd/keymap/hypermd',
+
 ], function (CodeMirror, HyperMD) {
   'use strict';
   var myTextarea = document.getElementById('demo')
