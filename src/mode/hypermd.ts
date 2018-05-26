@@ -196,6 +196,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     const wasLinkText = state.linkText
 
     let inMarkdown = !(wasInCodeFence || wasInHTML)
+    let inMarkdownInline = inMarkdown && !(state.code || state.indentedCode || state.linkHref)
 
     var ans = ""
     var tmp: RegExpMatchArray
@@ -204,7 +205,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       // now implement some extra features that require higher priority than CodeMirror's markdown
 
       //#region Math
-      if (modeCfg.math && (tmp = stream.match(/^\${1,2}/, false))) {
+      if (modeCfg.math && inMarkdownInline && (tmp = stream.match(/^\${1,2}/, false))) {
         let tag = tmp[0], mathLevel = tag.length
         if (mathLevel === 2 || stream.string.indexOf(tag, stream.pos + mathLevel) !== -1) {
           // $$ may span lines, $ must be paired
@@ -248,6 +249,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     const inHTML = !!state.htmlState
     const inCodeFence = state.code === -1
     inMarkdown = inMarkdown && !(inHTML || inCodeFence)
+    inMarkdownInline = inMarkdownInline && inMarkdown && !(state.code || state.indentedCode || state.linkHref)
 
     if (inHTML != wasInHTML) {
       if (inHTML) ans += " hmd-html-begin"
@@ -304,14 +306,14 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       //#region List
 
       let maxNonCodeIndentation = (state.listStack[state.listStack.length - 1] || 0) + 3
-      let tokenIsIndent = bol && /^\s+$/.test(current) && stream.indentation() <= maxNonCodeIndentation
+      let tokenIsIndent = bol && /^\s+$/.test(current) && (state.list !== false || stream.indentation() <= maxNonCodeIndentation)
       let tokenIsListBullet = state.list && /formatting-list/.test(ans)
 
-      if (tokenIsListBullet || (tokenIsIndent && (state.list || stream.match(listRE, false)))) {
+      if (tokenIsListBullet || (tokenIsIndent && (state.list !== false || stream.match(listRE, false)))) {
         let listLevel = state.listStack && state.listStack.length || 0
         if (tokenIsIndent) {
           if (stream.match(listRE, false)) { // next token is 1. 2. or bullet
-            if (!state.list) listLevel++
+            if (state.list === false) listLevel++
           } else {
             ans += ` line-HyperMD-list-line-nobullet line-HyperMD-list-line line-HyperMD-list-line-${listLevel}`
           }
