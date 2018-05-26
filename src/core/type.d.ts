@@ -113,10 +113,11 @@ declare module "codemirror" {
   var keyMap: { [keymapName: string]: KeyMap }
   var commands: CommandFunctions
 
-  interface CommandFunctions extends Record<BuiltinCommand, (cm: cm_t) => void> {
-    hmdNewline: (cm: cm_t) => void
-    hmdShiftTab: (cm: cm_t) => void
-    hmdTab: (cm: cm_t) => void
+  interface CommandFunctions extends Record<BuiltinCommand, (cm: cm_t) => any> {
+    hmdNewline: (cm: cm_t) => any
+    hmdNewlineAndContinue: (cm: cm_t) => any
+    hmdShiftTab: (cm: cm_t) => any
+    hmdTab: (cm: cm_t) => any
   }
 
   function normalizeKeyMap(keymap: KeyMap): object;

@@ -6,7 +6,7 @@
 
 import CodeMirror, { Token, Position, cmpPos } from 'codemirror'
 import { cm_t } from '../core/type'
-import { TokenSeeker, repeatStr, expandRange } from '../core';
+import { TokenSeeker, repeatStr, expandRange, repeat } from '../core';
 import { HyperMDState, TableType } from "../mode/hypermd"
 
 /**
@@ -25,7 +25,7 @@ const LoQRE = /^(\s*)(>[> ]*|[*+-] \[[x ]\]\s|[*+-]\s|(\d+)([.)]))(\s*)/,
 const isRealTableSep = (token: Token) => /hmd-table-sep/.test(token.type) && !/hmd-table-sep-dummy/.test(token.type);
 
 /** continue list / quote / insert table row */
-export function newline(cm: cm_t) {
+export function newlineAndContinue(cm: cm_t) {
   if (cm.getOption("disableInput")) return CodeMirror.Pass
 
   const selections = cm.listSelections()
@@ -100,6 +100,26 @@ export function newline(cm: cm_t) {
     if (!handled) {
       cm.execCommand("newlineAndIndent")
       return
+    }
+  }
+
+  cm.replaceSelections(replacements)
+}
+
+/** insert "\n" , or if in list, insert "\n" + indentation */
+export function newline(cm: cm_t) {
+  if (cm.getOption("disableInput")) return CodeMirror.Pass
+
+  const selections = cm.listSelections()
+  var replacements: string[] = repeat("\n", selections.length)
+
+  for (let i = 0; i < selections.length; i++) {
+    var range = selections[i]
+    var pos = range.head
+    const eolState = cm.getStateAfter(pos.line) as HyperMDState
+
+    if (eolState.list !== false) {
+      replacements[i] += repeatStr(" ", eolState.listStack.slice(-1)[0])
     }
   }
 
@@ -337,6 +357,7 @@ function incrementRemainingMarkdownListNumbers(cm, pos) {
 }
 
 Object.assign(CodeMirror.commands, {
+  hmdNewlineAndContinue: newlineAndContinue,
   hmdNewline: newline,
   hmdShiftTab: shiftTab,
   hmdTab: tab,
@@ -346,7 +367,8 @@ const defaultKeyMap = CodeMirror.keyMap["default"]
 export var keyMap: CodeMirror.KeyMap = {
   "Shift-Tab": "hmdShiftTab",
   "Tab": "hmdTab",
-  "Enter": "hmdNewline",
+  "Enter": "hmdNewlineAndContinue",
+  "Shift-Enter": "hmdNewline",
 
   "Ctrl-B": createStyleToggler(
     state => state.strong,
