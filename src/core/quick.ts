@@ -33,9 +33,8 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config: object): cm_
       "CodeMirror-foldgutter",
       "HyperMD-goback"  // (addon: click) 'back' button for footnotes
     ],
-    extraKeys: {
-      "Enter": "newlineAndIndentContinueMarkdownList"
-    },
+
+    keyMap: ("hypermd" in CodeMirror.keyMap) ? "hypermd" : "default",
 
     hmdInsertFile: {
       byDrop: true,

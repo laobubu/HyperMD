@@ -3,13 +3,9 @@ span.cm-formatting {
 }
 
 %hidden-token {
-    width: 1px !important;
-    height: 1px;
+    display: inline;
     opacity: 0;
     font-size: 0;
-    overflow: hidden;
-    vertical-align: middle;
-    display: inline-block;
 }
 
 span.hmd-hidden-token {

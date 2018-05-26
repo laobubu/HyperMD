@@ -6,6 +6,8 @@
  * You shall NOT import this file; please import "core" instead
  */
 
+import './polyfill'
+
 /** Simple FlipFlop */
 export class FlipFlop<T=boolean> {
   /**
@@ -97,22 +99,18 @@ export function debounce(fn: Function, delay: number): { (): void; stop(): void 
 }
 
 /**
- * Polyfill of Object.assign
+ * a fallback for new Array(count).fill(data)
  */
-export function assign(target: object, varArgs: object): object {
-  var to = Object(target)
 
-  for (var index = 1; index < arguments.length; index++) {
-    var nextSource = arguments[index];
+export function repeat<T>(item: T, count: number): T[] {
+  var ans = new Array(count) as T[]
+  if (ans['fill']) ans['fill'](item)
+  else for (let i = 0; i < count; i++) ans[i] = item
+  return ans
+}
 
-    if (nextSource != null) { // Skip over if undefined or null
-      for (var nextKey in nextSource) {
-        // Avoid bugs when hasOwnProperty is shadowed
-        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-          to[nextKey] = nextSource[nextKey]
-        }
-      }
-    }
-  }
-  return to
+export function repeatStr(item: string, count: number): string {
+  var ans = ""
+  while (count-- > 0) ans += item
+  return ans
 }

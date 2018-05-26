@@ -5,7 +5,6 @@
 //
 
 import CM from "codemirror"
-import { assign } from "../core";
 import "codemirror/mode/markdown/markdown"
 import "codemirror/mode/stex/stex"
 
@@ -15,14 +14,14 @@ const url2RE = /^\.{0,2}\/[^\>\s]+/
 
 type TokenFunc = (stream: CodeMirror.StringStream, state: HyperMDState) => string
 
-interface MarkdownStateLine {
+export interface MarkdownStateLine {
   stream: CodeMirror.StringStream,
   header?: boolean
   hr?: boolean
   fencedCodeEnd?: boolean
 }
 
-interface MarkdownState {
+export interface MarkdownState {
   f: TokenFunc,
 
   prevLine: MarkdownStateLine,
@@ -51,7 +50,7 @@ interface MarkdownState {
   setext: 0 | 1 | 2, // current line is afxHeader before ---- ======
   hr: boolean,
   taskList: boolean,
-  list: boolean,
+  list: true | null | false, // true: bullet, null: list text, false: not a list
   listStack: number[],
   quote: number,
   indentedCode: boolean,
@@ -65,7 +64,7 @@ interface MarkdownState {
   indentationDiff?: number, // indentation minus list's indentation
 }
 
-interface HyperMDState extends MarkdownState {
+export interface HyperMDState extends MarkdownState {
   hmdTable: TableType
   hmdTableID: string
   hmdTableCol: number
@@ -82,7 +81,7 @@ interface HyperMDState extends MarkdownState {
   hmdNextMaybe: NextMaybe
 }
 
-const enum TableType {
+export const enum TableType {
   NONE = 0,
   SIMPLE,     //   table | column
   NORMAL,     // | table | column |
@@ -95,11 +94,11 @@ const NormalTableRE = /^\s*\|\s.*?\s\|\s.*?\s\|\s*$/
 const NormalTableLooseRE = /^\s*\|/ // | unfinished row
 const NormalTableSepRE = /^\s*\|(?:\s*\:?\s*---+\s*\:?\s*\|){2,}\s*$/ // find  |:-----:|:-----:| line
 
-const enum NextMaybe {
+export const enum NextMaybe {
   NONE = 0,
 }
 
-const enum LinkType {
+export const enum LinkType {
   NONE = 0,
   BARELINK,  // [link]
   FOOTREF,   // [^ref]
@@ -140,11 +139,11 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       gitHubSpice: false
     },
   }
-  assign(modeCfg, modeCfgUser)
+  Object.assign(modeCfg, modeCfgUser)
   modeCfg["name"] = "markdown"
 
   var rawMode: CodeMirror.Mode<MarkdownState> = CM.getMode(cmCfg, modeCfg)
-  var newMode: CodeMirror.Mode<HyperMDState> = assign({}, rawMode) as any
+  var newMode: CodeMirror.Mode<HyperMDState> = { ...rawMode } as any
 
   newMode.startState = function () {
     var ans = rawMode.startState() as HyperMDState
@@ -196,6 +195,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     const wasLinkText = state.linkText
 
     let inMarkdown = !(wasInCodeFence || wasInHTML)
+    let inMarkdownInline = inMarkdown && !(state.code || state.indentedCode || state.linkHref)
 
     var ans = ""
     var tmp: RegExpMatchArray
@@ -204,7 +204,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       // now implement some extra features that require higher priority than CodeMirror's markdown
 
       //#region Math
-      if (modeCfg.math && (tmp = stream.match(/^\${1,2}/, false))) {
+      if (modeCfg.math && inMarkdownInline && (tmp = stream.match(/^\${1,2}/, false))) {
         let tag = tmp[0], mathLevel = tag.length
         if (mathLevel === 2 || stream.string.indexOf(tag, stream.pos + mathLevel) !== -1) {
           // $$ may span lines, $ must be paired
@@ -248,6 +248,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     const inHTML = !!state.htmlState
     const inCodeFence = state.code === -1
     inMarkdown = inMarkdown && !(inHTML || inCodeFence)
+    inMarkdownInline = inMarkdownInline && inMarkdown && !(state.code || state.indentedCode || state.linkHref)
 
     if (inHTML != wasInHTML) {
       if (inHTML) ans += " hmd-html-begin"
@@ -295,7 +296,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         ans += " hmd-indented-code"
       }
 
-      if (state.quote && current.charAt(0) !== ">") {
+      if (state.quote && stream.eol()) {
         ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
       }
 
@@ -303,15 +304,22 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
       //#region List
 
-      let tokenIsIndent = bol && /^\s+$/.test(current)
+      let maxNonCodeIndentation = (state.listStack[state.listStack.length - 1] || 0) + 3
+      let tokenIsIndent = bol && /^\s+$/.test(current) && (state.list !== false || stream.indentation() <= maxNonCodeIndentation)
       let tokenIsListBullet = state.list && /formatting-list/.test(ans)
 
-      if (tokenIsListBullet || (tokenIsIndent && (state.list || stream.match(listRE, false)))) {
+      if (tokenIsListBullet || (tokenIsIndent && (state.list !== false || stream.match(listRE, false)))) {
         let listLevel = state.listStack && state.listStack.length || 0
         if (tokenIsIndent) {
           if (stream.match(listRE, false)) { // next token is 1. 2. or bullet
-            if (!state.list) listLevel++
+            if (state.list === false) listLevel++
           } else {
+            while (listLevel > 0 && stream.pos < state.listStack[listLevel - 1]) {
+              listLevel-- // find the real indent level
+            }
+            if (!listLevel) { // not even a list
+              return ans.trim() || null
+            }
             ans += ` line-HyperMD-list-line-nobullet line-HyperMD-list-line line-HyperMD-list-line-${listLevel}`
           }
           ans += ` hmd-list-indent hmd-list-indent-${listLevel}`
@@ -393,19 +401,11 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
         let isTableSep = false
 
-        if (current === " ") {
-          // maybe is " " before "|"
-          if (stream.match(/^\|\s?/)) isTableSep = true
-        } else if (current === "|") {
-          // is "|"
-          stream.eat(" ") // maybe "| " ? try to eat a space
-          isTableSep = true
-        } else if (current.charAt(0) === "|") {
+        if (current.charAt(0) === "|") {
           // is "|xxxxxx", separate "|" and "xxxxxx"
           stream.pos = stream.start + 1 // rewind to end of "|"
-          stream.eat(" ") // try to eat a space
           isTableSep = true
-        } else if (tmp = current.match(/\s?\|/)) {
+        } else if (tmp = current.match(/\|/)) {
           // break unformatted "text|char" into "text" and "|char"
           stream.pos = stream.start + tmp.index // rewind
         }
@@ -430,7 +430,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
             if (col == 0) ans += ` line-HyperMD-table_${state.hmdTableID} line-HyperMD-table-${tableType} line-HyperMD-table-row line-HyperMD-table-row-${row}`
             ans += ` hmd-table-sep hmd-table-sep-${col}`
 
-            if (tableType === TableType.NORMAL && (firstTokenOfLine || stream.match(/^\s*$/, false))) {
+            if (tableType === TableType.NORMAL && (col == 0 || stream.match(/^\s*$/, false))) {
               // Normal style table has extra `|` at the start / end of lines
               ans += ` hmd-table-sep-dummy`
             }
@@ -438,6 +438,11 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         }
       }
       //#endregion
+
+      if (tableType && state.hmdTableRow === 1) {
+        // fix a stupid problem:    :------: is not emoji
+        if (/emoji/.test(ans)) ans = ""
+      }
     }
 
     return ans.trim() || null

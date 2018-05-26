@@ -7,7 +7,7 @@
 //
 
 import CodeMirror, { TextMarker, Position, Token } from 'codemirror'
-import { Addon, FlipFlop, debounce } from '../core'
+import { Addon, FlipFlop, debounce, TokenSeeker } from '../core'
 import { cm_t } from '../core/type'
 import { splitLink } from './read-link'
 
@@ -270,7 +270,7 @@ export enum RequestRangeResult {
 /** ADDON CLASS */
 
 const AddonAlias = "fold"
-export class Fold implements Addon.Addon, FoldStream {
+export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
   // stores builtin Folder status with FlipFlops
   public ff_builtin = {} as { [type: string]: FlipFlop<boolean> }
 
@@ -294,6 +294,8 @@ export class Fold implements Addon.Addon, FoldStream {
   }
 
   constructor(public cm: cm_t) {
+    super(cm)
+
     cm.on("changes", (cm, changes) => {
       var fromLine = changes.reduce((prev, curr) => Math.min(prev, curr.from.line), cm.lastLine())
       this.startFold()
@@ -306,106 +308,6 @@ export class Fold implements Addon.Addon, FoldStream {
   ///////////////////////////////////////////////////////////////////////////////////////////
   /// BEGIN OF APIS THAT EXPOSED TO FolderFunc
   /// @see FoldStream
-
-  // folding status related
-  // current line, tokens of line, index of token
-
-  public line: CodeMirror.LineHandle
-  public lineNo: number
-  public lineTokens: Token[]    // always same as cm.getLineTokens(line)
-  public i_token: number
-
-  findNext(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number, since?: Position): { lineNo: number, token: Token, i_token: number } {
-    var lineNo = this.lineNo
-    var tokens = this.lineTokens
-    var token: Token = null
-
-    var i_token: number = this.i_token + 1
-    var maySpanLines = false
-
-    if (varg === true) {
-      maySpanLines = true
-    } else if (typeof varg === 'number') {
-      i_token = varg
-    }
-
-    if (since) {
-      if (since.line > lineNo) {
-        i_token = tokens.length // just ignore current line
-      } else if (since.line < lineNo) {
-        // hmmm... we shall NEVER go back
-      } else {
-        for (; i_token < tokens.length; i_token++) {
-          if (tokens[i_token].start >= since.ch) break
-        }
-      }
-    }
-
-    for (; i_token < tokens.length; i_token++) {
-      var token_tmp = tokens[i_token]
-      if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
-        token = token_tmp
-        break
-      }
-    }
-
-    if (!token && maySpanLines) {
-      const cm = this.cm
-      const startLine = Math.max(since ? since.line : 0, lineNo + 1)
-      cm.eachLine(startLine, cm.lastLine() + 1, (line_i) => {
-        lineNo = line_i.lineNo()
-        tokens = cm.getLineTokens(lineNo)
-
-        i_token = 0
-        if (since && lineNo === since.line) {
-          for (; i_token < tokens.length; i_token++) {
-            if (tokens[i_token].start >= since.ch) break
-          }
-        }
-
-        for (; i_token < tokens.length; i_token++) {
-          var token_tmp = tokens[i_token]
-          if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
-            token = token_tmp
-            return true // stop `eachLine`
-          }
-        }
-      })
-    }
-
-    return token ? { lineNo, token, i_token } : null
-  }
-
-  setPos(ch: number);
-  setPos(line: number | CodeMirror.LineHandle, ch: number);
-  setPos(line: number | CodeMirror.LineHandle, ch: number, precise: boolean);
-
-  /** Update `Fold` stream's current position */
-  setPos(line: number | CodeMirror.LineHandle, ch?: number, precise?: boolean) {
-    if (ch === void 0) { ch = line as number; line = this.line }
-    else if (typeof line === 'number') line = this.cm.getLineHandle(line);
-
-    const sameLine = line === this.line;
-    var i_token = 0
-
-    if (precise || !sameLine) {
-      this.line = line
-      this.lineNo = line.lineNo()
-      this.lineTokens = this.cm.getLineTokens(this.lineNo)
-    } else {
-      // try to speed-up seeking
-      i_token = this.i_token
-      let token = this.lineTokens[i_token]
-      if (token.start > ch) i_token = 0
-    }
-
-    var tokens = this.lineTokens
-    for (; i_token < tokens.length; i_token++) {
-      if (tokens[i_token].end > ch) break // found
-    }
-
-    this.i_token = i_token
-  }
 
   /**
    * Check if a range is foldable and update _quickFoldHint

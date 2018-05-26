@@ -16,7 +16,10 @@
     $list-bullet-width: 30px;
     $list-margin-after-line: .3em;
     $table-border-style: 1px solid #999;
-    $table-row1-height: 9px;
+    $table-row1-height: 8px;
+    $table-sep-width: 15px;
+    $table-sep-image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=';
+    $table-row-1-image: $table-sep-image;
 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	-webkit-font-smoothing: antialiased;
@@ -379,12 +382,12 @@
         font-size: 90%;
 
         &:not(.cm-formatting):not(.cm-hmd-indented-code) {
-            display: inline-block;
             background-color: rgba(#eee, .5);
             border-radius: 4px;
-            vertical-align: middle;
+            vertical-align: baseline;
             border: #ccc solid 1px;
             padding: 1px .4em;
+            margin: 0 -.2em;
         }
     }
 
@@ -431,10 +434,12 @@
 
         &.HyperMD-table-row-0 > span {
             border-top: $table-border-style;
+            border-radius: 5px 5px 0 0;
         }
 
         span.cm-hmd-table-sep {
-            width: 1.5em;
+            width: $table-sep-width;
+            text-align: center;
             box-sizing: content-box;
             font-weight: normal;
 
@@ -443,13 +448,13 @@
             }
 
             &:not(.cm-hmd-table-sep-dummy):before {
-                content: ' ';
-                margin-left: .5em;
+                content: '|';
+                color: transparent;
                 top: 0;
-                width: 0;
                 height: 100%;
                 position: absolute;
-                border-left: $table-border-style;
+                // border-left: $table-border-style;
+                background: url(#{$table-sep-image}) repeat-y center 0px;
                 pointer-events: none;
             }
         }
@@ -488,8 +493,8 @@
 
         &.HyperMD-table-1 > span {
             // for simple table , leave extra padding to first/last column
-            span:first-child { padding-left: .7em }
-            span:last-child { padding-right: .7em }
+            span:first-child { padding-left: $table-sep-width / 2 }
+            span:last-child { padding-right: $table-sep-width / 2 }
         }
     }
 
@@ -548,7 +553,7 @@
         }
 
         &.HyperMD-table-row-1 > span {
-            background: url('data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==') repeat-x 0px center;
+            background: url(#{$table-row-1-image}) repeat-x 0px center;
         }
 
         &.HyperMD-table-row {
@@ -570,46 +575,5 @@
         span.cm-hmd-list-indent {
             border-right: 0;
         }
-    }
-}
-
-/// hypermd/addon/fold-math
-
-div.HyperMD-math-preview {
-    overflow: auto;
-    text-align: center;
-    min-height: 3.5em;
-    max-height: 7em;
-    border-top: 1px solid #EEE;
-    background: #f7f7f7;
-
-    &:after {
-        display: block;
-        content: ' ';
-        clear: both;
-    }
-
-    > div.HyperMD-math-preview-content {
-        overflow: hidden;
-
-        .MathJax_Display,
-        .MathJax_SVG_Display {
-            margin: 10px 0;
-        }
-    }
-
-    > div.HyperMD-math-preview-title {
-        background: #EEE;
-        color: #666;
-        font-size: 10px;
-        padding: 4px;
-        cursor: pointer;
-    }
-
-    &.HyperMD-math-preview-hidden {
-        height: 0px;
-        min-height: 0px;
-        overflow: hidden;
-        border-top: 0;
     }
 }
