@@ -5,7 +5,6 @@
 //
 
 import CM from "codemirror"
-import { assign } from "../core";
 import "codemirror/mode/markdown/markdown"
 import "codemirror/mode/stex/stex"
 
@@ -140,11 +139,11 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       gitHubSpice: false
     },
   }
-  assign(modeCfg, modeCfgUser)
+  Object.assign(modeCfg, modeCfgUser)
   modeCfg["name"] = "markdown"
 
   var rawMode: CodeMirror.Mode<MarkdownState> = CM.getMode(cmCfg, modeCfg)
-  var newMode: CodeMirror.Mode<HyperMDState> = assign({}, rawMode) as any
+  var newMode: CodeMirror.Mode<HyperMDState> = { ...rawMode } as any
 
   newMode.startState = function () {
     var ans = rawMode.startState() as HyperMDState

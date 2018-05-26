@@ -8,9 +8,16 @@
 
 import * as cm_internal from "./cm_internal"
 import { cm_t } from "./type"
-import { Token, Position } from "codemirror";
+import { Token, Position } from "codemirror"
 
 export { cm_internal }
+
+
+export type TokenSeekResult = {
+  lineNo: number,
+  token: Token,
+  i_token: number
+};
 
 /**
  * Useful tool to seek for tokens
@@ -38,7 +45,7 @@ export class TokenSeeker {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param maySpanLines by default the searching will not span lines
    */
-  findNext(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean, since?: Position): { lineNo: number, token: Token, i_token: number }
+  findNext(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean, since?: Position): TokenSeekResult
 
   /**
    * In current line, find next Token that matches the condition SINCE the token with given index
@@ -48,10 +55,10 @@ export class TokenSeeker {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param i_token_since default: i_token+1 (the next of current token)
    */
-  findNext(condition: RegExp | ((token: Token) => boolean), i_token_since: number): { lineNo: number, token: Token, i_token: number }
+  findNext(condition: RegExp | ((token: Token) => boolean), i_token_since: number): TokenSeekResult
 
 
-  findNext(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number, since?: Position): { lineNo: number, token: Token, i_token: number } {
+  findNext(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number, since?: Position): TokenSeekResult {
     var lineNo = this.lineNo
     var tokens = this.lineTokens
     var token: Token = null
@@ -112,7 +119,6 @@ export class TokenSeeker {
     return token ? { lineNo, token, i_token } : null
   }
 
-
   /**
    * Reversely find next Token that matches the condition BEFORE current token (whose index is `i_token`), or SINCE a given position
    *
@@ -121,7 +127,7 @@ export class TokenSeeker {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param maySpanLines by default the searching will not span lines
    */
-  findPrev(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean, since?: Position): { lineNo: number, token: Token, i_token: number }
+  findPrev(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean, since?: Position): TokenSeekResult
 
   /**
    * In current line, reversely find next Token that matches the condition SINCE the token with given index
@@ -131,10 +137,10 @@ export class TokenSeeker {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param i_token_since default: i_token-1 (the prev of current token)
    */
-  findPrev(condition: RegExp | ((token: Token) => boolean), i_token_since: number): { lineNo: number, token: Token, i_token: number }
+  findPrev(condition: RegExp | ((token: Token) => boolean), i_token_since: number): TokenSeekResult
 
 
-  findPrev(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number, since?: Position): { lineNo: number, token: Token, i_token: number } {
+  findPrev(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number, since?: Position): TokenSeekResult {
     var lineNo = this.lineNo
     var tokens = this.lineTokens
     var token: Token = null
@@ -203,6 +209,70 @@ export class TokenSeeker {
     }
 
     return token ? { lineNo, token, i_token } : null
+  }
+
+  /**
+   * return a range in which every token has the same style, or meet same condition
+   */
+  expandRange(style: string | RegExp | ((token: Token) => boolean), maySpanLines?: boolean): { from: TokenSeekResult, to: TokenSeekResult } {
+    const cm = this.cm
+    var isStyled: (token: Token) => boolean
+
+    if (typeof style === "function") {
+      isStyled = style
+    } else {
+      if (typeof style === "string") style = new RegExp("(?:^|\\s)" + style + "(?:\\s|$)")
+      isStyled = (token) => (token ? (style as RegExp).test(token.type || "") : false)
+    }
+
+    var from: TokenSeekResult = {
+      lineNo: this.lineNo,
+      i_token: this.i_token,
+      token: this.lineTokens[this.i_token]
+    }
+    var to: TokenSeekResult = Object.assign({}, from) as TokenSeekResult
+
+    // find left
+    var foundUnstyled = false, tokens = this.lineTokens, i = this.i_token
+    while (!foundUnstyled) {
+      if (i >= tokens.length) i = tokens.length - 1
+      for (; i >= 0; i--) {
+        let token = tokens[i]
+        if (!isStyled(token)) {
+          foundUnstyled = true
+          break
+        } else {
+          from.i_token = i
+          from.token = token
+        }
+      }
+
+      if (foundUnstyled || !(maySpanLines && from.lineNo > cm.firstLine())) break // found, or no more lines
+      tokens = cm.getLineTokens(--from.lineNo)
+      i = tokens.length - 1;
+    }
+
+    // find right
+    var foundUnstyled = false, tokens = this.lineTokens, i = this.i_token
+    while (!foundUnstyled) {
+      if (i < 0) i = 0
+      for (; i < tokens.length; i++) {
+        let token = tokens[i]
+        if (!isStyled(token)) {
+          foundUnstyled = true
+          break
+        } else {
+          to.i_token = i
+          to.token = token
+        }
+      }
+
+      if (foundUnstyled || !(maySpanLines && to.lineNo < cm.lastLine())) break // found, or no more lines
+      tokens = cm.getLineTokens(++to.lineNo)
+      i = 0;
+    }
+
+    return { from, to }
   }
 
 
@@ -282,7 +352,7 @@ export function getEveryCharToken(line: CodeMirror.LineHandle): string[] {
  * the result will NOT span lines.
  *
  * @param style aka. token type
- * @see exapndRange2 if you want to span lines
+ * @see TokenSeeker if you want to span lines
  */
 export function expandRange(cm: cm_t, pos: CodeMirror.Position, style: string) {
   var line = pos.line
