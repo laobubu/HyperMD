@@ -314,6 +314,12 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
           if (stream.match(listRE, false)) { // next token is 1. 2. or bullet
             if (state.list === false) listLevel++
           } else {
+            while (listLevel > 0 && stream.pos < state.listStack[listLevel - 1]) {
+              listLevel-- // find the real indent level
+            }
+            if (!listLevel) { // not even a list
+              return ans.trim() || null
+            }
             ans += ` line-HyperMD-list-line-nobullet line-HyperMD-list-line line-HyperMD-list-line-${listLevel}`
           }
           ans += ` hmd-list-indent hmd-list-indent-${listLevel}`
