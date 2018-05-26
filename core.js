@@ -18,6 +18,41 @@
   CodeMirror = CodeMirror && CodeMirror.hasOwnProperty('default') ? CodeMirror['default'] : CodeMirror;
 
   /**
+   * Provides some common PolyFill
+   *
+   * @internal Part of HyperMD core.
+   *
+   * You shall NOT import this file; please import "core" instead
+   */
+  if (typeof Object['assign'] != 'function') {
+      // Must be writable: true, enumerable: false, configurable: true
+      Object.defineProperty(Object, "assign", {
+          value: function assign(target, varArgs) {
+              var arguments$1 = arguments;
+
+              if (target == null) { // TypeError if undefined or null
+                  throw new TypeError('Cannot convert undefined or null to object');
+              }
+              var to = Object(target);
+              for (var index = 1; index < arguments.length; index++) {
+                  var nextSource = arguments$1[index];
+                  if (nextSource != null) { // Skip over if undefined or null
+                      for (var nextKey in nextSource) {
+                          // Avoid bugs when hasOwnProperty is shadowed
+                          if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                              to[nextKey] = nextSource[nextKey];
+                          }
+                      }
+                  }
+              }
+              return to;
+          },
+          writable: true,
+          configurable: true
+      });
+  }
+
+  /**
    * Provides some universal utils
    *
    * @internal Part of HyperMD core.
@@ -103,6 +138,24 @@
       };
       return ans;
   }
+  /**
+   * a fallback for new Array(count).fill(data)
+   */
+  function repeat(item, count) {
+      var ans = new Array(count);
+      if (ans['fill'])
+          { ans['fill'](item); }
+      else
+          { for (var i = 0; i < count; i++)
+              { ans[i] = item; } }
+      return ans;
+  }
+  function repeatStr(item, count) {
+      var ans = "";
+      while (count-- > 0)
+          { ans += item; }
+      return ans;
+  }
 
   /**
    * Ready-to-use functions that powers up your Markdown editor
@@ -134,9 +187,7 @@
               "CodeMirror-foldgutter",
               "HyperMD-goback" // (addon: click) 'back' button for footnotes
           ],
-          extraKeys: {
-              "Enter": "newlineAndIndentContinueMarkdownList"
-          },
+          keyMap: ("hypermd" in CodeMirror.keyMap) ? "hypermd" : "default",
           hmdInsertFile: {
               byDrop: true,
               byPaste: true
@@ -309,6 +360,227 @@
    * You shall NOT import this file; please import "core" instead
    */
   /**
+   * Useful tool to seek for tokens
+   *
+   *     var seeker = new TokenSeeker(cm)
+   *     seeker.setPos(0, 0) // set to line 0, char 0
+   *     var ans = seeker.findNext(/fomratting-em/)
+   *
+   */
+  var TokenSeeker = function(cm) {
+      this.cm = cm;
+  };
+  TokenSeeker.prototype.findNext = function (condition, varg, since) {
+      var lineNo = this.lineNo;
+      var tokens = this.lineTokens;
+      var token = null;
+      var i_token = this.i_token + 1;
+      var maySpanLines = false;
+      if (varg === true) {
+          maySpanLines = true;
+      }
+      else if (typeof varg === 'number') {
+          i_token = varg;
+      }
+      if (since) {
+          if (since.line > lineNo) {
+              i_token = tokens.length; // just ignore current line
+          }
+          else if (since.line < lineNo) ;
+          else {
+              for (; i_token < tokens.length; i_token++) {
+                  if (tokens[i_token].start >= since.ch)
+                      { break; }
+              }
+          }
+      }
+      for (; i_token < tokens.length; i_token++) {
+          var token_tmp = tokens[i_token];
+          if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+              token = token_tmp;
+              break;
+          }
+      }
+      if (!token && maySpanLines) {
+          var cm = this.cm;
+          var startLine = Math.max(since ? since.line : 0, lineNo + 1);
+          cm.eachLine(startLine, cm.lastLine() + 1, function (line_i) {
+              lineNo = line_i.lineNo();
+              tokens = cm.getLineTokens(lineNo);
+              i_token = 0;
+              if (since && lineNo === since.line) {
+                  for (; i_token < tokens.length; i_token++) {
+                      if (tokens[i_token].start >= since.ch)
+                          { break; }
+                  }
+              }
+              for (; i_token < tokens.length; i_token++) {
+                  var token_tmp = tokens[i_token];
+                  if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+                      token = token_tmp;
+                      return true; // stop `eachLine`
+                  }
+              }
+          });
+      }
+      return token ? { lineNo: lineNo, token: token, i_token: i_token } : null;
+  };
+  TokenSeeker.prototype.findPrev = function (condition, varg, since) {
+      var lineNo = this.lineNo;
+      var tokens = this.lineTokens;
+      var token = null;
+      var i_token = this.i_token - 1;
+      var maySpanLines = false;
+      if (varg === true) {
+          maySpanLines = true;
+      }
+      else if (typeof varg === 'number') {
+          i_token = varg;
+      }
+      if (since) {
+          if (since.line < lineNo) {
+              i_token = -1; // just ignore current line
+          }
+          else if (since.line > lineNo) ;
+          else {
+              for (; i_token < tokens.length; i_token++) {
+                  if (tokens[i_token].start >= since.ch)
+                      { break; }
+              }
+          }
+      }
+      if (i_token >= tokens.length)
+          { i_token = tokens.length - 1; }
+      for (; i_token >= 0; i_token--) {
+          var token_tmp = tokens[i_token];
+          if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+              token = token_tmp;
+              break;
+          }
+      }
+      if (!token && maySpanLines) {
+          var cm = this.cm;
+          var startLine = Math.min(since ? since.line : cm.lastLine(), lineNo - 1);
+          var endLine = cm.firstLine();
+          // cm.eachLine doesn't support reversed searching
+          // use while... loop to iterate
+          lineNo = startLine + 1;
+          while (!token && endLine <= --lineNo) {
+              var line_i = cm.getLineHandle(lineNo);
+              tokens = cm.getLineTokens(lineNo);
+              i_token = 0;
+              if (since && lineNo === since.line) {
+                  for (; i_token < tokens.length; i_token++) {
+                      if (tokens[i_token].start >= since.ch)
+                          { break; }
+                  }
+              }
+              if (i_token >= tokens.length)
+                  { i_token = tokens.length - 1; }
+              for (; i_token >= 0; i_token--) {
+                  var token_tmp = tokens[i_token];
+                  if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+                      token = token_tmp;
+                      break; // FOUND token !
+                  }
+              }
+          }
+      }
+      return token ? { lineNo: lineNo, token: token, i_token: i_token } : null;
+  };
+  /**
+   * return a range in which every token has the same style, or meet same condition
+   */
+  TokenSeeker.prototype.expandRange = function (style, maySpanLines) {
+      var cm = this.cm;
+      var isStyled;
+      if (typeof style === "function") {
+          isStyled = style;
+      }
+      else {
+          if (typeof style === "string")
+              { style = new RegExp("(?:^|\\s)" + style + "(?:\\s|$)"); }
+          isStyled = function (token) { return (token ? style.test(token.type || "") : false); };
+      }
+      var from = {
+          lineNo: this.lineNo,
+          i_token: this.i_token,
+          token: this.lineTokens[this.i_token]
+      };
+      var to = Object.assign({}, from);
+      // find left
+      var foundUnstyled = false, tokens = this.lineTokens, i = this.i_token;
+      while (!foundUnstyled) {
+          if (i >= tokens.length)
+              { i = tokens.length - 1; }
+          for (; i >= 0; i--) {
+              var token = tokens[i];
+              if (!isStyled(token)) {
+                  foundUnstyled = true;
+                  break;
+              }
+              else {
+                  from.i_token = i;
+                  from.token = token;
+              }
+          }
+          if (foundUnstyled || !(maySpanLines && from.lineNo > cm.firstLine()))
+              { break; } // found, or no more lines
+          tokens = cm.getLineTokens(--from.lineNo);
+          i = tokens.length - 1;
+      }
+      // find right
+      var foundUnstyled = false, tokens = this.lineTokens, i = this.i_token;
+      while (!foundUnstyled) {
+          if (i < 0)
+              { i = 0; }
+          for (; i < tokens.length; i++) {
+              var token$1 = tokens[i];
+              if (!isStyled(token$1)) {
+                  foundUnstyled = true;
+                  break;
+              }
+              else {
+                  to.i_token = i;
+                  to.token = token$1;
+              }
+          }
+          if (foundUnstyled || !(maySpanLines && to.lineNo < cm.lastLine()))
+              { break; } // found, or no more lines
+          tokens = cm.getLineTokens(++to.lineNo);
+          i = 0;
+      }
+      return { from: from, to: to };
+  };
+  TokenSeeker.prototype.setPos = function (line, ch, precise) {
+      if (ch === void 0) {
+          ch = line;
+          line = this.line;
+      }
+      else if (typeof line === 'number')
+          { line = this.cm.getLineHandle(line); }
+      var sameLine = line === this.line;
+      var i_token = 0;
+      if (precise || !sameLine) {
+          this.line = line;
+          this.lineNo = line.lineNo();
+          this.lineTokens = this.cm.getLineTokens(this.lineNo);
+      }
+      else {
+          // try to speed-up seeking
+          i_token = this.i_token;
+          var token = this.lineTokens[i_token];
+          if (token.start > ch)
+              { i_token = 0; }
+      }
+      var tokens = this.lineTokens;
+      for (; i_token < tokens.length; i_token++) {
+          if (tokens[i_token].end > ch)
+              { break; } // found
+      }
+      this.i_token = i_token;
+  };
+  /**
    * CodeMirror's `getLineTokens` might merge adjacent chars with same styles,
    * but this one won't.
    *
@@ -348,7 +620,7 @@
    * the result will NOT span lines.
    *
    * @param style aka. token type
-   * @see exapndRange2 if you want to span lines
+   * @see TokenSeeker if you want to span lines
    */
   function expandRange(cm, pos, style) {
       var line = pos.line;
@@ -447,10 +719,13 @@
   exports.FlipFlop = FlipFlop;
   exports.tryToRun = tryToRun;
   exports.debounce = debounce;
+  exports.repeat = repeat;
+  exports.repeatStr = repeatStr;
   exports.fromTextArea = fromTextArea;
   exports.switchToNormal = switchToNormal;
   exports.switchToHyperMD = switchToHyperMD;
   exports.cm_internal = cm_internal;
+  exports.TokenSeeker = TokenSeeker;
   exports.getEveryCharToken = getEveryCharToken;
   exports.expandRange = expandRange;
   exports.updateCursorDisplay = updateCursorDisplay;

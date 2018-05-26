@@ -10,7 +10,7 @@
   line-height: 1.5;
   font-size: 12pt;
 }
-.cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content code, .cm-s-hypermd-light span.cm-inline-code, .cm-s-hypermd-light pre.HyperMD-codeblock, .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.hmd-fold-math-placeholder {
+.cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content code, .cm-s-hypermd-light span.cm-inline-code, .cm-s-hypermd-light pre.HyperMD-codeblock, .cm-s-hypermd-light span.cm-formatting-task, .cm-s-hypermd-light span.cm-hmd-orgmode-markup, .cm-s-hypermd-light span.cm-math, .cm-s-hypermd-light span.hmd-fold-math-placeholder {
   font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 .cm-s-hypermd-light .cm-header, .cm-s-hypermd-light .cm-strong {
@@ -114,6 +114,10 @@
   display: inline-block;
   vertical-align: middle;
 }
+.cm-s-hypermd-light span.cm-hmd-toc {
+  font-size: 24pt;
+  color: #999;
+}
 .cm-s-hypermd-light pre.HyperMD-header-line:after, .cm-s-hypermd-light pre.HyperMD-header.HyperMD-header-1:after, .cm-s-hypermd-light pre.HyperMD-header.HyperMD-header-2:after {
   display: block;
   content: " ";
@@ -166,11 +170,17 @@
 .cm-s-hypermd-light pre.HyperMD-quote-1:before {
   width: 20px;
 }
+.cm-s-hypermd-light pre.HyperMD-quote-1.HyperMD-footnote {
+  padding-left: 62px;
+}
 .cm-s-hypermd-light pre.HyperMD-quote-2 {
   padding-left: 42px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-2:before {
   width: 40px;
+}
+.cm-s-hypermd-light pre.HyperMD-quote-2.HyperMD-footnote {
+  padding-left: 82px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-3 {
   padding-left: 62px;
@@ -178,11 +188,17 @@
 .cm-s-hypermd-light pre.HyperMD-quote-3:before {
   width: 60px;
 }
+.cm-s-hypermd-light pre.HyperMD-quote-3.HyperMD-footnote {
+  padding-left: 102px;
+}
 .cm-s-hypermd-light pre.HyperMD-quote-4 {
   padding-left: 82px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-4:before {
   width: 80px;
+}
+.cm-s-hypermd-light pre.HyperMD-quote-4.HyperMD-footnote {
+  padding-left: 122px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-5 {
   padding-left: 102px;
@@ -190,83 +206,66 @@
 .cm-s-hypermd-light pre.HyperMD-quote-5:before {
   width: 100px;
 }
+.cm-s-hypermd-light pre.HyperMD-quote-5.HyperMD-footnote {
+  padding-left: 142px;
+}
 .cm-s-hypermd-light pre.HyperMD-quote-6 {
   padding-left: 122px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-6:before {
   width: 120px;
 }
-.cm-s-hypermd-light .cm-hmd-list-indent,
-.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list,
-.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child {
+.cm-s-hypermd-light pre.HyperMD-quote-6.HyperMD-footnote {
+  padding-left: 162px;
+}
+.cm-s-hypermd-light span.cm-hmd-list-indent {
   display: inline-block;
-  width: 2em;
-  box-sizing: border-box;
-  border-left: 1px dashed #eee;
-  vertical-align: middle;
+  width: 30px;
   text-align: right;
+  white-space: pre;
+  box-sizing: border-box;
+  border-right: 1px dashed #CCC;
+  overflow: hidden;
+  font-size: 0.5em;
+  line-height: 200%;
 }
-.cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting),
-.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting),
-.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child.cm-hmd-list-indent-virtual + .cm-list-1:not(.cm-formatting) {
-  /**
-   *- xxx      <- without any space to indent the bullet
-   *  xxxxxx   <- this is level2 line, but only one indent <span>.
-   */
-  padding-left: 2em;
+.cm-s-hypermd-light pre.HyperMD-list-line > span > span:first-child {
+  margin-left: -60px;
 }
-.cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-1,
-.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-1,
-.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child.cm-hmd-list-indent-1 {
-  display: inline;
-  border-left: 0;
+.cm-s-hypermd-light pre.HyperMD-list-line > span > span:first-child.cm-formatting-list, .cm-s-hypermd-light pre.HyperMD-list-line.HyperMD-list-line-nobullet > span > span:first-child {
+  margin-left: -30px;
+  width: 30px;
 }
-.cm-s-hypermd-light .cm-hmd-list-indent.cm-hmd-list-indent-corrupted,
-.cm-s-hypermd-light .cm-hmd-list-indent + .cm-formatting-list.cm-hmd-list-indent-corrupted,
-.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > .cm-formatting-list:first-child.cm-hmd-list-indent-corrupted {
-  background: rgba(255, 0, 0, 0.4);
+.cm-s-hypermd-light pre.HyperMD-list-line:not(.HyperMD-list-line-nobullet) {
+  padding-top: 0.3em;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-1 {
-  padding-left: 2.2em;
-}
-.cm-s-hypermd-light pre.HyperMD-list-line-1 > span > span:first-child {
-  margin-left: -2.4em;
+  padding-left: 40px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-2 {
-  padding-left: 4.2em;
-}
-.cm-s-hypermd-light pre.HyperMD-list-line-2 > span > span:first-child {
-  margin-left: -4.4em;
+  padding-left: 70px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-3 {
-  padding-left: 6.2em;
-}
-.cm-s-hypermd-light pre.HyperMD-list-line-3 > span > span:first-child {
-  margin-left: -6.4em;
+  padding-left: 100px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-4 {
-  padding-left: 8.2em;
-}
-.cm-s-hypermd-light pre.HyperMD-list-line-4 > span > span:first-child {
-  margin-left: -8.4em;
+  padding-left: 130px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-5 {
-  padding-left: 10.2em;
-}
-.cm-s-hypermd-light pre.HyperMD-list-line-5 > span > span:first-child {
-  margin-left: -10.4em;
+  padding-left: 160px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-6 {
-  padding-left: 12.2em;
+  padding-left: 190px;
 }
-.cm-s-hypermd-light pre.HyperMD-list-line-6 > span > span:first-child {
-  margin-left: -12.4em;
-}
-.cm-s-hypermd-light .cm-formatting-list {
+.cm-s-hypermd-light span.cm-formatting-list {
+  text-align: right;
+  display: inline-block;
+  white-space: pre;
+  width: 30px;
   font-family: "HyperMD-Bullets";
   color: #666;
 }
-.cm-s-hypermd-light .cm-formatting-list.cm-list-2 {
+.cm-s-hypermd-light span.cm-formatting-list.cm-list-2 {
   text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
   color: #fff;
 }
@@ -290,23 +289,20 @@
 }
 .cm-s-hypermd-light pre.HyperMD-footnote {
   font-size: 10.2pt;
-  padding-left: 4em;
+  padding-left: 40px;
 }
 .cm-s-hypermd-light pre.HyperMD-footnote > span > span:first-child {
-  margin-left: -4em;
+  margin-left: -40px;
 }
 .cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote {
   color: #666;
   cursor: text;
   text-decoration: none;
 }
-.cm-s-hypermd-light pre.HyperMD-footnote span.cm-hmd-footnote ~ span.cm-url:not(.cm-hmd-footnote-url) {
-  color: inherit;
-  cursor: text;
-}
 .cm-s-hypermd-light pre.HyperMD-codeblock {
   line-height: 1em;
-  font-size: inherit;
+  font-size: 90%;
+  color: #922;
   border-left: 1px solid #CCC;
 }
 .cm-s-hypermd-light pre.HyperMD-codeblock span.cm-inline-code {
@@ -370,9 +366,9 @@
   font-size: 13.2pt;
 }
 .cm-s-hypermd-light span.cm-hmd-escape-backslash {
-  color: #999;
+  color: #CAA;
 }
-.cm-s-hypermd-light span.cm-escape-char {
+.cm-s-hypermd-light span.cm-hmd-escape-char {
   color: #666;
 }
 .cm-s-hypermd-light span.cm-hmd-footref {
@@ -388,12 +384,12 @@
   font-size: 90%;
 }
 .cm-s-hypermd-light span.cm-inline-code:not(.cm-formatting):not(.cm-hmd-indented-code) {
-  display: inline-block;
   background-color: rgba(238, 238, 238, 0.5);
   border-radius: 4px;
-  vertical-align: middle;
+  vertical-align: baseline;
   border: #ccc solid 1px;
   padding: 1px 0.4em;
+  margin: 0 -0.2em;
 }
 .cm-s-hypermd-light .HyperMD-goback {
   width: 1px;
@@ -428,36 +424,58 @@
 }
 .cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 > span {
   border-top: 1px solid #999;
-}
-.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-title-has_rowsep > span {
-  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
 }
 .cm-s-hypermd-light pre.HyperMD-table-row span.cm-hmd-table-sep {
-  width: 1em;
+  width: 15px;
   text-align: center;
   box-sizing: content-box;
   font-weight: normal;
 }
-.cm-s-hypermd-light pre.HyperMD-table-row span.cm-hmd-table-sep:before {
-  content: " ";
-  margin-left: 1px;
+.cm-s-hypermd-light pre.HyperMD-table-row span.cm-hmd-table-sep.cm-hmd-table-sep-dummy {
+  width: 1em;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row span.cm-hmd-table-sep:not(.cm-hmd-table-sep-dummy):before {
+  content: "|";
+  color: transparent;
   top: 0;
-  width: 0;
   height: 100%;
   position: absolute;
-  border-left: 1px solid #999;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=) repeat-y center 0px;
+  pointer-events: none;
 }
 .cm-s-hypermd-light pre.HyperMD-table-row img.hmd-image {
   max-width: 100%;
-}
-.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-rowsep {
-  line-height: 0.5em;
 }
 .cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 {
   font-weight: bold;
 }
 .cm-s-hypermd-light pre.HyperMD-table-row .hmd-table-column-content {
-  padding: 2px 5px;
+  padding: 4px 1px;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-1 {
+  line-height: 8px;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-1 > span {
+  border-bottom: 0;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-1 .hmd-table-column-content {
+  padding: 1px;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 > span {
+  border-bottom: 0;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 span.hmd-table-column-content {
+  padding-bottom: 1px;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-2 span.hmd-table-column-content {
+  padding-top: 1px;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-1 > span span:first-child {
+  padding-left: 7.5px;
+}
+.cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-1 > span span:last-child {
+  padding-right: 7.5px;
 }
 .cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content {
   background-color: #000;
@@ -493,17 +511,18 @@
 .cm-s-hypermd-light span.hmd-hidden-token.cm-formatting-task {
   color: transparent !important;
 }
-.cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-rowsep, .cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-hr {
+.cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-row-1, .cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-hr {
   color: transparent;
   text-shadow: none;
 }
-.cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-rowsep > span {
-  background: url("data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==") repeat-x 0px center;
+.cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-row-1 > span {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=) repeat-x 0px center;
 }
 .cm-s-hypermd-light pre.hmd-inactive-line.HyperMD-table-row span.cm-hmd-table-sep {
   color: transparent;
 }
 .cm-s-hypermd-light pre.hmd-inactive-line span.cm-formatting-quote,
+.cm-s-hypermd-light pre.hmd-inactive-line span.cm-hmd-escape-backslash,
 .cm-s-hypermd-light pre.hmd-inactive-line span.cm-formatting-header {
   width: 0px !important;
   height: 1px;
@@ -511,37 +530,6 @@
   overflow: hidden;
   display: inline-block;
 }
-
-div.HyperMD-math-preview {
-  overflow: auto;
-  text-align: center;
-  min-height: 3.5em;
-  max-height: 7em;
-  border-top: 1px solid #EEE;
-  background: #f7f7f7;
-}
-div.HyperMD-math-preview:after {
-  display: block;
-  content: " ";
-  clear: both;
-}
-div.HyperMD-math-preview > div.HyperMD-math-preview-content {
-  overflow: hidden;
-}
-div.HyperMD-math-preview > div.HyperMD-math-preview-content .MathJax_Display,
-div.HyperMD-math-preview > div.HyperMD-math-preview-content .MathJax_SVG_Display {
-  margin: 10px 0;
-}
-div.HyperMD-math-preview > div.HyperMD-math-preview-title {
-  background: #EEE;
-  color: #666;
-  font-size: 10px;
-  padding: 4px;
-  cursor: pointer;
-}
-div.HyperMD-math-preview.HyperMD-math-preview-hidden {
-  height: 0px;
-  min-height: 0px;
-  overflow: hidden;
-  border-top: 0;
+.cm-s-hypermd-light pre.hmd-inactive-line span.cm-hmd-list-indent {
+  border-right: 0;
 }
