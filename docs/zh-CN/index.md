@@ -12,7 +12,7 @@
 文档还没写完……请考虑：
 
 1. 如果你使用模块加载器，请参考 [主页的README文档](../../demo/README.zh-CN.md)
-2. 如果你更喜欢用传统 HTML 标签来引入编辑器，请参考 <../examples/ai1.html>
+2. 如果你更喜欢用传统 HTML 标签来引入编辑器，请参考 [这个文件](../examples/ai1.html) 的源代码
 3. 如果想深入了解 HyperMD 的插件，请浏览[源代码](https://github.com/laobubu/HyperMD/)
    - 推荐使用 VSCode。
    - 以后说不准会用 TypeScript 生成文档。
@@ -28,7 +28,7 @@
 
 ### 使用打包器 (webpack / parcel-bundler...)
 
-首先，运行 `npm i hypermd` 下载库。然后，试着做一个简单的 `index.html`：
+首先，运行 `npm i hypermd codemirror` 下载库。然后，试着做一个简单的 `index.html`：
 
 ```html
 <html>
@@ -65,20 +65,20 @@ var cm = HyperMD.fromTextArea(myTextarea, { /* 在此添加其他编辑器选项
 
 假设你用的是 [parcel 打包器](https://parceljs.org/)，只需要运行 `parcel index.html` 就可以了。
 
-> **some CodeMirror features will be unavaliable** unless you load them.
+> **一些基于 CodeMirror 自带插件的功能，需要手动 import**
 >
-> Features that provided by CodeMirror built-in addons `codemirror/addon/*`, like folding, will be unavaliable.
-> You may import them before initializing editor. The list can be found in <../demo/index.js>.
+> 有的功能是基于 CodeMirror 自带插件 `codemirror/addon/*` 的，例如折叠段落，需要手动引入对应模块。
+> 如果需要的话，请在初始化编辑器之前引入它们，相关的 addon 列表在[这里](../demo/index.js)。
 
-> ***mode-loader* will be unavaliable**
+> ***mode-loader* 不可用**
 >
-> Bundlers use closures, making CodeMirror invisible to global. You may expose `CodeMirror` to global and set editor option `hmdLoadModeFrom` to something like `"https://cdn.jsdelivr.net/npm/codemirror/"`.
+> 打包器的闭包会将 CodeMirror 隐藏起来。你可以把 `CodeMirror` 暴露到全局，并且设置 `hmdLoadModeFrom` 属性为 `"https://cdn.jsdelivr.net/npm/codemirror/"` 之类的值。
 >
 > Or you can just bundle and pre-load all modes you need, which might make the js build larger.
 
 ### 使用 [RequireJS](http://requirejs.org/) 模块加载器
 
-载入 CSS 和 require.js 之后，你大概只需要像这样写就行了（别忘记看一下 <../demo/index.js> ）:
+载入 CSS 和 require.js 之后，你大概只需要像这样写就行了（[参考这个文件](../../demo/index.js) ）:
 
 ```js
 
@@ -129,8 +129,8 @@ require([
 
 ```
 
-### with plain HTML
+### 使用纯 HTML 标签
 
-Don't want to use either bundler or module loader? You can still load HyperMD in plain browser environment.
+不喜欢打包器和模块加载器？你可以用纯 HTML 标签来引入 HyperMD 编辑器！
 
-Please read the source code of <./examples/ai1.html>
+请参考 [这个文件](../examples/ai1.html) 的源代码

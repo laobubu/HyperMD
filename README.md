@@ -38,7 +38,7 @@ You may use both original CodeMirror and HyperMD on the same page.
 ## Quickstart
 
 [RequireJS] is recommended and used during developing HyperMD.
-If you prefer importing all css/js with HTML tags manually, see <./docs/examples/ai1.html>.
+If you prefer importing all css/js with HTML tags manually, see [demo with HyperMD all-in-one build](./docs/examples/ai1.html).
 
 Once you've loaded [RequireJS] and CSS files, you may set-up a editor like `demo/index.js` does.
 

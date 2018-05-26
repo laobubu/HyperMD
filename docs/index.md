@@ -11,8 +11,8 @@
 
 Still under construction... Consider:
 
-1. Read <../README.md> if you use RequireJS
-2. Read <./examples/ai1.html> if you prefer old-school HTML tags
+1. Read [README](../README.md) if you use RequireJS
+2. Read the source code of [this demo](./examples/ai1.html) if you prefer old-school HTML tags
 3. Read the [source code](https://github.com/laobubu/HyperMD/) if you want to dive into HyperMD addons
    - VSCode is highly recommended.
    - Maybe someday the documentation will be generated with TypeScript.
@@ -28,7 +28,7 @@ Still under construction... Consider:
 
 ### with bundlers (webpack / parcel-bundler...)
 
-First of all, run `npm i hypermd`, then let's make a simpliest `index.html`.
+First of all, run `npm i hypermd codemirror`, then let's make a simpliest `index.html`.
 
 ```html
 <html>
@@ -68,7 +68,7 @@ Let's say you are using [parcel-bundler](https://parceljs.org/), simpily run `pa
 > **some CodeMirror features will be unavaliable** unless you load them.
 >
 > Features that provided by CodeMirror built-in addons `codemirror/addon/*`, like folding, will be unavaliable.
-> You may import them before initializing editor. The list can be found in <../demo/index.js>.
+> You may import them before initializing editor. The list can be found [here](../demo/index.js).
 
 > ***mode-loader* will be unavaliable**
 >
@@ -78,7 +78,7 @@ Let's say you are using [parcel-bundler](https://parceljs.org/), simpily run `pa
 
 ### with [RequireJS](http://requirejs.org/) the module loader
 
-After loading CSS and require.js, all you need is something like this (don't forget to read <../demo/index.js>) :
+After loading CSS and require.js, all you need is something like this (don't forget to read [this](../demo/index.js) ) :
 
 ```js
 
@@ -133,4 +133,4 @@ require([
 
 Don't want to use either bundler or module loader? You can still load HyperMD in plain browser environment.
 
-Please read the source code of <./examples/ai1.html>
+Please read the source code of [this demo](./examples/ai1.html)
