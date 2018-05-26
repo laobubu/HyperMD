@@ -4,9 +4,9 @@
 // powerful keymap for HyperMD and Markdown modes
 //
 
-import CodeMirror, { Token, Position } from 'codemirror'
+import CodeMirror, { Token, Position, cmpPos } from 'codemirror'
 import { cm_t } from '../core/type'
-import { assign, TokenSeeker, repeat } from '../core';
+import { TokenSeeker, repeatStr, expandRange } from '../core';
 import { HyperMDState, TableType } from "../mode/hypermd"
 
 /**
@@ -152,10 +152,13 @@ export function shiftTab(cm: cm_t) {
     }
   }
 
-  cm.execCommand("indentAuto")
+  return CodeMirror.Pass
 }
 
-/** insert tab or move cursor into next table cell */
+/**
+ * 1. move cursor into next table cell
+ * 2. "defaultTab"
+ */
 export function tab(cm: cm_t) {
   var selections = cm.listSelections()
   var replacements: string[] = []
@@ -197,7 +200,7 @@ export function tab(cm: cm_t) {
           // next line is not a table. let's insert a row!
           line = ""
           if (isNormalTable) { line += "| "; ch += 2 }
-          line += repeat(" | ", eolState.hmdTableCol - (isNormalTable ? 2 : 0)).join("")
+          line += repeatStr(" | ", eolState.hmdTableCol - (isNormalTable ? 2 : 0))
           if (isNormalTable) line += " |"
 
           // insert the text
@@ -222,6 +225,77 @@ export function tab(cm: cm_t) {
   }
 
   cm.execCommand("defaultTab")
+}
+
+export function createStyleToggler(
+  isStyled: (state) => boolean,
+  isFormattingToken: (token: Token) => boolean,
+  getFormattingText: (state?) => string
+) {
+  return function (cm: cm_t) {
+    if (cm.getOption("disableInput")) return CodeMirror.Pass
+
+    var ts = new TokenSeeker(cm)
+    var selections = cm.listSelections()
+    var replacements = new Array(selections.length)
+
+    for (let i = 0; i < selections.length; i++) {
+      var range = selections[i]
+      var left = range.head
+      var right = range.anchor
+      var eolState = cm.getStateAfter(left.line)
+      const rangeEmpty = (range as any).empty() as boolean
+
+      if (rangeEmpty) { // nothing selected
+        let line = left.line
+        ts.setPos(line, left.ch, true)
+        let token = ts.lineTokens[ts.i_token]
+        let state: HyperMDState = token ? token.state : eolState
+
+        replacements[i] = ""
+
+        if (!token || /^\s*$/.test(token.string)) {
+          token = ts.lineTokens[--ts.i_token] // maybe eol, or current token is space
+        }
+
+        let { from, to } = ts.expandRange((token) => token && (isStyled(token.state) || isFormattingToken(token)))
+
+        if (to.i_token === from.i_token) { // current token "word" is not formatted
+          let f = getFormattingText()
+          if (token && !/^\s*$/.test(token.string)) { // not empty line, not spaces
+            let pos1 = { line, ch: token.start }, pos2 = { line, ch: token.end }
+            token = from.token
+            cm.replaceRange(f + token.string + f, pos1, pos2)
+
+            pos2.ch += f.length
+            cm.setCursor(pos2)
+            return
+          } else {
+            replacements[i] = f
+          }
+        } else if (to.token.start === from.token.end) { // stupid situation: **|**
+          cm.replaceRange("", { line, ch: from.token.start }, { line, ch: to.token.end })
+        } else { // **wor|d**
+          if (isFormattingToken(to.token)) {
+            cm.replaceRange("", { line, ch: to.token.start }, { line, ch: to.token.end })
+          }
+          if (isFormattingToken(from.token)) {
+            cm.replaceRange("", { line, ch: from.token.start }, { line, ch: from.token.end })
+          }
+        }
+        continue
+      }
+
+      if (cmpPos(left, right) > 0) [right, left] = [left, right];
+
+      let token = cm.getTokenAt(left)
+      let state = token ? token.state : eolState
+      let formatter = getFormattingText(state)
+      replacements[i] = formatter + cm.getRange(left, right) + formatter
+    }
+
+    cm.replaceSelections(replacements)
+  }
 }
 
 // Auto-updating Markdown list numbers when a new item is added to the
@@ -262,17 +336,34 @@ function incrementRemainingMarkdownListNumbers(cm, pos) {
   } while (nextItem);
 }
 
-assign(CodeMirror.commands, {
+Object.assign(CodeMirror.commands, {
   hmdNewline: newline,
   hmdShiftTab: shiftTab,
   hmdTab: tab,
 })
 
 const defaultKeyMap = CodeMirror.keyMap["default"]
-export var keyMap: CodeMirror.KeyMap =  {
+export var keyMap: CodeMirror.KeyMap = {
   "Shift-Tab": "hmdShiftTab",
   "Tab": "hmdTab",
   "Enter": "hmdNewline",
+
+  "Ctrl-B": createStyleToggler(
+    state => state.strong,
+    token => / formatting-strong /.test(token.type),
+    state => repeatStr(state && state.strong || "*", 2)     // ** or __
+  ),
+  "Ctrl-I": createStyleToggler(
+    state => state.em,
+    token => / formatting-em /.test(token.type),
+    state => (state && state.em || "*")
+  ),
+  "Ctrl-D": createStyleToggler(
+    state => state.strikethrough,
+    token => / formatting-strikethrough /.test(token.type),
+    state => "~~"
+  ),
+
 
   fallthrough: "default",
 }
