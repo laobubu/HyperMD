@@ -480,6 +480,7 @@
 .cm-s-hypermd-light div.HyperMD-hover > .HyperMD-hover-content {
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.7);
+  border: 0;
   color: #fff;
   border-radius: 5px;
   padding: 5px 10px;
