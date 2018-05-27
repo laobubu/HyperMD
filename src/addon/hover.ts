@@ -114,7 +114,7 @@ export class Hover implements Addon.Addon, HoverOptions {
       return
     }
 
-    var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY })
+    var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }, "window")
     var footnote = null
 
     const hover_type = mat[1] // hmd-barelink|hmd-link-url-s

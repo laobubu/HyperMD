@@ -124,7 +124,7 @@
       this.dropHandle = function (cm, ev) {
           var self = this$1, cm = this$1.cm, result = false;
           cm.operation(function () {
-              var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY });
+              var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }, "window");
               cm.setCursor(pos);
               result = self.doInsert(ev.dataTransfer);
           });

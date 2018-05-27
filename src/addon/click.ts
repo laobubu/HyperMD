@@ -219,7 +219,7 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
 
     if ((ev.target as HTMLElement).tagName === "PRE") return
 
-    var pos = cm.coordsChar({ left: clientX, top: clientY })
+    var pos = cm.coordsChar({ left: clientX, top: clientY }, "window")
     var range: ReturnType<typeof expandRange>
     var styles = " " + cm.getTokenTypeAt(pos) + " "
 

@@ -160,7 +160,7 @@
           var cm = this$1.cm;
           if (ev.target.tagName === "PRE")
               { return; }
-          var pos = cm.coordsChar({ left: clientX, top: clientY });
+          var pos = cm.coordsChar({ left: clientX, top: clientY }, "window");
           var range;
           var styles = " " + cm.getTokenTypeAt(pos) + " ";
           var mat;

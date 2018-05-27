@@ -245,7 +245,7 @@ class InsertFile implements Addon.Addon, InserFileOptions {
   private dropHandle = (cm: cm_t, ev: DragEvent) => {
     var self = this, cm = this.cm, result = false
     cm.operation(function () {
-      var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY })
+      var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }, "window")
       cm.setCursor(pos)
       result = self.doInsert(ev.dataTransfer)
     })
