@@ -238,12 +238,14 @@
               var right = range.anchor;
               var eolState = cm.getStateAfter(left.line);
               var rangeEmpty = range.empty();
-              if (rangeEmpty) { // nothing selected
+              if (CodeMirror.cmpPos(left, right) > 0)
+                  { (assign = [left, right], right = assign[0], left = assign[1]); }
+              var rangeText = replacements[i] = rangeEmpty ? "" : cm.getRange(left, right);
+              if (rangeEmpty || isStyled(cm.getTokenAt(left).state)) { // nothing selected
                   var line = left.line;
                   ts.setPos(line, left.ch, true);
                   var token = ts.lineTokens[ts.i_token];
                   var state = token ? token.state : eolState;
-                  replacements[i] = "";
                   if (!token || /^\s*$/.test(token.string)) {
                       token = ts.lineTokens[--ts.i_token]; // maybe eol, or current token is space
                   }
@@ -264,25 +266,20 @@
                           replacements[i] = f;
                       }
                   }
-                  else if (to.token.start === from.token.end) { // stupid situation: **|**
-                      cm.replaceRange("", { line: line, ch: from.token.start }, { line: line, ch: to.token.end });
-                  }
-                  else { // **wor|d**
+                  else { // **wor|d**    **|**   **word|  **|
                       if (isFormattingToken(to.token)) {
                           cm.replaceRange("", { line: line, ch: to.token.start }, { line: line, ch: to.token.end });
                       }
-                      if (isFormattingToken(from.token)) {
+                      if (from.i_token !== to.i_token && isFormattingToken(from.token)) {
                           cm.replaceRange("", { line: line, ch: from.token.start }, { line: line, ch: from.token.end });
                       }
                   }
                   continue;
               }
-              if (CodeMirror.cmpPos(left, right) > 0)
-                  { (assign = [left, right], right = assign[0], left = assign[1]); }
               var token$1 = cm.getTokenAt(left);
               var state$1 = token$1 ? token$1.state : eolState;
               var formatter = getFormattingText(state$1);
-              replacements[i] = formatter + cm.getRange(left, right) + formatter;
+              replacements[i] = formatter + rangeText + formatter;
           }
           cm.replaceSelections(replacements);
       };
