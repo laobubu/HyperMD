@@ -266,13 +266,14 @@ export function createStyleToggler(
       var eolState = cm.getStateAfter(left.line)
       const rangeEmpty = (range as any).empty() as boolean
 
-      if (rangeEmpty) { // nothing selected
+      if (cmpPos(left, right) > 0) [right, left] = [left, right];
+      const rangeText = replacements[i] = rangeEmpty ? "" : cm.getRange(left, right)
+
+      if (rangeEmpty || isStyled(cm.getTokenAt(left).state)) { // nothing selected
         let line = left.line
         ts.setPos(line, left.ch, true)
         let token = ts.lineTokens[ts.i_token]
         let state: HyperMDState = token ? token.state : eolState
-
-        replacements[i] = ""
 
         if (!token || /^\s*$/.test(token.string)) {
           token = ts.lineTokens[--ts.i_token] // maybe eol, or current token is space
@@ -293,25 +294,21 @@ export function createStyleToggler(
           } else {
             replacements[i] = f
           }
-        } else if (to.token.start === from.token.end) { // stupid situation: **|**
-          cm.replaceRange("", { line, ch: from.token.start }, { line, ch: to.token.end })
-        } else { // **wor|d**
+        } else { // **wor|d**    **|**   **word|  **|
           if (isFormattingToken(to.token)) {
             cm.replaceRange("", { line, ch: to.token.start }, { line, ch: to.token.end })
           }
-          if (isFormattingToken(from.token)) {
+          if (from.i_token !== to.i_token && isFormattingToken(from.token)) {
             cm.replaceRange("", { line, ch: from.token.start }, { line, ch: from.token.end })
           }
         }
         continue
       }
 
-      if (cmpPos(left, right) > 0) [right, left] = [left, right];
-
       let token = cm.getTokenAt(left)
       let state = token ? token.state : eolState
       let formatter = getFormattingText(state)
-      replacements[i] = formatter + cm.getRange(left, right) + formatter
+      replacements[i] = formatter + rangeText + formatter
     }
 
     cm.replaceSelections(replacements)
