@@ -80,6 +80,10 @@ export interface HyperMDState extends MarkdownState {
 
   hmdLinkType: LinkType
   hmdNextMaybe: NextMaybe
+
+  hmdNextState: HyperMDState
+  hmdNextStyle: string
+  hmdNextPos: number
 }
 
 export const enum TableType {
@@ -155,6 +159,9 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     ans.hmdInnerMode = null
     ans.hmdLinkType = LinkType.NONE
     ans.hmdNextMaybe = NextMaybe.NONE
+    ans.hmdNextState = null
+    ans.hmdNextStyle = null
+    ans.hmdNextPos = null
     return ans
   }
 
@@ -165,6 +172,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       "hmdTable", "hmdTableID", "hmdTableCol", "hmdTableRow",
       "hmdOverride",
       "hmdInnerMode", "hmdInnerStyle", "hmdInnerExitTag", "hmdInnerExitStyle",
+      "hmdNextPos", "hmdNextState", "hmdNextStyle",
     ]
     for (const key of keys) ans[key] = s[key]
 
@@ -252,7 +260,16 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
     // now enter markdown
 
-    ans += " " + (rawMode.token(stream, state) || "")
+    if (state.hmdNextState) {
+      stream.pos = state.hmdNextPos
+      ans += " " + (state.hmdNextStyle || "")
+      Object.assign(state, state.hmdNextState)
+      state.hmdNextState = null
+      state.hmdNextStyle = null
+      state.hmdNextPos = null
+    } else {
+      ans += " " + (rawMode.token(stream, state) || "")
+    }
     var current = stream.current()
 
     const inHTML = !!state.htmlState
@@ -487,17 +504,50 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     return ans
   }
 
+  /**
+   * advance Markdown tokenizing stream
+   *
+   * @returns true if success, and you may visit `state.hmdNextState` & `state.hmdNextStyle`
+   */
+  function advanceMarkdown(stream: CodeMirror.StringStream, state: HyperMDState) {
+    if (stream.eol() || state.hmdNextState) return false
+
+    var oldStart = stream.start
+    var oldPos = stream.pos
+
+    stream.start = oldPos
+    var newState = { ...state }
+    var newStyle = rawMode.token(stream, newState)
+
+    state.hmdNextPos = stream.pos
+    state.hmdNextState = newState
+    state.hmdNextStyle = newStyle
+
+    // console.log("ADVANCED!", oldStart, oldPos, stream.start, stream.pos)
+    // console.log("ADV", newStyle, newState)
+
+    stream.start = oldStart
+    stream.pos = oldPos
+
+    return true
+  }
+
   /** switch to another mode */
-  function enterMode(stream: CodeMirror.StringStream, state: HyperMDState, modeName: string, endTag: string): string {
-    var mode = CM.getMode(cmCfg, modeName)
+  function enterMode(stream: CodeMirror.StringStream, state: HyperMDState, mode: string | CodeMirror.Mode<any>, endTag: string): string {
+    if (typeof mode === "string") mode = CM.getMode(cmCfg, mode)
 
     if (!mode || mode["name"] === "null") {
       // mode not loaded, create a dummy mode
-      stream.pos += endTag.length // skip beginning chars
-      const charSkipper = RegExp(`^(?:\\.|[\\${endTag.charAt(0)}]+)+`)
       mode = {
         token(stream, state) {
-          stream.match(charSkipper) || stream.next()
+          var endTagSince = stream.string.indexOf(endTag, stream.start)
+          if (endTagSince === -1) stream.skipToEnd() // endTag not in this line
+          else if (endTagSince === 0) stream.pos += endTag.length // current token is endTag
+          else {
+            stream.pos = endTagSince
+            if (stream.string.charAt(endTagSince - 1) === "\\") stream.pos++
+          }
+
           return null
         }
       }

@@ -70,6 +70,9 @@
           ans.hmdInnerMode = null;
           ans.hmdLinkType = 0 /* NONE */;
           ans.hmdNextMaybe = 0 /* NONE */;
+          ans.hmdNextState = null;
+          ans.hmdNextStyle = null;
+          ans.hmdNextPos = null;
           return ans;
       };
       newMode.copyState = function (s) {
@@ -78,7 +81,8 @@
               "hmdLinkType", "hmdNextMaybe",
               "hmdTable", "hmdTableID", "hmdTableCol", "hmdTableRow",
               "hmdOverride",
-              "hmdInnerMode", "hmdInnerStyle", "hmdInnerExitTag", "hmdInnerExitStyle" ];
+              "hmdInnerMode", "hmdInnerStyle", "hmdInnerExitTag", "hmdInnerExitStyle",
+              "hmdNextPos", "hmdNextState", "hmdNextStyle" ];
           for (var i = 0, list = keys; i < list.length; i += 1)
               {
               var key = list[i];
@@ -155,7 +159,17 @@
               //#endregion
           }
           // now enter markdown
-          ans += " " + (rawMode.token(stream, state) || "");
+          if (state.hmdNextState) {
+              stream.pos = state.hmdNextPos;
+              ans += " " + (state.hmdNextStyle || "");
+              Object.assign(state, state.hmdNextState);
+              state.hmdNextState = null;
+              state.hmdNextStyle = null;
+              state.hmdNextPos = null;
+          }
+          else {
+              ans += " " + (rawMode.token(stream, state) || "");
+          }
           var current = stream.current();
           var inHTML = !!state.htmlState;
           var inCodeFence = state.code === -1;
@@ -379,15 +393,23 @@
           return ans;
       }
       /** switch to another mode */
-      function enterMode(stream, state, modeName, endTag) {
-          var mode = CM.getMode(cmCfg, modeName);
+      function enterMode(stream, state, mode, endTag) {
+          if (typeof mode === "string")
+              { mode = CM.getMode(cmCfg, mode); }
           if (!mode || mode["name"] === "null") {
               // mode not loaded, create a dummy mode
-              stream.pos += endTag.length; // skip beginning chars
-              var charSkipper = RegExp(("^(?:\\.|[\\" + (endTag.charAt(0)) + "]+)+"));
               mode = {
                   token: function(stream, state) {
-                      stream.match(charSkipper) || stream.next();
+                      var endTagSince = stream.string.indexOf(endTag, stream.start);
+                      if (endTagSince === -1)
+                          { stream.skipToEnd(); } // endTag not in this line
+                      else if (endTagSince === 0)
+                          { stream.pos += endTag.length; } // current token is endTag
+                      else {
+                          stream.pos = endTagSince;
+                          if (stream.string.charAt(endTagSince - 1) === "\\")
+                              { stream.pos++; }
+                      }
                       return null;
                   }
               };
