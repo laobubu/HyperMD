@@ -7,3 +7,6 @@ insert_final_newline = true
 
 [*.scss]
 indent_size = 4
+
+[*.css]
+indent_size = 4

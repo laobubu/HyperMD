@@ -44,6 +44,7 @@
       var end_info = stream.findNext(/formatting-math-end\b/, maySpanLines);
       var from = { line: line, ch: token.start };
       var to;
+      var noEndingToken = false;
       if (end_info) {
           to = { line: end_info.lineNo, ch: end_info.token.start + tokenLength };
       }
@@ -52,6 +53,7 @@
           // fold to the end of doc
           var lastLineNo = cm.lastLine();
           to = { line: lastLineNo, ch: cm.getLine(lastLineNo).length };
+          noEndingToken = true;
       }
       else {
           // Hmm... corrupted math ?
@@ -59,7 +61,7 @@
       }
       // Range is ready. request the range
       var expr_from = { line: from.line, ch: from.ch + tokenLength };
-      var expr_to = { line: to.line, ch: to.ch - tokenLength };
+      var expr_to = { line: to.line, ch: to.ch - (noEndingToken ? 0 : tokenLength) };
       var expr = cm.getRange(expr_from, expr_to).trim();
       var foldMathAddon = getAddon(cm);
       var reqAns = stream.requestRange(from, to);
@@ -94,8 +96,7 @@
       });
       span.addEventListener("click", function () { return fold.breakMark(cm, marker, tokenLength); }, false);
       // const foldMathAddon = getAddon(cm)
-      var Renderer = cm.hmd.foldMath.renderer || (typeof MathJax === 'undefined' ? StupidRenderer : MathJaxRenderer);
-      var mathRenderer = new Renderer(span, "");
+      var mathRenderer = cm.hmd.foldMath.createRenderer(span, "");
       mathRenderer.onChanged = function () {
           if (mathPlaceholder) {
               span.removeChild(mathPlaceholder);
@@ -183,7 +184,6 @@
           MathJax.Hub.Queue(["Text", this.jax, expr], ["_TypesetDoneCB", this, expr]);
       }
       else {
-          this.jax = MathJax.Hub.getJaxFor(script);
           MathJax.Hub.Queue(["Typeset", MathJax.Hub, script], ["_TypesetDoneCB", this, expr]);
       }
   };
@@ -192,6 +192,8 @@
       if (this._cleared) {
           return;
       }
+      if (!this.jax)
+          { this.jax = MathJax.Hub.getJaxFor(this.script); }
       if (this._renderingExpr !== finished_expr) {
           // Current finished rendering job is out-of-date
           // re-render with newest Tex expr
@@ -227,6 +229,10 @@
       /** CHANGED */ function (expr) { this$1.onPreview && this$1.onPreview(expr); }, 
       /** HIDE*/ function () { this$1.onPreviewEnd && this$1.onPreviewEnd(); }, null);
       // options will be initialized to defaultOption (if exists)
+  };
+  FoldMath.prototype.createRenderer = function (container, mode) {
+      var RendererClass = this.renderer || (typeof MathJax === 'undefined' ? StupidRenderer : MathJaxRenderer);
+      return new RendererClass(container, mode);
   };
   var OptionName = "hmdFoldMath";
   CodeMirror.defineOption(OptionName, defaultOption, function (cm, newVal) {

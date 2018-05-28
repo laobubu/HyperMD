@@ -2,6 +2,8 @@
 
 ![HyperMD Markdown Editor](./demo/logo.png)
 
+[![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd)
+
 **Breaks the Wall** between *writing* and *preview*, in a Markdown Editor.
 
 [Online Demo](https://laobubu.net/HyperMD/)
