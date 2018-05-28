@@ -30,6 +30,40 @@ h2 {
     font-size: 1.4em;
 }
 
+.float-win {
+    position: absolute;
+    position: fixed;
+    z-index: 100;
+    background: #EEE;
+    background-image: linear-gradient(to bottom, #FFF, #EEE);
+    padding: 10px 20px;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 3px 7px rgba(0,0,0,0.3);
+    max-width: 70%;
+}
+
+.float-win-hidden {
+    display: none;
+}
+
+.float-win-title {
+    background: #579;
+    font-size: .87em;
+    background-image: linear-gradient(to bottom, #68A, #579);
+    color: #EEE;
+    padding: 5px 15px;
+    margin: -10px -20px;
+    margin-bottom: 10px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: move;
+}
+
 #editor_area {
     position: absolute;
     box-sizing: border-box;

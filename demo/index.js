@@ -109,10 +109,6 @@ require([
 
   // HyperMD magic. See https://laobubu.net/HyperMD/docs/
   var editor = HyperMD.fromTextArea(myTextarea, {
-    hmdFoldMath: {
-      onPreview: function (s) { console.log("Preview math: ", s) },
-      onPreviewEnd: function () { console.log("Preview end") }
-    },
     hmdClick: clickHandler,
   })
   editor.setSize("100%", "100%")
@@ -126,6 +122,10 @@ require([
   // for demo page only:
   document.body.className += " loaded"
   load_and_update_editor(demo_filename)
+
+  // Preview Tex Math formula
+  // @see demo/math-preview.js
+  init_math_preview(editor)
 })
 
 var allowDirectOpen = /directOpen/.test(window.location.search)
