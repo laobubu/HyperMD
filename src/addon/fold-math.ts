@@ -40,6 +40,7 @@ export const MathFolder: FolderFunc = (stream, token) => {
 
   var from: Position = { line, ch: token.start }
   var to: Position
+  var noEndingToken = false
 
   if (end_info) {
     to = { line: end_info.lineNo, ch: end_info.token.start + tokenLength }
@@ -48,6 +49,7 @@ export const MathFolder: FolderFunc = (stream, token) => {
     // fold to the end of doc
     let lastLineNo = cm.lastLine()
     to = { line: lastLineNo, ch: cm.getLine(lastLineNo).length }
+    noEndingToken = true
   } else {
     // Hmm... corrupted math ?
     return null
@@ -56,7 +58,7 @@ export const MathFolder: FolderFunc = (stream, token) => {
   // Range is ready. request the range
 
   var expr_from: Position = { line: from.line, ch: from.ch + tokenLength }
-  var expr_to: Position = { line: to.line, ch: to.ch - tokenLength }
+  var expr_to: Position = { line: to.line, ch: to.ch - (noEndingToken ? 0 : tokenLength) }
   var expr: string = cm.getRange(expr_from, expr_to).trim()
 
   const foldMathAddon = getAddon(cm)
@@ -101,8 +103,7 @@ export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression:
   span.addEventListener("click", () => breakMark(cm, marker, tokenLength), false)
 
   // const foldMathAddon = getAddon(cm)
-  const Renderer = cm.hmd.foldMath.renderer || (typeof MathJax === 'undefined' ? StupidRenderer : MathJaxRenderer) as any
-  var mathRenderer = new Renderer(span, "") as MathRenderer
+  var mathRenderer = cm.hmd.foldMath.createRenderer(span, "")
   mathRenderer.onChanged = function () {
     if (mathPlaceholder) {
       span.removeChild(mathPlaceholder)
@@ -237,7 +238,6 @@ export class MathJaxRenderer implements MathRenderer {
       MathJax.Hub.Queue(["Text", this.jax, expr], ["_TypesetDoneCB", this, expr]);
     }
     else {
-      this.jax = MathJax.Hub.getJaxFor(script);
       MathJax.Hub.Queue(["Typeset", MathJax.Hub, script], ["_TypesetDoneCB", this, expr]);
     }
   }
@@ -247,6 +247,7 @@ export class MathJaxRenderer implements MathRenderer {
     if (this._cleared) {
       return;
     }
+    if (!this.jax) this.jax = MathJax.Hub.getJaxFor(this.script);
     if (this._renderingExpr !== finished_expr) {
       // Current finished rendering job is out-of-date
       // re-render with newest Tex expr
@@ -303,6 +304,11 @@ class FoldMath implements Addon.Addon, FoldMathOptions {
   renderer: typeof MathRenderer;
   onPreview: (expr: string) => void;
   onPreviewEnd: () => void;
+
+  public createRenderer(container: HTMLElement, mode: MathRenderMode): MathRenderer {
+    var RendererClass = this.renderer || (typeof MathJax === 'undefined' ? StupidRenderer : MathJaxRenderer) as any
+    return new RendererClass(container, mode)
+  }
 }
 
 const OptionName = "hmdFoldMath"
