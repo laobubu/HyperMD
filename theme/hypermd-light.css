@@ -110,6 +110,12 @@
   border-right: 10px solid #FFF;
   padding-right: 5px;
 }
+.cm-s-hypermd-light .CodeMirror-line {
+  padding: 0 5px;
+}
+.cm-s-hypermd-light .CodeMirror-code {
+  padding-right: 10px;
+}
 .cm-s-hypermd-light .CodeMirror-foldmarker {
   display: inline-block;
   vertical-align: middle;
@@ -128,7 +134,7 @@
 .cm-s-hypermd-light pre.HyperMD-header {
   line-height: 1.5 !important;
   font-family: inherit !important;
-  padding-left: 0 !important;
+  padding-left: 5px !important;
   margin-left: 0 !important;
   border-left: 0 !important;
   color: #333;
@@ -165,58 +171,58 @@
   background-size: 20px 1px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-1 {
-  padding-left: 22px;
+  padding-left: 27px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-1:before {
   width: 20px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-1.HyperMD-footnote {
-  padding-left: 62px;
+  padding-left: 67px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-2 {
-  padding-left: 42px;
+  padding-left: 47px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-2:before {
   width: 40px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-2.HyperMD-footnote {
-  padding-left: 82px;
+  padding-left: 87px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-3 {
-  padding-left: 62px;
+  padding-left: 67px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-3:before {
   width: 60px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-3.HyperMD-footnote {
-  padding-left: 102px;
+  padding-left: 107px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-4 {
-  padding-left: 82px;
+  padding-left: 87px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-4:before {
   width: 80px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-4.HyperMD-footnote {
-  padding-left: 122px;
+  padding-left: 127px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-5 {
-  padding-left: 102px;
+  padding-left: 107px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-5:before {
   width: 100px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-5.HyperMD-footnote {
-  padding-left: 142px;
+  padding-left: 147px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-6 {
-  padding-left: 122px;
+  padding-left: 127px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-6:before {
   width: 120px;
 }
 .cm-s-hypermd-light pre.HyperMD-quote-6.HyperMD-footnote {
-  padding-left: 162px;
+  padding-left: 167px;
 }
 .cm-s-hypermd-light span.cm-hmd-list-indent {
   display: inline-block;
@@ -240,22 +246,22 @@
   padding-top: 0.3em;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-1 {
-  padding-left: 40px;
+  padding-left: 45px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-2 {
-  padding-left: 70px;
+  padding-left: 75px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-3 {
-  padding-left: 100px;
+  padding-left: 105px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-4 {
-  padding-left: 130px;
+  padding-left: 135px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-5 {
-  padding-left: 160px;
+  padding-left: 165px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-6 {
-  padding-left: 190px;
+  padding-left: 195px;
 }
 .cm-s-hypermd-light span.cm-formatting-list {
   text-align: right;
@@ -289,7 +295,7 @@
 }
 .cm-s-hypermd-light pre.HyperMD-footnote {
   font-size: 10.2pt;
-  padding-left: 40px;
+  padding-left: 45px;
 }
 .cm-s-hypermd-light pre.HyperMD-footnote > span > span:first-child {
   margin-left: -40px;
@@ -304,6 +310,7 @@
   font-size: 90%;
   color: #922;
   border-left: 1px solid #CCC;
+  border-right: 1px solid #CCC;
 }
 .cm-s-hypermd-light pre.HyperMD-codeblock span.cm-inline-code {
   display: inherit;
@@ -351,7 +358,7 @@
 .cm-s-hypermd-light img.hmd-image {
   vertical-align: middle;
   width: auto;
-  max-width: 95%;
+  max-width: 100%;
   height: auto;
 }
 .cm-s-hypermd-light img.hmd-image.hmd-image-loading, .cm-s-hypermd-light img.hmd-image.hmd-image-error {
@@ -443,9 +450,6 @@
   position: absolute;
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=) repeat-y center 0px;
   pointer-events: none;
-}
-.cm-s-hypermd-light pre.HyperMD-table-row img.hmd-image {
-  max-width: 100%;
 }
 .cm-s-hypermd-light pre.HyperMD-table-row.HyperMD-table-row-0 {
   font-weight: bold;

@@ -8,6 +8,8 @@
 .cm-s-hypermd-light {
     $fs: 12pt;  //default font-size
 
+    $line-margin: 10px;
+    $line-padding: 5px;
     $footnote-padding: 40px;
     $quote-margin: 2px;
     $quote-padding: 20px;
@@ -20,6 +22,7 @@
     $table-sep-width: 15px;
     $table-sep-image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=';
     $table-row-1-image: $table-sep-image;
+    $codeblock-border: 1px solid #CCC;
 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	-webkit-font-smoothing: antialiased;
@@ -72,8 +75,14 @@
         color: #ccc;
     }
     .CodeMirror-gutters {
-        border-right: 10px solid #FFF;
+        border-right: $line-margin solid #FFF;
         padding-right: 5px;
+    }
+    .CodeMirror-line {
+        padding: 0 $line-padding;
+    }
+    .CodeMirror-code {
+        padding-right: $line-margin;
     }
     .CodeMirror-foldmarker {
         display: inline-block;
@@ -109,7 +118,7 @@
         // see https://github.com/laobubu/HyperMD/issues/25
         line-height: 1.5 !important;
         font-family: inherit !important;
-        padding-left: 0 !important;
+        padding-left: $line-padding !important;
         margin-left: 0 !important;
         border-left: 0 !important;
         > span > span:first-child {
@@ -158,14 +167,14 @@
     @for $i from 1 through 6 {
         pre.HyperMD-quote-#{$i} {
             $padding-left: $quote-margin + ($quote-padding) * ($i);
-            padding-left: $padding-left;
+            padding-left: $line-padding + $padding-left;
 
             &:before {
                 width: $quote-padding * $i;
             }
 
             &.HyperMD-footnote {
-                padding-left: $padding-left + $footnote-padding;
+                padding-left: $line-padding + $padding-left + $footnote-padding;
             }
         }
     }
@@ -203,7 +212,7 @@
     @for $i from 1 through 6 {
         pre.HyperMD-list-line-#{$i} {
             $indent_i: $list-indent * $i + $list-margin;
-            padding-left: $indent_i;
+            padding-left: $line-padding + $indent_i;
         }
     }
 
@@ -250,7 +259,7 @@
     // note: footnote can be inside a blockquote
     pre.HyperMD-footnote {
         font-size: $fs * 0.85;
-        padding-left: $footnote-padding;
+        padding-left: $line-padding + $footnote-padding;
 
         > span > span:first-child {
             margin-left: - $footnote-padding;
@@ -286,16 +295,17 @@
         // }
 
         &.HyperMD-codeblock-begin {
-            border-top: 1px solid #CCC;
+            border-top: $codeblock-border;
             border-radius: 4px 4px 0 0;
         }
 
         &.HyperMD-codeblock-end {
-            border-bottom: 1px solid #CCC;
+            border-bottom: $codeblock-border;
             border-radius: 0 0 4px 4px;
         }
 
-        border-left: 1px solid #CCC;
+        border-left: $codeblock-border;
+        border-right: $codeblock-border;
     }
 
     // note: this is a background style
@@ -341,7 +351,7 @@
     img.hmd-image {
         vertical-align: middle;
         width: auto;
-        max-width: 95%;
+        max-width: 100%;
         height: auto;
         &.hmd-image-loading,
         &.hmd-image-error {
@@ -429,7 +439,7 @@
             display: inline-block;
             border: $table-border-style;
             border-top: 0;
-            margin-right: 50px; // leave space for hscroller
+            margin-right: 30px + $line-margin * 2; // leave space for hscroller
         }
 
         &.HyperMD-table-row-0 > span {
@@ -457,10 +467,6 @@
                 background: url(#{$table-sep-image}) repeat-y center 0px;
                 pointer-events: none;
             }
-        }
-
-        img.hmd-image {
-            max-width: 100%; //FIXME: don't know why
         }
 
         &.HyperMD-table-row-0 {
