@@ -1,0 +1,31 @@
+language: node_js
+node_js:
+  - "8"
+script:
+  - npm run build
+  # no unit test yet
+before_deploy:
+  - sed -i -e '/.js$/d' -e '/.css$/d' .gitignore
+deploy:
+  # Deploy to https://laobubu.net/HyperMD
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    target-branch: gh-pages
+    on:
+      branch: master
+  # Publish to NPM/GitHub Releases if tagged
+  - provider: npm
+    api_key: $NPM_TOKEN
+    skip_cleanup: true
+    on:
+      branch: master
+      tags: true
+  - provider: releases
+    skip_cleanup: true
+    email: "laobubu@gmail.com"
+    file_glob: true
+    file: "**/*"
+    on:
+      branch: master
+      tags: true

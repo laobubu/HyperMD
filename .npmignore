@@ -11,3 +11,9 @@ docs/
 src/
 rollup.config.js
 tsconfig.json
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock

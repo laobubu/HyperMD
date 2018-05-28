@@ -4,7 +4,6 @@
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
   "main": "lib/hypermd_ai1.js",
   "scripts": {
-    "prepare": "npm run build",
     "build": "npm run build_js && npm run build_css",
     "build_js": "rollup -c",
     "build_css": "node dev/dev.js",
