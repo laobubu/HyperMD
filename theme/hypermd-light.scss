@@ -471,7 +471,10 @@
 
         &.HyperMD-table-row-0 {
             // title row
-            font-weight: bold;
+            font-weight: 600;
+            .cm-strong {
+                font-weight: 700;
+            }
         }
 
         .hmd-table-column-content {
@@ -499,8 +502,8 @@
 
         &.HyperMD-table-1 > span {
             // for simple table , leave extra padding to first/last column
-            span:first-child { padding-left: $table-sep-width / 2 }
-            span:last-child { padding-right: $table-sep-width / 2 }
+            span.hmd-table-column:first-child { padding-left: $table-sep-width / 2 }
+            span.hmd-table-column:last-child { padding-right: $table-sep-width / 2 }
         }
     }
 

@@ -24,7 +24,10 @@ const LoQRE = /^(\s*)(>[> ]*|[*+-] \[[x ]\]\s|[*+-]\s|(\d+)([.)]))(\s*)/,
   unorderedListRE = /[*+-]\s/;
 const isRealTableSep = (token: Token) => /hmd-table-sep/.test(token.type) && !/hmd-table-sep-dummy/.test(token.type);
 
-/** continue list / quote / insert table row */
+/**
+ * continue list / quote / insert table row
+ * start a table
+ */
 export function newlineAndContinue(cm: cm_t) {
   if (cm.getOption("disableInput")) return CodeMirror.Pass
 
@@ -66,7 +69,10 @@ export function newlineAndContinue(cm: cm_t) {
     if (!handled) {
       const table = rangeEmpty ? eolState.hmdTable : TableType.NONE
       if (table != TableType.NONE) {
-        if (/^[\s\|]+$/.test(line) && (cm.getStateAfter(pos.line + 1) as HyperMDState).hmdTable !== table) {
+        if (
+          /^[\s\|]+$/.test(line) &&
+          (pos.line === cm.lastLine() || (cm.getStateAfter(pos.line + 1) as HyperMDState).hmdTable !== table)
+        ) {
           // this is a empty row, end the table
           cm.replaceRange("", { line: pos.line, ch: 0 }, { line: pos.line, ch: line.length })
           replacements.push("\n")
@@ -94,6 +100,36 @@ export function newlineAndContinue(cm: cm_t) {
           replacements.push(textOnRight + "\n" + textOnLeft)
         }
         handled = true
+      } else if (pos.ch >= line.length && eolState.list === false && !eolState.quote && line.indexOf("|") > -1) {
+        // maybe we can create a table!
+        // check every "|"
+        let curPos = 0
+        let end = line.length - 1
+        let sepCount = 0
+        let firstSep = -1, lastSep = -1
+        while (curPos < end) {
+          let ch = line.indexOf("|", curPos)
+          if (ch === -1) break
+          let tokenType = cm.getTokenTypeAt({ line: pos.line, ch: ch })
+          if (!tokenType || 0 == tokenType.trim().length) {
+            sepCount++
+            if (firstSep === -1) firstSep = ch
+            lastSep = ch
+          }
+          curPos = ch + 1
+        }
+
+        let normalStyle = /^\s*$/.test(line.slice(0, firstSep))
+        if (sepCount >= 1 && normalStyle === /^\s*$/.test(line.slice(lastSep + 1))) { // correct pipe number and correct format!
+          let newline = normalStyle ? "\n|" : "\n"
+          if (normalStyle) sepCount-- // ignore leading pipe
+          while (sepCount--) newline += " ---- |"
+          if (!normalStyle) newline += " ----"
+          newline += normalStyle ? "\n| " : "\n"
+
+          replacements.push(newline)
+          handled = true
+        }
       }
     }
 
@@ -205,6 +241,7 @@ export function tab(cm: cm_t) {
       /** start of next cell's text */
       let ch = 0
       let lineNo = pos.line
+      let isLastLine = lineNo >= cm.lastLine()
 
       if (nextSep) {
         // found next separator in current line
@@ -216,7 +253,7 @@ export function tab(cm: cm_t) {
 
         const nextEolState = cm.getStateAfter(lineNo) as HyperMDState
 
-        if (!nextEolState.hmdTable) {
+        if (isLastLine || !nextEolState.hmdTable) {
           // next line is not a table. let's insert a row!
           line = ""
           if (isNormalTable) { line += "| "; ch += 2 }
@@ -224,7 +261,8 @@ export function tab(cm: cm_t) {
           if (isNormalTable) line += " |"
 
           // insert the text
-          cm.replaceRange(line + "\n", { ch: 0, line: lineNo }, { ch: 0, line: lineNo })
+          if (isLastLine) cm.replaceRange("\n" + line + "\n", { ch: cm.getLine(pos.line).length, line: pos.line })
+          else cm.replaceRange(line + "\n", { ch: 0, line: lineNo }, { ch: 0, line: lineNo })
         } else {
           // locate first row
           line = cm.getLine(lineNo)

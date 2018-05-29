@@ -431,10 +431,12 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         if (current.charAt(0) === "|") {
           // is "|xxxxxx", separate "|" and "xxxxxx"
           stream.pos = stream.start + 1 // rewind to end of "|"
+          current = "|"
           isTableSep = true
         } else if (tmp = current.match(/\|/)) {
           // break unformatted "text|char" into "text" and "|char"
           stream.pos = stream.start + tmp.index // rewind
+          current = current.slice(0, tmp.index)
         }
 
         if (isTableSep) {
