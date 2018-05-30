@@ -7,6 +7,7 @@
 import CodeMirror, { LineHandle } from 'codemirror'
 import { Addon, FlipFlop, debounce, updateCursorDisplay } from '../core'
 import { cm_t } from '../core/type'
+import { HyperMDState, TableType } from '../mode/hypermd';
 
 
 /********************************************************************************** */
@@ -97,18 +98,23 @@ export class TableAlign implements Addon.Addon, TableAlignOptions {
     const lineSpan = el.firstElementChild
     const lineSpanChildren = Array.prototype.slice.call(lineSpan.childNodes, 0) as Node[]
 
-    var columnIdx = 0
-    var columnSpan = this.makeColumn(columnIdx)
+    const eolState = cm.getStateAfter(line.lineNo()) as HyperMDState
+    const columnStyles = eolState.hmdTableColumns
+    const tableID = eolState.hmdTableID
+
+    var columnIdx = eolState.hmdTable === TableType.NORMAL ? -1 : 0
+    var columnSpan = this.makeColumn(columnIdx, columnStyles[columnIdx] || "dummy", tableID)
     var columnContentSpan = columnSpan.firstElementChild
     for (const el of lineSpanChildren) {
-      if (el.nodeType === Node.ELEMENT_NODE && /cm-hmd-table-sep/.test((el as HTMLElement).className)) {
+      const elClass = el.nodeType === Node.ELEMENT_NODE && (el as HTMLElement).className || ""
+      if (/cm-hmd-table-sep/.test(elClass)) {
         // found a "|", and a column is finished
         columnIdx++
         columnSpan.appendChild(columnContentSpan)
         lineSpan.appendChild(columnSpan)
         lineSpan.appendChild(el)
 
-        columnSpan = this.makeColumn(columnIdx)
+        columnSpan = this.makeColumn(columnIdx, columnStyles[columnIdx] || "dummy", tableID)
         columnContentSpan = columnSpan.firstElementChild
       } else {
         columnContentSpan.appendChild(el)
@@ -122,10 +128,11 @@ export class TableAlign implements Addon.Addon, TableAlignOptions {
    * create a <span> container as column,
    * note that put content into column.firstElementChild
    */
-  makeColumn(index: number): HTMLSpanElement {
+  makeColumn(index: number, style: string, tableID: string): HTMLSpanElement {
     var span = document.createElement("span")
-    span.className = "hmd-table-column hmd-table-column-" + index
+    span.className = `hmd-table-column hmd-table-column-${index} hmd-table-column-${style}`
     span.setAttribute("data-column", "" + index)
+    span.setAttribute("data-table-id", tableID)
 
     var span2 = document.createElement("span")
     span2.className = "hmd-table-column-content"
@@ -147,9 +154,8 @@ export class TableAlign implements Addon.Addon, TableAlignOptions {
     for (let i = 0; i < contentSpans.length; i++) {
       const contentSpan = contentSpans[i] as HTMLSpanElement
       const column = contentSpan.parentElement as HTMLSpanElement
-      const line = column.parentElement.parentElement as HTMLPreElement
 
-      const tableID = line.className.match(/HyperMD-table_(\S+)/)[1]
+      const tableID = column.getAttribute("data-table-id")
       const columnIdx = ~~column.getAttribute("data-column")
       const width = contentSpan.offsetWidth + 1 // +1 because browsers turn 311.3 into 312
 

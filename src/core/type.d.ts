@@ -197,6 +197,7 @@ declare module "codemirror" {
 
     lineNo(): number
 
+    stateAfter?: any
     markedSpans?: { from: number | null, to: number | null, marker: TextMarker }[]
   }
 

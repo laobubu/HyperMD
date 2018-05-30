@@ -68,6 +68,7 @@ export interface MarkdownState {
 export interface HyperMDState extends MarkdownState {
   hmdTable: TableType
   hmdTableID: string
+  hmdTableColumns: string[]
   hmdTableCol: number
   hmdTableRow: number
   hmdOverride: TokenFunc
@@ -92,12 +93,10 @@ export const enum TableType {
   NORMAL,     // | table | column |
 }
 
-const SimpleTableRE = /^\s*[^|].*?\|.*[^|]\s*$/
+const SimpleTableRE = /^\s*[^\|].*?\|.*[^|]\s*$/
 const SimpleTableLooseRE = /^\s*[^\|].*\|/ // unfinished | row
-const SimpleTableSepRE = /^(?:\s*\:?\s*\-+\s*\:?\s*\|)+\s*\:?\s*\-+\s*\:?\s*$/ // :-----:|:-----:
-const NormalTableRE = /^\s*\|\s.*?\s\|\s.*?\s\|\s*$/
+const NormalTableRE = /^\s*\|[^\|]+\|.+\|\s*$/
 const NormalTableLooseRE = /^\s*\|/ // | unfinished row
-const NormalTableSepRE = /^\s*\|(?:\s*\:?\s*---+\s*\:?\s*\|){2,}\s*$/ // find  |:-----:|:-----:| line
 
 export const enum NextMaybe {
   NONE = 0,
@@ -153,6 +152,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   newMode.startState = function () {
     var ans = rawMode.startState() as HyperMDState
     ans.hmdTable = TableType.NONE
+    ans.hmdTableColumns = []
     ans.hmdOverride = null
     ans.hmdInnerExitTag = null
     ans.hmdInnerExitStyle = null
@@ -176,6 +176,8 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     ]
     for (const key of keys) ans[key] = s[key]
 
+    ans.hmdTableColumns = s.hmdTableColumns.slice(0)
+
     if (s.hmdInnerMode) ans.hmdInnerState = CM.copyState(s.hmdInnerMode, s.hmdInnerState)
 
     return ans
@@ -189,6 +191,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     if (state.hmdTable) {
       state.hmdTable = TableType.NONE
       state.hmdTableID = null
+      state.hmdTableColumns = []
     }
     return ans || null
   }
@@ -305,6 +308,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
           // end of a table
           state.hmdTable = tableType = TableType.NONE
           state.hmdTableID = null
+          state.hmdTableColumns = []
         }
       }
       //#endregion
@@ -442,11 +446,53 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         if (isTableSep) {
           // if not inside a table, try to construct one
           if (!tableType) {
-            if (SimpleTableRE.test(stream.string) && SimpleTableSepRE.test(stream.lookAhead(1))) tableType = TableType.SIMPLE
-            else if (NormalTableRE.test(stream.string) && NormalTableSepRE.test(stream.lookAhead(1))) tableType = TableType.NORMAL
+            // check 1: current line meet the table format
+            if (SimpleTableRE.test(stream.string)) tableType = TableType.SIMPLE
+            else if (NormalTableRE.test(stream.string)) tableType = TableType.NORMAL
 
-            if (state.hmdTable = tableType) {
+            // check 2: check every column's alignment style
+            let rowStyles: string[]
+            if (tableType) {
+              let nextLine = stream.lookAhead(1)
+
+              if (tableType === TableType.NORMAL) {
+                if (!NormalTableRE.test(nextLine)) {
+                  tableType = TableType.NONE
+                } else {
+                  // remove leading / tailing pipe char
+                  nextLine = nextLine.replace(/^\s*\|/, '').replace(/\|\s*$/, '')
+                }
+              } else if (tableType === TableType.SIMPLE) {
+                if (!SimpleTableRE.test(nextLine)) {
+                  tableType = TableType.NONE
+                }
+              }
+
+              if (tableType) {
+                rowStyles = nextLine.split("|")
+                for (let i = 0; i < rowStyles.length; i++) {
+                  let row = rowStyles[i]
+
+                  if (/^\s*--+\s*:\s*$/.test(row)) row = "right"
+                  else if (/^\s*:\s*--+\s*$/.test(row)) row = "left"
+                  else if (/^\s*:\s*--+\s*:\s*$/.test(row)) row = "center"
+                  else if (/^\s*--+\s*$/.test(row)) row = "default"
+                  else {
+                    // ouch, can't be a table
+                    tableType = TableType.NONE
+                    break
+                  }
+
+                  rowStyles[i] = row
+                }
+              }
+            }
+
+            // step 3: made it
+            if (tableType) {
               // successfully made one
+              state.hmdTable = tableType
+              state.hmdTableColumns = rowStyles
               state.hmdTableID = "T" + stream.lineOracle.line
               state.hmdTableRow = state.hmdTableCol = 0
             }
@@ -454,14 +500,16 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
           // then
           if (tableType) {
-            const row = state.hmdTableRow
-            const col = state.hmdTableCol++
-            if (col == 0) ans += ` line-HyperMD-table_${state.hmdTableID} line-HyperMD-table-${tableType} line-HyperMD-table-row line-HyperMD-table-row-${row}`
-            ans += ` hmd-table-sep hmd-table-sep-${col}`
-
-            if (tableType === TableType.NORMAL && (col == 0 || stream.match(/^\s*$/, false))) {
-              // Normal style table has extra `|` at the start / end of lines
-              ans += ` hmd-table-sep-dummy`
+            const colUbound = state.hmdTableColumns.length - 1
+            if (tableType === TableType.NORMAL && (firstTokenOfLine || stream.match(/^\s*$/, false))) {
+              ans += ` hmd-table-sep hmd-table-sep-dummy`
+            } else if (state.hmdTableCol < colUbound) {
+              const row = state.hmdTableRow
+              const col = state.hmdTableCol++
+              if (col == 0) {
+                ans += ` line-HyperMD-table_${state.hmdTableID} line-HyperMD-table-${tableType} line-HyperMD-table-row line-HyperMD-table-row-${row}`
+              }
+              ans += ` hmd-table-sep hmd-table-sep-${col}`
             }
           }
         }

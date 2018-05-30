@@ -21,7 +21,7 @@
     $table-row1-height: 8px;
     $table-sep-width: 15px;
     $table-sep-image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=';
-    $table-row-1-image: $table-sep-image;
+    $table-row-1-image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAQAAAAziH6sAAAADklEQVR42mOc+Z9x5n8ACTkDM4ikM1IAAAAASUVORK5CYII=';
     $codeblock-border: 1px solid #CCC;
 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -437,14 +437,16 @@
 
         > span {
             display: inline-block;
-            border: $table-border-style;
-            border-top: 0;
+            border-top: $table-border-style;
             margin-right: 30px + $line-margin * 2; // leave space for hscroller
         }
 
-        &.HyperMD-table-row-0 > span {
-            border-top: $table-border-style;
-            border-radius: 5px 5px 0 0;
+        &.HyperMD-table-row-0,
+        &.HyperMD-table-row-1,
+        &.HyperMD-table-row-2 {
+            > span {
+                border-top: 0;
+            }
         }
 
         span.cm-hmd-table-sep {
@@ -457,7 +459,7 @@
                 width: 1em;
             }
 
-            &:not(.cm-hmd-table-sep-dummy):before {
+            &:before {
                 content: '|';
                 color: transparent;
                 top: 0;
@@ -498,12 +500,6 @@
 
         &.HyperMD-table-row-2 {
             span.hmd-table-column-content { padding-top: 1px }
-        }
-
-        &.HyperMD-table-1 > span {
-            // for simple table , leave extra padding to first/last column
-            span.hmd-table-column:first-child { padding-left: $table-sep-width / 2 }
-            span.hmd-table-column:last-child { padding-right: $table-sep-width / 2 }
         }
     }
 

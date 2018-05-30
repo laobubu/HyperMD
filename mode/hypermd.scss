@@ -50,11 +50,15 @@ span.hmd-link-icon:after {
 }
 
 pre.HyperMD-table-row {
-  white-space: pre;
-  .hmd-table-column,
-  .hmd-table-column-content {
-    display: inline-block;
-  }
+    white-space: pre;
+    .hmd-table-column,
+    .hmd-table-column-content {
+        display: inline-block;
+    }
+
+    .hmd-table-column-left { text-align: left }
+    .hmd-table-column-center { text-align: center }
+    .hmd-table-column-right { text-align: right }
 }
 
 span.hmd-fold-math,
