@@ -5,12 +5,11 @@
 // With custom ClickHandler supported
 //
 
-import CodeMirror from 'codemirror'
-import { Addon, FlipFlop, expandRange } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, expandRange, suggestedEditorConfig } from '../core'
+
 import { cm_t } from '../core/type'
 import { splitLink } from './read-link'
-
-const emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 /********************************************************************************** */
 //#region CLICK HANDLER
@@ -133,60 +132,80 @@ const makeBackButton = (function () {
 //#endregion
 
 /********************************************************************************** */
-//#region ADDON OPTIONS
+//#region Addon Options
 
-export interface ClickOptions extends Addon.AddonOptions {
+export interface Options extends Addon.AddonOptions {
+  /** Enable Click features or not. */
   enabled: boolean
+
+  /**
+   * A callback when user clicked on something. May return `false` to supress HyperMD default behavoir.
+   * @see ClickHandler
+   */
   handler: ClickHandler
 }
 
-export const defaultOption: ClickOptions = {
+export const defaultOption: Options = {
   enabled: false,
   handler: null,
 }
 
-const OptionName = "hmdClick"
-type OptionValueType = Partial<ClickOptions> | boolean | ClickHandler;
+export const suggestedOption: Partial<Options> = {
+  enabled: true,  // we recommend lazy users to enable this fantastic addon!
+}
 
-CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionValueType) {
-  const enabled = !!newVal
+export type OptionValueType = Partial<Options> | boolean;
 
-  if (!enabled || typeof newVal === "boolean") {
-    newVal = { enabled: enabled }
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for Click.
+       *
+       * You may also provide a `false` to disable it; a `true` to enable it with default behavior;
+       * or a callback which may return `false` to supress HyperMD default behavoir.
+       */
+      hmdClick?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdClick = suggestedOption
+
+CodeMirror.defineOption("hmdClick", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "boolean") {
+    newVal = { enabled: !!newVal }
   } else if (typeof newVal === "function") {
     newVal = { enabled: true, handler: newVal }
   }
 
-  var newCfg = Addon.migrateOption(newVal, defaultOption)
+  ///// apply config and write new values into cm
 
-  ///// apply config
   var inst = getAddon(cm)
-
-  inst.ff_enable.setBool(newCfg.enabled)
-
-  ///// write new values into cm
-  for (var k in defaultOption) inst[k] = newCfg[k]
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
 })
-
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
 
 //#endregion
 
 /********************************************************************************** */
-//#region ADDON CLASS
-export class Click implements Addon.Addon, ClickOptions /* if needed */ {
+//#region Addon Class
+
+export class Click implements Addon.Addon, Options {
   enabled: boolean;
   handler: ClickHandler;
-
-  public ff_enable: FlipFlop  // bind/unbind events
 
   constructor(public cm: cm_t) {
     this.lineDiv = cm.display.lineDiv
 
-    this.ff_enable = new FlipFlop(
+    new FlipFlop(
       /* ON  */() => { this.lineDiv.addEventListener("mousedown", this._mouseDown, false) },
       /* OFF */() => { this.lineDiv.removeEventListener("mousedown", this._mouseDown, false) }
-    )
+    ).bind(this, "enabled", true)
   }
 
   /** CodeMirror's <pre>s container */
@@ -273,9 +292,7 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
         url = mat[1]
       }
 
-      if (url) {
-        if (emailRE.test(url)) url = "mailto:" + url
-      }
+      url = cm.hmdResolveURL(url)
 
     } else if (styles.match(/\sformatting-task\s/)) {
       // TO-DO checkbox
@@ -299,8 +316,6 @@ export class Click implements Addon.Addon, ClickOptions /* if needed */ {
 
 //#endregion
 
-const AddonAlias = "click"
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: Click } } }
-
-/** ADDON GETTER: Only one addon instance allowed in a editor */
-export const getAddon = Addon.Getter(AddonAlias, Click, defaultOption)
+/** ADDON GETTER (Singleton Pattern): a editor can have only one Click instance */
+export const getAddon = Addon.Getter("Click", Click, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { Click?: Click } } }

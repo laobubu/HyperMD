@@ -4,9 +4,10 @@
 // powerful keymap for HyperMD and Markdown modes
 //
 
-import CodeMirror, { Token, Position, cmpPos } from 'codemirror'
+import * as CodeMirror from 'codemirror'
+import { Token, Position, cmpPos } from 'codemirror'
 import { cm_t } from '../core/type'
-import { TokenSeeker, repeatStr, expandRange, repeat } from '../core';
+import { TokenSeeker, repeatStr, expandRange, repeat, suggestedEditorConfig } from '../core';
 import { HyperMDState, TableType } from "../mode/hypermd"
 
 /**
@@ -509,3 +510,4 @@ export var keyMap: CodeMirror.KeyMap = {
 
 keyMap = CodeMirror.normalizeKeyMap(keyMap) as CodeMirror.KeyMap
 CodeMirror.keyMap["hypermd"] = keyMap
+suggestedEditorConfig.keyMap = "hypermd"

@@ -53,22 +53,63 @@ function click_bind(id, func, event) {
 // useless for you (maybe)
 
 !function CDNPatch() {
-  // do not use relative href for svg, because <base>.href might change
-
-  var svgUses = document.querySelectorAll("use")
-  for (var i = 0; i < svgUses.length; i++) {
-    var svgUse = svgUses[i]
-    var href = svgUse.getAttribute("xlink:href")
-    if (!href) continue
-    href = demo_page_baseurl + href
-    svgUse.setAttribute("xlink:href", href)
-  }
-
-  // inject requirejs to display progress.
-  // just for fun
+  // inject requirejs to display progress
+  // and load CSS files correctly
   var old_requirejs_load = requirejs.load
   requirejs.load = function (context, moduleId, url) {
     document.getElementById('loadingFileName').textContent = url
+
+    if (/\.css$/.test(moduleId)) {
+      // Load CSS with a buggy method
+      // @see http://www.phpied.com/files/cssonload/test.html
+
+      url = url.replace('.css.js', '.css')
+
+      var config = (context && context.config) || {}
+      var onLoad = context.onScriptLoad
+      var onError = context.onScriptError
+
+      if (true /*isBrowser*/) {
+        var node
+
+        if (/Firefox\/[0-5][0-9\.]/.test(navigator.userAgent)) {
+          // old Firefox doesn't trig <link> onload event
+          // @see http://www.phpied.com/files/cssonload/test.html
+
+          node = document.createElement('style')
+          node.textContent = '@import "' + url + '"'
+
+          var fi = setInterval(function () {
+            try {
+              node.sheet.cssRules; // only populated when file is loaded
+              console.log("loaded " + url)
+              clearInterval(fi)
+              // onLoad() // not work with <style>
+              context.completeLoad(moduleId) // ignore IE6-8
+            } catch (e) { }
+          }, 10)
+
+        } else {
+          // create a <link> and bind eventHandlers
+
+          node = document.createElement("link")
+          node.type = "text/css"
+          node.rel = "stylesheet"
+          node.href = url
+
+          node.addEventListener('load', onLoad, false);
+          node.addEventListener('error', onError, false);
+        }
+
+        node.setAttribute('data-requirecontext', context.contextName)
+        node.setAttribute('data-requiremodule', moduleId)
+        document.head.appendChild(node)
+      }
+
+      // supress RequireJS default loading
+      return
+    }
+
     return old_requirejs_load.call(this, context, moduleId, url)
   }
 
@@ -87,8 +128,6 @@ function click_bind(id, func, event) {
 
 }()
 
-var $base = document.querySelector('base')
-
 var current_baseuri = "./"
 var current_url = ""
 var history_op = "pushState"
@@ -97,8 +136,10 @@ window.onpopstate = function (ev) {
   var info = ev.state
   if (info && info.title) {
     document.title = info.title
-    $base.href = current_baseuri = info.current_baseuri
+    current_baseuri = info.current_baseuri
+
     editor_area.className = editor_area.className.replace(" loading-file", "")
+    editor.setOption('hmdReadLink', { baseURI: current_baseuri }) // for images and links in Markdown
     editor.setValue(info.text)
   } else if (/^\#\.?\//.test(location.hash)) {
     // oops... bad status
@@ -113,7 +154,6 @@ function load_and_update_editor(url) {
   var clzName = editor_area.className
   editor_area.className = clzName + " loading_file"
 
-  $base.href = demo_page_baseurl // url is always relative to index.html
   ajax_load_file(url, function (text, url) {
     editor_area.className = clzName
 
@@ -133,33 +173,36 @@ function load_and_update_editor(url) {
     /** global allowDirectOpen */
     if (!allowDirectOpen && /\/docs\//.test(url)) allowDirectOpen = true
 
-    $base.href = current_baseuri // for images in Markdown
+    editor.setOption('hmdReadLink', { baseURI: current_baseuri }) // for images and links in Markdown
     editor.setValue(text)
   })
 }
 
 /**
- * Send AJAX request, resolve relative url and update current_baseuri, current_url
+ * Send AJAX request and update `current_baseuri`, `current_url`.
+ * Note that url shall be resolved URL (aka. absolute path, or relative to current webpage URL)
  */
 function ajax_load_file(url, callback) {
-  if (url.charAt(0) === "/") url = "." + url
-  else if (url.charAt(0) === ".") url = current_baseuri + url
-
-  var nu
-  while ((nu = url.replace(/[^\/]+\/..\//, "./").replace("/./", "/")) !== url) url = nu // resolve
-  current_baseuri = (nu.replace(/\/[^\/]+$/, "") || ".") + "/"  // dirname
+  current_baseuri = url.replace(/[^\/]*(?:\?.*)?$/, '')  // dirname
   current_url = url
 
-  console.log("LOADING", url, current_baseuri)
+  editor.setOption('hmdReadLink', { baseURI: current_baseuri }) // for images and links in Markdown
 
   var xmlhttp;
   if (window.XMLHttpRequest) { xmlhttp = new XMLHttpRequest() }
   else if (window.ActiveXObject) { xmlhttp = new ActiveXObject("Microsoft.XMLHTTP") }
   if (xmlhttp != null) {
     xmlhttp.onreadystatechange = function () {
-      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-        callback(xmlhttp.responseText, url)
+      if (xmlhttp.readyState == 4) {
+        // if (xmlhttp.status == 200)
+        var text = xmlhttp.responseText
+        var code = "" + xmlhttp.status
+        if (/^[45]\d\d$/.test(code)) text = "## Fail: " + code + "\n\nCannot load " + url + "\n\n```\n" + text + "```\n"
+        callback(text, url)
       }
+    }
+    xmlhttp.onerror = function () {
+      callback("## Failed to Load\n\nCannot load " + url, url)
     }
     xmlhttp.open("GET", url, true)
     xmlhttp.send(null)

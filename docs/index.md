@@ -78,7 +78,7 @@ Let's say you are using [parcel-bundler](https://parceljs.org/), simpily run `pa
 
 ### with [RequireJS](http://requirejs.org/) the module loader
 
-After loading CSS and require.js, all you need is something like this (don't forget to read [this](../demo/index.js) ) :
+1. Read [this](../demo/index.js)
 
 ```js
 
@@ -92,18 +92,12 @@ requirejs.config({
   // (Remove this section if you occur errors with CDN)
   // RequireJS doesn't read package.json or detect entry file.
   packages: [
-    {
-      name: 'codemirror',
-      main: 'lib/codemirror'
-    },
-    {
-      name: 'mathjax',
-      main: 'MathJax.js'
-    },
-    {
-      name: 'marked',
-      main: 'lib/marked'
-    },
+    { name: 'codemirror', main: 'lib/codemirror.js' },
+    { name: 'mathjax', main: 'MathJax.js' },
+    { name: 'katex', main: 'dist/katex.min.js' },
+    { name: 'marked', main: 'lib/marked.js' },
+    { name: 'turndown', main: 'lib/turndown.browser.umd.js' },
+    { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
     // HyperMD doesn't need this, unless you use all-in-one build
   ],
   waitSeconds: 15
@@ -115,10 +109,30 @@ require([
   'codemirror/lib/codemirror',
   'hypermd/core',
 
-  // ...
-  // Here be other dependencies and HyperMD addons
-  // see demo/index.js
-  // ...
+  // ESSENTIAL
+  'hypermd/mode/hypermd',
+
+  // Enable these components:
+  'hypermd/addon/hide-token',
+  'hypermd/addon/cursor-debounce',
+  'hypermd/addon/fold',
+  'hypermd/addon/fold-math',
+  'hypermd/addon/read-link',
+  'hypermd/addon/click',
+  'hypermd/addon/hover',
+  'hypermd/addon/paste',
+  'hypermd/addon/insert-file',
+  'hypermd/addon/mode-loader',
+  'hypermd/addon/table-align',
+  'hypermd/keymap/hypermd',
+
+  // Use PowerPack to power-up HyperMD, with third-party libraries
+  // see deom/index.js
+
+  'hypermd/powerpack/fold-math-with-katex',
+
+  'hypermd/powerpack/paste-with-turndown',
+  'turndown-plugin-gfm',
 
 ], function (CodeMirror, HyperMD) {
   var myTextarea = document.getElementById('myTextareaID')

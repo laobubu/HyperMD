@@ -1,91 +1,123 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Skeleton for most Addons
-// NOTE: some parts might be useless for you, feel free to delete them.
+// =============================================
+// **START AN ADDON** Check List
+// =============================================
+// 1. Replace "MyAddon" to your addon's name (note the first letter is upper-case)
+// 2. Edit #region CodeMirror Extension
+//    - If don't need this, delete the whole region
+//    - Otherwise, delete hmdRollAndDice and add your own functions
+// 3. Edit #region Addon Class
+//    - You might want to reading CONTRIBUTING.md
+// 4. Edit #region Addon Options
+//    - It's highly suggested to finish the docs, see //TODO: write doc
+//    - Note the defaultOption shall be the status when this addon is disabled!
+//    - As for `FlipFlop` and `ff_*`, you might want to reading CONTRIBUTING.md
+// 5. Replace this check-list with a introduction to your addon
+// 6. Build, Publish, Pull Request etc.
 //
 
-import CodeMirror from 'codemirror'
-import { Addon, FlipFlop } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
 import { cm_t } from '../core/type'
 
 
 /********************************************************************************** */
 //#region CodeMirror Extension
-// add a method named as "ExtName" to all CodeMirror editors
+// add methods to all CodeMirror editors
 
-const ExtName = "hmdMyExtension"
-export const ExtObject = function (this: cm_t, foo: string, bar: string) {
-  // implement your extension method
+// every codemirror editor will have these member methods:
+export const Extensions = {
+  hmdRollAndDice(this: cm_t, foo: string, bar: string) {
+    return 42
+  }
 }
 
-declare global { namespace HyperMD { interface Editor { [ExtName]: typeof ExtObject } } }
-CodeMirror.defineExtension(ExtName, ExtObject)
+export type ExtensionsType = typeof Extensions
+declare global { namespace HyperMD { interface Editor extends ExtensionsType { } } }
+
+for (var name in Extensions) {
+  CodeMirror.defineExtension(name, Extensions[name])
+}
 
 //#endregion
 
 /********************************************************************************** */
 //#region Addon Options
 
-export interface MyOptions extends Addon.AddonOptions {
+export interface Options extends Addon.AddonOptions {
+  /** Enable MyAddon features or not. */ // TODO: write doc here
   enabled: boolean
 
   // add your options here
 }
 
-export const defaultOption: MyOptions = {
+export const defaultOption: Options = {
   enabled: false,
 
   // add your default values here
 }
 
-const OptionName = "hmdMyAddon"
-type OptionValueType = Partial<MyOptions> | boolean;
+export const suggestedOption: Partial<Options> = {
+  enabled: true,  // we recommend lazy users to enable this fantastic addon!
+}
 
-CodeMirror.defineOption(OptionName, defaultOption, function (cm: cm_t, newVal: OptionValueType) {
-  const enabled = !!newVal
+export type OptionValueType = Partial<Options> | boolean;
 
-  if (!enabled || typeof newVal === "boolean") {
-    newVal = { enabled: enabled }
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for MyAddon.
+       *
+       * You may also provide a `false` to disable it; a `true` to enable it with defaultOption (except `enabled`)
+       */
+      // TODO: write doc above
+      hmdMyAddon?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdMyAddon = suggestedOption
+
+CodeMirror.defineOption("hmdMyAddon", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "boolean") {
+    newVal = { enabled: !!newVal }
   }
 
-  var newCfg = Addon.migrateOption(newVal, defaultOption)
+  ///// apply config and write new values into cm
 
-  ///// apply config
   var inst = getAddon(cm)
-
-  inst.ff_enable.setBool(newCfg.enabled)
-
-  ///// write new values into cm
-  for (var k in defaultOption) inst[k] = newCfg[k]
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
 })
-
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
 
 //#endregion
 
 /********************************************************************************** */
 //#region Addon Class
 
-const AddonAlias = "myAddon"
-export class MyAddon implements Addon.Addon, MyOptions /* if needed */ {
+export class MyAddon implements Addon.Addon, Options /* if needed */ {
   enabled: boolean;
 
-  public ff_enable: FlipFlop  // bind/unbind events
-
   constructor(public cm: cm_t) {
-    // options will be initialized to defaultOption (if exists)
+    // options will be initialized to defaultOption when constructor is finished
     // add your code here
 
-    this.ff_enable = new FlipFlop(
-      /* ON  */() => {/* bind events here  */ },
-      /* OFF */() => {/* ubind events here */ }
-    )
+    new FlipFlop() // use FlipFlop to detect if a option is changed
+      .bind(this, "enabled", true)
+      .ON(() => {/*  enable MyAddon here, add event listeners,etc. */ })
+      .OFF(() => {/* disable MyAddon here, remove event listeners  */ })
   }
 }
 
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one MyAddon instance */
-export const getAddon = Addon.Getter(AddonAlias, MyAddon, defaultOption /** if has options */)
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: MyAddon } } }
+export const getAddon = Addon.Getter("MyAddon", MyAddon, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { MyAddon?: MyAddon } } }

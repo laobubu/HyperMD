@@ -5,8 +5,9 @@
 // Works with `hypermd` mode, require special CSS rules
 //
 
-import CodeMirror from 'codemirror'
-import { Addon, FlipFlop, cm_internal, updateCursorDisplay, debounce } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, cm_internal, updateCursorDisplay, debounce, suggestedEditorConfig } from '../core'
+
 import { cm_t } from '../core/type'
 
 const DEBUG = false
@@ -14,44 +15,63 @@ const DEBUG = false
 /********************************************************************************** */
 //#region Addon Options
 
-export interface MyOptions extends Addon.AddonOptions {
+export interface Options extends Addon.AddonOptions {
+  /** Enable HideToken features or not. */
   enabled: boolean
-  line: boolean  // add `hmd-inactive-line` class to inactive lines' <pre>s
+
+  /** add `hmd-inactive-line` class to inactive lines' <pre>s */
+  line: boolean
+
   tokenTypes: string[]
 }
 
-export const defaultOption: MyOptions = {
+export const defaultOption: Options = {
   enabled: false,
   line: true,
   tokenTypes: "em|strong|strikethrough|code|link|task".split("|"),
 }
 
-const OptionName = "hmdHideToken"
-type OptionValueType = Partial<MyOptions> | boolean | string | string[];
+export const suggestedOption: Partial<Options> = {
+  enabled: true,  // we recommend lazy users to enable this fantastic addon!
+}
 
-CodeMirror.defineOption(OptionName, defaultOption, function (cm: cm_t, newVal: OptionValueType) {
-  const enabled = !!newVal
+export type OptionValueType = Partial<Options> | boolean | string | string[];
 
-  if (!enabled || typeof newVal === "boolean") {
-    newVal = { enabled: enabled }
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for HideToken.
+       *
+       * You may also provide a `false` to disable it; a `true` to enable it with defaultOption (except `enabled`);
+       * or token types (as string array, or just a string with "|" as separator inside)
+       */
+      hmdHideToken?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdHideToken = suggestedOption
+
+CodeMirror.defineOption("hmdHideToken", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "boolean") {
+    newVal = { enabled: !!newVal }
   } else if (typeof newVal === "string") {
     newVal = { enabled: true, tokenTypes: newVal.split("|") }
   } else if (newVal instanceof Array) {
     newVal = { enabled: true, tokenTypes: newVal }
   }
 
-  var newCfg = Addon.migrateOption(newVal, defaultOption)
+  ///// apply config and write new values into cm
 
-  ///// apply config
   var inst = getAddon(cm)
-
-  inst.ff_enable.setBool(newCfg.enabled)
-
-  ///// write new values into cm
-  for (var k in defaultOption) inst[k] = newCfg[k]
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
 })
-
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
 
 //#endregion
 
@@ -61,22 +81,13 @@ declare global { namespace HyperMD { interface EditorConfiguration { [OptionName
 const hideClassName = "hmd-hidden-token"
 const lineDeactiveClassName = "hmd-inactive-line"
 
-/**
- * 1. when renderLine, add "hmd-hidden-token" to each <span>
- * 2.
- */
-export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
+export class HideToken implements Addon.Addon, Options {
   tokenTypes: string[];
   line: boolean;
   enabled: boolean;
 
-  public ff_enable: FlipFlop  // bind/unbind events
-
   constructor(public cm: cm_t) {
-    // options will be initialized to defaultOption (if exists)
-    // add your code here
-
-    this.ff_enable = new FlipFlop(
+    new FlipFlop(
       /* ON  */() => {
         cm.on("cursorActivity", this.cursorActivityHandler)
         cm.on("renderLine", this.renderLineHandler)
@@ -90,7 +101,7 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
         this.update.stop()
         cm.refresh()
       }
-    )
+    ).bind(this, "enabled", true)
   }
 
   /** a map storing shown tokens' beginning ch */
@@ -345,7 +356,7 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
       // refresh cursor position if needed
       if (cpos_line_changed) {
         updateCursorDisplay(cm, true)
-        if (cm.hmd.tableAlign && cm.hmd.tableAlign.enabled) cm.hmd.tableAlign.updateStyle()
+        if (cm.hmd.TableAlign && cm.hmd.TableAlign.enabled) cm.hmd.TableAlign.updateStyle()
       }
     })
   }
@@ -353,7 +364,6 @@ export class HideToken implements Addon.Addon, MyOptions /* if needed */ {
 
 //#endregion
 
-/** ADDON GETTER (Singleton Pattern): a editor can have only one MyAddon instance */
-const AddonAlias = "hideToken"
-export const getAddon = Addon.Getter(AddonAlias, HideToken, defaultOption)
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: HideToken } } }
+/** ADDON GETTER (Singleton Pattern): a editor can have only one HideToken instance */
+export const getAddon = Addon.Getter("HideToken", HideToken, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { HideToken?: HideToken } } }

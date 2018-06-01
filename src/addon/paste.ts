@@ -1,110 +1,88 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Paste and convert to Markdown
+// Paste HTML and convert to Markdown
 //
 
-import CodeMirror from 'codemirror'
-import { Addon, FlipFlop } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
 import { cm_t } from '../core/type'
-
-/********************************************************************************** */
-// Turndown is an excellent HTML-to-Markdown library
-// Give it a try!
-
-declare global {
-  const TurndownService: any
-  const turndownPluginGfm: any
-}
-
-const getTurndownService = (function () {
-  var service: {
-    turndown(html: string): string;
-    use(plugin: any): void;
-  } = null
-
-  return function () {
-    if (!service && typeof TurndownService === 'function') {
-      var opts = {
-        "headingStyle": "atx",
-        "hr": "---",
-        "bulletListMarker": "*",
-        "codeBlockStyle": "fenced",
-        "fence": "```",
-        "emDelimiter": "*",
-        "strongDelimiter": "**",
-        "linkStyle": "inlined",
-        "linkReferenceStyle": "collapsed"
-      }
-      service = new TurndownService(opts)
-
-      if (typeof turndownPluginGfm !== 'undefined') {
-        service.use(turndownPluginGfm.gfm)
-      }
-
-    }
-    return service
-  }
-})()
 
 /********************************************************************************** */
 
 export type PasteConvertor = (html: string) => string | void
-export const defaultConvertor: PasteConvertor =
-  (html) => {
-    // strip <a> without href
-    html = html.replace(/<a([^>]*)>(.*?)<\/a>/ig, (s, attrs, content) => {
-      if (!/href=/i.test(attrs)) return content
-      return s
-    })
-
-    // maybe you don't need to convert, if there is no img/link/header...
-    if (!/\<(?:(?:hr|img)|\/(?:h\d|strong|em|strikethrough|a|b|i|del)\>)/i.test(html)) return null
-
-    const turndownService = getTurndownService()
-    if (turndownService) return turndownService.turndown(html)
-
-    return null
-  }
 
 /********************************************************************************** */
-/** ADDON OPTIONS */
+//#region Addon Options
 
-const OptionName = "hmdPaste"
-type OptionValueType = PasteConvertor | boolean
+export interface Options extends Addon.AddonOptions {
+  /** Enable Paste feature or not. */
+  enabled: boolean
 
-CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionValueType) {
-  const enabled = !!newVal
+  /** a function which accepts HTML, returning markdown text. */
+  convertor: PasteConvertor
+}
 
-  if (!enabled || typeof newVal === "boolean") {
-    newVal = defaultConvertor
+export const defaultOption: Options = {
+  enabled: false,
+  convertor: null,
+}
+
+export const suggestedOption: Partial<Options> = {
+  enabled: true,
+}
+
+export type OptionValueType = Partial<Options> | boolean | PasteConvertor;
+
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for Paste.
+       *
+       * You may set a `PasteConvertor` function which accepts HTML, returning markdown text. Or set to `null` to disable this feature
+       *
+       * @see PasteConvertor
+       */
+      hmdPaste?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdPaste = suggestedOption
+
+CodeMirror.defineOption("hmdPaste", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "boolean") {
+    newVal = { enabled: !!newVal }
+  } else if (typeof newVal === "function") {
+    newVal = { enabled: true, convertor: newVal }
   }
 
-  ///// apply config
+  ///// apply config and write new values into cm
+
   var inst = getAddon(cm)
-  inst.ff_enable.setBool(enabled)
-  inst.convertor = newVal
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
 })
 
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
-
+//#endregion
 
 /********************************************************************************** */
-/** ADDON CLASS */
+//#region Addon Class
 
-const AddonAlias = "paste"
-export class Paste implements Addon.Addon {
-  public ff_enable: FlipFlop  // bind/unbind events
-
-  public convertor: PasteConvertor = defaultConvertor
+export class Paste implements Addon.Addon, Options /* if needed */ {
+  enabled: boolean;
+  convertor: PasteConvertor;
 
   constructor(public cm: cm_t) {
-    // add your code here
-
-    this.ff_enable = new FlipFlop(
+    new FlipFlop(
       /* ON  */() => { cm.on('paste', this.pasteHandler) },
       /* OFF */() => { cm.off('paste', this.pasteHandler) }
-    )
+    ).bind(this, "enabled", true)
   }
 
   private pasteHandler = (cm: cm_t, ev: ClipboardEvent) => {
@@ -121,8 +99,8 @@ export class Paste implements Addon.Addon {
   }
 }
 
+//#endregion
 
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: Paste } } }
-
-/** ADDON GETTER: Only one addon instance allowed in a editor */
-export const getAddon = Addon.Getter(AddonAlias, Paste)
+/** ADDON GETTER (Singleton Pattern): a editor can have only one Paste instance */
+export const getAddon = Addon.Getter("Paste", Paste, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { Paste?: Paste } } }

@@ -5,7 +5,7 @@ function init_math_preview(cm) {
   function updatePreview(expr) {
     if (!mathRenderer) { // initialize renderer and preview window
       win = initFloatWin("math-preview")
-      mathRenderer = cm.hmd.foldMath.createRenderer(
+      mathRenderer = cm.hmd.FoldMath.createRenderer(
         document.getElementById("math-preview-content"),
         "display"
       )

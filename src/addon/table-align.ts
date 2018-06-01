@@ -4,61 +4,76 @@
 // Align Table Columns
 //
 
-import CodeMirror, { LineHandle } from 'codemirror'
-import { Addon, FlipFlop, debounce, updateCursorDisplay } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, debounce, updateCursorDisplay, suggestedEditorConfig } from '../core'
+import { LineHandle } from 'codemirror'
 import { cm_t } from '../core/type'
-import { HyperMDState, TableType } from '../mode/hypermd';
+import { HyperMDState, TableType } from '../mode/hypermd'
 
 
 /********************************************************************************** */
 //#region Addon Options
 
-export interface TableAlignOptions extends Addon.AddonOptions {
+export interface Options extends Addon.AddonOptions {
+  /** Enable TableAlign */
   enabled: boolean
 }
 
-export const defaultOption: TableAlignOptions = {
-  enabled: false
+export const defaultOption: Options = {
+  enabled: false,
 }
 
-const OptionName = "hmdTableAlign"
-type OptionValueType = Partial<TableAlignOptions> | boolean;
+export const suggestedOption: Partial<Options> = {
+  enabled: true,  // we recommend lazy users to enable this fantastic addon!
+}
 
-CodeMirror.defineOption(OptionName, defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+export type OptionValueType = Partial<Options> | boolean;
+
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for TableAlign.
+       *
+       * You may also provide a boolean to toggle it.
+       */
+      hmdTableAlign?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdTableAlign = suggestedOption
+
+CodeMirror.defineOption("hmdTableAlign", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
   const enabled = !!newVal
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
 
   if (!enabled || typeof newVal === "boolean") {
     newVal = { enabled: enabled }
   }
 
-  var newCfg = Addon.migrateOption(newVal, defaultOption)
+  ///// apply config and write new values into cm
 
-  ///// apply config
   var inst = getAddon(cm)
-
-  inst.ff_enable.setBool(newCfg.enabled)
-
-  ///// write new values into cm
-  for (var k in defaultOption) inst[k] = newCfg[k]
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
 })
-
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
 
 //#endregion
 
 /********************************************************************************** */
 //#region Addon Class
 
-const AddonAlias = "tableAlign"
-export class TableAlign implements Addon.Addon, TableAlignOptions {
+export class TableAlign implements Addon.Addon, Options /* if needed */ {
   enabled: boolean;
 
-  public ff_enable: FlipFlop  // bind/unbind events
-
-  public styleEl = document.createElement("style")
-
   constructor(public cm: cm_t) {
-    this.ff_enable = new FlipFlop(
+    // options will be initialized to defaultOption (if exists)
+    // add your code here
+
+    new FlipFlop(
       /* ON  */() => {
         cm.on("renderLine", this._procLine)
         cm.on("update", this.updateStyle)
@@ -70,8 +85,10 @@ export class TableAlign implements Addon.Addon, TableAlignOptions {
         cm.off("update", this.updateStyle)
         document.head.removeChild(this.styleEl)
       }
-    )
+    ).bind(this, "enabled", true)
   }
+
+  public styleEl = document.createElement("style")
 
   private _lastCSS: string
 
@@ -185,6 +202,6 @@ export class TableAlign implements Addon.Addon, TableAlignOptions {
 
 //#endregion
 
-/** ADDON GETTER (Singleton Pattern): a editor can have only one MyAddon instance */
-export const getAddon = Addon.Getter(AddonAlias, TableAlign, defaultOption)
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: TableAlign } } }
+/** ADDON GETTER (Singleton Pattern): a editor can have only one TableAlign instance */
+export const getAddon = Addon.Getter("TableAlign", TableAlign, defaultOption)
+declare global { namespace HyperMD { interface HelperCollection { TableAlign?: TableAlign } } }

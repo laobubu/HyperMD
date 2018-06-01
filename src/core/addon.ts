@@ -36,12 +36,3 @@ export function Getter<T extends Addon>(
     return cm.hmd[name]
   }
 }
-
-/** Simple version of Object.assign */
-export function migrateOption<T>(newVal: object, defval: T): T {
-  var dst = {} as T
-  for (var k in defval) {
-    dst[k] = newVal.hasOwnProperty(k) ? newVal[k as string] as any : defval[k]
-  }
-  return dst
-}
