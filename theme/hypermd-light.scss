@@ -565,6 +565,9 @@
         &.HyperMD-table-row {
             span.cm-hmd-table-sep {
                 color: transparent;
+                &.cm-hmd-table-sep-dummy:before {
+                    display: none;
+                }
             }
         }
 

@@ -1,51 +1,99 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// if a code-fence with CodeMirror-mode-not-loaded language is detected,
-// load the mode and reHighlight the code-fence block
+// auto load mode to highlight code blocks
 //
 
-import CodeMirror, { LineHandle } from 'codemirror'
-import { Addon, FlipFlop } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
 import { cm_t } from '../core/type'
 import 'codemirror/mode/meta'
 
+declare global { const requirejs: (modules: string[], factory: Function) => any }
+
+/** user may provider an async CodeMirror mode loader function */
+export type LoaderFunc = (mode: string, successCb: Function, errorCb: Function) => void
+
 /********************************************************************************** */
-/** ADDON OPTIONS */
+//#region Addon Options
 
-const OptionName = "hmdLoadModeFrom"
-type OptionValueType = string | false
+export interface Options extends Addon.AddonOptions {
+  /**
+   * providing a source of codemirror modes
+   *
+   * - (a `LoaderFunc` function)
+   * - `"http://cdn.xxxxx.com/codemirror/v4.xx/"`
+   * - `"./node_modules/codemirror/"`            <- relative to webpage's URL
+   * - `"~codemirror/"`                          <- for requirejs
+   */
+  source: string | LoaderFunc
+}
 
-CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionValueType) {
-  const enabled = !!newVal
+export const defaultOption: Options = {
+  source: null,
+}
 
-  ///// apply config
+export const suggestedOption: Partial<Options> = {
+  source: (typeof requirejs === 'function') ? "~codemirror/" : "https://cdn.jsdelivr.net/npm/codemirror/",
+}
+
+export type OptionValueType = Partial<Options> | boolean | string | LoaderFunc;
+
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for ModeLoader.
+       *
+       * You may also provide:
+       * - boolean: `true` will use suggested source
+       * - `string` or `LoaderFunc` as the new source
+       *
+       * @see LoaderFunc
+       */
+      hmdModeLoader?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdModeLoader = suggestedOption
+
+CodeMirror.defineOption("hmdModeLoader", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "boolean") {
+    newVal = { source: newVal && suggestedOption.source || null }
+  } else if (typeof newVal === "string" || typeof newVal === "function") {
+    newVal = { source: newVal }
+  }
+
+  ///// apply config and write new values into cm
+
   var inst = getAddon(cm)
-
-  inst.ff_enable.setBool(enabled)
-  inst.source = newVal as string
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
 })
 
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
-
+//#endregion
 
 /********************************************************************************** */
-/** ADDON CLASS */
+//#region Addon Class
 
-const AddonAlias = "modeLoader"
-export class ModeLoader implements Addon.Addon {
-  public ff_enable: FlipFlop  // bind/unbind events
-
-  public source = "./node_modules/codemirror/"; // url prefix
+export class ModeLoader implements Addon.Addon, Options {
+  source: string | LoaderFunc;
 
   constructor(public cm: cm_t) {
+    // options will be initialized to defaultOption when constructor is finished
     // add your code here
 
-    this.ff_enable = new FlipFlop(
-      /* ON  */() => { cm.on("renderLine", this.rlHandler) },
-      /* OFF */() => { cm.off("renderLine", this.rlHandler) }
-    )
+    new FlipFlop() // use FlipFlop to detect if a option is changed
+      .bind(this, "source")
+      .ON(() => { cm.on("renderLine", this.rlHandler) })
+      .OFF(() => { cm.off("renderLine", this.rlHandler) })
   }
+
 
   /** trig a "change" event on one line */
   touchLine(lineNo: number) {
@@ -94,6 +142,12 @@ export class ModeLoader implements Addon.Addon {
         self.startLoadMode(mode, line >= 0 ? -3 : (line + 1));
       }, 1000);
     };
+
+    if (typeof this.source === "function") {
+      this.source(mode, successCb, errorCb)
+      return
+    }
+
     var url = this.source + "mode/" + mode + "/" + mode + ".js";
     if (typeof requirejs === 'function' && url.charAt(0) === "~") {
       // require.js
@@ -114,7 +168,7 @@ export class ModeLoader implements Addon.Addon {
   /**
    * CodeMirror "renderLine" event handler
    */
-  private rlHandler = (cm: cm_t, line: LineHandle) => {
+  private rlHandler = (cm: cm_t, line: CodeMirror.LineHandle) => {
     var lineNo = line.lineNo();
     var text = line.text || "", mat = text.match(/^```\s*(\S+)/);
     if (mat) { // seems found one code fence
@@ -130,8 +184,8 @@ export class ModeLoader implements Addon.Addon {
   }
 }
 
+//#endregion
 
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: ModeLoader } } }
-
-/** ADDON GETTER: Only one addon instance allowed in a editor */
-export const getAddon = Addon.Getter(AddonAlias, ModeLoader)
+/** ADDON GETTER (Singleton Pattern): a editor can have only one ModeLoader instance */
+export const getAddon = Addon.Getter("ModeLoader", ModeLoader, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { ModeLoader?: ModeLoader } } }

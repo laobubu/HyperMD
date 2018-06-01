@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    "module": "es2015",
-    "allowJs": true,
+    "module": "umd",
     "target": "es6",
-    "allowSyntheticDefaultImports": true,
     "lib": [
       "es5",
       "es2015.iterable",
       "dom"
-    ]
+    ],
+    "declaration": true,
+    "outDir": ".",
+    "declarationDir": "types"
   },
   "include": [
     "src/**/*.ts"

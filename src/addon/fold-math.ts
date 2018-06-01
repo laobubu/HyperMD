@@ -4,12 +4,34 @@
 // Provide a MathFolder and add it into fold the add-on's built-in folder list
 //
 
-import CodeMirror, { TextMarker, Position, Token } from 'codemirror'
-import { Addon, FlipFlop, debounce, tryToRun } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, tryToRun, suggestedEditorConfig } from '../core'
+import { TextMarker, Position, Token } from 'codemirror'
 import { cm_t } from '../core/type'
 import { builtinFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 
 const DEBUG = false
+
+/********************************************************************************** */
+/// MATH ENGINE DECLARATION
+/// You may implement a MathRenderer to use other engine, eg. MathJax or KaTex
+
+export type MathRenderMode = "display" | ""
+export declare abstract class MathRenderer {
+  constructor(container: HTMLElement, mode: MathRenderMode)
+
+  startRender(expr: string): void
+  clear(): void
+
+  /** a callback function, called when a rendering work is done */
+  onChanged: (expr: string) => void
+
+  /** indicate that if the Renderer is ready to execute */
+  isReady(): boolean
+}
+
+/********************************************************************************** */
+//#region Exports
 
 /**
  * Detect if a token is a beginning of Math, and fold it!
@@ -65,14 +87,14 @@ export const MathFolder: FolderFunc = (stream, token) => {
 
   const reqAns = stream.requestRange(from, to)
   if (reqAns !== RequestRangeResult.OK) {
-    if (reqAns === RequestRangeResult.CURSOR_INSIDE) foldMathAddon.ff_pv.set(expr) // try to trig preview event
+    if (reqAns === RequestRangeResult.CURSOR_INSIDE) foldMathAddon.editingExpr = expr // try to trig preview event
     return null
   }
 
   // Now let's make a math widget!
 
   var marker = insertMathMark(cm, from, to, expr, tokenLength, "math-" + tokenLength)
-  foldMathAddon.ff_pv.set(null) // try to hide preview
+  foldMathAddon.editingExpr = null // try to hide preview
   return marker
 }
 
@@ -102,8 +124,8 @@ export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression:
 
   span.addEventListener("click", () => breakMark(cm, marker, tokenLength), false)
 
-  // const foldMathAddon = getAddon(cm)
-  var mathRenderer = cm.hmd.foldMath.createRenderer(span, "")
+  const foldMathAddon = getAddon(cm)
+  var mathRenderer = foldMathAddon.createRenderer(span, "")
   mathRenderer.onChanged = function () {
     if (mathPlaceholder) {
       span.removeChild(mathPlaceholder)
@@ -129,42 +151,20 @@ export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression:
   return marker
 }
 
-//////////////////////////////////////////////////////////////////
-///
+//#endregion
 
 builtinFolder["math"] = MathFolder // inject fold's builtinFolders! Not cool but it works
 
-//////////////////////////////////////////////////////////////////
-/// MATH ENGINE
+/********************************************************************************** */
+//#region Default Renderer
 
-/**
- * You may implement a MathRenderer to use other engine, instead of MathJax
- */
-
-export type MathRenderMode = "display" | ""
-export declare abstract class MathRenderer {
-  constructor(container: HTMLElement, mode: MathRenderMode)
-
-  startRender(expr: string): void
-  clear(): void
-
-  /** a callback function, called when a rendering work is done */
-  onChanged: (expr: string) => void
-
-  /** indicate that if the Renderer is ready to execute */
-  isReady(): boolean
-}
-
-//////////////////////////////////////////////////////////////////
-/// Stupid MATH ENGINE
-
-export class StupidRenderer implements MathRenderer {
+export class DumbRenderer implements MathRenderer {
   public img: HTMLImageElement
   public last_expr: string
 
   constructor(public container: HTMLElement, mode: MathRenderMode) {
     var img = document.createElement("img")
-    img.setAttribute("class", "hmd-stupid-math")
+    img.setAttribute("class", "hmd-math-dumb")
     img.addEventListener("load", () => { if (this.onChanged) this.onChanged(this.last_expr) }, false)
 
     this.img = img
@@ -189,144 +189,103 @@ export class StupidRenderer implements MathRenderer {
   }
 }
 
-//////////////////////////////////////////////////////////////////
-/// MathJax MATH ENGINE
+//#endregion
 
-declare global { const MathJax: any }
+/********************************************************************************** */
+//#region Addon Options
 
-export class MathJaxRenderer implements MathRenderer {
-  public onChanged: (expr: string) => void = null
-
-  public jax: any = null
-  public script: HTMLScriptElement
-
-  private _cleared: boolean = false
-  private _renderingExpr: string = "" // Currently rendering expr
-
-  constructor(
-    public div: HTMLElement,
-    public mode: MathRenderMode
-  ) {
-    var script = document.createElement("script")
-    script.setAttribute("type", mode ? 'math/tex; mode=' + mode : 'math/tex')
-    div.appendChild(script)
-    this.script = script
-  }
-
-  clear() {
-    var script = this.script;
-    script.innerHTML = '';
-    if (this.jax)
-      this.jax.Remove();
-    this._cleared = true;
-  }
-
-  startRender(expr: string) {
-    if (this._cleared) {
-      return;
-    }
-    if (this._renderingExpr) {
-      // A new rendering job comes, while previous one is still in progress
-      // Do rendering later, in _TypesetDoneCB function
-      this._renderingExpr = expr;
-      return;
-    }
-    this._renderingExpr = expr;
-    var script = this.script;
-    script.innerHTML = expr;
-    if (this.jax) {
-      MathJax.Hub.Queue(["Text", this.jax, expr], ["_TypesetDoneCB", this, expr]);
-    }
-    else {
-      MathJax.Hub.Queue(["Typeset", MathJax.Hub, script], ["_TypesetDoneCB", this, expr]);
-    }
-  }
-
-  /** Callback for MathJax when typeset is done*/
-  private _TypesetDoneCB(finished_expr) {
-    if (this._cleared) {
-      return;
-    }
-    if (!this.jax) this.jax = MathJax.Hub.getJaxFor(this.script);
-    if (this._renderingExpr !== finished_expr) {
-      // Current finished rendering job is out-of-date
-      // re-render with newest Tex expr
-      var expr_new = this._renderingExpr;
-      this._renderingExpr = "";
-      this.startRender(expr_new);
-      return;
-    }
-    // Rendering finished. Nothing wrong
-    this._renderingExpr = "";
-    if (typeof (this.onChanged) === 'function')
-      this.onChanged(finished_expr)
-  }
-
-  public isReady() {
-    return typeof MathJax === 'object' && MathJax.isReady
-  }
-}
-
-//////////////////////////////////////////////////////////////////
-/// CodeMirror editor options!
-
-export interface FoldMathOptions {
+export interface Options extends Addon.AddonOptions {
+  /**
+   * custom renderer
+   *
+   * @see MathRenderer
+   * @see DumbRenderer
+   */
   renderer: typeof MathRenderer
+
   /** a callback whenever you shall show/update a math preview */
   onPreview: (expr: string) => void
+
   /** a callback whenever you shall hide the preview box */
   onPreviewEnd: () => void
 }
 
-export var defaultOption: FoldMathOptions = {
-  renderer: null,  // use null to let HyperMD choose StupidRenderer or MathJaxRenderer
+export const defaultOption: Options = {
+  renderer: DumbRenderer,
   onPreview: null,
   onPreviewEnd: null,
 }
 
-/**
- * This is not a real addon.
- *
- * If you want to stop folding math. set options.hmdFold.math = false
- */
-class FoldMath implements Addon.Addon, FoldMathOptions {
-  constructor(public cm: cm_t) {
-    // options will be initialized to defaultOption (if exists)
+export const suggestedOption: Partial<Options> = {
+
+}
+
+export type OptionValueType = Partial<Options> | (typeof MathRenderer);
+
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for FoldMath.
+       *
+       * **NOTE**: to switch this off, please modify `hmdFold.math` instead.
+       *
+       * You may also provide a MathRenderer class constructor
+       */
+      hmdFoldMath?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdFoldMath = suggestedOption
+
+CodeMirror.defineOption("hmdFoldMath", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal) {
+    newVal = {}
+  } else if (typeof newVal === "function") {
+    newVal = { renderer: newVal }
   }
 
-  /** Use a FlipFlop to emit events! How smart I am! */
-  public ff_pv = new FlipFlop<string>(
-    /** CHANGED */(expr) => { this.onPreview && this.onPreview(expr) },
-    /** HIDE    */() => { this.onPreviewEnd && this.onPreviewEnd() },
-    null
-  )
+  ///// apply config and write new values into cm
 
+  var inst = getAddon(cm)
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
+})
+
+//#endregion
+
+/********************************************************************************** */
+//#region Addon Class
+
+export class FoldMath implements Addon.Addon, Options {
   renderer: typeof MathRenderer;
   onPreview: (expr: string) => void;
   onPreviewEnd: () => void;
 
+  /** current previewing TeX expression. could be null */
+  editingExpr: string
+
+  constructor(public cm: cm_t) {
+    new FlipFlop<string>(
+      /** CHANGED */(expr) => { this.onPreview && this.onPreview(expr) },
+      /** HIDE    */() => { this.onPreviewEnd && this.onPreviewEnd() },
+      null
+    ).bind(this, "editingExpr")
+  }
+
   public createRenderer(container: HTMLElement, mode: MathRenderMode): MathRenderer {
-    var RendererClass = this.renderer || (typeof MathJax === 'undefined' ? StupidRenderer : MathJaxRenderer) as any
+    var RendererClass = this.renderer || DumbRenderer as any
     return new RendererClass(container, mode)
   }
 }
 
-const OptionName = "hmdFoldMath"
-type OptionValueType = Partial<FoldMathOptions>;
+//#endregion
 
-CodeMirror.defineOption(OptionName, defaultOption, function (cm: cm_t, newVal: OptionValueType) {
-  var newCfg: FoldMathOptions = defaultOption
-  if (typeof newVal === 'object') {
-    newCfg = Addon.migrateOption(newVal, defaultOption)
-  } else {
-    console.warn("[HyperMD FoldMath] wrong option format. If you want to stop folding math. set options.hmdFold.math = false")
-  }
-
-  var inst = getAddon(cm)
-  for (var k in newCfg) inst[k] = newCfg[k]
-})
-
-const AddonAlias = "foldMath"
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: FoldMath } } }
-export const getAddon = Addon.Getter(AddonAlias, FoldMath, defaultOption)
+/** ADDON GETTER (Singleton Pattern): a editor can have only one FoldMath instance */
+export const getAddon = Addon.Getter("FoldMath", FoldMath, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { FoldMath?: FoldMath } } }

@@ -6,14 +6,17 @@
 // You may set `hmdFold.customFolders` option to fold more, where `customFolders` is Array<FolderFunc>
 //
 
-import CodeMirror, { TextMarker, Position, Token } from 'codemirror'
-import { Addon, FlipFlop, debounce, TokenSeeker } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, debounce, TokenSeeker, suggestedEditorConfig } from '../core'
+import { TextMarker, Position, Token } from 'codemirror'
 import { cm_t } from '../core/type'
 import { splitLink } from './read-link'
 
 const DEBUG = false
 
 /********************************************************************************** */
+//#region FolderFunc & FoldStream declaration
+
 /**
  * 1. Check if `token` is a **BEGINNING TOKEN** of fold-able text (eg. "!" for images)
  * 2. Use `stream.findNext` to find the end of the text to be folded (eg. ")" or "]" of link/URL, for images)
@@ -36,7 +39,6 @@ export interface FoldStream {
   readonly lineNo: number
   readonly lineTokens: Token[]    // always same as cm.getLineTokens(line)
   readonly i_token: number        // current token's index
-
   /**
    * Find next Token that matches the condition AFTER current token (whose index is `i_token`), or a given position
    * This function will NOT make the stream precede!
@@ -63,19 +65,24 @@ export interface FoldStream {
   requestRange(from: Position, to: Position): RequestRangeResult
 }
 
-/********************************************************************************** */
-/** define all built-in folder types */
-export interface builtinFolderContainer<T> {
-  image: T,
-  link: T,
+export enum RequestRangeResult {
+  // Use string values because in TypeScript, string enum members do not get a reverse mapping generated at all.
+  // Otherwise the generated code looks ugly
+  OK = "ok",
+  CURSOR_INSIDE = "ci",
+  HAS_MARKERS = "hm",
 }
 
-export var builtinFolder: builtinFolderContainer<FolderFunc> = {
+//#endregion
+
+/********************************************************************************** */
+//#region builtinFolder
+
+export var builtinFolder: Record<string, FolderFunc> = {
   image(stream, token) {
     const cm = stream.cm
     const imgRE = /\bimage-marker\b/
     const urlRE = /\bformatting-link-string\b/   // matches the parentheses
-
     if (imgRE.test(token.type) && token.string === "!") {
       var lineNo = stream.lineNo
 
@@ -102,6 +109,7 @@ export var builtinFolder: builtinFolderContainer<FolderFunc> = {
             rawurl = tmp.content
           }
           url = splitLink(rawurl).url
+          url = cm.hmdResolveURL(url)
         }
 
         { // extract the title
@@ -148,7 +156,6 @@ export var builtinFolder: builtinFolderContainer<FolderFunc> = {
   link(stream, token) {
     const cm = stream.cm
     const urlRE = /\bformatting-link-string\b/   // matches the parentheses
-
     const endTest = (token: Token) => (urlRE.test(token.type) && token.string === ")")
 
     if (
@@ -193,8 +200,10 @@ export var builtinFolder: builtinFolderContainer<FolderFunc> = {
   },
 }
 
+//#endregion
+
 /********************************************************************************** */
-/** UTILS */
+//#region Utils
 
 /** break a TextMarker, move cursor to where marker is */
 export function breakMark(cm: cm_t, marker: TextMarker, chOffset?: number) {
@@ -207,33 +216,65 @@ export function breakMark(cm: cm_t, marker: TextMarker, chOffset?: number) {
   })
 }
 
-/********************************************************************************** */
-/** ADDON OPTIONS */
+//#endregion
 
-export interface FoldOptions extends Addon.AddonOptions, builtinFolderContainer<boolean> {
-  math?: boolean // only works when fold-math addon presents
+/********************************************************************************** */
+//#region Addon Options
+
+export interface Options extends Addon.AddonOptions {
+  /** Fold Images */
+  image: boolean
+
+  /** Fold Link URL */
+  link: boolean
+
+  /** Enable TeX math folding. requires `fold-math` addon */
+  math: boolean
+
+  /** User custom FolderFunc. All will be enabled. */
   customFolders: { [type: string]: FolderFunc }
 }
 
-export const defaultOption: FoldOptions = {
+export const defaultOption: Options = {
   image: false,
   link: false,
+  math: false,
   customFolders: {},
 }
 
-const OptionName = "hmdFold"
-type OptionValueType = Partial<FoldOptions> | boolean;
+export const suggestedOption: Partial<Options> = {
+  image: true,
+  link: true,
+  math: true,
+}
 
-CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionValueType) {
-  const enabled = !!newVal
+export type OptionValueType = Partial<Options> | boolean;
 
-  if (!enabled || typeof newVal === "boolean") {
-    // enable/disable all builtinFolder
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for Fold.
+       *
+       * You may also provide a `false` to disable all built-in folders; a `true` to enable all of them.
+       * **NOTE: Your `customFolders` will be cleared if a boolean is given**
+       */
+      hmdFold?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdFold = suggestedOption
+
+CodeMirror.defineOption("hmdFold", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "boolean") {
+    let enabled = !!newVal
     newVal = {}
     for (const type in builtinFolder) newVal[type] = enabled
   }
-
-  var newCfg = Addon.migrateOption(newVal, defaultOption)
 
   ///// apply config
   var inst = getAddon(cm)
@@ -256,20 +297,11 @@ CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionVal
   inst.startFold()
 })
 
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
-
-export enum RequestRangeResult {
-  // Use string values because in TypeScript, string enum members do not get a reverse mapping generated at all.
-  // Otherwise the generated code looks ugly
-  OK = "ok",
-  CURSOR_INSIDE = "ci",
-  HAS_MARKERS = "hm",
-}
+//#endregion
 
 /********************************************************************************** */
-/** ADDON CLASS */
+//#region Addon Class
 
-const AddonAlias = "fold"
 export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
   // stores builtin Folder status with FlipFlops
   public ff_builtin = {} as { [type: string]: FlipFlop<boolean> }
@@ -480,8 +512,8 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
   }
 }
 
+//#endregion
 
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: Fold } } }
-
-/** ADDON GETTER: Only one addon instance allowed in a editor */
-export const getAddon = Addon.Getter(AddonAlias, Fold, defaultOption /** if has options */)
+/** ADDON GETTER (Singleton Pattern): a editor can have only one Fold instance */
+export const getAddon = Addon.Getter("Fold", Fold, defaultOption)
+declare global { namespace HyperMD { interface HelperCollection { Fold?: Fold } } }

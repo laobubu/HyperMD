@@ -4,16 +4,18 @@
 // This is a patch to markdown mode. Supports lots of new features
 //
 
-import CM from "codemirror"
+import * as CodeMirror from "codemirror"
 import "codemirror/mode/markdown/markdown"
 import "codemirror/mode/stex/stex"
+
+import "./hypermd.css"
 
 const listRE = /^(?:[*\-+]|^[0-9]+([.)]))\s+/
 const urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i // from CodeMirror/mode/gfm
 const emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 const url2RE = /^\.{0,2}\/[^\>\s]+/
 
-type TokenFunc = (stream: CodeMirror.StringStream, state: HyperMDState) => string
+export type TokenFunc = (stream: CodeMirror.StringStream, state: HyperMDState) => string
 
 export interface MarkdownStateLine {
   stream: CodeMirror.StringStream,
@@ -117,7 +119,7 @@ const linkStyle = {
   [LinkType.FOOTNOTE]: "hmd-footnote line-HyperMD-footnote",
 }
 
-CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
+CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   var modeCfg = {
     math: true,
     table: true,
@@ -146,7 +148,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   Object.assign(modeCfg, modeCfgUser)
   modeCfg["name"] = "markdown"
 
-  var rawMode: CodeMirror.Mode<MarkdownState> = CM.getMode(cmCfg, modeCfg)
+  var rawMode: CodeMirror.Mode<MarkdownState> = CodeMirror.getMode(cmCfg, modeCfg)
   var newMode: CodeMirror.Mode<HyperMDState> = { ...rawMode } as any
 
   newMode.startState = function () {
@@ -178,7 +180,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
     ans.hmdTableColumns = s.hmdTableColumns.slice(0)
 
-    if (s.hmdInnerMode) ans.hmdInnerState = CM.copyState(s.hmdInnerMode, s.hmdInnerState)
+    if (s.hmdInnerMode) ans.hmdInnerState = CodeMirror.copyState(s.hmdInnerMode, s.hmdInnerState)
 
     return ans
   }
@@ -584,7 +586,7 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
   /** switch to another mode */
   function enterMode(stream: CodeMirror.StringStream, state: HyperMDState, mode: string | CodeMirror.Mode<any>, endTag: string): string {
-    if (typeof mode === "string") mode = CM.getMode(cmCfg, mode)
+    if (typeof mode === "string") mode = CodeMirror.getMode(cmCfg, mode)
 
     if (!mode || mode["name"] === "null") {
       // mode not loaded, create a dummy mode
@@ -606,10 +608,10 @@ CM.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     state.hmdInnerExitTag = endTag
     state.hmdInnerMode = mode
     state.hmdOverride = modeOverride
-    return mode.token(stream, state.hmdInnerState = CM.startState(mode))
+    return mode.token(stream, state.hmdInnerState = CodeMirror.startState(mode))
   }
 
   return newMode
 }, "hypermd")
 
-CM.defineMIME("text/x-hypermd", "hypermd")
+CodeMirror.defineMIME("text/x-hypermd", "hypermd")

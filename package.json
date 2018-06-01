@@ -2,13 +2,17 @@
   "name": "hypermd",
   "version": "0.3.2",
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
-  "main": "lib/hypermd_ai1.js",
+  "main": "./ai1.js",
+  "types": "./types/ai1.d.ts",
   "scripts": {
     "build": "npm run build_js && npm run build_css",
-    "build_js": "rollup -c",
-    "build_css": "node dev/dev.js",
-    "dev": "node dev/dev.js --dev",
-    "watch_js": "rollup -c -w",
+    "prebuild_js": "node dev/pre-build.js",
+    "build_js": "tsc && rollup -c",
+    "postbuild_js": "node dev/post-build.js",
+    "build_css": "node dev/build-css.js",
+    "dev": "node dev/dev.js",
+    "watch_js": "tsc -w",
+    "watch_css": "node dev/build-css.js -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -22,10 +26,12 @@
   "devDependencies": {
     "@types/codemirror": "^0.0.56",
     "@types/marked": "^0.3.0",
-    "@types/requirejs": "^2.1.31",
+    "codemirror": "^5.37.0",
     "express": "^4.16.3",
     "glob": "^7.1.2",
+    "katex": "^0.10.0-alpha",
     "mathjax": "^2.7.0",
+    "opn": "^5.3.0",
     "rollup": "^0.58.2",
     "rollup-plugin-buble": "^0.19.2",
     "rollup-plugin-typescript2": "^0.13.0",
@@ -33,8 +39,7 @@
     "sass": "^1.3.2",
     "turndown": "^4.0.1",
     "turndown-plugin-gfm": "^1.0.1",
-    "typescript": "^2.8.3",
-    "codemirror": "^5.37.0"
+    "typescript": "^2.8.3"
   },
   "peerDependencies": {
     "codemirror": "^5.37.0"

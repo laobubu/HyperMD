@@ -4,18 +4,131 @@
 // trace the footnote, finding the url
 //
 
-import CodeMirror from 'codemirror'
-import { Addon, debounce } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, debounce, suggestedEditorConfig } from '../core'
 import { cm_t } from '../core/type'
 
-interface Link {
+
+/********************************************************************************** */
+
+export interface Link {
   line: number
   content: string
 }
-type CacheDB = { [lowerTrimmedKey: string]: Link[] }
+export type CacheDB = { [lowerTrimmedKey: string]: Link[] }
 
-class ReadLink implements Addon.Addon {
-  public cache: CacheDB = {}
+/**
+ * Normalize a (potentially-with-title) URL string
+ *
+ * @param content eg. `http://laobubu.net/page "The Page"` or just a URL
+ */
+export function splitLink(content: string) {
+  // remove title part (if exists)
+  content = content.trim()
+  var url = content, title = ""
+  var mat = content.match(/^(\S+)\s+("(?:[^"\\]+|\\.)+"|[^"\s].*)/)
+  if (mat) {
+    url = mat[1]
+    title = mat[2]
+    if (title.charAt(0) === '"') title = title.substr(1, title.length - 2).replace(/\\"/g, '"')
+  }
+
+  return { url, title }
+}
+
+/********************************************************************************** */
+//#region CodeMirror Extension
+// add methods to all CodeMirror editors
+
+// every codemirror editor will have these member methods:
+export const Extensions = {
+  /**
+   * Try to find a footnote and return its lineNo, content.
+   *
+   * NOTE: You will need `hmdSplitLink` and `hmdResolveURL` if you want to get a URL
+   *
+   * @param footNoteName without square brackets, case-insensive
+   * @param line since which line
+   */
+  hmdReadLink(this: cm_t, footNoteName: string, line?: number) {
+    return getAddon(this).read(footNoteName, line)
+  },
+
+  /**
+   * Check if URL is relative URL, and add baseURI if needed; or if it's a email address, add "mailto:"
+   *
+   * @see ReadLink.resolve
+   */
+  hmdResolveURL(this: cm_t, url: string, baseURI?: string) {
+    return getAddon(this).resolve(url, baseURI)
+  },
+
+  hmdSplitLink: splitLink,
+}
+
+export type ExtensionsType = typeof Extensions
+declare global { namespace HyperMD { interface Editor extends ExtensionsType { } } }
+
+for (var name in Extensions) {
+  CodeMirror.defineExtension(name, Extensions[name])
+}
+
+//#endregion
+
+/********************************************************************************** */
+//#region Addon Options
+
+export interface Options extends Addon.AddonOptions {
+  /** If not empty, this will affect `editor.hmdResolveURL()` if the URL of result is relative */
+  baseURI: string
+}
+
+export const defaultOption: Options = {
+  baseURI: "",
+}
+
+export const suggestedOption: Partial<Options> = {
+  baseURI: "",
+}
+
+export type OptionValueType = Partial<Options> | string;
+
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /** If not empty, this will affect `editor.hmdResolveURL()` if the URL of result is relative */
+      hmdReadLink?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdReadLink = suggestedOption
+
+CodeMirror.defineOption("hmdReadLink", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "string") {
+    newVal = { baseURI: newVal as string }
+  }
+
+  ///// apply config and write new values into cm
+
+  var inst = getAddon(cm)
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
+})
+
+//#endregion
+
+/********************************************************************************** */
+//#region Addon Class
+
+export class ReadLink implements Addon.Addon, Options {
+  baseURI: string
+
+  cache: CacheDB = {}
 
   constructor(
     public cm: cm_t
@@ -65,55 +178,59 @@ class ReadLink implements Addon.Addon {
       }
     })
   }
-}
 
-export { ReadLink }
+  /**
+   * Check if URL is relative URL, and add baseURI if needed
+   *
+   * @example
+   *
+   *     resolve("<email address>") // => "mailto:xxxxxxx"
+   *     resolve("../world.png") // => (depends on your editor configuration)
+   *     resolve("../world.png", "http://laobubu.net/xxx/foo/") // => "http://laobubu.net/xxx/world.png"
+   *     resolve("../world.png", "http://laobubu.net/xxx/foo") // => "http://laobubu.net/xxx/world.png"
+   *     resolve("/world.png", "http://laobubu.net/xxx/foo/") // => "http://laobubu.net/world.png"
+   */
+  resolve(uri: string, baseURI?: string) {
+    const emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-/** HYPERMD ADDON DECLARATION */
+    const hostExtract = /^(?:[\w-]+\:\/*|\/\/)[^\/]+/
+    const levelupRE = /\/[^\/]+(?:\/+\.?)*$/
 
-const AddonAlias = "readLink"
-const AddonClassCtor = ReadLink
-type AddonClass = ReadLink
+    if (!uri) return uri
+    if (emailRE.test(uri)) return "mailto:" + uri
 
-declare global {
-  namespace HyperMD {
-    interface HelperCollection { [AddonAlias]?: AddonClass }
-  }
-}
+    var tmp: RegExpMatchArray
+    var host = ""
 
-export const getAddon = Addon.Getter(AddonAlias, AddonClassCtor)
+    baseURI = baseURI || this.baseURI
 
-/** HYPERMD HELPER DECLARATION */
+    // not configured, or is already URI with scheme
+    if (!baseURI || hostExtract.test(uri)) return uri
 
-function readLink(this: cm_t, footNoteName: string, line?: number) {
-  return getAddon(this).read(footNoteName, line)
-}
-
-/**
- *
- * @param content eg. `http://laobubu.net/page "The Page"` or just a URL
- */
-export function splitLink(content: string) {
-  // remove title part (if exists)
-  content = content.trim()
-  var url = content, title = ""
-  var mat = content.match(/^(\S+)\s+("(?:[^"\\]+|\\.)+"|[^"\s].*)/)
-  if (mat) {
-    url = mat[1]
-    title = mat[2]
-    if (title.charAt(0) === '"') title = title.substr(1, title.length - 2).replace(/\\"/g, '"')
-  }
-
-  return { url, title }
-}
-
-declare global {
-  namespace HyperMD {
-    interface Editor {
-      hmdReadLink: typeof readLink
-      hmdSplitLink: typeof splitLink
+    // try to extract scheme+host like http://laobubu.net without tailing slash
+    if (tmp = baseURI.match(hostExtract)) {
+      host = tmp[0];
+      baseURI = baseURI.slice(host.length)
     }
+
+    while (tmp = uri.match(/^(\.{1,2})([\/\\]+)/)) {
+      uri = uri.slice(tmp[0].length)
+      if (tmp[1] == "..") baseURI = baseURI.replace(levelupRE, "")
+    }
+
+    if (uri.charAt(0) === '/' && host) {
+      uri = host + uri
+    } else {
+      if (!/\/$/.test(baseURI)) baseURI += "/"
+      uri = host + baseURI + uri
+    }
+
+    return uri
   }
 }
-CodeMirror.defineExtension("hmdReadLink", readLink)
-CodeMirror.defineExtension("hmdSplitLink", splitLink)
+
+//#endregion
+
+/** ADDON GETTER (Singleton Pattern): a editor can have only one ReadLink instance */
+export const getAddon = Addon.Getter("ReadLink", ReadLink, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { ReadLink?: ReadLink } } }

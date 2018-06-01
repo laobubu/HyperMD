@@ -17,26 +17,17 @@ if (requirejs) requirejs.config({
 
   // Remove `packages` if you occur errors with CDN
   packages: [
-    {
-      name: 'codemirror',
-      main: 'lib/codemirror'
-    },
-    {
-      name: 'mathjax',
-      main: 'MathJax.js'
-    },
-    {
-      name: 'marked',
-      main: 'lib/marked'
-    }
+    { name: 'codemirror', main: 'lib/codemirror.js' },
+    { name: 'mathjax', main: 'MathJax.js' },
+    { name: 'katex', main: 'dist/katex.min.js' },
+    { name: 'marked', main: 'lib/marked.js' },
+    { name: 'turndown', main: 'lib/turndown.browser.umd.js' },
+    { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
   ],
   waitSeconds: 15
 })
 
 require([
-
-  // If load libs manually, LOAD THEM IN SEQUENCE!
-
   ///////////////////////////////////////
   /// Core! Load them first!          ///
   ///////////////////////////////////////
@@ -53,41 +44,11 @@ require([
   //       if it's configured properly
   'codemirror/mode/javascript/javascript',  // eg. javascript
 
-  'codemirror/addon/fold/foldcode',
-  'codemirror/addon/fold/foldgutter',
-  'codemirror/addon/fold/markdown-fold',
-  'codemirror/addon/edit/continuelist',
-
-  'codemirror/addon/mode/overlay',
-  'codemirror/mode/markdown/markdown',
-
-  // Just for fun. Not really useful.
-  // 'codemirror/keymap/vim',
-
-  ///////////////////////////////////////
-  /// Optional third-party libraries  ///
-  ///////////////////////////////////////
-
-  // for addon/hover and more
-  // NOTE: if you use require.js, this line is optional
-  //       because marked is declared as required in the addons' code
-  'marked/lib/marked',
-
-  // for addon/paste
-  'turndown/dist/turndown',
-  'turndown-plugin-gfm/dist/turndown-plugin-gfm',
-
-  // for addon/fold-math
-  // NOTE: It's REQUIRED to declare a configuration before loading MathJax:
-  //       <script type="text/x-mathjax-config">...</script>
-  //       see index.html or docs/examples/ai1.html
-  'mathjax/MathJax',
-
   ///////////////////////////////////////
   /// HyperMD modules                 ///
   ///////////////////////////////////////
 
-  'hypermd/mode/hypermd',
+  'hypermd/mode/hypermd', // ESSENTIAL
 
   'hypermd/addon/hide-token',
   'hypermd/addon/cursor-debounce',
@@ -102,6 +63,17 @@ require([
   'hypermd/addon/table-align',
 
   'hypermd/keymap/hypermd',
+
+  /////////////////////////////////////////////
+  /// PowerPack with third-party libraries  ///
+  /////////////////////////////////////////////
+
+  'hypermd/powerpack/fold-math-with-katex',
+
+  // 'hypermd/powerpack/fold-math-with-mathjax',
+
+  'hypermd/powerpack/paste-with-turndown',
+  'turndown-plugin-gfm',
 
 ], function (CodeMirror, HyperMD) {
   'use strict';

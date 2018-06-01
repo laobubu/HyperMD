@@ -4,9 +4,13 @@
 // Insert images or files into Editor by pasting (Ctrl+V) or Drag'n'Drop
 //
 
-import CodeMirror from 'codemirror'
-import { Addon, FlipFlop } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
 import { cm_t } from '../core/type'
+
+
+/********************************************************************************** */
+//#region Exported Types and Utils
 
 export interface HandlerAction {
   setPlaceholder(placeholder: HTMLElement)
@@ -30,11 +34,6 @@ export interface HandlerAction {
   cm: cm_t
 }
 export type FileHandler = (files: FileList, action: HandlerAction) => boolean
-
-
-/** a spinning gif image (16x16) */
-const spinGIF = ''
-const errorPNG = ''
 
 /**
  * send data to url
@@ -69,6 +68,14 @@ export function ajaxUpload(
   xhr.send(formData)
 }
 
+//#endregion
+
+/********************************************************************************** */
+//#region Default FileHandler
+
+/** a spinning gif image (16x16) */
+const spinGIF = ''
+const errorPNG = ''
 
 /**
  * Default FileHandler
@@ -143,27 +150,94 @@ export const DefaultFileHandler: FileHandler = function (files, action) {
   }
 }
 
-interface InserFileOptions extends Addon.AddonOptions {
+//#endregion
+
+
+/********************************************************************************** */
+//#region Addon Options
+
+export interface Options extends Addon.AddonOptions {
+  /** enable uploading from clipboard */
   byPaste: boolean
+
+  /** enable drag n drop uploading */
   byDrop: boolean
-  fileHandler: FileHandler | FileHandler[]
+
+  /** handler function */
+  fileHandler: FileHandler
 }
 
-const defaultOption: InserFileOptions = {
-  byDrop: true,
-  byPaste: true,
+export const defaultOption: Options = {
+  byDrop: false,
+  byPaste: false,
   fileHandler: DefaultFileHandler,
 }
 
-class InsertFile implements Addon.Addon, InserFileOptions {
-  byPaste: boolean = defaultOption.byPaste
-  byDrop: boolean = defaultOption.byDrop
-  fileHandler: FileHandler | FileHandler[] = defaultOption.fileHandler
+export const suggestedOption: Partial<Options> = {
+  byPaste: true,  // we recommend lazy users to enable this fantastic addon!
+  byDrop: true,
+}
 
-  cm: cm_t
+export type OptionValueType = Partial<Options> | boolean | FileHandler;
 
-  constructor(cm: cm_t) {
-    this.cm = cm
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for InsertFile.
+       *
+       * You may also provide a `false` to disable it; a `true` to enable it with DefaultFileHandler
+       *
+       * Or provide a FileHandler(overwrite the default one), meanwhile, byDrop & byPaste will set to `true`
+       */
+      hmdInsertFile?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdInsertFile = suggestedOption
+
+CodeMirror.defineOption("hmdInsertFile", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "boolean") {
+    let enabled = !!newVal
+    newVal = { byDrop: enabled, byPaste: enabled }
+  } else if (typeof newVal === 'function') {
+    newVal = { byDrop: true, byPaste: true, fileHandler: newVal }
+  }
+
+  ///// apply config and write new values into cm
+
+  var inst = getAddon(cm)
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
+})
+
+//#endregion
+
+/********************************************************************************** */
+//#region Addon Class
+
+export class InsertFile implements Addon.Addon, Options /* if needed */ {
+  byPaste: boolean;
+  byDrop: boolean;
+  fileHandler: FileHandler;
+
+  constructor(public cm: cm_t) {
+    // options will be initialized to defaultOption when constructor is finished
+
+    new FlipFlop(
+      /* ON  */() => this.cm.on("paste", this.pasteHandle),
+      /* OFF */() => this.cm.off("paste", this.pasteHandle)
+    ).bind(this, "byPaste", true)
+
+    new FlipFlop(
+      /* ON  */() => this.cm.on("drop", this.pasteHandle),
+      /* OFF */() => this.cm.off("drop", this.pasteHandle)
+    ).bind(this, "byDrop", true)
   }
 
   /**
@@ -178,8 +252,7 @@ class InsertFile implements Addon.Addon, InserFileOptions {
     if (!data || !data.files || 0 === data.files.length) return false
     const files = data.files
 
-    // only consider one format
-    var fileHandlers = (typeof this.fileHandler === 'function') ? [this.fileHandler] : this.fileHandler
+    var fileHandler = this.fileHandler || DefaultFileHandler
     var handled = false
 
     cm.operation(() => {
@@ -223,13 +296,7 @@ class InsertFile implements Addon.Addon, InserFileOptions {
         }
       }
 
-      for (let i = 0; i < fileHandlers.length; i++) {
-        const fn = fileHandlers[i]
-        if (fn(files, action)) {
-          handled = true
-          break
-        }
-      }
+      handled = fileHandler(files, action)
 
       if (!handled) marker.clear()
     })
@@ -252,60 +319,10 @@ class InsertFile implements Addon.Addon, InserFileOptions {
     if (!result) return
     ev.preventDefault()
   }
-
-  // Use FlipFlop to bind/unbind status
-  public ff_paste = new FlipFlop(
-    /* ON  */() => this.cm.on("paste", this.pasteHandle),
-    /* OFF */() => this.cm.off("paste", this.pasteHandle)
-  )
-
-  public ff_drop = new FlipFlop(
-    /* ON  */() => this.cm.on("drop", this.pasteHandle),
-    /* OFF */() => this.cm.off("drop", this.pasteHandle)
-  )
 }
 
-export { InsertFile, defaultOption }
+//#endregion
 
-/** HYPERMD ADDON DECLARATION */
-
-const AddonAlias = "insertFile"
-const AddonClassCtor = InsertFile
-type AddonClass = InsertFile
-
-const OptionName = "hmdInsertFile"
-type OptionValueType = Partial<InserFileOptions> | boolean | FileHandler | FileHandler[]
-
-declare global {
-  namespace HyperMD {
-    interface HelperCollection { [AddonAlias]?: AddonClass }
-    interface EditorConfiguration { [OptionName]?: OptionValueType }
-  }
-}
-
-export const getAddon = Addon.Getter(AddonAlias, AddonClassCtor)
-
-CodeMirror.defineOption(OptionName, false,
-  function (cm: cm_t, newVal: OptionValueType) {
-    const enabled = !!newVal
-
-    if (!enabled || newVal === true) {
-      newVal = { byDrop: enabled, byPaste: enabled }
-    } else if (typeof newVal === 'function' || newVal instanceof Array) {
-      newVal = { byDrop: enabled, byPaste: enabled, fileHandler: newVal }
-    } else if (typeof newVal !== 'object') {
-      throw new Error("[HyperMD] wrong hmdInsertFile option value")
-    }
-
-    var newCfg = Addon.migrateOption(newVal, defaultOption)
-
-    ///// apply config
-    var inst = getAddon(cm)
-
-    inst.ff_paste.setBool(newCfg.byPaste)
-    inst.ff_drop.setBool(newCfg.byDrop)
-
-    ///// write new values into cm
-    for (var k in defaultOption) inst[k] = newCfg[k]
-  }
-)
+/** ADDON GETTER (Singleton Pattern): a editor can have only one InsertFile instance */
+export const getAddon = Addon.Getter("InsertFile", InsertFile, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { InsertFile?: InsertFile } } }

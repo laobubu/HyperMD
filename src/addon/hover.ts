@@ -4,75 +4,118 @@
 // Hover on a link, showing related footnote
 //
 
-import CodeMirror from 'codemirror'
-import marked from 'marked'
-import { Addon, FlipFlop, expandRange } from '../core'
-import { cm_t } from '../core/type'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, expandRange, suggestedEditorConfig } from '../core'
 import './read-link'
 
+import { cm_t } from '../core/type'
+import { Link } from './read-link'
+
 
 /********************************************************************************** */
-/** STATIC METHODS */
+
+/** convert footnote text into HTML. Note that `markdown` may be empty and you may return `null` to supress the tooltip */
+export type Convertor = (footnote: string, markdown: string) => string
+
+declare global { const marked }
 
 /** if `marked` exists, use it; else, return safe html */
-export function text2html(text: string): string {
+export function defaultConvertor(footnote: string, text: string): string {
+  if (!text) return null
+
+  // this only works in plain browser platform
   if (typeof marked === 'function') return marked(text)
-  return "<pre>" + text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;') + "</pre>"
+
+  // Implement a dumb version
+  text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;')
+  return "<pre>" + text + "</pre>"
 }
 
 /********************************************************************************** */
-/** ADDON OPTIONS */
+//#region Addon Options
 
-export interface HoverOptions extends Addon.AddonOptions {
+export interface Options extends Addon.AddonOptions {
+  /** Enable Hover features or not. */ // TODO: write doc here
   enabled: boolean
+
   xOffset: number
+
+  /**
+   * function to decide the tooltip's content
+   *
+   * @see Convertor
+   * @see defaultConvertor
+   */
+  convertor: Convertor
 }
 
-export const defaultOption: HoverOptions = {
+export const defaultOption: Options = {
   enabled: false,
   xOffset: 10,
+  convertor: defaultConvertor,
 }
 
-const OptionName = "hmdHover"
-type OptionValueType = Partial<HoverOptions> | boolean
+export const suggestedOption: Partial<Options> = {
+  enabled: true,  // we recommend lazy users to enable this fantastic addon!
+}
 
-CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionValueType) {
-  const enabled = !!newVal
+export type OptionValueType = Partial<Options> | boolean | Convertor;
 
-  if (!enabled || typeof newVal === "boolean") {
-    newVal = { enabled: enabled }
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for Hover.
+       *
+       * You may also provide a `false` to disable it;
+       * a `true` to enable it with defaultOption (except `enabled`);
+       * a Convertor to decide the content of tooltip.
+       *
+       * @see Convertor
+       */
+      hmdHover?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdHover = suggestedOption
+
+CodeMirror.defineOption("hmdHover", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "boolean") {
+    newVal = { enabled: !!newVal }
+  } else if (typeof newVal === "function") {
+    newVal = { enabled: true, convertor: newVal }
   }
 
-  var newCfg = Addon.migrateOption(newVal, defaultOption)
+  ///// apply config and write new values into cm
 
-  ///// apply config
   var inst = getAddon(cm)
-
-  inst.ff_enable.setBool(newCfg.enabled)
-
-  ///// write new values into cm
-  for (var k in defaultOption) inst[k] = newCfg[k]
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
 })
 
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
-
+//#endregion
 
 /********************************************************************************** */
-/** ADDON CLASS */
+//#region Addon Class
 
-const AddonAlias = "hover"
-export class Hover implements Addon.Addon, HoverOptions {
-  enabled: boolean;
+export class Hover implements Addon.Addon, Options /* if needed */ {
   xOffset: number;
-
-  private lineDiv: HTMLDivElement // CodeMirror's line container
-  public tooltipDiv: HTMLDivElement
-  public tooltipContentDiv: HTMLDivElement
-  public tooltipIndicator: HTMLDivElement
-
-  public ff_enable: FlipFlop  // bind/unbind events
+  convertor: Convertor;
+  enabled: boolean;
 
   constructor(public cm: cm_t) {
+    // options will be initialized to defaultOption when constructor is finished
+
+    new FlipFlop(
+      /* ON  */() => { lineDiv.addEventListener("mouseenter", evhandler, true) },
+      /* OFF */() => { lineDiv.removeEventListener("mouseenter", evhandler, true); this.hideInfo() }
+    ).bind(this, "enabled", true)
+
     var lineDiv = cm.display.lineDiv as HTMLDivElement
     this.lineDiv = lineDiv
 
@@ -94,12 +137,12 @@ export class Hover implements Addon.Addon, HoverOptions {
     this.tooltipIndicator = tooltipIndicator
 
     const evhandler = this.mouseenter.bind(this)
-
-    this.ff_enable = new FlipFlop(
-      /* ON  */() => { lineDiv.addEventListener("mouseenter", evhandler, true) },
-      /* OFF */() => { lineDiv.removeEventListener("mouseenter", evhandler, true); this.hideInfo() }
-    )
   }
+
+  private lineDiv: HTMLDivElement // CodeMirror's line container
+  public tooltipDiv: HTMLDivElement
+  public tooltipContentDiv: HTMLDivElement
+  public tooltipIndicator: HTMLDivElement
 
   mouseenter(ev: MouseEvent) {
     var cm = this.cm, target = ev.target as HTMLElement
@@ -115,22 +158,26 @@ export class Hover implements Addon.Addon, HoverOptions {
     }
 
     var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }, "window")
-    var footnote = null
+    let footnoteName = null
+    var footnote: Link = null
 
     const hover_type = mat[1] // hmd-barelink|hmd-link-url-s
     var range = expandRange(cm, pos, hover_type)
     if (range) {
-      let text = cm.getRange(range.from, range.to)
-      text = text.slice(1, -1)
-      if (text) footnote = cm.hmdReadLink(text, pos.line)
+      footnoteName = cm.getRange(range.from, range.to)
+      footnoteName = footnoteName.slice(1, -1)
+      if (footnoteName) footnote = cm.hmdReadLink(footnoteName, pos.line) || null
     }
 
-    if (!footnote) {
+    var convertor = this.convertor || defaultConvertor
+    var html = convertor(footnoteName, footnote && footnote.content || null)
+
+    if (!html) {
       this.hideInfo()
       return
     }
 
-    this.showInfo(text2html(footnote.content), target)
+    this.showInfo(html, target)
   }
 
   showInfo(html: string, relatedTo: HTMLElement) {
@@ -160,7 +207,8 @@ export class Hover implements Addon.Addon, HoverOptions {
   }
 }
 
-/** ADDON GETTER: Only one addon instance allowed in a editor */
+//#endregion
 
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: Hover } } }
-export const getAddon = Addon.Getter(AddonAlias, Hover, defaultOption)
+/** ADDON GETTER (Singleton Pattern): a editor can have only one Hover instance */
+export const getAddon = Addon.Getter("Hover", Hover, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { Hover?: Hover } } }

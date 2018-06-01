@@ -19,4 +19,17 @@ import * as HideToken from "./addon/hide-token"
 import * as CursorDebounce from "./addon/cursor-debounce"
 import * as KeyMap from "./keymap/hypermd"
 
-export { InsertFile, ReadLink, Hover, Click, Paste, Fold, FoldMath, TableAlign, ModeLoader, HideToken, CursorDebounce, KeyMap }
+export {
+  InsertFile,
+  ReadLink,
+  Hover,
+  Click,
+  Paste,
+  Fold,
+  FoldMath,
+  TableAlign,
+  ModeLoader,
+  HideToken,
+  CursorDebounce,
+  KeyMap,
+}

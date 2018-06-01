@@ -5,7 +5,7 @@ script:
   - npm run build
   # no unit test yet
 before_deploy:
-  - sed -i -e '/.js$/d' -e '/.css$/d' .gitignore
+  - sed -i -e '/.js$/d' -e '/.css$/d' -e '/^types/d' .gitignore
 deploy:
   # Deploy to https://laobubu.net/HyperMD
   - provider: pages

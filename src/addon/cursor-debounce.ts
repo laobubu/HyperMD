@@ -6,8 +6,9 @@
 // This addon suppresses the shake.
 //
 
-import CodeMirror from 'codemirror'
-import { Addon, FlipFlop } from '../core'
+import * as CodeMirror from 'codemirror'
+import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
+
 import { cm_t } from '../core/type'
 
 /********************************************************************************** */
@@ -16,36 +17,67 @@ import { cm_t } from '../core/type'
 const silenceDuration = 100, distance = 5
 
 /********************************************************************************** */
-/** ADDON OPTIONS */
+//#region Addon Options
 
-const OptionName = "hmdCursorDebounce"
-type OptionValueType = boolean
+export interface Options extends Addon.AddonOptions {
+  /** Enable CursorDebounce features or not. */
+  enabled: boolean
+}
 
-CodeMirror.defineOption(OptionName, false, function (cm: cm_t, newVal: OptionValueType) {
-  const enabled = !!newVal
+export const defaultOption: Options = {
+  enabled: false,
+}
 
-  ///// apply config
+export const suggestedOption: Partial<Options> = {
+  enabled: true,  // works good with hide-token
+}
+
+export type OptionValueType = Partial<Options> | boolean;
+
+declare global {
+  namespace HyperMD {
+    interface EditorConfiguration {
+      /**
+       * Options for CursorDebounce.
+       *
+       * You may also provide a `false` to disable it; a `true` to enable it
+       */
+      hmdCursorDebounce?: OptionValueType
+    }
+  }
+}
+
+suggestedEditorConfig.hmdCursorDebounce = suggestedOption
+
+CodeMirror.defineOption("hmdCursorDebounce", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
+
+  ///// convert newVal's type to `Partial<Options>`, if it is not.
+
+  if (!newVal || typeof newVal === "boolean") {
+    newVal = { enabled: !!newVal }
+  }
+
+  ///// apply config and write new values into cm
+
   var inst = getAddon(cm)
-  inst.ff_enable.setBool(enabled)
+  for (var k in defaultOption) {
+    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+  }
 })
 
-declare global { namespace HyperMD { interface EditorConfiguration { [OptionName]?: OptionValueType } } }
-
+//#endregion
 
 /********************************************************************************** */
-/** ADDON CLASS */
+//#region Addon Class
 
-const AddonAlias = "cursorDebounce"
-export class CursorDebounce implements Addon.Addon {
-  public ff_enable: FlipFlop  // bind/unbind events
+export class CursorDebounce implements Addon.Addon, Options /* if needed */ {
+  enabled: boolean;
 
   constructor(public cm: cm_t) {
-    // add your code here
-
-    this.ff_enable = new FlipFlop(
+    new FlipFlop(
       /* ON  */() => { cm.on('mousedown', this.mouseDownHandler) },
       /* OFF */() => { cm.off('mousedown', this.mouseDownHandler) }
-    )
+    ).bind(this, "enabled", true)
   }
 
   private lastX: number
@@ -71,8 +103,8 @@ export class CursorDebounce implements Addon.Addon {
   }
 }
 
+//#endregion
 
-declare global { namespace HyperMD { interface HelperCollection { [AddonAlias]?: CursorDebounce } } }
-
-/** ADDON GETTER: Only one addon instance allowed in a editor */
-export const getAddon = Addon.Getter(AddonAlias, CursorDebounce)
+/** ADDON GETTER (Singleton Pattern): a editor can have only one CursorDebounce instance */
+export const getAddon = Addon.Getter("CursorDebounce", CursorDebounce, defaultOption /** if has options */)
+declare global { namespace HyperMD { interface HelperCollection { CursorDebounce?: CursorDebounce } } }

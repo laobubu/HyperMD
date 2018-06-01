@@ -1,43 +1,20 @@
-'use strict'
-
-/*
-  This script will:
-  - Compile *.scss files
-  - (if --dev is provided) open dev server and watch scss/js files
- */
-
 const path = require('path')
 const express = require('express')
 const child_process = require('child_process')
 const fs = require('fs')
 const glob = require('glob')
-const sass = require('sass')
+const opn = require('opn')
+const buildCSS = require('./build-css')
 
 process.chdir(path.join(__dirname, ".."))
 
-const openDevServer = process.argv.includes("--dev")
+const app = express()
+app.use(express.static(process.cwd()))
+app.listen(8000, () => console.log('[HyperMD] http://127.0.0.1:8000 is now ready'))
+opn('http://127.0.0.1:8000')
 
-glob("**/*.scss", {
-  ignore: "node_modules/"
-}, (err, matches) => {
-  matches.forEach(filename => {
-    compile_sass(filename)
-
-    if (openDevServer) {
-      // `watch` option is currently not supported by new SASS
-      // https://github.com/sass/dart-sass/issues/264
-      fs.watchFile(filename, () => { compile_sass(filename) })
-    }
-  })
-})
-
-if (openDevServer) {
-  const app = express()
-  app.use(express.static(process.cwd()))
-  app.listen(8000, () => console.log('[HyperMD] http://127.0.0.1:8000 is now ready'))
-
-  npm_run("watch_js")
-}
+npm_run("watch_js")
+buildCSS.scan_and_compile("**/*.scss", true)
 
 function npm_run(command) {
   var platform_suffix = process.platform === "win32" ? ".cmd" : ""
@@ -47,22 +24,4 @@ function npm_run(command) {
   proc.stderr.pipe(process.stderr)
 
   return proc
-}
-
-function compile_sass(sourceFilename) {
-  console.log("[SCSS] Compiling " + sourceFilename)
-  var outputFilename = sourceFilename.replace(/\.s[ac]ss$/, ".css")
-  var proc = sass.render({
-    file: sourceFilename,
-    outFile: outputFilename
-  }, function (err, result) {
-    if (err) console.log(err)
-    else {
-      fs.writeFile(outputFilename, result.css, function (err) {
-        if (!err) {
-          //file written on disk
-        }
-      });
-    }
-  })
 }
