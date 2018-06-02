@@ -6,7 +6,7 @@
 // Use KaTeX to render the formulars
 //
 
-/// <reference path="./typings/katex.d.ts" />
+/// <reference path="./typings/_misc.d.ts" />
 
 import * as katex from 'katex'
 import { defaultOption, MathRenderer, MathRenderMode } from '../addon/fold-math'
@@ -74,4 +74,6 @@ export class KatexRenderer implements MathRenderer {
 }
 
 // Use KatexRenderer as default MathRenderer
-defaultOption.renderer = KatexRenderer
+if (typeof katex != "undefined") {
+  defaultOption.renderer = KatexRenderer
+}

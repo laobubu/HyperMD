@@ -4,6 +4,8 @@
 
 **打破** Markdown *写作* 和 *预览* 的 **次元壁**！
 
+[![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd) [![Build Status](https://travis-ci.org/laobubu/HyperMD.svg?branch=master)](https://travis-ci.org/laobubu/HyperMD)
+
 [在线演示](https://laobubu.net/HyperMD/)
 [English](../README.md)
 
@@ -20,7 +22,7 @@ HyperMD 是一组 [CodeMirror] 插件、模式和主题。
     - 标题
     - 水平线
     - [x] 列表（支持层叠列表、待办事项框）
-    - TeX 公式渲染，例如 $ e^{ i\pi } + 1 = 0 $ 或者公式块 [^4]
+    - TeX 公式渲染，例如 $ e^{ i\pi } + 1 = 0 $ 或者多行公式块 [^4]
     - 普通表格
 2. **按着 Alt 点击** 可以打开链接，或者跳到脚注 [^1]
 3. **代码块语法高亮** 支持数百种语言 [^2]
@@ -33,23 +35,21 @@ HyperMD 是一组 [CodeMirror] 插件、模式和主题。
     - 各种主题 [^3]
 7. **自动载入语法高亮规则**
 8. **上传图片** 只需要复制粘贴，或者把文件拖进来就行了
-9. **[还有更多...][doc]**
+9. **Power Pack** 用各种第三方库增强 HyperMD 功能，例如 [MathJax], [marked], KaTeX ...
+10. **[还有更多...][doc]**
 
 ## 快速开始
 
-首先，推荐使用 [RequireJS] 来载入依赖项，这也是 HyperMD 开发时的做法。
-如果你想使用 HTML 标签逐个导入 CSS 和 JS，请参考 [基于单文件版 HyperMD 的 Demo](./docs/examples/ai1.html)。
-
-在导入 CSS 样式、载入并配置了 [RequireJS] 之后，照着 `demo/index.js` 里面的方式初始化编辑器即可。
-
-一切准备就绪后，只需要几行代码，就可以把你的 `<textarea>` 变成 HyperMD 编辑器：
-
 ```javascript
+// npm install --save hypermd codemirror
+var HyperMD = require('hypermd')
 var myTextarea = document.getElementById('input-area')
 var editor = HyperMD.fromTextArea(myTextarea)
 ```
 
-具体的配置选项可以查阅[参考文档][doc] 。
+如果你使用打包器开发网站，只需要这几行就OK了。CSS 样式会在 "hypermd" 模块中自动引入。
+
+如果你是 [RequireJS][] 用户，或者纯粹 HTML 标签爱好者，请参考 [文档中的"快速开始"部分][doc]!
 
 ## 一起来搞事
 

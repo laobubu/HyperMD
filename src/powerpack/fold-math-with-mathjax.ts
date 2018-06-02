@@ -84,11 +84,13 @@ export class MathJaxRenderer implements MathRenderer {
   }
 }
 
-// IF NOT FOUND, add MathJax configuration
-if (0 == MathJax.Hub.config.jax.length) {
+if (typeof MathJax == "undefined") {
+  // MathJax not exists. Do nothing
+} else if (0 == MathJax.Hub.config.jax.length) {
+  // IF NOT FOUND, throw a warning
   console.error("[HyperMD] Looks like MathJax is not configured.\nPlease do this BEFORE loading MathJax.\nSee http://docs.mathjax.org/en/latest/configuration.html")
   MathJax.isReady = false
+} else {
+  // Use MathJaxRenderer as default MathRenderer
+  defaultOption.renderer = MathJaxRenderer
 }
-
-// Use MathJaxRenderer as default MathRenderer
-defaultOption.renderer = MathJaxRenderer

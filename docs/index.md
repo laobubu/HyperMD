@@ -31,54 +31,60 @@ Still under construction... Consider:
 First of all, run `npm i hypermd codemirror`, then let's make a simpliest `index.html`.
 
 ```html
+<!DOCTYPE HTML>
 <html>
   <head>
     <title>My Awesome Webpage</title>
   </head>
   <body>
-    <textarea id="myTextarea"></textarea>
+    <textarea id="myTextarea"># Hello World</textarea>
 
-    <!-- NOTE: CSS must be loaded BEFORE JS ! -->
-    <link rel="stylesheet" href="index.css">
     <script src="index.js"></script>
   </body>
 </html>
 ```
 
-Adding 4 lines into `index.css`:
-
-```css
-@import "codemirror/lib/codemirror.css";
-@import "codemirror/addon/fold/foldgutter.css";
-@import "hypermd/mode/hypermd.css";
-@import "hypermd/theme/hypermd-light.css";
-```
-
-And 4 lines into `index.js`:
+And several lines into `index.js`:
 
 ```js
-// require other 3rd-party libraries here
 var HyperMD = require("hypermd")
+// .css files will be implicitly required in "hypermd", including...
+// codemirror's, hypermd(mode), hypermd-light(theme) .css etc.
+
+require("hypermd/powerpack/fold-math-with-katex") // implicitly requires "katex"
+require("hypermd/powerpack/hover-with-marked") // implicitly requires "marked"
+// and other power packs...
+// Power packs need 3rd-party libraries. Don't forget to install them!
+
 var myTextarea = document.getElementById("myTextarea")
-var cm = HyperMD.fromTextArea(myTextarea, { /* optional editor options here */ })
+var cm = HyperMD.fromTextArea(myTextarea, {
+  /* optional editor options here */
+  hmdModeLoader: false, // see NOTEs below
+})
 ```
 
-Let's say you are using [parcel-bundler](https://parceljs.org/), simpily run `parcel index.html` and voila!
+Let's say you are using [parcel-bundler][], simpily run `parcel index.html` and voila!
 
-> **some CodeMirror features will be unavaliable** unless you load them.
+[parcel-bundler]: https://parceljs.org/  Blazing fast, zero configuration web application bundler
+
+> **You would need css-loader**
 >
-> Features that provided by CodeMirror built-in addons `codemirror/addon/*`, like folding, will be unavaliable.
-> You may import them before initializing editor. The list can be found [here](../demo/index.js).
+> HyperMD contains code like `require("xxx.css")`. Make sure you have [css-loader](https://github.com/webpack-contrib/css-loader) configured.
+> Some bundlers might have already prepared it for you, like [parcel-bundler][].
 
 > ***mode-loader* will be unavaliable**
 >
-> Bundlers use closures, making CodeMirror invisible to global. You may expose `CodeMirror` to global and set editor option `hmdLoadModeFrom` to something like `"https://cdn.jsdelivr.net/npm/codemirror/"`.
->
-> Or you can just bundle and pre-load all modes you need, which might make the js build larger.
+> Bundlers use closures, making CodeMirror invisible to global. You may...
+> Expose `CodeMirror` to global and set editor option `hmdModeLoader` to something like `"https://cdn.jsdelivr.net/npm/codemirror/"`.
+> Or load language modes via `require("codemirror/mode/haskell/haskell")` before creating a editor.
 
 ### with [RequireJS](http://requirejs.org/) the module loader
 
-1. Read [this](../demo/index.js)
+First of all, *hypermd* requires CSS files in JavaScript,
+and RequireJS doesn't support `require("./style.css")`.
+Thus, **you have to load a [patch](../demo/patch-requirejs.js) before using RequireJS**
+
+Besides, you might find [this demo script](../demo/index.js) helpful.
 
 ```js
 
@@ -98,7 +104,6 @@ requirejs.config({
     { name: 'marked', main: 'lib/marked.js' },
     { name: 'turndown', main: 'lib/turndown.browser.umd.js' },
     { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
-    // HyperMD doesn't need this, unless you use all-in-one build
   ],
   waitSeconds: 15
 })
@@ -107,28 +112,12 @@ requirejs.config({
 
 require([
   'codemirror/lib/codemirror',
-  'hypermd/core',
+  'hypermd/ai1',
 
-  // ESSENTIAL
-  'hypermd/mode/hypermd',
+  // If you doesn't want ai1 (all in one) build, see demo/index.js
 
-  // Enable these components:
-  'hypermd/addon/hide-token',
-  'hypermd/addon/cursor-debounce',
-  'hypermd/addon/fold',
-  'hypermd/addon/fold-math',
-  'hypermd/addon/read-link',
-  'hypermd/addon/click',
-  'hypermd/addon/hover',
-  'hypermd/addon/paste',
-  'hypermd/addon/insert-file',
-  'hypermd/addon/mode-loader',
-  'hypermd/addon/table-align',
-  'hypermd/keymap/hypermd',
-
-  // Use PowerPack to power-up HyperMD, with third-party libraries
-  // see deom/index.js
-
+  // Then, use PowerPack to power-up HyperMD, with third-party libraries
+  // The list can be found in documents, or demo/index.js
   'hypermd/powerpack/fold-math-with-katex',
 
   'hypermd/powerpack/paste-with-turndown',

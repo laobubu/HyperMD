@@ -1,4 +1,5 @@
 const fs = require('fs')
+const child_process = require('child_process')
 
 /**
  *
@@ -27,7 +28,17 @@ function processTextFile(srcFile, procFunc, dstFile = null) {
   })
 }
 
+function npm_run(command) {
+  var platform_suffix = process.platform === "win32" ? ".cmd" : ""
+
+  var proc = child_process.spawn(`npm${platform_suffix}`, ["run", command])
+  proc.stdout.pipe(process.stdout)
+  proc.stderr.pipe(process.stderr)
+
+  return proc
+}
 
 module.exports = {
   processTextFile,
+  npm_run,
 }
