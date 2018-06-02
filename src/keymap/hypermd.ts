@@ -70,67 +70,50 @@ export function newlineAndContinue(cm: cm_t) {
     if (!handled) {
       const table = rangeEmpty ? eolState.hmdTable : TableType.NONE
       if (table != TableType.NONE) {
-        if (
-          /^[\s\|]+$/.test(line) &&
-          (pos.line === cm.lastLine() || (cm.getStateAfter(pos.line + 1) as HyperMDState).hmdTable !== table)
-        ) {
-          // this is a empty row, end the table
-          cm.replaceRange("", { line: pos.line, ch: 0 }, { line: pos.line, ch: line.length })
-          replacements.push("\n")
+        if (/^[\s\|]+$/.test(line) && (pos.line === cm.lastLine() || (cm.getStateAfter(pos.line + 1).hmdTable === table))) {
+          // if this is last row and is empty
+          // remove this row and insert a new line
+          cm.setCursor({ line: pos.line, ch: 0 })
+          cm.replaceRange("\n", { line: pos.line, ch: 0 }, { line: pos.line, ch: line.length })
         } else {
-          // insert new row
-          const lineRemain = line.substr(pos.ch)
-          let textOnLeft = ""
-          let textOnRight = ""
+          // insert a row below
+          const columns = eolState.hmdTableColumns
 
-          const chState = cm.getTokenAt(pos).state as HyperMDState
-          let i = 0
-          while (i++ < chState.hmdTableCol) textOnLeft += " | "
-          i--
-          while (i++ < eolState.hmdTableCol) textOnRight += " | "
-
+          let newline = repeatStr("  |  ", columns.length - 1)
+          let leading = "\n"
           if (table === TableType.NORMAL) {
-            textOnLeft = textOnLeft.replace(/^\s+/, '')
-            textOnRight = textOnRight.replace(/\s+$/, '')
+            leading += "| "
+            newline += " |"
           }
 
-          if (lineRemain.length > 1) {
-            cm.replaceRange(lineRemain.slice(1), { line: pos.line, ch: pos.ch + 1 }, { line: pos.line, ch: line.length })
-          }
-
-          replacements.push(textOnRight + "\n" + textOnLeft)
+          cm.setCursor({ line: pos.line, ch: line.length })
+          cm.replaceSelection(leading)
+          cm.replaceSelection(newline, "start")
         }
+
         handled = true
-      } else if (pos.ch >= line.length && eolState.list === false && !eolState.quote && line.indexOf("|") > -1) {
-        // maybe we can create a table!
-        // check every "|"
-        let curPos = 0
-        let end = line.length - 1
-        let sepCount = 0
-        let firstSep = -1, lastSep = -1
-        while (curPos < end) {
-          let ch = line.indexOf("|", curPos)
-          if (ch === -1) break
-          let tokenType = cm.getTokenTypeAt({ line: pos.line, ch: ch })
-          if (!tokenType || 0 == tokenType.trim().length) {
-            sepCount++
-            if (firstSep === -1) firstSep = ch
-            lastSep = ch
+        return
+      } else if (rangeEmpty && pos.ch >= line.length && /^\|.+\|.+\|$/.test(line)) {
+        // current line is   | this | format |
+        // let's make a table
+        let lineTokens = cm.getLineTokens(pos.line)
+        let ans = "|", ans2 = "|"
+        for (let i = 1; i < lineTokens.length; i++) { // first token must be "|"
+          let token = lineTokens[i]
+          if (token.string === "|" && (!token.type || !token.type.trim().length)) {
+            ans += " ------- |"
+            ans2 += "   |"
           }
-          curPos = ch + 1
         }
 
-        let normalStyle = /^\s*$/.test(line.slice(0, firstSep))
-        if (sepCount >= 1 && normalStyle === /^\s*$/.test(line.slice(lastSep + 1))) { // correct pipe number and correct format!
-          let newline = normalStyle ? "\n|" : "\n"
-          if (normalStyle) sepCount-- // ignore leading pipe
-          while (sepCount--) newline += " ---- |"
-          if (!normalStyle) newline += " ----"
-          newline += normalStyle ? "\n| " : "\n"
+        // multi-cursor is meanless for this
+        // replacements.push("\n" + ans + "\n" + ans2 + "\n")
 
-          replacements.push(newline)
-          handled = true
-        }
+        cm.setCursor({ line: pos.line, ch: line.length })
+        cm.replaceSelection("\n" + ans + "\n| ")
+        cm.replaceSelection(ans2.slice(1) + "\n", "start")
+        handled = true
+        return
       }
     }
 
@@ -190,6 +173,11 @@ export function shiftTab(cm: cm_t) {
 
         if (chStart == 0 && isNormalTable) chStart += lineText.match(/^\s*\|/)[0].length
       } else { // jump to prev line, last cell
+        if (eolState.hmdTableRow == 2) {
+          // previous is |------|------|, don't enter it
+          return
+        }
+
         line--
         lineText = cm.getLine(line)
         tokenSeeker.setPos(line, lineText.length)
@@ -200,9 +188,9 @@ export function shiftTab(cm: cm_t) {
         if (isNormalTable) chEnd -= lineText.match(/\|\s*$/)[0].length
       }
 
-      chStart += lineText.slice(chStart).match(/^\s*/)[0].length
+      if (lineText.charAt(chStart) === " ") chStart += 1
       if (chStart > 0 && lineText.substr(chStart - 1, 2) === ' |') chStart--
-      chEnd -= lineText.slice(chStart, chEnd).match(/\s*$/)[0].length
+      if (lineText.charAt(chEnd - 1) === " ") chEnd -= 1
 
       cm.setSelection({ line, ch: chStart }, { line, ch: chEnd })
       return
@@ -218,72 +206,98 @@ export function shiftTab(cm: cm_t) {
  */
 export function tab(cm: cm_t) {
   var selections = cm.listSelections()
-  var replacements: string[] = []
+  var beforeCur: string[] = []
+  var afterCur: string[] = []
+  var selected: string[] = []
 
   var tokenSeeker = new TokenSeeker(cm)
 
-  for (let i = 0; i < selections.length; i++) {
-    var range = selections[i]
-    var pos = range.head
-    const rangeEmpty = (range as any).empty() as boolean
-    const eolState = cm.getStateAfter(pos.line) as HyperMDState
+  /** indicate previous 4 variable changed or not */
+  var flag0 = false, flag1 = false, flag2 = false, flag3 = true
 
-    let line = cm.getLine(pos.line)
+  function setBeforeCur(text) { beforeCur[i] = text; if (text) flag1 = true }
+  function setAfterCur(text) { afterCur[i] = text; if (text) flag2 = true }
+  function setSelected(text) { selected[i] = text; if (text) flag3 = true }
+
+  for (var i = 0; i < selections.length; i++) {
+    beforeCur[i] = afterCur[i] = selected[i] = ""
+
+    var range = selections[i]
+    var left = range.head
+    var right = range.anchor
+
+    const rangeEmpty = (range as any).empty() as boolean
+    if (!rangeEmpty && cmpPos(left, right) > 0) [right, left] = [left, right];
+    else if (right === left) { right = range.anchor = { ch: left.ch, line: left.line }; }
+
+    const eolState = cm.getStateAfter(left.line) as HyperMDState
+
+    let line = cm.getLine(left.line)
 
     if (eolState.hmdTable && eolState.hmdTableRow >= 2) {
       // yeah, we are inside a table
-      // setCursor and exit current function
 
-      const isNormalTable = eolState.hmdTable === TableType.NORMAL  // leading and ending | is not omitted
+      flag0 = true // cursor will move
 
-      tokenSeeker.setPos(pos.line, pos.ch)
-      var nextSep = tokenSeeker.findNext(isRealTableSep, tokenSeeker.i_token)
+      const isNormalTable = eolState.hmdTable === TableType.NORMAL
+      const columns = eolState.hmdTableColumns
 
-      /** start of next cell's text */
-      let ch = 0
-      let lineNo = pos.line
-      let isLastLine = lineNo >= cm.lastLine()
+      tokenSeeker.setPos(left.line, left.ch)
 
-      if (nextSep) {
-        // found next separator in current line
-        ch = nextSep.token.start + 1 // skip "|"
-      } else {
-        // Maybe next line?
-        ch = 0
-        lineNo = pos.line + 1
+      const nextCellLeft = tokenSeeker.findNext(isRealTableSep, tokenSeeker.i_token)
+      if (!nextCellLeft) { // already last cell
+        if (left.line < cm.lastLine() && cm.getStateAfter(left.line + 1).hmdTable != eolState.hmdTable) {
+          // insert a row after this line
+          range.anchor.ch = range.head.ch = line.length
+          let newline = repeatStr("  |  ", columns.length - 1)
 
-        const nextEolState = cm.getStateAfter(lineNo) as HyperMDState
-
-        if (isLastLine || !nextEolState.hmdTable) {
-          // next line is not a table. let's insert a row!
-          line = ""
-          if (isNormalTable) { line += "| "; ch += 2 }
-          line += repeatStr(" | ", eolState.hmdTableCol - (isNormalTable ? 2 : 0))
-          if (isNormalTable) line += " |"
-
-          // insert the text
-          if (isLastLine) cm.replaceRange("\n" + line + "\n", { ch: cm.getLine(pos.line).length, line: pos.line })
-          else cm.replaceRange(line + "\n", { ch: 0, line: lineNo }, { ch: 0, line: lineNo })
+          if (isNormalTable) {
+            setBeforeCur("\n| ")
+            setAfterCur(newline + " |")
+          } else {
+            setBeforeCur("\n")
+            setAfterCur(newline.trimRight())
+          }
+          setSelected("")
         } else {
-          // locate first row
-          line = cm.getLine(lineNo)
-          if (isNormalTable) ch = line.indexOf("|") + 1
+          // move cursor to next line, first cell
+          right.line = ++left.line
+          tokenSeeker.setPos(left.line, 0)
+
+          const line = tokenSeeker.line.text
+          const dummySep = isNormalTable && tokenSeeker.findNext(/hmd-table-sep-dummy/, 0)
+          const nextCellRight = tokenSeeker.findNext(/hmd-table-sep/, dummySep ? dummySep.i_token + 1 : 1)
+
+          left.ch = dummySep ? dummySep.token.end : 0
+          right.ch = nextCellRight ? nextCellRight.token.start : line.length
+          if (right.ch > left.ch && line.charAt(left.ch) === " ") left.ch++
+          if (right.ch > left.ch && line.charAt(right.ch - 1) === " ") right.ch--
+          setSelected(right.ch > left.ch ? cm.getRange(left, right) : "")
         }
+      } else {
+        const nextCellRight = tokenSeeker.findNext(/hmd-table-sep/, nextCellLeft.i_token + 1)
+
+        left.ch = nextCellLeft.token.end
+        right.ch = nextCellRight ? nextCellRight.token.start : line.length
+        if (right.ch > left.ch && line.charAt(left.ch) === " ") left.ch++
+        if (right.ch > left.ch && line.charAt(right.ch - 1) === " ") right.ch--
+        setSelected(right.ch > left.ch ? cm.getRange(left, right) : "")
       }
-
-
-      ch = ch + line.slice(ch).match(/^\s*/)[0].length // skip spaces
-      if (ch > 0 && line.substr(ch - 1, 2) === ' |') ch--
-
-      let chEnd = ch + line.slice(ch).match(/^\S*/)[0].length
-
-      cm.setSelection({ line: lineNo, ch: ch }, { line: lineNo, ch: chEnd })
-
-      return
+      // console.log("selected cell", left.ch, right.ch, selected[i])
+    } else {
+      // emulate Tab
+      setSelected("")
+      setBeforeCur("    ")
     }
   }
 
-  cm.execCommand("defaultTab")
+  // if (!(flag0 || flag1 || flag2 || flag3)) return cm.execCommand("defaultTab")
+  // console.log(flag0, flag1, flag2, flag3)
+
+  if (flag0) cm.setSelections(selections)
+  if (flag1) cm.replaceSelections(beforeCur)
+  if (flag2) cm.replaceSelections(afterCur, "start")
+  if (flag3) cm.replaceSelections(selected, "around")
 }
 
 /**
@@ -326,7 +340,7 @@ export function wrapTexts(cm: cm_t, leftBracket: string, rightBracket?: string) 
     var line = cm.getLine(left.line)
 
     if (range.empty()) {
-      if (left.ch >= lb_len && line.substr(left.ch - lb_len,lb_len) === leftBracket) {
+      if (left.ch >= lb_len && line.substr(left.ch - lb_len, lb_len) === leftBracket) {
         // wipe out the left bracket
         flag2 = true
         left.ch -= lb_len
