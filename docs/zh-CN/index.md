@@ -28,7 +28,10 @@
 
 ### 使用打包器 (webpack / parcel-bundler...)
 
-首先，运行 `npm i hypermd codemirror` 下载库。然后，试着做一个简单的 `index.html`：
+首先，在项目文件夹下运行 `npm install hypermd codemirror`
+以及 `npm install katex marked` （或者你也可以不安装后面这两个库，但是要删除代码里 `powerpack` 相关部分）
+
+然后开始编码！试着做一个简单的 `index.html`
 
 ```html
 <!DOCTYPE HTML>
@@ -37,7 +40,7 @@
     <title>绝赞编辑器</title>
   </head>
   <body>
-    <textarea id="myTextarea"></textarea>
+    <textarea id="myTextarea"># Hello World</textarea>
 
     <script src="index.js"></script>
   </body>
@@ -48,8 +51,7 @@
 
 ```js
 var HyperMD = require("hypermd")
-// hypermd 模块会引入 codemirror 和一堆 css 文件，包括…
-// codemirror的, hypermd 的 (mode 和默认主题 hypermd-light)
+// hypermd 模块会引入 codemirror 和一堆 css 文件
 
 require("hypermd/powerpack/fold-math-with-katex") // 将会自动引入 "katex"
 require("hypermd/powerpack/hover-with-marked") // 将会自动引入 "marked"
