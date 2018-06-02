@@ -132,7 +132,7 @@ declare module "codemirror" {
   function findModeByName(lang: string): ModeMeta
 
   interface EditorConfiguration extends HyperMD.EditorConfiguration {
-
+    autoCloseBrackets?: boolean
   }
 
   interface StringStream {
