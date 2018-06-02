@@ -155,7 +155,7 @@ export class Hover implements Addon.Addon, Options /* if needed */ {
     }
 
     var mat: RegExpMatchArray
-    if (target.nodeName !== "SPAN" || !(mat = className.match(/(?:^|\s)cm-(hmd-barelink|hmd-link-url-s)(?:\s|$)/))) {
+    if (target.nodeName !== "SPAN" || !(mat = className.match(/(?:^|\s)cm-(hmd-barelink2?|hmd-footref2)(?:\s|$)/))) {
       this.hideInfo()
       return
     }

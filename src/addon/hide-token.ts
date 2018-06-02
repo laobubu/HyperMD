@@ -267,7 +267,7 @@ export class HideToken implements Addon.Addon, Options {
 
       const spanClass = span.className
       for (const type of this.tokenTypes) {
-        if (type === 'link' && /cm-hmd-footref|cm-hmd-footnote|cm-hmd-barelink/.test(spanClass)) {
+        if (type === 'link' && /(?:^|\s)(?:cm-hmd-footref|cm-hmd-footnote|cm-hmd-barelink)(?:\s|$)/.test(spanClass)) {
           // ignore footnote names, footrefs, barelinks
           continue
         }

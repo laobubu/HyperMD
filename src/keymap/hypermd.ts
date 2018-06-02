@@ -23,6 +23,7 @@ import { HyperMDState, TableType } from "../mode/hypermd"
 const LoQRE = /^(\s*)(>[> ]*|[*+-] \[[x ]\]\s|[*+-]\s|(\d+)([.)]))(\s*)/,
   emptyLoQRE = /^(\s*)(>[> ]*|[*+-] \[[x ]\]|[*+-]|(\d+)[.)])(\s*)$/,
   unorderedListRE = /[*+-]\s/;
+const ListRE = /^(\s*)([*+-]\s|(\d+)([.)]))(\s*)/;
 const isRealTableSep = (token: Token) => /hmd-table-sep/.test(token.type) && !/hmd-table-sep-dummy/.test(token.type);
 
 /**
@@ -70,7 +71,7 @@ export function newlineAndContinue(cm: cm_t) {
     if (!handled) {
       const table = rangeEmpty ? eolState.hmdTable : TableType.NONE
       if (table != TableType.NONE) {
-        if (/^[\s\|]+$/.test(line) && (pos.line === cm.lastLine() || (cm.getStateAfter(pos.line + 1).hmdTable === table))) {
+        if (/^[\s\|]+$/.test(line) && (pos.line === cm.lastLine() || (cm.getStateAfter(pos.line + 1).hmdTable !== table))) {
           // if this is last row and is empty
           // remove this row and insert a new line
           cm.setCursor({ line: pos.line, ch: 0 })
@@ -86,14 +87,20 @@ export function newlineAndContinue(cm: cm_t) {
             newline += " |"
           }
 
-          cm.setCursor({ line: pos.line, ch: line.length })
+          // There are always nut users!
+          if (eolState.hmdTableRow == 0) {
+            cm.setCursor({ line: pos.line + 1, ch: cm.getLine(pos.line + 1).length })
+          } else {
+            cm.setCursor({ line: pos.line, ch: line.length })
+          }
+
           cm.replaceSelection(leading)
           cm.replaceSelection(newline, "start")
         }
 
         handled = true
         return
-      } else if (rangeEmpty && pos.ch >= line.length && /^\|.+\|.+\|$/.test(line)) {
+      } else if (rangeEmpty && pos.ch >= line.length && !eolState.code && !eolState.hmdInnerMode && /^\|.+\|.+\|$/.test(line)) {
         // current line is   | this | format |
         // let's make a table
         let lineTokens = cm.getLineTokens(pos.line)
@@ -146,6 +153,13 @@ export function newline(cm: cm_t) {
   cm.replaceSelections(replacements)
 }
 
+function killIndent(cm: cm_t, lineNo: number, spaces: number) {
+  if (!spaces || spaces < 0) return
+  let line = cm.getLine(lineNo)
+  for (var realSpaces = -1; ++realSpaces <= spaces && line.charAt(realSpaces) === " ";);
+  if (realSpaces) cm.replaceRange("", { line: lineNo, ch: 0 }, { line: lineNo, ch: realSpaces })
+}
+
 /** unindent or move cursor into prev table cell */
 export function shiftTab(cm: cm_t) {
   var selections = cm.listSelections()
@@ -155,13 +169,18 @@ export function shiftTab(cm: cm_t) {
 
   for (let i = 0; i < selections.length; i++) {
     var range = selections[i]
-    var pos = range.head
-    const eolState = cm.getStateAfter(pos.line) as HyperMDState
+    var left = range.head
+    var right = range.anchor
 
-    if (eolState.hmdTable && eolState.hmdTableRow >= 2) {
-      tokenSeeker.setPos(pos.line, pos.ch)
+    const rangeEmpty = (range as any).empty() as boolean
+    if (!rangeEmpty && cmpPos(left, right) > 0) [right, left] = [left, right];
+    else if (right === left) { right = range.anchor = { ch: left.ch, line: left.line }; }
+    const eolState = cm.getStateAfter(left.line) as HyperMDState
+
+    if (eolState.hmdTable) {
+      tokenSeeker.setPos(left.line, left.ch)
       const isNormalTable = eolState.hmdTable === TableType.NORMAL  // leading and ending | is not omitted
-      var line = pos.line
+      var line = left.line
       var lineText = cm.getLine(line)
       var chStart = 0, chEnd = 0
       var rightPipe = tokenSeeker.findPrev(isRealTableSep)
@@ -173,10 +192,8 @@ export function shiftTab(cm: cm_t) {
 
         if (chStart == 0 && isNormalTable) chStart += lineText.match(/^\s*\|/)[0].length
       } else { // jump to prev line, last cell
-        if (eolState.hmdTableRow == 2) {
-          // previous is |------|------|, don't enter it
-          return
-        }
+        if (eolState.hmdTableRow == 0) return // no more row before
+        if (eolState.hmdTableRow == 2) line-- // skip row #1 (| ----- | ----- |)
 
         line--
         lineText = cm.getLine(line)
@@ -194,21 +211,53 @@ export function shiftTab(cm: cm_t) {
 
       cm.setSelection({ line, ch: chStart }, { line, ch: chEnd })
       return
+    } else if (eolState.listStack.length > 0) {
+      let lineNo = left.line
+
+      while (!ListRE.test(cm.getLine(lineNo))) { // beginning line has no bullet? go up
+        lineNo--
+        let isList = cm.getStateAfter(lineNo).listStack.length > 0
+        if (!isList) { lineNo++; break }
+      }
+
+      let lastLine = cm.lastLine()
+
+      for (; lineNo <= right.line && ListRE.test(cm.getLine(lineNo)); lineNo++) {
+        let listStack = cm.getStateAfter(lineNo).listStack as number[]
+        let listLevel = listStack.length
+
+        let spaces = 0
+        if (listLevel > 1) spaces = (listStack[listLevel - 1] - (listStack[listLevel - 2] || 0))
+        else spaces = /^\s*/.exec(cm.getLine(lineNo))[0].length
+
+        killIndent(cm, lineNo, spaces)
+
+        // if current list item is multi-line...
+        while (++lineNo <= lastLine) {
+          if (/*corrupted */ cm.getStateAfter(lineNo).listStack.length !== listLevel) { lineNo = Infinity; break }
+          if (/*has bullet*/ ListRE.test(cm.getLine(lineNo))) { lineNo--; break }
+          killIndent(cm, lineNo, spaces)
+        }
+      }
+
+      return
     }
   }
 
-  return CodeMirror.Pass
+  cm.execCommand("indentLess")
 }
 
 /**
- * 1. move cursor into next table cell
- * 2. "defaultTab"
+ * 1. for tables, move cursor into next table cell, and maybe insert a cell
+ * 2.
  */
 export function tab(cm: cm_t) {
   var selections = cm.listSelections()
   var beforeCur: string[] = []
   var afterCur: string[] = []
   var selected: string[] = []
+
+  var addIndentTo: Record<string, string> = {}  // {lineNo: stringIndent}
 
   var tokenSeeker = new TokenSeeker(cm)
 
@@ -234,7 +283,7 @@ export function tab(cm: cm_t) {
 
     let line = cm.getLine(left.line)
 
-    if (eolState.hmdTable && eolState.hmdTableRow >= 2) {
+    if (eolState.hmdTable) {
       // yeah, we are inside a table
 
       flag0 = true // cursor will move
@@ -246,10 +295,18 @@ export function tab(cm: cm_t) {
 
       const nextCellLeft = tokenSeeker.findNext(isRealTableSep, tokenSeeker.i_token)
       if (!nextCellLeft) { // already last cell
-        if (left.line < cm.lastLine() && cm.getStateAfter(left.line + 1).hmdTable != eolState.hmdTable) {
+        const lineSpan = eolState.hmdTableRow === 0 ? 2 : 1 // skip |---|---| line
+
+        if ((left.line + lineSpan) > cm.lastLine() || cm.getStateAfter(left.line + lineSpan).hmdTable != eolState.hmdTable) {
           // insert a row after this line
-          range.anchor.ch = range.head.ch = line.length
+          left.ch = right.ch = line.length
           let newline = repeatStr("  |  ", columns.length - 1)
+
+          // There are always nut users!
+          if (eolState.hmdTableRow === 0) {
+            right.line = left.line += 1
+            right.ch = left.ch = cm.getLine(left.line).length
+          }
 
           if (isNormalTable) {
             setBeforeCur("\n| ")
@@ -261,7 +318,7 @@ export function tab(cm: cm_t) {
           setSelected("")
         } else {
           // move cursor to next line, first cell
-          right.line = ++left.line
+          right.line = left.line += lineSpan
           tokenSeeker.setPos(left.line, 0)
 
           const line = tokenSeeker.line.text
@@ -284,16 +341,64 @@ export function tab(cm: cm_t) {
         setSelected(right.ch > left.ch ? cm.getRange(left, right) : "")
       }
       // console.log("selected cell", left.ch, right.ch, selected[i])
+    } else if (eolState.listStack.length > 0) {
+      // add indent to current line
+      let lineNo = left.line
+
+      let tmp: RegExpMatchArray // ["  * ", "  ", "* "]
+
+      while (!(tmp = ListRE.exec(cm.getLine(lineNo)))) { // beginning line has no bullet? go up
+        lineNo--
+        let isList = cm.getStateAfter(lineNo).listStack.length > 0
+        if (!isList) { lineNo++; break }
+      }
+
+      let firstLine = cm.firstLine()
+      let lastLine = cm.lastLine()
+
+      for (; lineNo <= right.line && (tmp = ListRE.exec(cm.getLine(lineNo))); lineNo++) {
+        let eolState = cm.getStateAfter(lineNo) as HyperMDState
+        let listStack = eolState.listStack
+        let listLevel = listStack.length
+        let spaces: string = ""
+
+        if (lineNo > firstLine && listLevel <= cm.getStateAfter(lineNo - 1).listStack.length) {
+          // avoid uncontinuous list levels
+          spaces = repeatStr(" ", tmp && tmp[2].length || 4)
+        }
+
+        addIndentTo[lineNo] = spaces
+
+        // if current list item is multi-line...
+        while (++lineNo <= lastLine) {
+          if (/*corrupted */ cm.getStateAfter(lineNo).listStack.length !== listLevel) { lineNo = Infinity; break }
+          if (/*has bullet*/ ListRE.test(cm.getLine(lineNo))) { lineNo--; break }
+          addIndentTo[lineNo] = spaces
+        }
+      }
+
+      if (!rangeEmpty) {
+        flag3 = false; break // f**k
+      }
     } else {
       // emulate Tab
-      setSelected("")
-      setBeforeCur("    ")
+      if (rangeEmpty) {
+        setBeforeCur("    ")
+      } else {
+        setSelected(cm.getRange(left, right))
+        for (let lineNo = left.line; lineNo <= right.line; lineNo++) {
+          if (!(lineNo in addIndentTo)) addIndentTo[lineNo] = "    "
+        }
+      }
     }
   }
 
   // if (!(flag0 || flag1 || flag2 || flag3)) return cm.execCommand("defaultTab")
   // console.log(flag0, flag1, flag2, flag3)
 
+  for (let lineNo in addIndentTo) {
+    if (addIndentTo[lineNo]) cm.replaceRange(addIndentTo[lineNo], { line: ~~lineNo, ch: 0 });
+  }
   if (flag0) cm.setSelections(selections)
   if (flag1) cm.replaceSelections(beforeCur)
   if (flag2) cm.replaceSelections(afterCur, "start")

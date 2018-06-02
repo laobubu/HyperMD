@@ -35,7 +35,7 @@ You may use both original CodeMirror and HyperMD on the same page.
     - Themes [^3]
 7. **Code Block Highlighting** language modes are loaded automatically
 8. **Upload Images** copy and paste, or drag'n'drop
-9. **Power Packs** power up HyperMD with 3rd-party libs like [MathJax], [marked], KaTeX ...
+9. **Power Packs** power up HyperMD with 3rd-party libs like [MathJax][], [marked][], KaTeX ...
 10. **[And More...][doc]**
 
 ## Quickstart

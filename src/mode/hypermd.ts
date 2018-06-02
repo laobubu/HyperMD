@@ -111,12 +111,16 @@ export const enum LinkType {
   NORMAL,    // [text](url) or [text][doc]
   FOOTNOTE,  // [footnote]:
   MAYBE_FOOTNOTE_URL, // things after colon
+  BARELINK2, // [some-name][]  except latter []
+  FOOTREF2,  // [text][doc]  the [doc] part
 }
 
 const linkStyle = {
   [LinkType.BARELINK]: "hmd-barelink",
+  [LinkType.BARELINK2]: "hmd-barelink2",
   [LinkType.FOOTREF]: "hmd-barelink hmd-footref",
   [LinkType.FOOTNOTE]: "hmd-footnote line-HyperMD-footnote",
+  [LinkType.FOOTREF2]: "hmd-footref2",
 }
 
 CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
@@ -207,6 +211,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     const firstTokenOfLine = stream.column() === state.indentation
 
     const wasLinkText = state.linkText
+    const wasLinkHref = state.linkHref
 
     let inMarkdown = !(wasInCodeFence || wasInHTML)
     let inMarkdownInline = inMarkdown && !(state.code || state.indentedCode || state.linkHref)
@@ -378,6 +383,8 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
             }
           } else if (tmp[2] === ":") { // footnote
             state.hmdLinkType = LinkType.FOOTNOTE
+          } else if (tmp[2] === "[" && stream.string.charAt(stream.pos + tmp[0].length) === "]") { // [barelink2][]
+            state.hmdLinkType = LinkType.BARELINK2
           } else {
             state.hmdLinkType = LinkType.NORMAL
           }
@@ -390,6 +397,18 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
           } else {
             state.hmdLinkType = LinkType.NONE
           }
+        }
+      }
+
+      if (wasLinkHref !== state.linkHref) {
+        if (!wasLinkHref) {
+          // [link][doc] the [doc] part
+          if (current === "[" && stream.peek() !== "]") {
+            state.hmdLinkType = LinkType.FOOTREF2
+          }
+        } else if (state.hmdLinkType) { // leaving a Href
+          ans += " " + linkStyle[state.hmdLinkType]
+          state.hmdLinkType = LinkType.NONE
         }
       }
 
