@@ -1,4 +1,4 @@
-span.cm-formatting {
+.CodeMirror span.cm-formatting {
     transition: opacity .15s;
 }
 
@@ -8,7 +8,7 @@ span.cm-formatting {
     font-size: 0;
 }
 
-span.hmd-hidden-token {
+.CodeMirror span.hmd-hidden-token {
     &.cm-formatting-em,
     &.cm-formatting-strong,
     &.cm-formatting-strikethrough,
@@ -19,13 +19,13 @@ span.hmd-hidden-token {
 }
 
 /* adding some CodeMirror-not-implemented styles' default style */
-span.cm-inline-code,
-span.cm-math {
+.CodeMirror span.cm-inline-code,
+.CodeMirror span.cm-math {
     color: #900;
 }
 
 
-div.HyperMD-hover > .HyperMD-hover-content {
+.CodeMirror div.HyperMD-hover > .HyperMD-hover-content {
     background-color: #fff;
     color: #000;
     border: 1px solid #000;
@@ -35,21 +35,21 @@ div.HyperMD-hover > .HyperMD-hover-content {
     }
 }
 
-.HyperMD-goback {
+.CodeMirror .HyperMD-goback {
     width: 1px;
 }
-div.HyperMD-goback-button {
+.CodeMirror div.HyperMD-goback-button {
     background-color: #ddd;
     color: #333;
     text-align: center;
     cursor: pointer;
 }
 
-span.hmd-link-icon:after {
+.CodeMirror span.hmd-link-icon:after {
     content: "»"
 }
 
-pre.HyperMD-table-row {
+.CodeMirror pre.HyperMD-table-row {
     white-space: pre;
     .hmd-table-column,
     .hmd-table-column-content {
@@ -61,8 +61,8 @@ pre.HyperMD-table-row {
     .hmd-table-column-right { text-align: right }
 }
 
-span.hmd-fold-math,
-span.cm-hmd-table-sep {
+.CodeMirror span.hmd-fold-math,
+.CodeMirror span.cm-hmd-table-sep {
     display: inline-block;
     vertical-align: middle;
 }

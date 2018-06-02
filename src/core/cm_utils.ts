@@ -311,6 +311,19 @@ export class TokenSeeker {
 
     this.i_token = i_token
   }
+
+  /** get (current or idx-th) token */
+  getToken(idx?: number) {
+    if (typeof idx !== 'number') idx = this.i_token
+    return this.lineTokens[idx]
+  }
+
+  /** get (current or idx-th) token type. always return a string */
+  getTokenType(idx?: number) {
+    if (typeof idx !== 'number') idx = this.i_token
+    var t = this.lineTokens[idx]
+    return t && t.type || ""
+  }
 }
 
 /**
