@@ -68,8 +68,9 @@ require([
   /// PowerPack with third-party libraries  ///
   /////////////////////////////////////////////
 
-  'hypermd/powerpack/fold-math-with-katex',
+  'hypermd/powerpack/hover-with-marked',
 
+  'hypermd/powerpack/fold-math-with-katex',
   // 'hypermd/powerpack/fold-math-with-mathjax',
 
   'hypermd/powerpack/paste-with-turndown',

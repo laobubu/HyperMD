@@ -17,18 +17,21 @@ import { Link } from './read-link'
 /** convert footnote text into HTML. Note that `markdown` may be empty and you may return `null` to supress the tooltip */
 export type Convertor = (footnote: string, markdown: string) => string
 
-declare global { const marked }
+var markdownToHTML: (text: string) => string = (typeof marked === 'function') ? marked : null
+
+const defaultRenderer = (text: string) => {
+  text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;')
+  return "<pre>" + text + "</pre>"
+}
+
+export function useMarkdownRenderer(renderer: (text: string) => string) {
+  markdownToHTML = renderer
+}
 
 /** if `marked` exists, use it; else, return safe html */
 export function defaultConvertor(footnote: string, text: string): string {
   if (!text) return null
-
-  // this only works in plain browser platform
-  if (typeof marked === 'function') return marked(text)
-
-  // Implement a dumb version
-  text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;')
-  return "<pre>" + text + "</pre>"
+  return (markdownToHTML || defaultRenderer)(text)
 }
 
 /********************************************************************************** */

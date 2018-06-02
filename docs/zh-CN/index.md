@@ -31,6 +31,7 @@
 首先，运行 `npm i hypermd codemirror` 下载库。然后，试着做一个简单的 `index.html`：
 
 ```html
+<!DOCTYPE HTML>
 <html>
   <head>
     <title>绝赞编辑器</title>
@@ -38,47 +39,53 @@
   <body>
     <textarea id="myTextarea"></textarea>
 
-    <!-- NOTE: 样式必须在js之前载入 ! -->
-    <link rel="stylesheet" href="index.css">
     <script src="index.js"></script>
   </body>
 </html>
 ```
 
-丢四行代码到 `index.css` 里:
-
-```css
-@import "codemirror/lib/codemirror.css";
-@import "codemirror/addon/fold/foldgutter.css";
-@import "hypermd/mode/hypermd.css";
-@import "hypermd/theme/hypermd-light.css";
-```
-
-再丢四行代码到 `index.js` 里:
+再丢几行代码到 `index.js` 里:
 
 ```js
-// 在此处 require 其他第三方库
 var HyperMD = require("hypermd")
+// hypermd 模块会引入 codemirror 和一堆 css 文件，包括…
+// codemirror的, hypermd 的 (mode 和默认主题 hypermd-light)
+
+require("hypermd/powerpack/fold-math-with-katex") // 将会自动引入 "katex"
+require("hypermd/powerpack/hover-with-marked") // 将会自动引入 "marked"
+// 你还可以再此添加其他 power packs...
+// Power packs 需要第三方库，别忘记安装它们！
+
 var myTextarea = document.getElementById("myTextarea")
-var cm = HyperMD.fromTextArea(myTextarea, { /* 在此添加其他编辑器选项 */ })
+var cm = HyperMD.fromTextArea(myTextarea, {
+  /* 在此添加其他编辑器选项 */
+  hmdModeLoader: false, // 见下面的备注
+})
 ```
 
-假设你用的是 [parcel 打包器](https://parceljs.org/)，只需要运行 `parcel index.html` 就可以了。
+假设你用的是 [parcel 打包器][]，只需要运行 `parcel index.html` 就可以了。
 
-> **一些基于 CodeMirror 自带插件的功能，需要手动 import**
+[parcel 打包器]: https://parceljs.org/ 极速零配置Web应用打包工具
+
+> **你可能需要 css-loader**
 >
-> 有的功能是基于 CodeMirror 自带插件 `codemirror/addon/*` 的，例如折叠段落，需要手动引入对应模块。
-> 如果需要的话，请在初始化编辑器之前引入它们，相关的 addon 列表在[这里](../demo/index.js)。
+> HyperMD 使用 `require("xxx.css")` 的方式引入 css 样式。请确保你已经配置了 [css-loader](https://github.com/webpack-contrib/css-loader)。
+> 有的打包器自带此功能，例如 [parcel-bundler][] 就不需要配置。
 
 > ***mode-loader* 不可用**
 >
-> 打包器的闭包会将 CodeMirror 隐藏起来。你可以把 `CodeMirror` 暴露到全局，并且设置 `hmdLoadModeFrom` 属性为 `"https://cdn.jsdelivr.net/npm/codemirror/"` 之类的值。
+> 打包器的闭包会将 CodeMirror 隐藏起来。
+> 你可以把 `CodeMirror` 暴露到全局，并且设置 `hmdModeLoader` 属性为 `"https://cdn.jsdelivr.net/npm/codemirror/"` 之类的值。
 >
-> Or you can just bundle and pre-load all modes you need, which might make the js build larger.
+> 或者在初始化编辑器之前引入语法高亮组件，例如 `require("codemirror/mode/haskell/haskell")`
 
 ### 使用 [RequireJS](http://requirejs.org/) 模块加载器
 
-载入 CSS 和 require.js 之后，你大概只需要像这样写就行了（[参考这个文件](../../demo/index.js) ）:
+首先，*hypermd* 在 JavaScript 里用 require 引入 CSS 文件，
+然而 RequireJS 默认不支持 `require("./style.css")` 这种写法。
+因此，**在使用 RequireJS 前，请先载入 [这个补丁](../demo/patch-requirejs.js)！**
+
+载入 require.js 并打补丁之后，你大概只需要像这样写就行了（[参考这个文件](../../demo/index.js) ）:
 
 ```js
 
@@ -92,19 +99,12 @@ requirejs.config({
   // (如果你使用 CDN 遇到问题，删除这段)
   // RequireJS doesn't read package.json or detect entry file.
   packages: [
-    {
-      name: 'codemirror',
-      main: 'lib/codemirror'
-    },
-    {
-      name: 'mathjax',
-      main: 'MathJax.js'
-    },
-    {
-      name: 'marked',
-      main: 'lib/marked'
-    },
-    // HyperMD doesn't need this, unless you use all-in-one build
+    { name: 'codemirror', main: 'lib/codemirror.js' },
+    { name: 'mathjax', main: 'MathJax.js' },
+    { name: 'katex', main: 'dist/katex.min.js' },
+    { name: 'marked', main: 'lib/marked.js' },
+    { name: 'turndown', main: 'lib/turndown.browser.umd.js' },
+    { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
   ],
   waitSeconds: 15
 })
@@ -113,12 +113,16 @@ requirejs.config({
 
 require([
   'codemirror/lib/codemirror',
-  'hypermd/core',
+  'hypermd/ai1',
 
-  // ...
-  // 在这里引入各个组件和第三方库
-  // 参考 demo/index.js
-  // ...
+  // 如果不想用 ai1 (all in one) 版本, 参考 demo/index.js
+
+  // 随后，使用 PowerPack 和各种第三方库来增强 HyperMD 功能。
+  // 具体可用列表请参考文档，或者 demo/index.js
+  'hypermd/powerpack/fold-math-with-katex',
+
+  'hypermd/powerpack/paste-with-turndown',
+  'turndown-plugin-gfm',
 
 ], function (CodeMirror, HyperMD) {
   var myTextarea = document.getElementById('myTextareaID')

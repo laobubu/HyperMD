@@ -52,12 +52,25 @@ exports.bundleFiles = [
   },
 ]
 
+/**
+ * **tsc** may compile files to UMD modules.
+ * However, TypeScript's UMD declaration is not compatible with plain browser env nor some bundler (like parcel-bunder)
+ * and we shall do a post-process in `post-build.js`
+ *
+ * This doesn't matter while developing (compatible with require.js)
+ */
 exports.plainEnvFiles = [
-  "powerpack/*.js"
+  "powerpack/*.js",
+  "addon/*.js",
 ]
 
 /**
+ * Get modules' object name in plain browser env
  *
+ * @example
+ *     getGlobalName("codemirror", "src/addon/foobar") // => "CodeMirror"
+ *     getGlobalName("./fold", "src/addon/foobar") // => "HyperMD.Fold", see `components`
+ *     getGlobalName("../core", "src/addon/foobar") // => "HyperMD"
  * @param {string} moduleID
  * @param {string} currentFile relative to rootdir of this project
  */
@@ -71,5 +84,11 @@ exports.getGlobalName = function getGlobalName(moduleID, currentFile) {
   var ans = components[mpath]
 
   if (ans) return "HyperMD." + ans
-  else return null
+  else if (/^core(\/.+)?$/.test(mpath)) return "HyperMD"
+  else {
+    if (!/\.css$/.test(mpath)) {
+      console.warn(`[HyperMD] file ${currentFile} requires non-exported "${mpath}".`)
+    }
+    return null
+  }
 }

@@ -3,7 +3,7 @@
   "version": "0.3.2",
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
   "main": "./ai1.js",
-  "types": "./types/ai1.d.ts",
+  "types": "./ai1.d.ts",
   "scripts": {
     "build": "npm run build_js && npm run build_css",
     "prebuild_js": "node dev/pre-build.js",
@@ -25,11 +25,11 @@
   "license": "MIT",
   "devDependencies": {
     "@types/codemirror": "^0.0.56",
-    "@types/marked": "^0.3.0",
     "codemirror": "^5.37.0",
     "express": "^4.16.3",
     "glob": "^7.1.2",
     "katex": "^0.10.0-alpha",
+    "marked": "^0.4.0",
     "mathjax": "^2.7.0",
     "opn": "^5.3.0",
     "rollup": "^0.58.2",
@@ -43,8 +43,5 @@
   },
   "peerDependencies": {
     "codemirror": "^5.37.0"
-  },
-  "dependencies": {
-    "marked": "^0.3.19"
   }
 }

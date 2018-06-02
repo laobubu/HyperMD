@@ -56,5 +56,7 @@ export const getTurndownService = (function () {
   }
 })()
 
-// Use this convertor as default convertor
-defaultOption.convertor = TurndownConvertor
+if (typeof TurndownService != "undefined") {
+  // Use this convertor as default convertor
+  defaultOption.convertor = TurndownConvertor
+}

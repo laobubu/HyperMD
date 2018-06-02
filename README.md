@@ -2,9 +2,9 @@
 
 ![HyperMD Markdown Editor](./demo/logo.png)
 
-[![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd)
-
 **Breaks the Wall** between *writing* and *preview*, in a Markdown Editor.
+
+[![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd) [![Build Status](https://travis-ci.org/laobubu/HyperMD.svg?branch=master)](https://travis-ci.org/laobubu/HyperMD)
 
 [Online Demo](https://laobubu.net/HyperMD/)
 [中文介绍](./demo/README.zh-CN.md)
@@ -22,7 +22,7 @@ You may use both original CodeMirror and HyperMD on the same page.
     - Headers
     - Horizontal Rules
     - [x] Lists (nested, ordered, unordered, tasks with checkbox)
-    - [MathJax] Formula, like $ e^{ i\pi } + 1 = 0 $ and math block [^4]
+    - TeX Formula, like $ e^{ i\pi } + 1 = 0 $ or multi-line math blocks [^4]
     - Simple Tables
 2. **Alt+Click** to follow link / footnote [^1]
 3. **Syntax Highlight** for 120+ languages code blocks [^2]
@@ -35,23 +35,21 @@ You may use both original CodeMirror and HyperMD on the same page.
     - Themes [^3]
 7. **Code Block Highlighting** language modes are loaded automatically
 8. **Upload Images** copy and paste, or drag'n'drop
-9. **[And More...][doc]**
+9. **Power Packs** power up HyperMD with 3rd-party libs like [MathJax], [marked], KaTeX ...
+10. **[And More...][doc]**
 
 ## Quickstart
 
-[RequireJS] is recommended and used during developing HyperMD.
-If you prefer importing all css/js with HTML tags manually, see [demo with HyperMD all-in-one build](./docs/examples/ai1.html).
-
-Once you've loaded [RequireJS] and CSS files, you may set-up a editor like `demo/index.js` does.
-
-Usually, to transform your `<textarea>` into HyperMD editor, all you need is just two lines:
-
 ```javascript
+// npm install --save hypermd codemirror
+var HyperMD = require('hypermd')
 var myTextarea = document.getElementById('input-area')
 var editor = HyperMD.fromTextArea(myTextarea)
 ```
 
-And that's all. Configuration guide can be found in [doc].
+If you use bundlers, that's all. CSS will be imported via "hypermd" javascript.
+
+For [RequireJS][] users and pure HTML lovers, please read [QuickStart Section in Documentation][doc]!
 
 ## Contributing
 
@@ -77,5 +75,5 @@ Contributions are welcomed. You may:
 [^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.
 [^3]: If the theme is not designed for HyperMD, some features might not be present.
-[^4]: Math block is just like code block. Use `$$` to wrap your math expression.
+[^4]: Math block use `$$` to wrap your TeX expression.
 [^5]: Use `Ctrl+Shift+V` to paste plain text.

@@ -3,7 +3,9 @@ tmp/
 .DS_Store
 .rpt2_cache
 cache/
-types/
+
+*.d.ts
+!src/**/*.d.ts
 
 *.js
 !demo/**/*.js
