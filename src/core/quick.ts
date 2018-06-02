@@ -12,6 +12,7 @@ import { cm_t } from "./type"
 import 'codemirror/addon/fold/foldcode'
 import 'codemirror/addon/fold/foldgutter'
 import 'codemirror/addon/fold/markdown-fold'
+import 'codemirror/addon/edit/closebrackets'
 
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/fold/foldgutter.css'
@@ -30,6 +31,7 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
   mode: "text/x-hypermd",
   tabSize: 4, // CommonMark specifies tab as 4 spaces
 
+  autoCloseBrackets: true,
   foldGutter: true,
   gutters: [
     "CodeMirror-linenumbers",
