@@ -28,7 +28,10 @@ Still under construction... Consider:
 
 ### with bundlers (webpack / parcel-bundler...)
 
-First of all, run `npm i hypermd codemirror`, then let's make a simpliest `index.html`.
+First of all, run `npm install hypermd codemirror`
+and `npm install katex marked` (or you may skip latter two libs and remove `powerpack` parts from the code)
+
+Now, code time. Make a simple `index.html`
 
 ```html
 <!DOCTYPE HTML>
@@ -44,12 +47,12 @@ First of all, run `npm i hypermd codemirror`, then let's make a simpliest `index
 </html>
 ```
 
-And several lines into `index.js`:
+And write several lines into `index.js`:
 
 ```js
 var HyperMD = require("hypermd")
-// .css files will be implicitly required in "hypermd", including...
-// codemirror's, hypermd(mode), hypermd-light(theme) .css etc.
+// some .css files will be implicitly imported by "hypermd"
+// you may get the list with HyperMD Dependency Walker
 
 require("hypermd/powerpack/fold-math-with-katex") // implicitly requires "katex"
 require("hypermd/powerpack/hover-with-marked") // implicitly requires "marked"
