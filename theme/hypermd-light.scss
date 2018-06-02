@@ -164,7 +164,7 @@
             background-size: $quote-padding 1px;
         }
     }
-    @for $i from 1 through 6 {
+    @for $i from 1 through 9 {
         pre.HyperMD-quote-#{$i} {
             $padding-left: $quote-margin + ($quote-padding) * ($i);
             padding-left: $line-padding + $padding-left;
@@ -209,7 +209,7 @@
         }
     }
 
-    @for $i from 1 through 6 {
+    @for $i from 1 through 9 {
         pre.HyperMD-list-line-#{$i} {
             $indent_i: $list-indent * $i + $list-margin;
             padding-left: $line-padding + $indent_i;

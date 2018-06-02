@@ -35,7 +35,7 @@ HyperMD 是一组 [CodeMirror] 插件、模式和主题。
     - 各种主题 [^3]
 7. **自动载入语法高亮规则**
 8. **上传图片** 只需要复制粘贴，或者把文件拖进来就行了
-9. **Power Pack** 用各种第三方库增强 HyperMD 功能，例如 [MathJax], [marked], KaTeX ...
+9. **Power Pack** 用各种第三方库增强 HyperMD 功能，例如 [MathJax][], [marked][], KaTeX ...
 10. **[还有更多...][doc]**
 
 ## 快速开始
