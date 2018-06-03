@@ -84,7 +84,7 @@ require([
   var editor = HyperMD.fromTextArea(myTextarea, {
     hmdClick: clickHandler,
   })
-  editor.setSize("100%", "100%")
+  editor.setSize(null, "100%") // set height
 
   // for debugging
   window.CodeMirror = CodeMirror
@@ -99,6 +99,10 @@ require([
   // Preview Tex Math formula
   // @see demo/math-preview.js
   init_math_preview(editor)
+
+  // Watch editor and generate TOC
+  // @see demo/toc.js
+  init_toc(editor)
 })
 
 var allowDirectOpen = /directOpen/.test(window.location.search)

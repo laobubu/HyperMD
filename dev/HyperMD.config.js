@@ -5,7 +5,7 @@ const path = require('path')
  * For each component, you may specific a global name and expose it to global like `HyperMD.FooBar`
  */
 exports.components = {
-  "mode/hypermd": null, // exported nothing
+  "mode/hypermd": "Mode",
   // "addon/skeleton": "Skeleton",
   "addon/insert-file": "InsertFile",
   "addon/read-link": "ReadLink",

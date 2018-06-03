@@ -1,10 +1,5 @@
-.CodeMirror, #test-box, #header {
-    max-width: 1000px;
-    margin: auto;
-}
-
 html, body {
-    min-height: 100%;
+    height: 100%;
 }
 
 body {
@@ -65,23 +60,50 @@ h2 {
 }
 
 #editor_area {
-    position: absolute;
+    height: 100%;
+    position: relative;
     box-sizing: border-box;
-    left: 0;
-    right: 0;
-    z-index: -100;
-    top: 90px;
-    bottom: 20px;
     transition: opacity .4s;
+    padding: 10px;
+    padding-top: 70px;
 }
 
 #editor_area.loading_file {
-  cursor: default;
-  pointer-events: none;
-  opacity: .5;
+    cursor: wait;
+    pointer-events: none;
+    opacity: .5;
+}
+
+#toc {
+    float: left;
+    margin-right: 10px;
+    min-width: 300px;
+    width: 25%;
+    overflow-y: auto;
+    height: 100%;
+}
+
+#toc .toc-item {
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+    color: #666;
+    padding: .5em;
+}
+
+#toc .toc-item:hover {
+    color: #333;
+    background: #FAFAFA;
+}
+
+@media (max-width: 800px) {
+    #toc {
+        display: none;
+    }
 }
 
 body.loaded {
+    max-width: 1800px;
+    margin: 0 auto;
     background: #EEE;
 }
 
@@ -92,16 +114,16 @@ body.loaded #editor_area {
 
 body.loaded #test-box {
     position: absolute;
-    max-height: 50px;
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    height: 50px;
     transition: .1s ease;
     overflow: hidden;
     box-sizing: border-box;
-    left: 0;
-    top: 20px;
-    right: 0;
-    z-index: 10000;
     color: #333;
     background: #f7f7f7;
+    right: 10px;
 }
 
 body.loaded #test-box:after {
@@ -173,18 +195,4 @@ body.loaded #test-box .test-item.right {
 body.loaded #test-box .test-item.right .test-tooltip {
     left: auto;
     right: 0;
-}
-
-@media (max-width: 700px) {
-    body.loaded #test-box {
-        position: static;
-        margin-top: 10px;
-        max-height: 100px;
-    }
-    body.loaded #test-box .test-item button {
-        padding: 0 10px;
-    }
-    body.loaded #editor_area {
-        position: static;
-    }
 }
