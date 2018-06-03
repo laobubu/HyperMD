@@ -1,3 +1,17 @@
+#loadSplash {
+    max-width: 1000px;
+    margin: auto;
+}
+
+#loadErrorSplash {
+    text-align: left;
+    max-width: 700px;
+    color: #900;
+    margin: auto;
+    padding: 0 20px;
+    border: 1px solid #900;
+}
+
 html, body {
     height: 100%;
 }
@@ -97,6 +111,10 @@ h2 {
 
 @media (max-width: 800px) {
     #toc {
+        display: none;
+    }
+
+    .phone-hidden {
         display: none;
     }
 }
