@@ -11,12 +11,16 @@
 <body>
     <link rel="stylesheet" href="./demo/style.css">
 
-<div id="header">
+<div id="loadSplash">
     <h1>HyperMD</h1>
     <p><b>Breaks the Wall</b> between <i>writing</i> and <i>preview</i>, in a Markdown Editor.</p>
     <p>A WYSIWYG Markdown editor provided by <a href="https://laobubu.net">laobubu</a></p>
     <p><a href="https://github.com/laobubu/hypermd/">[View on GitHub]</a></p>
     <p>&nbsp;</p>
+    <div id="loadErrorSplash" style="display: none">
+      <p>Failed to load modules. <a href="#" onclick="location.reload()">Click here to Retry &raquo;</a></p>
+      <ul id="loadErrorList"></ul>
+    </div>
     <p style="font-size:1.8em;text-align:center"><b><i>Loading...</i></b></p>
     <p style="font-size:0.9em;text-align:center"><i id="loadingFileName"></i></p>
     <p>&nbsp;</p>
@@ -71,14 +75,14 @@
 
     <div class="right test-item">
         <button onclick="window.open('https://github.com/laobubu/hypermd/')">
-            <svg class="icon icon-github"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-github"></use></svg>
+            <svg class="icon icon-github"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-github"></use></svg> <span class="phone-hidden">GitHub</span>
         </button>
         <div class="test-tooltip">View HyperMD on GitHub</div>
     </div>
 
     <div class="right test-item">
         <button onclick="window.open(demo_page_baseurl + 'docs')">
-            <svg class="icon icon-book"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-book"></use></svg>
+            <svg class="icon icon-book"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-book"></use></svg> <span class="phone-hidden">Documentation</span>
         </button>
         <div class="test-tooltip">Documentation</div>
     </div>

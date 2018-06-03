@@ -103,6 +103,17 @@ require([
   // Watch editor and generate TOC
   // @see demo/toc.js
   init_toc(editor)
+}, function (err) {
+  var div = document.getElementById('loadErrorSplash')
+  var ul = document.getElementById('loadErrorList')
+
+  div.style.display = ''
+  var mods = err.requireModules
+  for (var i = 0; i < mods.length; i++) {
+    var li = document.createElement("li")
+    li.textContent = mods[i]
+    ul.appendChild(li)
+  }
 })
 
 var allowDirectOpen = /directOpen/.test(window.location.search)
