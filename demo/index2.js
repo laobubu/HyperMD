@@ -24,7 +24,7 @@ function click_bind(id, func, event) {
 
 !function hideSplash() {
   if (!window.editor) return setTimeout(hideSplash, 100)
-  document.getElementById('header').setAttribute('style', 'height:1px; overflow:hidden')
+  document.getElementById('header').setAttribute('style', 'display:none')
 }()
 
 !function chooseFileName() {
