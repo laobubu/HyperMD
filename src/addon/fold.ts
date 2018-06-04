@@ -1,7 +1,7 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Turn Markdown text into real images, link icons ...
+// DESCRIPTION: Turn Markdown markers into real images, link icons etc. Support custom folders.
 //
 // You may set `hmdFold.customFolders` option to fold more, where `customFolders` is Array<FolderFunc>
 //

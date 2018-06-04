@@ -1,7 +1,7 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Insert images or files into Editor by pasting (Ctrl+V) or Drag'n'Drop
+// DESCRIPTION: Insert images or files into Editor by pasting (Ctrl+V) or Drag'n'Drop
 //
 
 import * as CodeMirror from 'codemirror'

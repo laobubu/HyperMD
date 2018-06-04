@@ -1,6 +1,8 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
+// DESCRIPTION: (Replace this with your one-line description)
+//
 // =============================================
 // **START AN ADDON** Check List
 // =============================================
@@ -14,7 +16,8 @@
 //    - It's highly suggested to finish the docs, see //TODO: write doc
 //    - Note the defaultOption shall be the status when this addon is disabled!
 //    - As for `FlipFlop` and `ff_*`, you might want to reading CONTRIBUTING.md
-// 5. Replace this check-list with a introduction to your addon
+// 5. Remove this check-list
+// 6. Modify `DESCRIPTION: ` above
 // 6. Build, Publish, Pull Request etc.
 //
 

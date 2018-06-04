@@ -1,7 +1,7 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Align Table Columns
+// DESCRIPTION: Align Table Columns
 //
 
 import * as CodeMirror from 'codemirror'

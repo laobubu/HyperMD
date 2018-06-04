@@ -1,7 +1,7 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Paste HTML and convert to Markdown
+// DESCRIPTION: Convert content to Markdown before pasting
 //
 
 import * as CodeMirror from 'codemirror'

@@ -1,7 +1,10 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Provide a MathFolder and add it into fold the add-on's built-in folder list
+// DESCRIPTION: Fold and Render TeX formula expressions. Works with *fold* addon.
+//
+// Provides *DumbRenderer* as the Default MathRenderer.
+// You may use others like MathJax, KaTeX via PowerPacks
 //
 
 import * as CodeMirror from 'codemirror'

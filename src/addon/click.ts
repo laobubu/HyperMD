@@ -1,7 +1,8 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// (Alt + / Ctrl +) Click to open link / jump to footnote / toggle TODO
+// DESCRIPTION: Click to open links / jump to footnotes / toggle TODOs, and more.
+//
 // With custom ClickHandler supported
 //
 

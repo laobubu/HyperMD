@@ -1,7 +1,7 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// trace the footnote, finding the url
+// DESCRIPTION: Resovle footnote references and relative URIs
 //
 
 import * as CodeMirror from 'codemirror'
