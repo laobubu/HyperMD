@@ -22,7 +22,7 @@
 ## hmdInsertFile
 
 ⭐ ***Provided by [addon/insert-file](https://github.com/laobubu/HyperMD/tree/master/src/addon/insert-file.ts)*** ( Insert images or files into Editor by pasting (Ctrl+V) or Drag'n'Drop )
-⭐ ***Accepted Types***: `boolean | object | ((files: FileList, action: HandlerAction) => boolean)`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for InsertFile.
 
@@ -33,55 +33,20 @@ Or provide a FileHandler(overwrite the default one), meanwhile, byDrop & byPaste
 👉 ***See*** [HandlerAction](https://github.com/laobubu/HyperMD/tree/master/src/addon/insert-file.ts#L15)
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| byPaste | `boolean` | enable uploading from clipboard  |
-| byDrop | `boolean` | enable drag n drop uploading  |
-| fileHandler | `(files: FileList, action: HandlerAction) => boolean` | (See Below) |
-
-
-### hmdInsertFile.fileHandler
-
-handler function.
-
-returns `true` means files are accepted and uploading, and HyperMD will put a placeholder there.
-Then FileHandler may use `action` object to change the placeholder and finish uploading.
-👉 ***See*** [FileHandler](https://github.com/laobubu/HyperMD/tree/master/src/addon/insert-file.ts#L46)
-👉 ***See*** [HandlerAction](https://github.com/laobubu/HyperMD/tree/master/src/addon/insert-file.ts#L15)
-
-
-
-
-
 
 ## hmdReadLink
 
 ⭐ ***Provided by [addon/read-link](https://github.com/laobubu/HyperMD/tree/master/src/addon/read-link.ts)*** ( Fetch footnote content, Resolve relative URLs )
-⭐ ***Accepted Types***: `string | object`
+⭐ ***Accepted Types***: `OptionValueType`
 
 If not empty, this will affect `editor.hmdResolveURL()` if the URL of result is relative 
-
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| baseURI | `string` | (See Below) |
-
-
-### hmdReadLink.baseURI
-
-BaseURI (without filename) used to resolve relative URLs
-If not empty, this will affect `editor.hmdResolveURL("./relative/url")`
-⭐ ***Example***: `"https://laobubu.net/HyperMD/docs/zh-CN/"`
-
-
-
 
 
 
 ## hmdHover
 
 ⭐ ***Provided by [addon/hover](https://github.com/laobubu/HyperMD/tree/master/src/addon/hover.ts)*** ( When mouse hovers on a link or footnote ref, shows related footnote )
-⭐ ***Accepted Types***: `boolean | object | ((footnote: string, markdown: string) => string)`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for Hover.
 
@@ -91,28 +56,11 @@ or a Convertor to decide the content of tooltip.
 👉 ***See*** [Convertor](https://github.com/laobubu/HyperMD/tree/master/src/addon/hover.ts#L18)
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| enabled | `boolean` | Enable Hover features or not.  |
-| xOffset | `number` |  |
-| convertor | `(footnote: string, markdown: string) => string` | (See Below) |
-
-
-### hmdHover.convertor
-
-function to decide the tooltip's content
-👉 ***See*** [Convertor](https://github.com/laobubu/HyperMD/tree/master/src/addon/hover.ts#L18)
-👉 ***See*** [defaultConvertor](https://github.com/laobubu/HyperMD/tree/master/src/addon/hover.ts#L32)
-
-
-
-
-
 
 ## hmdClick
 
 ⭐ ***Provided by [addon/click](https://github.com/laobubu/HyperMD/tree/master/src/addon/click.ts)*** ( Click to open links / jump to footnotes / toggle TODOs, and more. )
-⭐ ***Accepted Types***: `boolean | object`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for Click.
 
@@ -120,26 +68,11 @@ You may also provide a `false` to disable it; a `true` to enable it with default
 or a callback which may return `false` to supress HyperMD default behavoir.
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| enabled | `boolean` | Enable Click features or not.  |
-| handler | `(info: ClickInfo, cm: any) => false | void` | (See Below) |
-
-
-### hmdClick.handler
-
-A callback when user clicked on something. May return `false` to supress HyperMD default behavoir.
-👉 ***See*** [ClickHandler](https://github.com/laobubu/HyperMD/tree/master/src/addon/click.ts#L39)
-
-
-
-
-
 
 ## hmdPaste
 
 ⭐ ***Provided by [addon/paste](https://github.com/laobubu/HyperMD/tree/master/src/addon/paste.ts)*** ( Convert content to Markdown before pasting )
-⭐ ***Accepted Types***: `boolean | object | ((html: string) => string | void)`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for Paste.
 
@@ -147,18 +80,11 @@ You may set a `PasteConvertor` function which accepts HTML, returning markdown t
 👉 ***See*** [PasteConvertor](https://github.com/laobubu/HyperMD/tree/master/src/addon/paste.ts#L13)
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| enabled | `boolean` | Enable Paste feature or not.  |
-| convertor | `(html: string) => string | void` | a function which accepts HTML, returning markdown text.  |
-
-
-
 
 ## hmdFold
 
 ⭐ ***Provided by [addon/fold](https://github.com/laobubu/HyperMD/tree/master/src/addon/fold.ts)*** ( Turn Markdown markers into real images, link icons etc. Support custom folders. )
-⭐ ***Accepted Types***: `boolean | object`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for Fold.
 
@@ -167,20 +93,11 @@ You may also provide a `false` to disable all built-in folders; a `true` to enab
 **NOTE: if a boolean is given, your `customFolders` will be cleared**
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| image | `boolean` | Fold Images  |
-| link | `boolean` | Fold Link URL  |
-| math | `boolean` | Enable TeX math folding. requires `fold-math` addon  |
-| customFolders | `{ [type: string]: (stream: FoldStream, token: any) => any; }` | User custom FolderFunc. All will be enabled.  |
-
-
-
 
 ## hmdFoldMath
 
 ⭐ ***Provided by [addon/fold-math](https://github.com/laobubu/HyperMD/tree/master/src/addon/fold-math.ts)*** ( Fold and Render TeX formula expressions. Works with *fold* addon. )
-⭐ ***Accepted Types***: `object | typeof MathRenderer`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for FoldMath.
 
@@ -190,45 +107,22 @@ You may also provide a MathRenderer class constructor
 👉 ***See*** [MathRenderer](https://github.com/laobubu/HyperMD/tree/master/src/addon/fold-math.ts#L23)
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| renderer | `typeof MathRenderer` | (See Below) |
-| onPreview | `(expr: string) => void` | a callback whenever you shall show/update a math preview  |
-| onPreviewEnd | `() => void` | a callback whenever you shall hide the preview box  |
-
-
-### hmdFoldMath.renderer
-
-custom renderer
-👉 ***See*** [MathRenderer](https://github.com/laobubu/HyperMD/tree/master/src/addon/fold-math.ts#L23)
-👉 ***See*** [DumbRenderer](https://github.com/laobubu/HyperMD/tree/master/src/addon/fold-math.ts#L164)
-
-
-
-
-
 
 ## hmdTableAlign
 
 ⭐ ***Provided by [addon/table-align](https://github.com/laobubu/HyperMD/tree/master/src/addon/table-align.ts)*** ( Align Table Columns )
-⭐ ***Accepted Types***: `boolean | object`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for TableAlign.
 
 You may also provide a boolean to toggle it.
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| enabled | `boolean` | Enable TableAlign  |
-
-
-
 
 ## hmdModeLoader
 
 ⭐ ***Provided by [addon/mode-loader](https://github.com/laobubu/HyperMD/tree/master/src/addon/mode-loader.ts)*** ( Load code highlighting modes (aka. profiles) automatically )
-⭐ ***Accepted Types***: `string | boolean | object | ((mode: string, successCb: Function, errorCb: Function) => void)`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for ModeLoader.
 
@@ -238,29 +132,11 @@ You may also provide:
 👉 ***See*** [LoaderFunc](https://github.com/laobubu/HyperMD/tree/master/src/addon/mode-loader.ts#L15)
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| source | `string | ((mode: string, successCb: Function, errorCb: Function) => void)` | (See Below) |
-
-
-### hmdModeLoader.source
-
-providing a source of codemirror modes
-
-- (a `LoaderFunc` function)
-- `"http://cdn.xxxxx.com/codemirror/v4.xx/"`
-- `"./node_modules/codemirror/"`            <- relative to webpage's URL
-- `"~codemirror/"`                          <- for requirejs
-
-
-
-
-
 
 ## hmdHideToken
 
 ⭐ ***Provided by [addon/hide-token](https://github.com/laobubu/HyperMD/tree/master/src/addon/hide-token.ts)*** ( Auto show/hide markdown tokens like `##` or `*` )
-⭐ ***Accepted Types***: `string | boolean | object | string[]`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for HideToken.
 
@@ -268,44 +144,24 @@ You may also provide a `false` to disable it; a `true` to enable it with default
 or token types (as string array, or just a string with "|" as separator inside)
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| enabled | `boolean` | Enable HideToken features or not.  |
-| line | `boolean` | Add `hmd-inactive-line` style to inactive lines or not  |
-| tokenTypes | `string[]` |  |
-
-
-
 
 ## hmdCursorDebounce
 
 ⭐ ***Provided by [addon/cursor-debounce](https://github.com/laobubu/HyperMD/tree/master/src/addon/cursor-debounce.ts)*** ( A workaround for cheap and unstable mouses. )
-⭐ ***Accepted Types***: `boolean | object`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for CursorDebounce.
 
 You may also provide a `false` to disable it; a `true` to enable it
 
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| enabled | `boolean` | Enable CursorDebounce features or not.  |
-
-
-
 
 ## hmdMyAddon
 
 ⭐ ***Provided by [addon/skeleton](https://github.com/laobubu/HyperMD/tree/master/src/addon/skeleton.ts)*** ( (Replace this with your one-line description) )
-⭐ ***Accepted Types***: `boolean | object`
+⭐ ***Accepted Types***: `OptionValueType`
 
 Options for MyAddon.
 
 You may also provide a `false` to disable it; a `true` to enable it with defaultOption (except `enabled`)
-
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| enabled | `boolean` | Enable MyAddon features or not.  |
-
 
