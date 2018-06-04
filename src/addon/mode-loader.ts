@@ -1,7 +1,7 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// auto load mode to highlight code blocks
+// DESCRIPTION: Load code highlighting modes (aka. profiles) automatically
 //
 
 import * as CodeMirror from 'codemirror'

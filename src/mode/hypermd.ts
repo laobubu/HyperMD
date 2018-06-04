@@ -123,6 +123,13 @@ const linkStyle = {
   [LinkType.FOOTREF2]: "hmd-footref2",
 }
 
+function resetTable(state: HyperMDState) {
+  state.hmdTable = TableType.NONE
+  state.hmdTableColumns = []
+  state.hmdTableID = null
+  state.hmdTableCol = state.hmdTableRow = 0
+}
+
 CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   var modeCfg = {
     math: true,
@@ -157,8 +164,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
   newMode.startState = function () {
     var ans = rawMode.startState() as HyperMDState
-    ans.hmdTable = TableType.NONE
-    ans.hmdTableColumns = []
+    resetTable(ans)
     ans.hmdOverride = null
     ans.hmdInnerExitTag = null
     ans.hmdInnerExitStyle = null
@@ -194,11 +200,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     if (state.code === -1) {
       ans += " line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
     }
-    if (state.hmdTable) {
-      state.hmdTable = TableType.NONE
-      state.hmdTableID = null
-      state.hmdTableColumns = []
-    }
+    resetTable(state)
     return ans || null
   }
 
@@ -208,7 +210,6 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     const wasInHTML = !!state.htmlState
     const wasInCodeFence = state.code === -1
     const bol = stream.start === 0
-    const firstTokenOfLine = stream.column() === state.indentation
 
     const wasLinkText = state.linkText
     const wasLinkHref = state.linkHref
@@ -280,6 +281,8 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     } else {
       ans += " " + (rawMode.token(stream, state) || "")
     }
+
+    const firstTokenOfLine = stream.column() === state.indentation
     var current = stream.current()
 
     const inHTML = !!state.htmlState
@@ -313,9 +316,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
           state.hmdTableRow++
         } else {
           // end of a table
-          state.hmdTable = tableType = TableType.NONE
-          state.hmdTableID = null
-          state.hmdTableColumns = []
+          resetTable(state)
         }
       }
       //#endregion

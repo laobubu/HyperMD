@@ -1,8 +1,9 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Auto show/hide markdown tokens like `##` or `*`
-// Works with `hypermd` mode, require special CSS rules
+// DESCRIPTION: Auto show/hide markdown tokens like `##` or `*`
+//
+// Only works with `hypermd` mode, require special CSS rules
 //
 
 import * as CodeMirror from 'codemirror'
@@ -19,9 +20,10 @@ export interface Options extends Addon.AddonOptions {
   /** Enable HideToken features or not. */
   enabled: boolean
 
-  /** add `hmd-inactive-line` class to inactive lines' <pre>s */
+  /** Add `hmd-inactive-line` style to inactive lines or not */
   line: boolean
 
+  /** @internal reserved yet */
   tokenTypes: string[]
 }
 

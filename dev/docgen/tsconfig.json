@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "../tmp"
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

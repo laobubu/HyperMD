@@ -1,6 +1,8 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
+// DESCRIPTION: A workaround for cheap and unstable mouses.
+//
 // When a user clicks to move the cursor, releasing mouse button,
 // the user's hand might shake and an unexcepted selection will be made.
 // This addon suppresses the shake.

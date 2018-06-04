@@ -1,7 +1,7 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// Hover on a link, showing related footnote
+// DESCRIPTION: When mouse hovers on a link or footnote ref, shows related footnote
 //
 
 import * as CodeMirror from 'codemirror'
