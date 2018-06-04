@@ -3,8 +3,8 @@ import * as fs from "fs"
 import * as path from "path"
 
 const sys = ts.sys
-const basePath = path.normalize(path.join(__dirname, "../.."));
-const srcPath = path.join(basePath, "src");
+export const basePath = path.normalize(path.join(__dirname, "../.."));
+export const srcPath = path.join(basePath, "src");
 
 function getCommandLine(basePath: string, srcPath: string) {
   const configPath = ts.findConfigFile(basePath, fs.existsSync);

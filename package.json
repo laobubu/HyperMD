@@ -5,11 +5,12 @@
   "main": "./ai1.js",
   "types": "./ai1.d.ts",
   "scripts": {
-    "build": "npm run build_js && npm run build_css",
+    "build": "node dev/build-all.js",
     "prebuild_js": "node dev/pre-build.js",
     "build_js": "tsc && rollup -c",
     "postbuild_js": "node dev/post-build.js",
     "build_css": "node dev/build-css.js",
+    "build_doc": "cd dev/docgen && tsc && node ../tmp/index.js",
     "dev": "node dev/dev.js",
     "watch_js": "tsc -w",
     "watch_css": "node dev/build-css.js -w",

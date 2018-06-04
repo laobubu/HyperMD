@@ -257,7 +257,8 @@ declare global {
        * Options for Fold.
        *
        * You may also provide a `false` to disable all built-in folders; a `true` to enable all of them.
-       * **NOTE: Your `customFolders` will be cleared if a boolean is given**
+       *
+       * **NOTE: if a boolean is given, your `customFolders` will be cleared**
        */
       hmdFold?: OptionValueType
     }
