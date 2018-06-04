@@ -72,7 +72,7 @@ declare global {
        *
        * You may also provide a `false` to disable it;
        * a `true` to enable it with defaultOption (except `enabled`);
-       * a Convertor to decide the content of tooltip.
+       * or a Convertor to decide the content of tooltip.
        *
        * @see Convertor
        */

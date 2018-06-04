@@ -1,7 +1,7 @@
 // HyperMD, copyright (c) by laobubu
 // Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
 //
-// DESCRIPTION: Resovle footnote references and relative URIs
+// DESCRIPTION: Fetch footnote content, Resolve relative URLs
 //
 
 import * as CodeMirror from 'codemirror'
@@ -79,7 +79,12 @@ for (var name in Extensions) {
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
-  /** If not empty, this will affect `editor.hmdResolveURL()` if the URL of result is relative */
+  /**
+   * BaseURI (without filename) used to resolve relative URLs
+   * If not empty, this will affect `editor.hmdResolveURL("./relative/url")`
+   *
+   * @example "https://laobubu.net/HyperMD/docs/zh-CN/"
+   */
   baseURI: string
 }
 

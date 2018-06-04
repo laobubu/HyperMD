@@ -231,9 +231,11 @@ declare global {
       /**
        * Options for FoldMath.
        *
-       * **NOTE**: to switch this off, please modify `hmdFold.math` instead.
+       * **NOTE**: to switch this feature off, please modify `hmdFold.math` instead.
        *
        * You may also provide a MathRenderer class constructor
+       *
+       * @see MathRenderer
        */
       hmdFoldMath?: OptionValueType
     }

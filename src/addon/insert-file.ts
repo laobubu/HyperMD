@@ -33,6 +33,16 @@ export interface HandlerAction {
   marker: CodeMirror.TextMarker
   cm: cm_t
 }
+
+/**
+ * File Handler is called when user is trying to insert file(s)
+ *
+ * returns `true` if files are accepted and uploading, and HyperMD will put a placeholder there.
+ * Then FileHandler may use `action` object to change the placeholder and finish uploading.
+ *
+ * @see FileHandler
+ * @see HandlerAction
+ */
 export type FileHandler = (files: FileList, action: HandlerAction) => boolean
 
 /**
@@ -163,7 +173,15 @@ export interface Options extends Addon.AddonOptions {
   /** enable drag n drop uploading */
   byDrop: boolean
 
-  /** handler function */
+  /**
+   * handler function.
+   *
+   * returns `true` means files are accepted and uploading, and HyperMD will put a placeholder there.
+   * Then FileHandler may use `action` object to change the placeholder and finish uploading.
+   *
+   * @see FileHandler
+   * @see HandlerAction
+   */
   fileHandler: FileHandler
 }
 
@@ -189,6 +207,9 @@ declare global {
        * You may also provide a `false` to disable it; a `true` to enable it with DefaultFileHandler
        *
        * Or provide a FileHandler(overwrite the default one), meanwhile, byDrop & byPaste will set to `true`
+       *
+       * @see FileHandler
+       * @see HandlerAction
        */
       hmdInsertFile?: OptionValueType
     }
