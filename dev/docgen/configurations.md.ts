@@ -42,7 +42,7 @@ export function make(): string {
 
     const { name } = it
 
-    var ac = langService.getCompletionEntryDetails(doctmp, markPos, name, {}, /*content*/ undefined)
+    var ac = langService.getCompletionEntryDetails(doctmp, markPos, name, {}, undefined, undefined)
 
     var type = ac.displayParts.map(x => x.text).join("").replace(/^.+?\:\s*/, '')
 
@@ -115,7 +115,7 @@ export function make(): string {
         if (it.kind !== "property") return
         const { name } = it
 
-        var ac = langService.getCompletionEntryDetails(doctmp, markPos, name, {}, /*content*/ undefined)
+        var ac = langService.getCompletionEntryDetails(doctmp, markPos, name, {}, undefined, undefined)
 
         var type = ac.displayParts.map(x => x.text).join("").replace(/^.+?\:\s*/, '')
         var description = getPropDescription(ac, providerFile)
