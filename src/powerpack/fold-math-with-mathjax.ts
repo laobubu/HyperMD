@@ -84,8 +84,9 @@ export class MathJaxRenderer implements MathRenderer {
   }
 }
 
-if (typeof MathJax == "undefined") {
+if (typeof MathJax !== "object") {
   // MathJax not exists. Do nothing
+  console.error("[HyperMD] PowerPack fold-math-with-mathjax loaded, but MathJax not found.")
 } else if (0 == MathJax.Hub.config.jax.length) {
   // IF NOT FOUND, throw a warning
   console.error("[HyperMD] Looks like MathJax is not configured.\nPlease do this BEFORE loading MathJax.\nSee http://docs.mathjax.org/en/latest/configuration.html")

@@ -17,21 +17,16 @@ import { Link } from './read-link'
 /** convert footnote text into HTML. Note that `markdown` may be empty and you may return `null` to supress the tooltip */
 export type Convertor = (footnote: string, markdown: string) => string
 
-var markdownToHTML: (text: string) => string = (typeof marked === 'function') ? marked : null
-
-const defaultRenderer = (text: string) => {
-  text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;')
-  return "<pre>" + text + "</pre>"
-}
-
-export function useMarkdownRenderer(renderer: (text: string) => string) {
-  markdownToHTML = renderer
-}
+var markdownToHTML: (text: string) => string =
+  (typeof marked === 'function') ? marked : (text: string) => {
+    text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;')
+    return "<pre>" + text + "</pre>"
+  }
 
 /** if `marked` exists, use it; else, return safe html */
 export function defaultConvertor(footnote: string, text: string): string {
   if (!text) return null
-  return (markdownToHTML || defaultRenderer)(text)
+  return markdownToHTML(text)
 }
 
 /********************************************************************************** */
@@ -44,7 +39,11 @@ export interface Options extends Addon.AddonOptions {
   xOffset: number
 
   /**
-   * function to decide the tooltip's content
+   * function to decide the tooltip's content.
+   *
+   * First parameter is the name of footnote (without square brackets),
+   * and the second is footnote Markdown content (might be `null`, if not found).
+   * This function shall returns HTML string or `null`.
    *
    * @see Convertor
    * @see defaultConvertor

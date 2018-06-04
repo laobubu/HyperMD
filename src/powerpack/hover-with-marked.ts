@@ -8,9 +8,15 @@
 
 /// <reference path="./typings/_misc.d.ts" />
 
-import { useMarkdownRenderer } from "../addon/hover"
+import { defaultOption } from "../addon/hover"
 import * as marked from "marked"
 
 if (typeof marked == "function") {
-  useMarkdownRenderer(marked)
+  // Use marked to render Hover tooltip content
+  defaultOption.convertor = function (footnote: string, text: string) {
+    if (!text) return null
+    return marked(text)
+  }
+} else {
+  console.error("[HyperMD] PowerPack hover-with-marked loaded, but marked not found.")
 }
