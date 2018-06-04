@@ -1,3 +1,4 @@
+const path = require('path')
 const utils = require('./utils')
 
 process.chdir(path.join(__dirname, ".."));
