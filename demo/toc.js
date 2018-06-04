@@ -8,6 +8,7 @@ function init_toc(cm) {
       var tmp = /^(#+)\s+(.+)(?:\s+\1)?$/.exec(line.text)
       if (!tmp) return
       var lineNo = line.lineNo()
+      if (!cm.getStateAfter(lineNo).header) return // double check but is not header
       var level = tmp[1].length
 
       newTOC += '<div data-line="' + lineNo + '" class="toc-item" style="padding-left:' + level + 'em">' + tmp[2] + '</div>'

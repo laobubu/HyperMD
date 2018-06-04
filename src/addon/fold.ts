@@ -385,7 +385,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
     this._quickFoldHint = []
     this.setPos(fromLine, 0, true)
 
-    cm.eachLine(fromLine, toLine, line => {
+    cm.operation(() => cm.eachLine(fromLine, toLine, line => {
       var lineNo = line.lineNo()
       if (lineNo < this.lineNo) return // skip current line...
       else if (lineNo > this.lineNo) this.setPos(lineNo, 0) // hmmm... maybe last one is empty line
@@ -461,7 +461,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
           }
         }
       }
-    })
+    }))
   }
 
   /** stores every affected lineNo */
@@ -490,6 +490,8 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
    * @param type builtin folder type ("image", "link" etc) or custom fold type
    */
   clear(type: string) {
+    this.startFold.stop()
+
     var folded = this.folded[type]
     if (!folded || !folded.length) return
 
@@ -503,6 +505,8 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
    * Clear all folding result
    */
   clearAll() {
+    this.startFold.stop()
+
     for (const type in this.folded) {
       var folded = this.folded[type]
       for (const marker of folded) {

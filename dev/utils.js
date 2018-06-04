@@ -34,6 +34,12 @@ function npm_run(command) {
   var proc = child_process.spawn(`npm${platform_suffix}`, ["run", command])
   proc.stdout.pipe(process.stdout)
   proc.stderr.pipe(process.stderr)
+  proc.on('exit', (code) => {
+    if (code) {
+      console.error(`npm run ${command}: exit code ${code}`)
+      process.exit(code)
+    }
+  })
 
   return proc
 }
