@@ -22,3 +22,6 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 yarn.lock
+
+# Auto Generated Docs
+docs/configurations.md

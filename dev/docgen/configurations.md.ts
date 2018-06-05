@@ -1,183 +1,180 @@
-import { sys, CompletionEntryDetails } from "typescript"
-import { langService, doctmp, findMark, updateDocTmp } from "./base"
-import { getPropDescription, getComponentLink } from "./utils";
+import * as ts from "typescript"
+import { sys, forEachChild, Node, SyntaxKind } from "typescript"
+import * as path from "path"
+import { commandLine, program, srcPath } from "./base"
+import { isExported, getNamedDeclarations } from "./tsUtil";
+import { makeComponentLink, makeTypeString, makeDescription } from "./genUtils";
 
-interface OptionItem {
-  ac: CompletionEntryDetails,
+const config = require("../HyperMD.config")
 
-  name: string,
-  provider: string, // "addon/foobar"
-  providerFile: string, // full file path to addon/foobar
-  providerDesc: string, // addon description in one line
-  optional: boolean,
-  description: string,
-  type: string,
+export interface AddonInfo {
+  name: string, // "addon/foobar"
+  brief_description: string, // "One sentence introducing Foobar"
+  description: string, // leadingComments, including brief_description
 
-  /** If Accept a Partial<Object>, this stores all possible members */
-  objProp?: Record<string, {
-    description: string,
-    type: string,
-    default: string,
-  }>,
+  Options: InterfaceProperty[],
 }
 
+export interface InterfaceProperty {
+  name: string,
+  type: string,
+  description: string,
+}
+
+export interface EditorOptionItem extends InterfaceProperty {
+  addon: AddonInfo,
+}
+
+export function populateInterfaceProperties(src: ts.InterfaceDeclaration, dst: InterfaceProperty[], sf: ts.SourceFile, postProcess?: (it: InterfaceProperty) => boolean) {
+  forEachChild(src, (node) => {
+    if (!ts.isPropertySignature(node)) return
+
+    let it: InterfaceProperty = {
+      name: node.name.getText(sf),
+      description: makeDescription(node, sf),
+      type: makeTypeString(node.type, sf),
+    }
+
+    if (postProcess && !postProcess(it)) return
+
+    dst.push(it)
+  })
+}
+
+/**
+ * Scan all addon
+ */
 export function make(): string {
-  const output: string[] = []
-  const options: OptionItem[] = []
+  var addonDescription = new Map<string, string>()
+  var optionItems = [] as EditorOptionItem[]
 
-  /** emulate auto-completition to get all acceptable options */
+  //#region [phase #1] scan all addon files ---------------------------------------------------------
 
-  updateDocTmp(`
-  var c: HyperMD.EditorConfiguration = {
-    /*1*/
-  }
-  `)
+  for (const compFileName in config.components) {
+    if (!/^addon\//.test(compFileName)) continue
 
-  var markPos = findMark("1")
-  langService.getCompletionsAtPosition(doctmp, markPos, {
-    includeExternalModuleExports: true,
-    includeInsertTextCompletions: false,
-  }).entries.forEach(it => {
-    if (it.kind !== "property") return
+    const compFilePath = path.join(srcPath, compFileName + ".ts")
+    const sf = program.getSourceFile(compFilePath)
+    const declsMap = getNamedDeclarations(sf)
 
-    const { name } = it
-
-    var ac = langService.getCompletionEntryDetails(doctmp, markPos, name, {}, undefined, undefined)
-
-    var type = ac.displayParts.map(x => x.text).join("").replace(/^.+?\:\s*/, '')
-
-    var oi: OptionItem = {
-      ac,
-      name,
-      provider: null,
-      providerFile: null,
-      providerDesc: "",
-      type,
-      description: null,
-      optional: it.kindModifiers.includes("optional"),
-      objProp: /Partial\<.+\>/.test(type) ? {} : null,
+    var addon: AddonInfo = {
+      name: compFileName,
+      Options: [],
+      description: "",
+      brief_description: sf.text.match(/^\s*(?:\/\/|\/?\*+)\s+DESCRIPTION:\s*(.+)$/m)[1],
     }
 
-    options.push(oi)
-  })
+    var currentNameSpace = "" // with "global." name. If is empty, means current module context
 
-  /** for each OptionItem, retrive its detail info! */
+    function visitor(node: Node) {
+      if (ts.isModuleDeclaration(node)) {
+        // change `currentNameSpace` if needed
 
-  options.forEach(opt => {
-    const { name, objProp } = opt
+        let name = node.name.text
+        let oldNameSpace = currentNameSpace
 
-    updateDocTmp(`
-    var c: HyperMD.EditorConfiguration = {
-      /*2*/${name}: { /*3*/ }
-    }
-    `)
+        if (!currentNameSpace) currentNameSpace = "global"
+        if (name != "global") currentNameSpace += "." + name
 
-    var def = langService.getDefinitionAtPosition(doctmp, findMark('2') + 6)
-    var providerFile = def[0].fileName // addon's filename
-    var providerCode = sys.readFile(providerFile) // addon's source code!
+        forEachChild(node, visitor)
 
-    opt.provider = providerFile.match(/src\/(.+)\.ts$/)[1]
-    opt.providerFile = providerFile
-    opt.providerDesc = providerCode.match(/^(?:\/\/|\s*\*)?\s+DESCRIPTION:\s*(.+)$/m)[1]
-    opt.description = getPropDescription(opt.ac, providerFile)
+        currentNameSpace = oldNameSpace
+        return
+      }
 
-    if (objProp) {
-      // this option may accept a object
-      // find out what does it support
+      if (ts.isInterfaceDeclaration(node)) {
+        if (!currentNameSpace && !isExported(node)) return
 
-      let markPos = findMark('3')
+        let name = node.name.text
 
-      // Find defaultOption declarations
-      let defaultValues = {}
-      {
-        // extract {...}
-        let defSince = providerCode.match(/^.+defaultOption(?:\s*\:\s*\w+)\s*=\s*\{/m)
-        if (defSince) {
-          let t = providerCode.slice(defSince.index + defSince[0].length)
+        if (currentNameSpace == "") {
+          if (name == 'Options') populateInterfaceProperties(node, addon.Options, sf)
+        }
 
-          t.slice(0, t.match(/^\s*\}/m).index) // get content inside { ... }
-            .trim()
-            .split("\n")
-            .forEach(x => {
-              var tmp = x.match(/^\s*(\S+)\s*\:\s*(.+)$/)
-              if (!tmp) return;
-              defaultValues[tmp[1]] = tmp[2].replace(/^\s+|\s*(?:\,\s*)?(?:\/\/.*)?$|\s+$/g, '');
+        if (currentNameSpace == "global.HyperMD") {
+          if (name == 'EditorConfiguration') {
+            populateInterfaceProperties(node, optionItems, sf, (it: EditorOptionItem) => {
+              it.addon = addon
+              it.type = it.type.replace(/Partial\<\[(\w+)\][^\>]+\>/, "`Partial<$1>`")
+              it.description = it.description.replace(/^/gm, "> ")
+              return true
             })
+          }
         }
       }
 
-      // check what Partial<Options> accepts
-      langService.getCompletionsAtPosition(doctmp, markPos, {
-        includeExternalModuleExports: true,
-        includeInsertTextCompletions: false,
-      }).entries.forEach(it => {
-
-        if (it.kind !== "property") return
-        const { name } = it
-
-        var ac = langService.getCompletionEntryDetails(doctmp, markPos, name, {}, undefined, undefined)
-
-        var type = ac.displayParts.map(x => x.text).join("").replace(/^.+?\:\s*/, '')
-        var description = getPropDescription(ac, providerFile)
-        var defaultVal = "undefined"
-
-        objProp[name] = {
-          description,
-          type,
-          default: defaultValues[name] || "undefined",
-        }
-      })
+      forEachChild(node, visitor)
     }
-  })
+    forEachChild(sf, visitor)
+  }
 
-  output.push(`# HyperMD Configurations
+  //#endregion
 
-> This documentation is automatically generated by *dev/docgen/configurations.md.ts* from addons' source files
+  var result = [
+    "# HyperMD Configurations",
+    "> This documentation is automatically generated by *dev/docgen/configurations.md.ts* from addons' source files"
+  ]
 
-| Name | Addon | Addon Description |
-| ---- | ---- | ---- |
-${options.map(x => `| ${x.name} | ${getComponentLink(x.provider)} | ${x.providerDesc} |`).join("\n")}
+  //#region [phase #2] make the result      ---------------------------------------------------------
 
-`)
-
-
-  options.forEach(opt => {
-    output.push(`
-## ${opt.name}
-
-⭐ ***Provided by ${getComponentLink(opt.provider)}*** ( ${opt.providerDesc} )
-⭐ ***Accepted Types***: \`${opt.type.replace(/Partial\<\w+\>/g, 'object')}\`
-
-${opt.description}
-
-`)
-
-    if (opt.objProp) {
-      var multiLineDescriptions = "" // maybe some prop's description span lines
-
-      output.push(`| Name | Type | Description |
-| ---- | ---- | ----------- |`)
-      for (const key in opt.objProp) {
-        let description = opt.objProp[key].description.replace(/^\s*\@\w+/gm, '***$1*** ')
-        if (description.includes("\n")) {
-          multiLineDescriptions += [
-            `### ${opt.name}.${key}`,
-            description,
-            "",
-          ].join("\n\n")
-          description = "(See Below)"
-        }
-        output.push(`| ${key} | \`${opt.objProp[key].type.replace(/\n\s*/g, ' ')}\` | ${description} |`)
-      }
-
-      if (multiLineDescriptions) {
-        output.push("\n")
-        output.push(multiLineDescriptions)
-      }
-
-      output.push("\n\n")
+  { // editor property table
+    let tableLines = [
+      "| Name | Addon | Addon Description |",
+      "| ---- | ---- | ---- |",
+    ]
+    for (const opt of optionItems) {
+      tableLines.push(`| ${opt.name} | ${makeComponentLink(opt.addon.name)} | ${opt.addon.brief_description} |`)
     }
-  })
+    result.push(tableLines.join("\n"))
+  }
 
-  return output.join("\n")
+  for (const opt of optionItems) {
+    const addon = opt.addon
+
+    let appendix = [] as string[]
+    let sectionLines = [
+      "\n\n\n",
+      `## ${opt.name}`,
+      ``,
+      `📦 **Provided by ${makeComponentLink(addon.name)}** : ${addon.brief_description}`,
+      `🎨 **Type** : ${opt.type}`,
+      ``,
+      opt.description,
+    ]
+
+    if (addon.Options.length) {
+      sectionLines.push(
+        "",
+        "***Options** and **Partial\\<Options>** is an object and may contains:*",
+        "",
+        "| Name | Type | Description |",
+        "| ---- | ---- | ---- |",
+      )
+      for (const p of addon.Options) {
+        let description = p.description
+        let multiline = description.includes("\n")
+        sectionLines.push(`| ${p.name} | ${multiline ? " " : p.type} | ${multiline ? "*(See below)*" : description} |`)
+        if (multiline) {
+          appendix.push([
+            `### ${p.name}`,
+            ``,
+            `🎨 **Type** : ${p.type}`,
+            ``,
+            description.replace(/^/gm, "> "),
+          ].join("\n"))
+        }
+      }
+    }
+
+    result.push(sectionLines.join("\n"))
+    for (const it of appendix) result.push(it)
+  }
+
+  //#endregion
+
+  return result.join("\n\n")
+}
+
+if (require.main === module) {
+  console.log(make())
 }

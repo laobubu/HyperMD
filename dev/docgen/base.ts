@@ -1,6 +1,7 @@
 import * as ts from "typescript"
 import * as fs from "fs"
 import * as path from "path"
+import { debug } from "util";
 
 const sys = ts.sys
 export const basePath = path.normalize(path.join(__dirname, "../.."));
@@ -20,10 +21,15 @@ function getCompileProgram(cl: ts.ParsedCommandLine) {
       const content = sys.readFile(s);
       return content !== undefined ? ts.createSourceFile(s, content, v) : undefined;
     },
-    getDefaultLibFileName: () => "lib.d.ts",
+    getCurrentDirectory: () => process.cwd(),
+    getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
     useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
-    writeFile: (f: string, content: string) => { throw new Error("Unexpected operation: writeFile"); },
-    getCurrentDirectory: () => srcPath,
+    writeFile: (f: string, content: string) => {
+      if (content) {
+        console.log("trying to write " + f)
+        console.log(content.slice(0, 100))
+      }
+    },
     getCanonicalFileName: (f: string) => sys.useCaseSensitiveFileNames ? f : f.toLowerCase(),
     getNewLine: () => ts.sys.newLine,
 
@@ -94,3 +100,59 @@ export function updateDocTmp(content: string) {
   updateFile(doctmp, content)
   doctmp_text = content
 }
+
+// var p = program
+// var files = p.getSourceFiles()
+// var emitAns = p.emit(files[21])
+
+// debugger
+
+(() => {
+  let p = program
+  let sf = p.getSourceFiles()[20]
+
+  function visitor(node: ts.Node) {
+    switch (node.kind) {
+      case ts.SyntaxKind.TypeAliasDeclaration:
+        console.log('----------------------------')
+
+        {
+          let n = node as ts.TypeAliasDeclaration
+          console.log(
+            n.name.getText(sf),
+            n.type.getText(sf)
+          )
+        }
+
+        if (node.modifiers && node.modifiers.length) {
+          console.log("MODIFIERS:")
+          for (const m of node.modifiers) {
+            console.log(m.getText(sf))
+          }
+        }
+        break
+      case ts.SyntaxKind.VariableStatement:
+        console.log('----------------------------')
+
+        {
+          let n = node as ts.VariableStatement
+          console.log("var", n.declarationList.declarations.map(x => x.name.getText(sf)))
+
+          if (node.modifiers && node.modifiers.length) {
+            console.log("MODIFIERS:")
+            for (const m of node.modifiers) {
+              if (m.flags & ts.ModifierFlags.Export) console.log(" - export")
+              if (m.flags & ts.ModifierFlags.Const) console.log(" - const")
+            }
+          }
+        }
+        break
+    }
+  }
+
+  console.log(sf.fileName)
+
+  ts.forEachChild(sf, visitor)
+
+  debugger
+})

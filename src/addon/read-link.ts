@@ -101,7 +101,11 @@ export type OptionValueType = Partial<Options> | string;
 declare global {
   namespace HyperMD {
     interface EditorConfiguration {
-      /** If not empty, this will affect `editor.hmdResolveURL()` if the URL of result is relative */
+      /**
+       * If not empty, this will affect `editor.hmdResolveURL()` if the URL of result is relative.
+       *
+       * Also affects other addons, eg. opening links, showing images...
+       */
       hmdReadLink?: OptionValueType
     }
   }
