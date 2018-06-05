@@ -6,7 +6,7 @@
 
 import * as CodeMirror from 'codemirror'
 import { Position } from 'codemirror'
-import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
+import { Addon, FlipFlop, suggestedEditorConfig, debounce } from '../core'
 import { cm_t } from '../core/type'
 import { builtinFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 
@@ -40,9 +40,10 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
   const from: Position = { line: stream.lineNo, ch: token.start }
   const to: Position = { line: endInfo.lineNo, ch: endInfo.token.end }
 
+  var addon = getAddon(cm)
   var html: string = cm.getRange(from, to)
 
-  if (!getAddon(cm).checker(html, from, cm)) return null // security check
+  if (!addon.checker(html, from, cm)) return null // security check
 
   // security check pass!
 
@@ -51,13 +52,14 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
 
   // now we are ready to fold and render!
 
-  var stub = makeStub()
+  var stub = makeStub(addon.stubText)
   var el = renderHTML(html)
 
   stub.addEventListener("click", () => breakMark(cm, marker), false);
 
   var span = document.createElement("span")
   span.setAttribute("class", "hmd-fold-html")
+  span.setAttribute("style", "display: inline-block")
   span.appendChild(el)
   span.appendChild(stub)
 
@@ -66,13 +68,28 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
     replacedWith: span,
   })
 
+  /** If element size changed, we notify CodeMirror */
+  watchSize(el, debounce(() => marker.changed(), 100))
+
   return marker
 }
 
-function makeStub() {
+function watchSize(el: HTMLElement, onChange: () => void) {
+  var tagName = el.tagName
+  if (/^(?:img|video)$/i.test(tagName)) { // size will change if loaded
+    el.addEventListener('load', onChange, false)
+    el.addEventListener('error', onChange, false)
+  }
+  var children = el.children || []
+  for (let i = 0; i < children.length; i++) {
+    watchSize(children[i], onChange)
+  }
+}
+
+function makeStub(text?: string) {
   var ans = document.createElement('span')
   ans.setAttribute("class", "hmd-fold-html-stub")
-  ans.textContent = '<HTML>'
+  ans.textContent = text || '<HTML>'
 
   return ans
 }
@@ -116,10 +133,14 @@ builtinFolder["html"] = HTMLFolder // inject fold's builtinFolders! Not cool but
 export interface Options extends Addon.AddonOptions {
   /** Before folding HTML, check it to avoid XSS attack! Returns `true` if safe. */
   checker: CheckerFunc
+
+  /** There MUST be a stub icon after rendered HTML. You may decide its content. */
+  stubText: string
 }
 
 export const defaultOption: Options = {
   checker: defaultChecker,
+  stubText: "<HTML>",
 }
 
 export const suggestedOption: Partial<Options> = {
@@ -170,6 +191,7 @@ CodeMirror.defineOption("hmdFoldHTML", defaultOption, function (cm: cm_t, newVal
 //#region Addon Class
 
 export class FoldHTML implements Addon.Addon, Options {
+  stubText: string;
   checker: CheckerFunc;
 
   constructor(public cm: cm_t) {

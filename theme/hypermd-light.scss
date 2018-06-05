@@ -541,6 +541,33 @@
         }
     }
 
+    /// fold-html
+
+    // DO NOT TRY TO HIDE THIS, OR YOU WILL RUIN THE LAYOUT
+    .hmd-fold-html-stub {
+        @extend %monospace;
+        display: inline-block;
+        font-size: 67%;
+        color: #999;
+        vertical-align: middle;
+        border: 1px solid #999;
+        padding: 0 .2em;
+        border-radius: 5px;
+        margin: 0 .5em;
+        background: #FAFAFA;
+        cursor: ew-resize;
+    }
+
+    /// deal with floating elements
+
+    pre.HyperMD-header,
+    pre.HyperMD-footnote,
+    pre.HyperMD-codeblock,
+    pre.HyperMD-hr
+    {
+        clear: left;
+    }
+
     /// hide-token
     span.hmd-hidden-token{
         &.cm-formatting-task {
