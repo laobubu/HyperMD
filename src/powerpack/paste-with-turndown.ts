@@ -21,7 +21,7 @@ export const TurndownConvertor: PasteConvertor =
     })
 
     // maybe you don't need to convert, if there is no img/link/header...
-    if (!/\<(?:(?:hr|img)|\/(?:h\d|strong|em|strikethrough|table|a|b|i|del)\>)/i.test(html)) return null
+    if (!/\<(?:hr|img|h\d|strong|em|strikethrough|table|a|b|i|del)(?:\s.*?|\/)?\>/i.test(html)) return null
 
     const turndownService = getTurndownService()
     if (turndownService) return turndownService.turndown(html)
