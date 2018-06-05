@@ -14,6 +14,7 @@ exports.components = {
   "addon/paste": "Paste",
   "addon/fold": "Fold",
   "addon/fold-math": "FoldMath",
+  "addon/fold-html": "FoldHTML",
   "addon/table-align": "TableAlign",
   "addon/mode-loader": "ModeLoader",
   "addon/hide-token": "HideToken",
