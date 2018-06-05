@@ -200,6 +200,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     if (state.code === -1) {
       ans += " line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
     }
+    state.htmlState = null
     resetTable(state)
     return ans || null
   }
@@ -293,6 +294,8 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     if (inHTML != wasInHTML) {
       if (inHTML) ans += " hmd-html-begin"
       else ans += " hmd-html-end"
+    } else if (inHTML && stream.eol() && /^\s*$/.test(stream.lookAhead(1))) {
+      ans += " hmd-html-end hmd-html-unclosed"
     }
 
     if (wasInCodeFence || inCodeFence) {
