@@ -231,6 +231,9 @@ export interface Options extends Addon.AddonOptions {
   /** Enable TeX math folding. requires `fold-math` addon */
   math: boolean
 
+  /** Fold HTML. requires `fold-html` addon */
+  html: boolean
+
   /** User custom FolderFunc. All will be enabled. */
   customFolders: { [type: string]: FolderFunc }
 }
@@ -239,6 +242,7 @@ export const defaultOption: Options = {
   image: false,
   link: false,
   math: false,
+  html: false,
   customFolders: {},
 }
 
@@ -246,6 +250,7 @@ export const suggestedOption: Partial<Options> = {
   image: true,
   link: true,
   math: true,
+  html: true,
 }
 
 export type OptionValueType = Partial<Options> | boolean;

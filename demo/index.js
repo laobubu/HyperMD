@@ -54,6 +54,7 @@ require([
   'hypermd/addon/cursor-debounce',
   'hypermd/addon/fold',
   'hypermd/addon/fold-math',
+  'hypermd/addon/fold-html',
   'hypermd/addon/read-link',
   'hypermd/addon/click',
   'hypermd/addon/hover',
