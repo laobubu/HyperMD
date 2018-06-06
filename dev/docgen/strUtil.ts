@@ -1,9 +1,11 @@
 export function getLineNo(text: string, pos: number) {
-  var pos2: number = -1, ans = 0
-  do {
-    ans++
+  var pos2: number = -1, ans = 1
+  while (true) {
     pos2 = text.indexOf("\n", pos2 + 1)
-  } while (pos2 != -1 && pos2 < pos);
+
+    if (pos2 == -1 || pos2 > pos) break
+    else ans++
+  }
   return ans
 }
 

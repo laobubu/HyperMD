@@ -8,10 +8,12 @@ import { getLineNo, strModPart } from "./strUtil";
 
 //////////////////////////////////////////////////////////////
 
+export type MarkdownText = string
+
 /**
  * Automatically add markdown links to NamedDeclaration
  */
-export function autoLinkNamedDeclarations(text: string, sf: ts.SourceFile): string {
+export function autoLinkNamedDeclarations(text: string | MarkdownText, sf: ts.SourceFile): MarkdownText {
   var declsMap = getNamedDeclarations(sf)
   var matcher = /`+|\w+/g, tmp: RegExpExecArray
   var sfText = sf.text
@@ -45,7 +47,10 @@ export function autoLinkNamedDeclarations(text: string, sf: ts.SourceFile): stri
 
       if (!isExported(decl)) continue
 
-      var lineNo = getLineNo(sfText, decl.pos)
+      var pos = decl.getStart(sf)
+      if (decl['jsDoc'] && decl['jsDoc'].length > 0) pos = Math.min(pos, decl['jsDoc'][0].getStart(sf))
+
+      var lineNo = getLineNo(sfText, pos)
       var insertion = makeLink(name, getComponentURL(sf.fileName, `#L${lineNo}`))
 
       text = strModPart(text, tmp.index, matcher.lastIndex, insertion)
@@ -57,7 +62,7 @@ export function autoLinkNamedDeclarations(text: string, sf: ts.SourceFile): stri
   return text
 }
 
-export function makeDescription(node: ts.JSDocContainer, sf: ts.SourceFile): string {
+export function makeDescription(node: ts.JSDocContainer, sf: ts.SourceFile): MarkdownText {
   var docs = (node as any).jsDoc as ts.NodeArray<ts.JSDoc>
   if (!docs || !docs.length) return ""
 
@@ -127,7 +132,7 @@ export function makeLink(text: string, link?: string) {
  * @param component "addon/fold" or "c:/xxx/src/addon/fold.ts"
  * @param extra "#L7"
  */
-export function makeComponentLink(component: string, extra?: string) {
+export function makeComponentLink(component: string, extra?: string): MarkdownText {
   var shortName = component
   if (path.isAbsolute(shortName)) shortName = shortName.slice(srcPath.length)
   shortName = shortName.replace(/\\/g, '/').replace(/^\/+|\.ts$/g, '')
@@ -139,7 +144,18 @@ export function commentsToText(commentNodes: ReadonlyArray<ts.CommentKind>) {
   return ""
 }
 
-export function makeTypeString(node: ts.TypeNode, sf: ts.SourceFile, resolveTypeReference: boolean = true): string {
+/**
+ * Get Text description for a type, and add links.
+ *
+ * @example
+ *    type X = CallbackFunc | string
+ *
+ *    input  = NodeOf(X)
+ *    output = "[CallBackFunc](link_to_source) _or_ `string`"
+ *
+ * @param resolveTypeReference if `true` and node is a TypeReference, try to resolve and use the actual type.
+ */
+export function makeTypeString(node: ts.TypeNode, sf: ts.SourceFile, resolveTypeReference: boolean = true): MarkdownText {
   if (!node) return ""
 
   if (ts.isTypeReferenceNode(node)) {
@@ -178,4 +194,72 @@ export function makeTypeString(node: ts.TypeNode, sf: ts.SourceFile, resolveType
   }
 
   return "`" + node.getText(sf).replace(/\s*\n[\n\s]*/m, ' ') + "`"
+}
+
+
+export interface InterfaceProperty {
+  node: ts.PropertySignature
+  sf: ts.SourceFile
+
+  name: string,
+  type: MarkdownText,
+  description: MarkdownText,
+}
+
+/**
+ * Add all property declarations from `src` to `dst`
+ *
+ * @param postProcess optional. Check and post-process one item before add it to `dst`. Returns `true` if item is accepted
+ */
+export function extractInterfaceProperties<T extends InterfaceProperty>(src: ts.InterfaceDeclaration, dst: T[], sf: ts.SourceFile, postProcess?: (it: T) => boolean) {
+  ts.forEachChild(src, (node) => {
+    if (!ts.isPropertySignature(node)) return
+
+    let it = {
+      node, sf,
+
+      name: node.name.getText(sf),
+      description: makeDescription(node, sf),
+      type: makeTypeString(node.type, sf),
+    } as T
+
+    if (postProcess && !postProcess(it)) return
+
+    dst.push(it)
+  })
+}
+
+/**
+ * Make a Markdown Table (and "See below" part) from Array<InterfaceProperty>
+ */
+export function makePropertiesSection(props: InterfaceProperty[]): MarkdownText {
+  if (!props || !props.length) {
+    return "*(no property)*"
+  }
+
+  let tableLines = [
+    "| Name | Type | Description |",
+    "| ---- | ---- | ---- |",
+  ]
+  let appendix = [] as string[]
+
+  for (const p of props) {
+    let description = p.description
+    let multiline = description.includes("\n")
+    tableLines.push(`| ${p.name} | ${multiline ? " " : p.type} | ${multiline ? "*(See below)*" : description} |`)
+    if (multiline) {
+      appendix.push([
+        `### ${p.name}`,
+        ``,
+        `🎨 **Type** : ${p.type}`,
+        ``,
+        description.replace(/^/gm, "> "),
+      ].join("\n"))
+    }
+  }
+
+  var ans = tableLines.join("\n")
+  for (const it of appendix) ans += "\n\n" + it
+
+  return ans
 }
