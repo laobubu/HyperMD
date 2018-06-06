@@ -6,7 +6,7 @@
 
 import * as CodeMirror from 'codemirror'
 import { Position } from 'codemirror'
-import { Addon, FlipFlop, suggestedEditorConfig, debounce } from '../core'
+import { Addon, FlipFlop, suggestedEditorConfig, debounce, watchSize } from '../core'
 import { cm_t } from '../core/type'
 import { builtinFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 
@@ -23,6 +23,9 @@ export var defaultChecker: CheckerFunc = (html) => {
   if (/src\s*=\s*["']?javascript:/i.test(html)) return false // don't allow `src="javascript:` etc.
   return true
 }
+
+const stubClass = "hmd-fold-html-stub"
+const stubClassOmittable = "hmd-fold-html-stub hmd-fold-html-stub-omittable"
 
 /********************************************************************************** */
 //#region Folder
@@ -60,8 +63,9 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
   var span = document.createElement("span")
   span.setAttribute("class", "hmd-fold-html")
   span.setAttribute("style", "display: inline-block")
-  span.appendChild(el)
+
   span.appendChild(stub)
+  span.appendChild(el)
 
   var marker = cm.markText(from, to, {
     clearOnEnter: true,
@@ -69,26 +73,30 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
   })
 
   /** If element size changed, we notify CodeMirror */
-  watchSize(el, debounce(() => marker.changed(), 100))
+  var watcher = watchSize(el, (w, h) => {
+    const FakeCSSStyleDeclaration = { getPropertyValue: () => "" } as any as CSSStyleDeclaration
+    const computedStyle = getComputedStyle ? getComputedStyle(el) : FakeCSSStyleDeclaration
+    const getStyle = (name) => computedStyle.getPropertyValue(name)
+
+    var floating =
+      w < 10 || h < 10 ||
+      !/^relative|static$/i.test(getStyle('position')) ||
+      !/^none$/i.test(getStyle('float'))
+
+    if (!floating) stub.className = stubClassOmittable
+    else stub.className = stubClass
+
+    marker.changed()
+  })
+
+  watcher.check() // trig the checker once
 
   return marker
 }
 
-function watchSize(el: HTMLElement, onChange: () => void) {
-  var tagName = el.tagName
-  if (/^(?:img|video)$/i.test(tagName)) { // size will change if loaded
-    el.addEventListener('load', onChange, false)
-    el.addEventListener('error', onChange, false)
-  }
-  var children = el.children || []
-  for (let i = 0; i < children.length; i++) {
-    watchSize(children[i], onChange)
-  }
-}
-
 function makeStub(text?: string) {
   var ans = document.createElement('span')
-  ans.setAttribute("class", "hmd-fold-html-stub")
+  ans.setAttribute("class", stubClass)
   ans.textContent = text || '<HTML>'
 
   return ans

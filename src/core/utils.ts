@@ -132,3 +132,47 @@ export function repeatStr(item: string, count: number): string {
   while (count-- > 0) ans += item
   return ans
 }
+
+
+/**
+ * A lazy and simple Element size watcher. NOT WORK with animations
+ */
+export function watchSize(el: HTMLElement, onChange: (newWidth: number, newHeight: number, oldWidth: number, oldHeight: number) => void) {
+  bindEvents(el)
+
+  var { width, height } = el.getBoundingClientRect()
+
+  /** check size and trig onChange */
+  var check = debounce(() => {
+    var rect = el.getBoundingClientRect()
+    var { width: newWidth, height: newHeight } = rect
+    if (width != newWidth || height != newHeight) {
+      onChange(newWidth, newHeight, width, height)
+      width = newWidth
+      height = newHeight
+
+      setTimeout(check, 200) // maybe changed again later?
+    }
+  }, 100)
+
+  function bindEvents(el: HTMLElement) {
+    if (!el || el.nodeType != Node.ELEMENT_NODE) return
+    var tagName = el.tagName
+
+    // size changes if loaded
+    if (/^(?:img|video)$/i.test(tagName)) {
+      el.addEventListener('load', check, false)
+      el.addEventListener('error', check, false)
+    } else if (/^(?:details|summary)$/i.test(tagName)) {
+      el.addEventListener('click', check, false)
+    }
+    var children = el.children || []
+    for (let i = 0; i < children.length; i++) {
+      bindEvents(children[i])
+    }
+  }
+
+  return {
+    check,
+  }
+}
