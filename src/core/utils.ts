@@ -139,9 +139,7 @@ export function repeatStr(item: string, count: number): string {
 /**
  * A lazy and simple Element size watcher. NOT WORK with animations
  */
-export function watchSize(el: HTMLElement, onChange: (newWidth: number, newHeight: number, oldWidth: number, oldHeight: number) => void) {
-  bindEvents(el)
-
+export function watchSize(el: HTMLElement, onChange: (newWidth: number, newHeight: number, oldWidth: number, oldHeight: number) => void, needPoll?: boolean) {
   var { width, height } = el.getBoundingClientRect()
 
   /** check size and trig onChange */
@@ -157,9 +155,37 @@ export function watchSize(el: HTMLElement, onChange: (newWidth: number, newHeigh
     }
   }, 100)
 
+  var nextTimer = null
+  function pollOnce() {
+    if (nextTimer) clearTimeout(nextTimer)
+    if (!stopped) nextTimer = setTimeout(pollOnce, 200)
+    check()
+  }
+
+  var stopped = false
+  function stop() {
+    stopped = true
+    check.stop()
+
+    if (nextTimer) {
+      clearTimeout(nextTimer)
+      nextTimer = null
+    }
+
+    for (let i = 0; i < eventBinded.length; i++) {
+      eventBinded[i][0].removeEventListener(eventBinded[i][1], check, false)
+    }
+  }
+
+  var eventBinded: Array<[HTMLElement, string]> = []
   function bindEvents(el: HTMLElement) {
     if (!el || el.nodeType != Node.ELEMENT_NODE) return
-    var tagName = el.tagName
+
+    const tagName = el.tagName
+    const computedStyle = getComputedStyle(el)
+    const getStyle = (name) => (computedStyle.getPropertyValue(name) || '')
+
+    if (getStyle("resize") != 'none') needPoll = true
 
     // size changes if loaded
     if (/^(?:img|video)$/i.test(tagName)) {
@@ -174,7 +200,13 @@ export function watchSize(el: HTMLElement, onChange: (newWidth: number, newHeigh
     }
   }
 
+  if (!needPoll) bindEvents(el)
+
+  // bindEvents will update `needPoll`
+  if (needPoll) nextTimer = setTimeout(pollOnce, 200)
+
   return {
     check,
+    stop,
   }
 }
