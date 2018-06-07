@@ -9,7 +9,10 @@ import { Position } from 'codemirror'
 import { Addon, FlipFlop, suggestedEditorConfig, debounce, watchSize } from '../core'
 import { cm_t } from '../core/type'
 import { builtinFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
+import './read-link'
+import { visitElements } from '../core/utils';
 
+/********************************************************************************** */
 /**
  * Before folding HTML, check its security and avoid XSS attack! Returns true if safe.
  */
@@ -24,6 +27,82 @@ export var defaultChecker: CheckerFunc = (html) => {
   if (/src\s*=\s*["']?javascript:/i.test(html)) return false // don't allow `src="javascript:` etc.
   return true
 }
+
+/********************************************************************************** */
+
+/**
+ * Something like `jQuery("<div>xxxx</div>")`, but serves for HyperMD's FoldHTML. You may returns `null` to stop folding.
+ *
+ * @param html only have one root element
+ */
+export type RendererFunc = (html: string, pos: Position, cm: cm_t) => HTMLElement
+
+/**
+ * Create HTMLElement from HTML string and do special process with HyperMD.ReadLink
+ */
+export var defaultRenderer: RendererFunc = (html: string, pos: Position, cm: cm_t): HTMLElement => {
+  var tagBegin = /^<(\w+)\s*/.exec(html)
+  var tagName = tagBegin[1]
+  var ans = document.createElement(tagName)
+
+  var propRE = /([\w\:\-]+)(?:\s*=\s*((['"]).*?\3|\S+))?\s*/g
+  var propLastIndex = propRE.lastIndex = tagBegin[0].length
+  var tmp: RegExpExecArray
+  while (tmp = propRE.exec(html)) {
+    if (tmp.index > propLastIndex) break // emmm
+
+    var propName = tmp[1]
+    var propValue = tmp[2] // could be wrapped by " or '
+    if (propValue && /^['"]/.test(propValue)) propValue = propValue.slice(1, -1)
+
+    ans.setAttribute(propName, propValue)
+    propLastIndex = propRE.lastIndex
+  }
+
+  if ('innerHTML' in ans) {
+    // node may contain innerHTML
+    var startCh = html.indexOf('>', propLastIndex) + 1
+    var endCh = html.length
+
+    if (tmp = new RegExp(`</${tagName}\\s*>\\s*$`, "i").exec(html)) {
+      endCh = tmp.index
+    }
+
+    var innerHTML = html.slice(startCh, endCh)
+    if (innerHTML) ans.innerHTML = innerHTML
+
+    // resolve relative URLs and change default behavoirs
+
+    visitElements([ans], (el) => {
+      const tagName = el.tagName.toLowerCase()
+
+      if (tagName === 'a') {
+        // for links, if target not set, add target="_blank"
+        if (!el.getAttribute("target")) el.setAttribute("target", "_blank")
+      }
+
+      // Then, resovle relative URLs
+
+      const urlAttrs: string[] = ({
+        a: ["href"],
+        img: ["src"],
+        iframe: ["src"],
+      })[tagName];
+
+      if (urlAttrs) {
+        for (let i = 0; i < urlAttrs.length; i++) {
+          const attr = urlAttrs[i]
+          const attrValue = el.getAttribute(attr)
+          if (attrValue) el.setAttribute(attr, cm.hmdResolveURL(attrValue))
+        }
+      }
+    })
+  }
+
+  return ans
+}
+
+/********************************************************************************** */
 
 const stubClass = "hmd-fold-html-stub"
 const stubClassOmittable = "hmd-fold-html-stub hmd-fold-html-stub-omittable"
@@ -85,6 +164,9 @@ export interface Options extends Addon.AddonOptions {
   /** Before folding HTML, check it to avoid XSS attack! Returns `true` if safe. */
   checker: CheckerFunc
 
+  /** A RendererFunc accepts HTML string (which has only one root node), renders it and returns the root element node */
+  renderer: RendererFunc
+
   /** There MUST be a stub icon after rendered HTML. You may decide its content. */
   stubText: string
 
@@ -94,6 +176,7 @@ export interface Options extends Addon.AddonOptions {
 
 export const defaultOption: Options = {
   checker: defaultChecker,
+  renderer: defaultRenderer,
   stubText: "<HTML>",
   isolatedTagName: /^(?:div|pre|form|table|iframe|ul|ol|input|textarea|p|summary|a)$/i,
 }
@@ -152,6 +235,7 @@ CodeMirror.defineOption("hmdFoldHTML", defaultOption, function (cm: cm_t, newVal
 //#region Addon Class
 
 export class FoldHTML implements Addon.Addon, Options {
+  renderer: RendererFunc;
   isolatedTagName: RegExp;
   stubText: string;
   checker: CheckerFunc;
@@ -167,8 +251,10 @@ export class FoldHTML implements Addon.Addon, Options {
     const cm = this.cm
 
     var stub = this.makeStub()
-    var el = this.renderHTML(html)
+    var el = this.renderer(html, from, cm)
     var breakFn = () => breakMark(cm, marker)
+
+    if (!el) return null
 
     stub.addEventListener("click", breakFn, false)
     if (!el.tagName.match(this.isolatedTagName || /^$/)) el.addEventListener("click", breakFn, false)
@@ -253,44 +339,6 @@ export class FoldHTML implements Addon.Addon, Options {
     var ans = document.createElement('span')
     ans.setAttribute("class", stubClass)
     ans.textContent = this.stubText || '<HTML>'
-
-    return ans
-  }
-
-  /**
-   * Something like `jQuery("<div>xxxx</div>")`
-   */
-  renderHTML(html: string): HTMLElement {
-    var tagBegin = /^<(\w+)\s*/.exec(html)
-    var tagName = tagBegin[1]
-    var ans = document.createElement(tagName)
-
-    var propRE = /([\w\:\-]+)(?:\s*=\s*((['"]).*?\3|\S+))?\s*/g
-    var propLastIndex = propRE.lastIndex = tagBegin[0].length
-    var tmp: RegExpExecArray
-    while (tmp = propRE.exec(html)) {
-      if (tmp.index > propLastIndex) break // emmm
-
-      var propName = tmp[1]
-      var propValue = tmp[2] // could be wrapped by " or '
-      if (propValue && /^['"]/.test(propValue)) propValue = propValue.slice(1, -1)
-
-      ans.setAttribute(propName, propValue)
-      propLastIndex = propRE.lastIndex
-    }
-
-    // tmp = new RegExp(`</${tagName}\\s*>$`, "i").exec(html)
-    if ('innerHTML' in ans) { // node may contain innerHTML
-      var startCh = html.indexOf('>', propLastIndex) + 1
-      var endCh = html.length
-
-      if (tmp = new RegExp(`</${tagName}\\s*>\\s*$`, "i").exec(html)) {
-        endCh = tmp.index
-      }
-
-      var innerHTML = html.slice(startCh, endCh)
-      if (innerHTML) ans.innerHTML = innerHTML
-    }
 
     return ans
   }
