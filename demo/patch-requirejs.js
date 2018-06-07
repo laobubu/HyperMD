@@ -19,7 +19,7 @@
       if (true /*isBrowser*/) {
         var node
 
-        if (/Firefox\/[0-5][0-9\.]/.test(navigator.userAgent)) {
+        if (/Firefox\/[0-5]?\d\b/.test(navigator.userAgent)) {
           // old Firefox doesn't trig <link> onload event
           // @see http://www.phpied.com/files/cssonload/test.html
 

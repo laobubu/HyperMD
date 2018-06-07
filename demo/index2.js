@@ -17,17 +17,15 @@ function hmdReloadCSS() {
   styleLinks.forEach(function (link) { link.href += "?" + +new Date() })
 }
 
-function click_bind(id, func, event) {
+function bind(id, func, event) {
   var btn = document.getElementById(id)
   btn.addEventListener(event || "click", func, false)
 }
 
-!function hideSplash() {
-  if (!window.editor) return setTimeout(hideSplash, 100)
-  document.getElementById('loadSplash').setAttribute('style', 'display:none')
-}()
+// Choose the first file to display
+// Usually is README.md
 
-!function chooseFileName() {
+!function () {
   /** global demo_filename */
 
   // playground have fun

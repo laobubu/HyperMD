@@ -94,6 +94,8 @@ require([
 
   // for demo page only:
   document.body.className += " loaded"
+  document.getElementById('loadSplash').setAttribute('style', 'display:none')
+
   load_and_update_editor(demo_filename)
 
   // Preview Tex Math formula
@@ -103,6 +105,9 @@ require([
   // Watch editor and generate TOC
   // @see demo/toc.js
   init_toc(editor)
+
+  // @see demo/lab.js
+  init_lab(editor)
 }, function (err) {
   var div = document.getElementById('loadErrorSplash')
   var ul = document.getElementById('loadErrorList')

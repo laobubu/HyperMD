@@ -60,6 +60,8 @@ export class FlipFlop<T=boolean> {
     Object.defineProperty(obj, key, {
       get: () => this.state,
       set: (v) => this.set(v, toBool),
+      configurable: true,
+      enumerable: true,
     })
     return this
   }

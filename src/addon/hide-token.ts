@@ -95,6 +95,7 @@ export class HideToken implements Addon.Addon, Options {
         cm.on("renderLine", this.renderLineHandler)
         cm.on("update", this.update)
         this.update()
+        cm.refresh()
       },
       /* OFF */() => {
         cm.off("cursorActivity", this.cursorActivityHandler)

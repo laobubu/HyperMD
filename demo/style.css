@@ -56,12 +56,29 @@ h2 {
     display: none;
 }
 
+.float-win-close {
+    position: absolute;
+    right: 0;
+    height: 100%;
+    top: 0;
+    color: #FFF;
+    border: 0;
+    background-color: #C43;
+    background-image: linear-gradient(to bottom, #C43, #A32);
+    border-left: 1px solid #CCC;
+    cursor: pointer;
+    font-size: 80%;
+    width: 30px;
+}
+
 .float-win-title {
+    position: relative;
     background: #579;
     font-size: .87em;
     background-image: linear-gradient(to bottom, #68A, #579);
     color: #EEE;
     padding: 5px 15px;
+    padding-right: 50px;
     margin: -10px -20px;
     margin-bottom: 10px;
     -webkit-touch-callout: none;
@@ -162,14 +179,14 @@ body.loaded .CodeMirror {
 }
 
 body.loaded #test-box .test-item {
-    display: inline-block;
     position: relative;
     vertical-align: middle;
-    float:left;
+    float: left;
     font-size: 15px;
     border-right: 1px solid #CCC;
 }
 
+body.loaded #test-box .test-sep,
 body.loaded #test-box .test-item button {
     box-sizing: border-box;
     height: 50px;
@@ -185,6 +202,13 @@ body.loaded #test-box .test-item button:hover {
     background: #FFF;
     color: #000;
     border-bottom: 3px solid  #4078c0;
+}
+
+body.loaded #test-box .test-sep {
+    float: left;
+    width: 1em;
+    border-right: 1px solid #CCC;
+    cursor: default;
 }
 
 body.loaded #test-box .test-item .test-tooltip {
@@ -213,4 +237,33 @@ body.loaded #test-box .test-item.right {
 body.loaded #test-box .test-item.right .test-tooltip {
     left: auto;
     right: 0;
+}
+
+#winLab p {
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+#winLab [lab-bind] {
+    position: relative;
+}
+
+#winLab [lab-bind] .opt-tip {
+    color: #900;
+    left: 0;
+    bottom: 100%;
+    font-size: 90%;
+    white-space: nowrap;
+    background: #FFC;
+    position: absolute;
+    display: inline-block;
+    border: 1px solid;
+    padding: 0 3px;
+    display: none;
+    pointer-events: none;
+}
+
+#winLab [lab-bind]:focus .opt-tip,
+#winLab [lab-bind]:hover .opt-tip {
+    display: block;
 }
