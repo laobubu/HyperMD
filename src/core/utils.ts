@@ -135,6 +135,22 @@ export function repeatStr(item: string, count: number): string {
   return ans
 }
 
+/**
+ * Visit element nodes and their children
+ */
+export function visitElements(seeds: ArrayLike<HTMLElement>, handler: (el: HTMLElement) => void) {
+  var queue: ArrayLike<HTMLElement>[] = [seeds], tmp: ArrayLike<HTMLElement>
+
+  while (tmp = queue.shift()) {
+    for (let i = 0; i < tmp.length; i++) {
+      const el = tmp[i]
+      if (!el || el.nodeType != Node.ELEMENT_NODE) continue
+      handler(el)
+      if (el.children && el.children.length > 0) queue.push(el.children as any as ArrayLike<HTMLElement>)
+    }
+  }
+}
+
 
 /**
  * A lazy and simple Element size watcher. NOT WORK with animations
@@ -179,8 +195,6 @@ export function watchSize(el: HTMLElement, onChange: (newWidth: number, newHeigh
 
   var eventBinded: Array<[HTMLElement, string]> = []
   function bindEvents(el: HTMLElement) {
-    if (!el || el.nodeType != Node.ELEMENT_NODE) return
-
     const tagName = el.tagName
     const computedStyle = getComputedStyle(el)
     const getStyle = (name) => (computedStyle.getPropertyValue(name) || '')
@@ -194,13 +208,9 @@ export function watchSize(el: HTMLElement, onChange: (newWidth: number, newHeigh
     } else if (/^(?:details|summary)$/i.test(tagName)) {
       el.addEventListener('click', check, false)
     }
-    var children = el.children || []
-    for (let i = 0; i < children.length; i++) {
-      bindEvents(children[i])
-    }
   }
 
-  if (!needPoll) bindEvents(el)
+  if (!needPoll) visitElements([el], bindEvents)
 
   // bindEvents will update `needPoll`
   if (needPoll) nextTimer = setTimeout(pollOnce, 200)

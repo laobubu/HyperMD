@@ -84,6 +84,12 @@ require([
   // HyperMD magic. See https://laobubu.net/HyperMD/docs/
   var editor = HyperMD.fromTextArea(myTextarea, {
     hmdClick: clickHandler,
+    hmdFold: {
+      image: true,
+      link: true,
+      math: true,
+      html: true, // maybe dangerous
+    }
   })
   editor.setSize(null, "100%") // set height
 
