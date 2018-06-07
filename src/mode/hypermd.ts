@@ -294,8 +294,6 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     if (inHTML != wasInHTML) {
       if (inHTML) ans += " hmd-html-begin"
       else ans += " hmd-html-end"
-    } else if (inHTML && stream.eol() && /^\s*$/.test(stream.lookAhead(1))) {
-      ans += " hmd-html-end hmd-html-unclosed"
     }
 
     if (wasInCodeFence || inCodeFence) {

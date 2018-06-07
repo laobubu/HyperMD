@@ -250,7 +250,7 @@ export const suggestedOption: Partial<Options> = {
   image: true,
   link: true,
   math: true,
-  html: true,
+  html: false, // this feature can be dangerous
 }
 
 export type OptionValueType = Partial<Options> | boolean;
