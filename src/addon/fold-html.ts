@@ -42,6 +42,8 @@ export type RendererFunc = (html: string, pos: Position, cm: cm_t) => HTMLElemen
  */
 export var defaultRenderer: RendererFunc = (html: string, pos: Position, cm: cm_t): HTMLElement => {
   var tagBegin = /^<(\w+)\s*/.exec(html)
+  if (!tagBegin) return null
+
   var tagName = tagBegin[1]
   var ans = document.createElement(tagName)
 
