@@ -302,8 +302,8 @@ export class FoldHTML implements Addon.Addon, Options {
       /** use lineWidget to insert element */
       replacedWith = stub
 
-      let lineWidget = cm.addLineWidget(from.line, el, {
-        above: true,
+      let lineWidget = cm.addLineWidget(to.line, el, {
+        above: false,
         coverGutter: false,
         noHScroll: false,
         showIfHidden: false,
