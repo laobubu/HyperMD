@@ -16,6 +16,7 @@ deploy:
       branch: master
   # Publish to NPM/GitHub Releases if tagged
   - provider: npm
+    email: "laobubu@gmail.com"
     api_key: $NPM_TOKEN
     skip_cleanup: true
     on:
