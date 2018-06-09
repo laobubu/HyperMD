@@ -1,10 +1,9 @@
 function init_math_preview(cm) {
   var mathRenderer = null
-  var win = null
+  var win = new FloatWin("math-preview")
 
   function updatePreview(expr) {
     if (!mathRenderer) { // initialize renderer and preview window
-      win = initFloatWin("math-preview")
       mathRenderer = cm.hmd.FoldMath.createRenderer(
         document.getElementById("math-preview-content"),
         "display"
@@ -28,7 +27,7 @@ function init_math_preview(cm) {
   function hidePreview() {
     console.log("[MathPreview] (exit)")
 
-    if (win) win.hide()
+    win.hide()
   }
 
   cm.setOption("hmdFoldMath", {

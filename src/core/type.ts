@@ -23,6 +23,10 @@ declare global {
 export type cm_t = CodeMirror.Editor
 
 declare module "codemirror" {
+
+  /** initial value for options */
+  const Init: any
+
   /// SOME LEGACY METHODS
 
   var modes: { [mode: string]: CodeMirror.Mode<any> }

@@ -1,9 +1,9 @@
 import * as ts from "typescript"
-import { sys, forEachChild, Node, SyntaxKind } from "typescript"
+import { forEachChild, Node } from "typescript"
 import * as path from "path"
-import { commandLine, program, srcPath } from "./base"
+import { program, srcPath } from "./base"
 import { isExported, getNamedDeclarations } from "./tsUtil";
-import { makeComponentLink, makeTypeString, makeDescription } from "./genUtils";
+import { makeComponentLink, InterfaceProperty, makePropertiesSection, extractInterfaceProperties } from "./genUtils";
 
 const config = require("../HyperMD.config")
 
@@ -15,37 +15,11 @@ export interface AddonInfo {
   Options: InterfaceProperty[],
 }
 
-export interface InterfaceProperty {
-  name: string,
-  type: string,
-  description: string,
-}
-
 export interface EditorOptionItem extends InterfaceProperty {
   addon: AddonInfo,
 }
 
-export function populateInterfaceProperties(src: ts.InterfaceDeclaration, dst: InterfaceProperty[], sf: ts.SourceFile, postProcess?: (it: InterfaceProperty) => boolean) {
-  forEachChild(src, (node) => {
-    if (!ts.isPropertySignature(node)) return
-
-    let it: InterfaceProperty = {
-      name: node.name.getText(sf),
-      description: makeDescription(node, sf),
-      type: makeTypeString(node.type, sf),
-    }
-
-    if (postProcess && !postProcess(it)) return
-
-    dst.push(it)
-  })
-}
-
-/**
- * Scan all addon
- */
 export function make(): string {
-  var addonDescription = new Map<string, string>()
   var optionItems = [] as EditorOptionItem[]
 
   //#region [phase #1] scan all addon files ---------------------------------------------------------
@@ -55,7 +29,6 @@ export function make(): string {
 
     const compFilePath = path.join(srcPath, compFileName + ".ts")
     const sf = program.getSourceFile(compFilePath)
-    const declsMap = getNamedDeclarations(sf)
 
     var addon: AddonInfo = {
       name: compFileName,
@@ -88,12 +61,12 @@ export function make(): string {
         let name = node.name.text
 
         if (currentNameSpace == "") {
-          if (name == 'Options') populateInterfaceProperties(node, addon.Options, sf)
+          if (name == 'Options') extractInterfaceProperties(node, addon.Options, sf)
         }
 
         if (currentNameSpace == "global.HyperMD") {
           if (name == 'EditorConfiguration') {
-            populateInterfaceProperties(node, optionItems, sf, (it: EditorOptionItem) => {
+            extractInterfaceProperties(node, optionItems, sf, (it: EditorOptionItem) => {
               it.addon = addon
               it.type = it.type.replace(/Partial\<\[(\w+)\][^\>]+\>/, "`Partial<$1>`")
               it.description = it.description.replace(/^/gm, "> ")
@@ -131,7 +104,6 @@ export function make(): string {
   for (const opt of optionItems) {
     const addon = opt.addon
 
-    let appendix = [] as string[]
     let sectionLines = [
       "\n\n\n",
       `## ${opt.name}`,
@@ -142,32 +114,14 @@ export function make(): string {
       opt.description,
     ]
 
-    if (addon.Options.length) {
+    if (addon.Options) {
       sectionLines.push(
-        "",
-        "***Options** and **Partial\\<Options>** is an object and may contains:*",
-        "",
-        "| Name | Type | Description |",
-        "| ---- | ---- | ---- |",
+        ``,
+        makePropertiesSection(addon.Options),
       )
-      for (const p of addon.Options) {
-        let description = p.description
-        let multiline = description.includes("\n")
-        sectionLines.push(`| ${p.name} | ${multiline ? " " : p.type} | ${multiline ? "*(See below)*" : description} |`)
-        if (multiline) {
-          appendix.push([
-            `### ${p.name}`,
-            ``,
-            `🎨 **Type** : ${p.type}`,
-            ``,
-            description.replace(/^/gm, "> "),
-          ].join("\n"))
-        }
-      }
     }
 
     result.push(sectionLines.join("\n"))
-    for (const it of appendix) result.push(it)
   }
 
   //#endregion

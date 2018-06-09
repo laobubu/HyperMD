@@ -1,13 +1,25 @@
-function initFloatWin(id) {
+function FloatWin(id) {
   var win = document.getElementById(id)
+  var self = this
 
   /** @type {HTMLDivElement} */
   var titlebar = win.querySelector('.float-win-title');
   titlebar.addEventListener("selectstart", function () { return false }, false)
 
+  /** @type {HTMLButtonElement} */
+  var closeBtn = win.querySelector('.float-win-close');
+  if (closeBtn) {
+    closeBtn.addEventListener("click", function () { self.hide() }, false)
+    win.addEventListener("keyup", function (ev) {
+      if (ev.keyCode === 27) self.hide() // ESC
+    }, false)
+  }
+
   var boxX, boxY, mouseX, mouseY, offsetX, offsetY;
 
   titlebar.addEventListener("mousedown", function (e) {
+    if (e.target === closeBtn) return
+
     boxX = win.offsetLeft;
     boxY = win.offsetTop;
     mouseX = parseInt(getMouseXY(e).x);
@@ -53,12 +65,31 @@ function initFloatWin(id) {
     };
   }
 
-  var inst = {
-    el: win,
-    visible: !/float-win-hidden/.test(win.className),
-    show: function () { inst.visible = true; win.className = win.className.replace(/\s*(float-win-hidden\s*)+/g, " "); },
-    hide: function () { inst.visible = false; win.className += " float-win-hidden"; },
-    moveTo: function (x, y) { win.style.left = x + 'px'; win.style.top = y + 'px'; },
+  this.el = win
+  this.visible = !/float-win-hidden/.test(win.className)
+}
+
+FloatWin.prototype.show = function (moveToCenter) {
+  if (this.visible) return
+  var el = this.el, self = this
+  this.visible = true
+  el.className = this.el.className.replace(/\s*(float-win-hidden\s*)+/g, " ")
+
+  if (moveToCenter) {
+    setTimeout(function () {
+      self.moveTo((window.innerWidth - el.offsetWidth) / 2, (window.innerHeight - el.offsetHeight) / 2)
+    }, 0)
   }
-  return inst
+}
+
+FloatWin.prototype.hide = function () {
+  if (!this.visible) return
+  this.visible = false
+  this.el.className += " float-win-hidden"
+}
+
+FloatWin.prototype.moveTo = function (x, y) {
+  var s = this.el.style
+  s.left = x + 'px';
+  s.top = y + 'px';
 }

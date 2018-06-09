@@ -60,6 +60,8 @@ export class FlipFlop<T=boolean> {
     Object.defineProperty(obj, key, {
       get: () => this.state,
       set: (v) => this.set(v, toBool),
+      configurable: true,
+      enumerable: true,
     })
     return this
   }
@@ -131,4 +133,90 @@ export function repeatStr(item: string, count: number): string {
   var ans = ""
   while (count-- > 0) ans += item
   return ans
+}
+
+/**
+ * Visit element nodes and their children
+ */
+export function visitElements(seeds: ArrayLike<HTMLElement>, handler: (el: HTMLElement) => void) {
+  var queue: ArrayLike<HTMLElement>[] = [seeds], tmp: ArrayLike<HTMLElement>
+
+  while (tmp = queue.shift()) {
+    for (let i = 0; i < tmp.length; i++) {
+      const el = tmp[i]
+      if (!el || el.nodeType != Node.ELEMENT_NODE) continue
+      handler(el)
+      if (el.children && el.children.length > 0) queue.push(el.children as any as ArrayLike<HTMLElement>)
+    }
+  }
+}
+
+
+/**
+ * A lazy and simple Element size watcher. NOT WORK with animations
+ */
+export function watchSize(el: HTMLElement, onChange: (newWidth: number, newHeight: number, oldWidth: number, oldHeight: number) => void, needPoll?: boolean) {
+  var { width, height } = el.getBoundingClientRect()
+
+  /** check size and trig onChange */
+  var check = debounce(() => {
+    var rect = el.getBoundingClientRect()
+    var { width: newWidth, height: newHeight } = rect
+    if (width != newWidth || height != newHeight) {
+      onChange(newWidth, newHeight, width, height)
+      width = newWidth
+      height = newHeight
+
+      setTimeout(check, 200) // maybe changed again later?
+    }
+  }, 100)
+
+  var nextTimer = null
+  function pollOnce() {
+    if (nextTimer) clearTimeout(nextTimer)
+    if (!stopped) nextTimer = setTimeout(pollOnce, 200)
+    check()
+  }
+
+  var stopped = false
+  function stop() {
+    stopped = true
+    check.stop()
+
+    if (nextTimer) {
+      clearTimeout(nextTimer)
+      nextTimer = null
+    }
+
+    for (let i = 0; i < eventBinded.length; i++) {
+      eventBinded[i][0].removeEventListener(eventBinded[i][1], check, false)
+    }
+  }
+
+  var eventBinded: Array<[HTMLElement, string]> = []
+  function bindEvents(el: HTMLElement) {
+    const tagName = el.tagName
+    const computedStyle = getComputedStyle(el)
+    const getStyle = (name) => (computedStyle.getPropertyValue(name) || '')
+
+    if (getStyle("resize") != 'none') needPoll = true
+
+    // size changes if loaded
+    if (/^(?:img|video)$/i.test(tagName)) {
+      el.addEventListener('load', check, false)
+      el.addEventListener('error', check, false)
+    } else if (/^(?:details|summary)$/i.test(tagName)) {
+      el.addEventListener('click', check, false)
+    }
+  }
+
+  if (!needPoll) visitElements([el], bindEvents)
+
+  // bindEvents will update `needPoll`
+  if (needPoll) nextTimer = setTimeout(pollOnce, 200)
+
+  return {
+    check,
+    stop,
+  }
 }

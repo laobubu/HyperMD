@@ -34,6 +34,38 @@
         font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
     }
 
+    /// Fold-HTML
+
+    .CodeMirror-linewidget,
+    .hmd-fold-html {
+        table {
+            border-collapse: collapse;
+            td, th {
+                padding: 10px;
+                border: 1px solid #666;
+            }
+        }
+
+        kbd {
+            @extend %monospace;
+            display: inline-block;
+            padding: 3px 5px;
+            font-size: 90%;
+            line-height: 1em;
+            background-color: #fafbfc;
+            border: solid 1px #c6cbd1;
+            border-bottom-color: rgb(198, 203, 209);
+            border-bottom-color: #959da5;
+            border-radius: 3px;
+            box-shadow: inset 0 -1px 0 #959da5;
+            vertical-align: baseline;
+        }
+
+        a > img {
+            border: 0;
+        }
+    }
+
     /// CodeMirror
 
     .cm-header, .cm-strong {font-weight: 600;}
@@ -539,6 +571,62 @@
             border-top-color: #000;
             border-top-color: rgba(#000, .7);
         }
+    }
+
+    /// fold-html
+
+    .hmd-fold-html-stub {
+        @extend %monospace;
+        display: inline-block;
+        font-size: 67%;
+        color: #999;
+        vertical-align: middle;
+        border: 1px solid #999;
+        padding: 0 .2em;
+        border-radius: 5px;
+        margin: 0 .5em;
+        background: #FAFAFA;
+        cursor: pointer;
+
+        &.hmd-fold-html-stub-omittable {
+            display: none;
+        }
+
+        &:hover,
+        &.hmd-fold-html-stub-highlight {
+            // for non-inline HTML stub. Remind user where the stub is.
+            color: #FFF;
+            border-color: #C30;
+            background: #F40;
+        }
+    }
+
+    .hmd-fold-html {
+        position: relative;
+        border: 1px solid #FFF;
+
+        &:hover {
+            border: 1px dashed #999;
+
+            .hmd-fold-html-stub.hmd-fold-html-stub-omittable {
+                display: block;
+                right: 0;
+                bottom: 100%;
+                margin: 0;
+                position: absolute;
+                z-index: 100;
+            }
+        }
+    }
+
+    /// deal with floating elements
+
+    pre.HyperMD-header,
+    pre.HyperMD-footnote,
+    pre.HyperMD-codeblock,
+    pre.HyperMD-hr
+    {
+        clear: left;
     }
 
     /// hide-token

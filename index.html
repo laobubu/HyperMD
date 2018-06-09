@@ -31,6 +31,91 @@
   <div id="math-preview-content"></div>
 </div>
 
+<div id="winLab" class="float-win float-win-hidden">
+  <div class="float-win-title">
+    <button class="float-win-close"><svg class="icon icon-cross"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-cross"></use></svg></button>
+    Lab
+  </div>
+  <div id="math-preview-content">
+    <p>See what addons can do!</p>
+    <fieldset>
+      <legend>Behavior</legend>
+      <p>
+        <label lab-bind="Hover.enabled">
+          <input type="checkbox"><em>Hover</em>
+          <span class="opt-tip">hmdHover.enabled</span>
+        </label>
+      </p>
+      <p>
+        <label lab-bind="Click.enabled">
+          <input type="checkbox"><em>Click</em>
+          <span class="opt-tip">hmdClick.enabled</span>
+        </label>
+      </p>
+      <p>
+        <em>ReadLink</em> resolve relative URLs:<br>
+        <label lab-bind="ReadLink.baseURI">BaseURI
+          <input type="text" style="width: 250px">
+          <span class="opt-tip">hmdReadLink.BaseURI</span>
+      </p>
+
+      <p>
+        <em>InsertFile</em> by
+        <label lab-bind="InsertFile.byPaste">
+          <input type="checkbox">Paste
+          <span class="opt-tip">hmdInsertFile.byPaste</span>
+        </label>
+        <label lab-bind="InsertFile.byDrop">
+          <input type="checkbox">Drag'n'Drop
+          <span class="opt-tip">hmdInsertFile.byDrop</span>
+        </label>
+      </p>
+    </fieldset>
+    <fieldset>
+      <legend>Appearance</legend>
+      <p>
+        <label lab-bind="TableAlign.enabled">
+          <input type="checkbox"><em>TableAlign</em>
+          <span class="opt-tip">hmdTableAlign.enabled</span>
+        </label>
+      </p>
+      <p>
+        <label lab-bind="HideToken.enabled">
+          <input type="checkbox"><em>HideToken</em>
+          <span class="opt-tip">hmdHideToken.enabled</span>
+        </label>
+      </p>
+    </fieldset>
+    <fieldset>
+      <legend><em>Fold</em></legend>
+      <p>
+        <label lab-bind lab-bind-ff="Fold.ff_builtin.image">
+          <input type="checkbox">image
+          <span class="opt-tip">hmdFold.image</span>
+        </label>
+        <label lab-bind lab-bind-ff="Fold.ff_builtin.link">
+          <input type="checkbox">link
+          <span class="opt-tip">hmdFold.link</span>
+        </label>
+        <label lab-bind lab-bind-ff="Fold.ff_builtin.math">
+          <input type="checkbox">math
+          <span class="opt-tip">
+            <em>(Requires fold-math Addon)</em><br>
+            hmdFold.math
+          </span>
+        </label>
+        <label lab-bind lab-bind-ff="Fold.ff_builtin.html">
+          <input type="checkbox">html
+          <span class="opt-tip">
+            <em>(Requires fold-html Addon)</em><br>
+            hmdFold.html
+          </span>
+        </label>
+      </p>
+    </fieldset>
+  </div>
+</div>
+
 <div id="editor_area">
     <div id="toc"></div>
     <textarea id="demo" style="display:none"></textarea>
@@ -56,6 +141,7 @@
 <script src="./demo/float-win.js"></script>
 <script src="./demo/math-preview.js"></script>
 <script src="./demo/toc.js"></script>
+<script src="./demo/lab.js"></script>
 
 <!-- some useless test stuff -->
 <div id="test-box">
@@ -85,6 +171,13 @@
             <svg class="icon icon-book"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-book"></use></svg> <span class="phone-hidden">Documentation</span>
         </button>
         <div class="test-tooltip">Documentation</div>
+    </div>
+
+    <div class="test-item">
+        <button onclick="winLab.show(true)">
+            <svg class="icon icon-lab"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-lab"></use></svg>
+        </button>
+        <div class="test-tooltip">Lab</div>
     </div>
 </div>
 <script src="./demo/index2.js"></script>

@@ -54,6 +54,7 @@ require([
   'hypermd/addon/cursor-debounce',
   'hypermd/addon/fold',
   'hypermd/addon/fold-math',
+  'hypermd/addon/fold-html',
   'hypermd/addon/read-link',
   'hypermd/addon/click',
   'hypermd/addon/hover',
@@ -83,6 +84,12 @@ require([
   // HyperMD magic. See https://laobubu.net/HyperMD/docs/
   var editor = HyperMD.fromTextArea(myTextarea, {
     hmdClick: clickHandler,
+    hmdFold: {
+      image: true,
+      link: true,
+      math: true,
+      html: true, // maybe dangerous
+    }
   })
   editor.setSize(null, "100%") // set height
 
@@ -94,6 +101,8 @@ require([
 
   // for demo page only:
   document.body.className += " loaded"
+  document.getElementById('loadSplash').setAttribute('style', 'display:none')
+
   load_and_update_editor(demo_filename)
 
   // Preview Tex Math formula
@@ -103,6 +112,9 @@ require([
   // Watch editor and generate TOC
   // @see demo/toc.js
   init_toc(editor)
+
+  // @see demo/lab.js
+  init_lab(editor)
 }, function (err) {
   var div = document.getElementById('loadErrorSplash')
   var ul = document.getElementById('loadErrorList')

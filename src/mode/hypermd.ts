@@ -159,6 +159,11 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   Object.assign(modeCfg, modeCfgUser)
   modeCfg["name"] = "markdown"
 
+  /** functions from CodeMirror Markdown mode closure. Only for status checking */
+  var rawClosure = {
+    htmlBlock: null,
+  }
+
   var rawMode: CodeMirror.Mode<MarkdownState> = CodeMirror.getMode(cmCfg, modeCfg)
   var newMode: CodeMirror.Mode<HyperMDState> = { ...rawMode } as any
 
@@ -196,19 +201,28 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   }
 
   newMode.blankLine = function (state) {
-    var ans = rawMode.blankLine(state) || ""
+    var ans: string | void
+
+    var innerMode = state.hmdInnerMode
+    if (innerMode) {
+      if (innerMode.blankLine) ans = innerMode.blankLine(state.hmdInnerState)
+    } else {
+      ans = rawMode.blankLine(state)
+    }
+
+    if (!ans) ans = ""
+
     if (state.code === -1) {
       ans += " line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
     }
-    state.htmlState = null
     resetTable(state)
-    return ans || null
+    return ans.trim() || null
   }
 
   newMode.token = function (stream, state) {
     if (state.hmdOverride) return state.hmdOverride(stream, state)
 
-    const wasInHTML = !!state.htmlState
+    const wasInHTML = (state.f === rawClosure.htmlBlock)
     const wasInCodeFence = state.code === -1
     const bol = stream.start === 0
 
@@ -286,16 +300,21 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     const firstTokenOfLine = stream.column() === state.indentation
     var current = stream.current()
 
-    const inHTML = !!state.htmlState
+    /** Try to capture some internal functions from CodeMirror Markdown mode closure! */
+    if (!rawClosure.htmlBlock && state.htmlState) rawClosure.htmlBlock = state.f;
+
+    const inHTML = (state.f === rawClosure.htmlBlock)
     const inCodeFence = state.code === -1
     inMarkdown = inMarkdown && !(inHTML || inCodeFence)
     inMarkdownInline = inMarkdownInline && inMarkdown && !(state.code || state.indentedCode || state.linkHref)
 
     if (inHTML != wasInHTML) {
-      if (inHTML) ans += " hmd-html-begin"
-      else ans += " hmd-html-end"
-    } else if (inHTML && stream.eol() && /^\s*$/.test(stream.lookAhead(1))) {
-      ans += " hmd-html-end hmd-html-unclosed"
+      if (inHTML) {
+        ans += " hmd-html-begin"
+        rawClosure.htmlBlock = state.f
+      } else {
+        ans += " hmd-html-end"
+      }
     }
 
     if (wasInCodeFence || inCodeFence) {
@@ -545,6 +564,24 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         // fix a stupid problem:    :------: is not emoji
         if (/emoji/.test(ans)) ans = ""
       }
+
+      //#region HTML Block
+      //
+      // See https://github.github.com/gfm/#html-blocks type3-5
+
+      if (inMarkdownInline && current === '<') {
+        let endTag: string = null
+        if (stream.match(/^\![A-Z]+/)) endTag = ">"
+        else if (stream.match("?")) endTag = "?>"
+        else if (stream.match("![CDATA[")) endTag = "]]>"
+
+        if (endTag != null) {
+          enterMode(stream, state, null, endTag)
+          state.hmdInnerStyle = (ans += " comment hmd-cdata-html").trim()
+        }
+      }
+
+      //#endregion
     }
 
     return ans.trim() || null
@@ -582,7 +619,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   /**
    * advance Markdown tokenizing stream
    *
-   * @returns true if success, and you may visit `state.hmdNextState` & `state.hmdNextStyle`
+   * @returns true if success, then `state.hmdNextState` & `state.hmdNextStyle` will be set
    */
   function advanceMarkdown(stream: CodeMirror.StringStream, state: HyperMDState) {
     if (stream.eol() || state.hmdNextState) return false
@@ -607,14 +644,20 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     return true
   }
 
-  /** switch to another mode */
-  function enterMode(stream: CodeMirror.StringStream, state: HyperMDState, mode: string | CodeMirror.Mode<any>, endTag: string): string {
+  /**
+   * switch to another mode
+   *
+   * After entering a mode, you can then set `hmdInnerExitStyle` and `hmdInnerState` of `state`
+   *
+   * @returns if `skipFirstToken` not set, returns `innerMode.token(stream, innerState)`, meanwhile, stream advances
+   */
+  function enterMode(stream: CodeMirror.StringStream, state: HyperMDState, mode: string | CodeMirror.Mode<any>, endTag: string, skipFirstToken?: boolean): string {
     if (typeof mode === "string") mode = CodeMirror.getMode(cmCfg, mode)
 
     if (!mode || mode["name"] === "null") {
       // mode not loaded, create a dummy mode
       mode = {
-        token(stream, state) {
+        token(stream) {
           var endTagSince = stream.string.indexOf(endTag, stream.start)
           if (endTagSince === -1) stream.skipToEnd() // endTag not in this line
           else if (endTagSince === 0) stream.pos += endTag.length // current token is endTag
@@ -631,7 +674,11 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     state.hmdInnerExitTag = endTag
     state.hmdInnerMode = mode
     state.hmdOverride = modeOverride
-    return mode.token(stream, state.hmdInnerState = CodeMirror.startState(mode))
+    state.hmdInnerState = CodeMirror.startState(mode)
+
+    if (!skipFirstToken) {
+      return mode.token(stream, state.hmdInnerState)
+    }
   }
 
   return newMode
