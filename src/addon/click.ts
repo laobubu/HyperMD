@@ -9,6 +9,7 @@
 import * as CodeMirror from 'codemirror'
 import { Addon, FlipFlop, expandRange, suggestedEditorConfig } from '../core'
 
+import { addClass, rmClass } from '../core'
 import { cm_t } from '../core/type'
 import { splitLink } from './read-link'
 
@@ -65,7 +66,7 @@ export const defaultClickHandler: ClickHandler = (info, cm) => {
     cm.replaceRange(text, from, to)
   }
 
-  if (type === 'footref') {
+  if (type === 'footref' && (info.ctrlKey || info.altKey)) {
     // Jump to FootNote
     const footnote_name = text.slice(1, -1)
     const footnote = cm.hmdReadLink(footnote_name, pos.line)
@@ -200,17 +201,60 @@ export class Click implements Addon.Addon, Options {
   enabled: boolean;
   handler: ClickHandler;
 
+  private el: HTMLElement
+
   constructor(public cm: cm_t) {
     this.lineDiv = cm.display.lineDiv
+    var el = this.el = cm.getWrapperElement()
 
     new FlipFlop(
-      /* ON  */() => { this.lineDiv.addEventListener("mousedown", this._mouseDown, false) },
-      /* OFF */() => { this.lineDiv.removeEventListener("mousedown", this._mouseDown, false) }
+      /* ON  */() => {
+        this.lineDiv.addEventListener("mousedown", this._mouseDown, false)
+        el.addEventListener("keydown", this._keyDown, false)
+        el.addEventListener("keyup", this._keyUp, false)
+      },
+      /* OFF */() => {
+        this.lineDiv.removeEventListener("mousedown", this._mouseDown, false)
+        el.removeEventListener("keydown", this._keyDown, false)
+        el.removeEventListener("keyup", this._keyUp, false)
+      }
     ).bind(this, "enabled", true)
   }
 
   /** CodeMirror's <pre>s container */
   private lineDiv: HTMLDivElement
+
+  /** Firefox */
+  private _hadAlt: boolean
+
+  /** remove modifier className to editor DOM */
+  private _keyUp = (ev: KeyboardEvent) => {
+    var kc = ev.keyCode || ev.which
+    var className = ""
+    if (kc == 17) className = "HyperMD-with-ctrl"
+    if (kc == 18) className = "HyperMD-with-alt"
+
+    /** FireFox */
+    if (!className && this._hadAlt && !ev.altKey) {
+      this._hadAlt = false
+      className = "HyperMD-with-alt"
+    }
+
+    if (className) rmClass(this.el, className)
+  }
+
+  /** add modifier className to editor DOM */
+  private _keyDown = (ev: KeyboardEvent) => {
+    var kc = ev.keyCode || ev.which
+    var className = ""
+    if (kc == 17) className = "HyperMD-with-ctrl"
+    if (kc == 18) className = "HyperMD-with-alt"
+
+    /** FireFox */
+    if (kc == 18) this._hadAlt = true
+
+    if (className) addClass(this.el, className)
+  }
 
   /** last click info */
   private _cinfo: ClickInfo

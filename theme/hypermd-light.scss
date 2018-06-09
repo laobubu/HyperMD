@@ -359,8 +359,12 @@
         vertical-align: text-top;
     }
 
-    span.cm-url, span.cm-link, .cm-link + .CodeMirror-widget {
-        cursor: pointer;
+    // change cursor for links if modifier keys pressed
+    &.HyperMD-with-alt,
+    &.HyperMD-with-ctrl {
+        span.cm-url, span.cm-link, .cm-link + .CodeMirror-widget {
+            cursor: pointer;
+        }
     }
 
     span.hmd-link-icon {

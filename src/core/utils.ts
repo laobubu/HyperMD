@@ -6,6 +6,7 @@
  * You shall NOT import this file; please import "core" instead
  */
 
+import * as CodeMirror from "codemirror"
 import './polyfill'
 
 /** Simple FlipFlop */
@@ -117,6 +118,16 @@ export function debounce(fn: Function, delay: number): { (): void; stop(): void 
 
   return ans
 }
+
+/**
+ * addClass / removeClass etc.
+ *
+ * using CodeMirror's (although they're legacy API)
+ */
+
+export const addClass = CodeMirror.addClass
+export const rmClass = CodeMirror.rmClass
+export const contains = CodeMirror.contains
 
 /**
  * a fallback for new Array(count).fill(data)

@@ -37,6 +37,9 @@ declare module "codemirror" {
    */
   function cmpPos(a: CodeMirror.Position, b: CodeMirror.Position): number;
 
+  function addClass(el: HTMLElement, className: string)
+  function rmClass(el: HTMLElement, className: string)
+  function contains(parent: HTMLElement, child: Node): boolean
 
   /// MODE AND MIME
 
