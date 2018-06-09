@@ -155,9 +155,9 @@ export function newline(cm: cm_t) {
 
 function killIndent(cm: cm_t, lineNo: number, spaces: number) {
   if (!spaces || spaces < 0) return
-  let line = cm.getLine(lineNo)
-  for (var realSpaces = -1; ++realSpaces <= spaces && line.charAt(realSpaces) === " ";);
-  if (realSpaces) cm.replaceRange("", { line: lineNo, ch: 0 }, { line: lineNo, ch: realSpaces })
+  let oldSpaces = /^ */.exec(cm.getLine(lineNo))[0].length
+  if (oldSpaces < spaces) spaces = oldSpaces
+  if (spaces > 0) cm.replaceRange("", { line: lineNo, ch: 0 }, { line: lineNo, ch: spaces })
 }
 
 /** unindent or move cursor into prev table cell */
@@ -221,14 +221,20 @@ export function shiftTab(cm: cm_t) {
       }
 
       let lastLine = cm.lastLine()
+      let tmp: RegExpExecArray
 
-      for (; lineNo <= right.line && ListRE.test(cm.getLine(lineNo)); lineNo++) {
+      for (; lineNo <= right.line && (tmp = ListRE.exec(cm.getLine(lineNo))); lineNo++) {
         let listStack = cm.getStateAfter(lineNo).listStack as number[]
         let listLevel = listStack.length
 
         let spaces = 0
-        if (listLevel > 1) spaces = (listStack[listLevel - 1] - (listStack[listLevel - 2] || 0))
-        else spaces = /^\s*/.exec(cm.getLine(lineNo))[0].length
+        if (listLevel == 1) {
+          // maybe user wants to trimLeft?
+          spaces = tmp[1].length
+        } else {
+          // make bullets right-aligned
+          spaces = (listStack[listLevel - 1] - (listStack[listLevel - 2] || 0))
+        }
 
         killIndent(cm, lineNo, spaces)
 
@@ -359,12 +365,21 @@ export function tab(cm: cm_t) {
       for (; lineNo <= right.line && (tmp = ListRE.exec(cm.getLine(lineNo))); lineNo++) {
         let eolState = cm.getStateAfter(lineNo) as HyperMDState
         let listStack = eolState.listStack
+        let listStackOfPrevLine = cm.getStateAfter(lineNo - 1).listStack
         let listLevel = listStack.length
         let spaces: string = ""
 
-        if (lineNo > firstLine && listLevel <= cm.getStateAfter(lineNo - 1).listStack.length) {
-          // avoid uncontinuous list levels
-          spaces = repeatStr(" ", tmp && tmp[2].length || 4)
+        // avoid uncontinuous list levels
+        if (lineNo > firstLine && listLevel <= listStackOfPrevLine.length) {
+          if (listLevel == listStackOfPrevLine.length) {
+            // tmp[1] is existed leading spaces
+            // listStackOfPrevLine[listLevel-1] is desired indentation
+            spaces = repeatStr(" ", listStackOfPrevLine[listLevel - 1] - tmp[1].length)
+          } else {
+            // make bullets right-aligned
+            // tmp[0].length is end pos of current bullet
+            spaces = repeatStr(" ", listStackOfPrevLine[listLevel] - tmp[0].length)
+          }
         }
 
         addIndentTo[lineNo] = spaces

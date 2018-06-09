@@ -499,11 +499,8 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 
     var folded = this.folded[type]
     if (!folded || !folded.length) return
-
-    for (const marker of folded) {
-      marker.clear()
-    }
-    folded.splice(0)
+    var marker: CodeMirror.TextMarker
+    while (marker = folded.pop()) marker.clear()
   }
 
   /**
@@ -514,10 +511,8 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 
     for (const type in this.folded) {
       var folded = this.folded[type]
-      for (const marker of folded) {
-        marker.clear()
-      }
-      folded.splice(0)
+      var marker: CodeMirror.TextMarker
+      while (marker = folded.pop()) marker.clear()
     }
   }
 }

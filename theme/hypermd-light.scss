@@ -429,7 +429,10 @@
             vertical-align: baseline;
             border: #ccc solid 1px;
             padding: 1px .4em;
-            margin: 0 -.2em;
+        }
+
+        &.hmd-hidden-token {
+            font-size: 0;
         }
     }
 
