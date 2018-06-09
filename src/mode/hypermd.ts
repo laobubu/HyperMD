@@ -406,7 +406,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
             }
           } else if (tmp[2] === ":") { // footnote
             state.hmdLinkType = LinkType.FOOTNOTE
-          } else if (tmp[2] === "[" && stream.string.charAt(stream.pos + tmp[0].length) === "]") { // [barelink2][]
+          } else if ((tmp[2] === "[" || tmp[2] === " [") && stream.string.charAt(stream.pos + tmp[0].length) === "]") { // [barelink2][]
             state.hmdLinkType = LinkType.BARELINK2
           } else {
             state.hmdLinkType = LinkType.NORMAL
