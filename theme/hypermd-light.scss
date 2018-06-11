@@ -211,6 +211,10 @@
         }
     }
 
+    span.cm-hmd-indent-in-quote {
+        @extend %monospace;
+    }
+
     /// list
 
     span.cm-hmd-list-indent {

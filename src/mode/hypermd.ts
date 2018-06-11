@@ -357,8 +357,19 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         ans += " hmd-indented-code"
       }
 
-      if (state.quote && stream.eol()) {
-        ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
+      if (state.quote) {
+        // mess up as less as possible
+        if (stream.eol()) ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
+
+        // make indentation (and potential list bullet) monospaced
+        if (/^>\s+$/.test(current) && stream.peek() != ">") {
+          stream.pos = stream.start + 1 // rewind!
+          state.hmdOverride = (stream, state) => {
+            stream.match(/^\s+((\d+[).]|[-*+])\s*)?/)
+            state.hmdOverride = null
+            return "hmd-indent-in-quote line-HyperMD-quote line-HyperMD-quote-" + state.quote
+          }
+        }
       }
 
       //#endregion
