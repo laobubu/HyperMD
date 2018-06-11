@@ -68,16 +68,18 @@ All built-in features are ready-to-go. You may manipulate the editor via `cm` or
   <script src="https://cdn.jsdelivr.net/npm/codemirror/addon/mode/overlay.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/codemirror/mode/markdown/markdown.js"></script>
 
-  <!-- 3rd-party -->
+  <!-- ----------------------------------------------------------------------------------- -->
+  <!-- HyperMD -->
 
-  <!-- for addon/hover -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.js"></script>
+  <link rel="stylesheet" href="../../mode/hypermd.css">
+  <link rel="stylesheet" href="../../theme/hypermd-light.css">
 
-  <!-- optional, for addon/paste -->
-  <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
+  <script src="../../ai1.js"></script>
 
-  <!-- optional, for addon/fold-math -->
+  <!-- ----------------------------------------------------------------------------------- -->
+  <!-- (optional) PowerPacks with 3rd-party libs (Load them before creating editor!) -->
+
+  <!-- MathJax and powerpack/fold-math-with-mathjax -->
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         jax: ["input/TeX", "output/HTML-CSS","output/NativeMML","output/SVG"],
@@ -88,14 +90,18 @@ All built-in features are ready-to-go. You may manipulate the editor via `cm` or
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js"></script>
+  <script src="../../powerpack/fold-math-with-mathjax.js"></script>
 
-  <!-- HyperMD -->
+  <!-- marked and powerpack/hover-with-marked -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.js"></script>
+  <script src="../../powerpack/hover-with-marked.js"></script>
 
-  <link rel="stylesheet" href="../../mode/hypermd.css">
-  <link rel="stylesheet" href="../../theme/hypermd-light.css">
+  <!-- Turndown and powerpack/paste-with-turndown -->
+  <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
+  <script src="../../powerpack/paste-with-turndown.js"></script>
 
-  <script src="../../lib/hypermd_ai1.js"></script>
-
+  <!-- ----------------------------------------------------------------------------------- -->
   <!-- Let's ROCK -->
 
   <style>

@@ -32,6 +32,7 @@
     "katex": "^0.10.0-alpha",
     "marked": "^0.4.0",
     "mathjax": "^2.7.0",
+    "minimatch": "^3.0.4",
     "opn": "^5.3.0",
     "rollup": "^0.58.2",
     "rollup-plugin-buble": "^0.19.2",

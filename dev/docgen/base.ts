@@ -1,16 +1,24 @@
+//
+// Load tsconfig, initialize `program` (AST parser & compiler) and `langService` (LanguageService, to emulate auto-completition)
+//
+// A dummy file whose filepath is `doctmp`, is prepared to emulate auto-completition. You may:
+//
+// 1. Fill the dummy file:    updateDocTmp("var xxx:HyperMD.SomeInterface = { /*1*/ }")
+// 2. Find the marker:        pos = findMark("1")
+// 3. Extract Info:           info = langService.getTypeDefinitionAtPosition(doctmp, pos)
+//
+
 import * as ts from "typescript"
 import * as fs from "fs"
 import * as path from "path"
-import { debug } from "util";
 
 const sys = ts.sys
 export const basePath = path.normalize(path.join(__dirname, "../.."));
-export const srcPath = path.join(basePath, "src");
 
-function getCommandLine(basePath: string, srcPath: string) {
+function getCommandLine(basePath: string) {
   const configPath = ts.findConfigFile(basePath, fs.existsSync);
   const parsed = ts.parseConfigFileTextToJson(configPath, sys.readFile(configPath));
-  const configParseResult = ts.parseJsonConfigFileContent(parsed.config, sys, srcPath, null, configPath);
+  const configParseResult = ts.parseJsonConfigFileContent(parsed.config, sys, basePath, null, configPath);
 
   return configParseResult;
 }
@@ -84,75 +92,23 @@ function getLanguageService(cl: ts.ParsedCommandLine, virtualFiles: Record<strin
   return { service, host, updateFile }
 }
 
-/** We will create a virtual file to emulate auto-completition! */
+export const commandLine = getCommandLine(basePath);
+export const program = getCompileProgram(commandLine);
+
+export const srcPath = path.join(basePath, "src");
 export var doctmp = path.join(srcPath, "_doctmp.ts").replace(/\\/g, '/');
 export var doctmp_text = ""
-
-export const commandLine = getCommandLine(basePath, srcPath);
-export const program = getCompileProgram(commandLine);
-export const { service: langService, host: langHost, updateFile } = getLanguageService(commandLine, { [doctmp]: doctmp_text });
+export const {
+  service: langService,
+  host: langHost,
+  updateFile,
+} = getLanguageService(commandLine, { [doctmp]: doctmp_text });
 
 export function findMark(markName: string) {
-  return doctmp_text.indexOf('/*' + markName)
+  return doctmp_text.indexOf('/*' + markName + '*/')
 }
 
 export function updateDocTmp(content: string) {
   updateFile(doctmp, content)
   doctmp_text = content
 }
-
-// var p = program
-// var files = p.getSourceFiles()
-// var emitAns = p.emit(files[21])
-
-// debugger
-
-(() => {
-  let p = program
-  let sf = p.getSourceFiles()[20]
-
-  function visitor(node: ts.Node) {
-    switch (node.kind) {
-      case ts.SyntaxKind.TypeAliasDeclaration:
-        console.log('----------------------------')
-
-        {
-          let n = node as ts.TypeAliasDeclaration
-          console.log(
-            n.name.getText(sf),
-            n.type.getText(sf)
-          )
-        }
-
-        if (node.modifiers && node.modifiers.length) {
-          console.log("MODIFIERS:")
-          for (const m of node.modifiers) {
-            console.log(m.getText(sf))
-          }
-        }
-        break
-      case ts.SyntaxKind.VariableStatement:
-        console.log('----------------------------')
-
-        {
-          let n = node as ts.VariableStatement
-          console.log("var", n.declarationList.declarations.map(x => x.name.getText(sf)))
-
-          if (node.modifiers && node.modifiers.length) {
-            console.log("MODIFIERS:")
-            for (const m of node.modifiers) {
-              if (m.flags & ts.ModifierFlags.Export) console.log(" - export")
-              if (m.flags & ts.ModifierFlags.Const) console.log(" - const")
-            }
-          }
-        }
-        break
-    }
-  }
-
-  console.log(sf.fileName)
-
-  ts.forEachChild(sf, visitor)
-
-  debugger
-})

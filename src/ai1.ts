@@ -15,6 +15,7 @@ import * as Click from "./addon/click"
 import * as Paste from "./addon/paste"
 import * as Fold from "./addon/fold"
 import * as FoldMath from "./addon/fold-math"
+import * as FoldHTML from "./addon/fold-html"
 import * as TableAlign from "./addon/table-align"
 import * as ModeLoader from "./addon/mode-loader"
 import * as HideToken from "./addon/hide-token"
@@ -30,6 +31,7 @@ export {
   Paste,
   Fold,
   FoldMath,
+  FoldHTML,
   TableAlign,
   ModeLoader,
   HideToken,

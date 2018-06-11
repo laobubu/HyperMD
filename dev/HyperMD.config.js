@@ -1,7 +1,7 @@
 const path = require('path')
 
 /**
- * Components that will be bundled into index.js
+ * Components that will be bundled into ai1.js (all in one bundle)
  * For each component, you may specific a global name and expose it to global like `HyperMD.FooBar`
  */
 exports.components = {
@@ -23,6 +23,16 @@ exports.components = {
 };
 
 /**
+ * These files are also parts of HyperMD, but not included in all-in-one bundle.
+ *
+ * Support minimatch pattern syntax
+ */
+exports.dummyComponents = [
+  "addon/skeleton",
+  "powerpack/*",
+];
+
+/**
  * If not using mode loader, try to get 3rd party libraries via these global names
  */
 exports.globalNames = {
@@ -36,7 +46,7 @@ exports.globalNames = {
 exports.externalNames = Object.keys(exports.globalNames)
 
 /**
- * Use bundler to process these file(s)
+ * Use RollUp Bundler to make these file(s)
  */
 exports.bundleFiles = [
   {
@@ -54,42 +64,33 @@ exports.bundleFiles = [
 ]
 
 /**
- * **tsc** may compile files to UMD modules.
- * However, TypeScript's UMD declaration is not compatible with plain browser env nor some bundler (like parcel-bunder)
- * and we shall do a post-process in `post-build.js`
- *
- * This doesn't matter while developing (compatible with require.js)
- */
-exports.plainEnvFiles = [
-  "powerpack/*.js",
-  "addon/*.js",
-]
-
-/**
  * Get modules' object name in plain browser env
  *
  * @example
+ *     // two arguments:
  *     getGlobalName("codemirror", "src/addon/foobar") // => "CodeMirror"
  *     getGlobalName("./fold", "src/addon/foobar") // => "HyperMD.Fold", see `components`
  *     getGlobalName("../core", "src/addon/foobar") // => "HyperMD"
+ *
+ *     // one argument:
+ *     getGlobalName("codemirror")   // => null
+ *     getGlobalName("addon/fold")   // => "HyperMD.Fold"
  * @param {string} moduleID
- * @param {string} currentFile relative to rootdir of this project
+ * @param {string} [currentFile] if is set, and `moduleID` is relative path, will try to resolve `moduleID`
+ * @returns {string}
  */
 exports.getGlobalName = function getGlobalName(moduleID, currentFile) {
   if (!moduleID) return moduleID
-  if (moduleID.charAt(0) !== ".") return exports.globalNames[moduleID] || null
+  if (currentFile && moduleID.charAt(0) !== ".") return exports.globalNames[moduleID] || null
 
-  var components = exports.components
-  var mpath = path.normalize(path.join(path.dirname(currentFile), moduleID)).replace(/\\/g, '/').replace(/^\.\//, '')
+  // get clean module name
+  var cleanModuleID = moduleID
+  if (currentFile) cleanModuleID = path.normalize(path.join(path.dirname(currentFile), moduleID)).replace(/\\/g, '/').replace(/^\.\//, '')
 
-  var ans = components[mpath]
+  var ans = exports.components[cleanModuleID]
 
   if (ans) return "HyperMD." + ans
-  else if (/^core(\/.+)?$/.test(mpath)) return "HyperMD"
-  else {
-    if (!/\.css$/.test(mpath)) {
-      console.warn(`[HyperMD] file ${currentFile} requires non-exported "${mpath}".`)
-    }
-    return null
-  }
+  if (/^core(\/.+)?$/.test(cleanModuleID)) return "HyperMD"
+
+  return null
 }

@@ -1,5 +1,4 @@
 import * as ts from "typescript"
-import * as fs from "fs"
 import * as path from "path"
 import { srcPath, langService } from "./base"
 

@@ -23,5 +23,8 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 
-# Auto Generated Docs
+# Auto Generated Docs. See dev/docgen/index.ts
 docs/configurations.md
+
+# Auto Generated Files. See dev/pre-build.js
+src/ai1.ts

@@ -1,4 +1,9 @@
 /**
+  @internal DO NOT IMPORT THIS MODULE!
+            If you want to use this module, import it from `core`:
+
+                import { cm_internal } from "../core"
+
   The following few functions are from CodeMirror's source code.
 
   MIT License

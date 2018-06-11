@@ -1,9 +1,9 @@
-// this script runs when `npm run build` finished
+// this script runs when `npm run build_js` finished
 
 const path = require('path')
-const child_process = require('child_process')
 const fs = require('fs')
 const glob = require('glob')
+const minimatch = require('minimatch')
 const config = require('./HyperMD.config.js')
 const utils = require('./utils')
 
@@ -55,7 +55,7 @@ function patchUMD(file) {
 
     var requiredModules = [] // ["codemirror", "../addon/xxx"]
     var lutBody = []  // [ 'if (m === "../addon/fold") return HyperMD.Fold' ]
-    var exportsAlias = "{}"  // "(HyperMD.ModuleX = HyperMD.ModuleX || {})"
+    var exportsAlias = null // "HyperMD.FooBar"  global name in plain env
 
     { // build lut and requiredModules
       let lut = {}
@@ -65,15 +65,24 @@ function patchUMD(file) {
         let globalName = lut[mod] = config.getGlobalName(mod, file)
         requiredModules.push(mod)
         if (globalName) lutBody.push(`if (m === ${JSON.stringify(mod)}) return ${globalName};`)
+        else if (mod[0] == '.' && !/\.css$/.test(mod)) {
+          // "./not-exported/module"
+          console.warn(`[HyperMD] "${file}" 's dependency "${mod}" is NOT accessible in plain browser env!`)
+        }
       }
     }
 
     { // decide exportsAlias
-      let fileModName = file.replace(/\.[jt]s$|^\.[\/\\]/ig, '').replace(/\\/g, '/')
-      let tmp2 = config.components[fileModName]
-      if (tmp2) {
-        tmp2 = "HyperMD." + tmp2
-        exportsAlias = `(${tmp2} = ${tmp2} || {})`
+      let fileModName = file.replace(/\.[jt]s$|^\.[\/\\]/ig, '').replace(/\\/g, '/') // => "addon/foobar"
+      exportsAlias = config.getGlobalName(fileModName)
+
+      if (!exportsAlias) {
+        exportsAlias = "{}" // give a dist container anyway.
+        if (!config.dummyComponents.some(x => minimatch(fileModName, x))){
+          console.warn("[HyperMD] Not defined item in HyperMD.config: " + fileModName)
+        }
+      } else {
+        exportsAlias = `(${exportsAlias} = ${exportsAlias} || {})` // "(HyperMD.ModuleX = HyperMD.ModuleX || {})"
       }
     }
 
@@ -100,7 +109,32 @@ function patchUMD(file) {
   })
 }
 
-config.plainEnvFiles.forEach(pattern =>
+var tsconfig = JSON.parse(fs.readFileSync("tsconfig.json", "utf-8"))
+var bundleFileOutputs = config.bundleFiles.map(x => x.output)
+var dst_dir = tsconfig.compilerOptions.outDir + "/"
+if (dst_dir === "./") dst_dir = ""
+
+tsconfig.include.forEach(pattern => {
+  var tmp = pattern.indexOf('*')
+  if (tmp < 0) tmp = pattern.lastIndexOf('/') + 1
+
+  var src_dir = pattern.slice(0, tmp) // "src/"
+
   glob(pattern, (err, matches) => {
-    if (err) return; else matches.forEach(patchUMD)
-  }))
+    if (err) {
+      console.error("[HyperMD] Error while searching output files. Pattern = " + pattern)
+      console.error(err)
+      process.exit(2)
+      return
+    }
+
+    for (var file of matches) {
+      if (/\.d\.ts$/.test(file)) continue
+      file = dst_dir + file.slice(src_dir.length, -3) + ".js"
+      if (bundleFileOutputs.includes(file)) continue // not process rollup's output
+      if (!fs.existsSync(file)) continue // file not emitted
+
+      patchUMD(file)
+    }
+  })
+})

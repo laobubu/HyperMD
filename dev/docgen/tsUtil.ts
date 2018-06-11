@@ -1,17 +1,12 @@
 import * as ts from "typescript"
-import * as fs from "fs"
-import * as path from "path"
-import { srcPath, langService } from "./base"
 import { SyntaxKind } from "typescript";
 
+/**
+ * Returns all top-level exported declarations
+ */
 export function getNamedDeclarations(sf: ts.SourceFile): Map<string, ReadonlyArray<ts.NamedDeclaration>> {
   const symEND = Symbol("ExportedNamedDeclarations")
   if (symEND in sf) return sf[symEND]
-
-  // var sf_any = sf as any
-  // if (sf_any.namedDeclarations) ans = sf_any.namedDeclarations
-  // else if (typeof sf_any['getNamedDeclarations'] === 'function') ans = sf_any.getNamedDeclarations()
-  // else throw new Error("Not Implemented")
 
   var ans = sf[symEND] = new Map<string, Array<ts.NamedDeclaration>>()
   ts.forEachChild(sf, visit)
