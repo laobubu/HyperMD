@@ -128,7 +128,7 @@ export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression:
   span.addEventListener("click", () => breakMark(cm, marker, tokenLength), false)
 
   const foldMathAddon = getAddon(cm)
-  var mathRenderer = foldMathAddon.createRenderer(span, "")
+  var mathRenderer = foldMathAddon.createRenderer(span, tokenLength > 1 ? "display" : "")
   mathRenderer.onChanged = function () {
     if (mathPlaceholder) {
       span.removeChild(mathPlaceholder)

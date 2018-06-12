@@ -367,12 +367,13 @@ export function getEveryCharToken(line: CodeMirror.LineHandle): string[] {
  * @param style aka. token type
  * @see TokenSeeker if you want to span lines
  */
-export function expandRange(cm: cm_t, pos: CodeMirror.Position, style: string) {
+export function expandRange(cm: cm_t, pos: CodeMirror.Position, style: string | ((token: Token) => boolean)) {
   var line = pos.line
   var from: CodeMirror.Position = { line, ch: 0 }
   var to: CodeMirror.Position = { line, ch: pos.ch }
 
-  var styleRE = new RegExp("(?:^|\\s)" + style + "(?:\\s|$)")
+  var styleFn = typeof style === "function" ? style : false
+  var styleRE = (!styleFn) && new RegExp("(?:^|\\s)" + style + "(?:\\s|$)")
   var tokens = cm.getLineTokens(line)
 
   var iSince
@@ -383,13 +384,13 @@ export function expandRange(cm: cm_t, pos: CodeMirror.Position, style: string) {
 
   for (var i = iSince; i < tokens.length; i++) {
     var token = tokens[i]
-    if (styleRE.test(token.type)) to.ch = token.end
+    if (styleFn ? styleFn(token) : styleRE.test(token.type)) to.ch = token.end
     else break
   }
 
   for (var i = iSince; i >= 0; i--) {
     var token = tokens[i]
-    if (!styleRE.test(token.type)) {
+    if (!(styleFn ? styleFn(token) : styleRE.test(token.type))) {
       from.ch = token.end
       break
     }

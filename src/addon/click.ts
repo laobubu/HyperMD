@@ -12,6 +12,7 @@ import { Addon, FlipFlop, expandRange, suggestedEditorConfig } from '../core'
 import { addClass, rmClass } from '../core'
 import { cm_t } from '../core/type'
 import { splitLink } from './read-link'
+import { HyperMDState } from '../mode/hypermd';
 
 /********************************************************************************** */
 //#region CLICK HANDLER
@@ -285,7 +286,10 @@ export class Click implements Addon.Addon, Options {
 
     var pos = cm.coordsChar({ left: clientX, top: clientY }, "window")
     var range: ReturnType<typeof expandRange>
-    var styles = " " + cm.getTokenTypeAt(pos) + " "
+    var token = cm.getTokenAt(pos)
+
+    var state = token.state as HyperMDState
+    var styles = " " + token.type + " "
 
     var mat: RegExpMatchArray
 
@@ -295,9 +299,16 @@ export class Click implements Addon.Addon, Options {
     if (mat = styles.match(/\s(image|link|url)\s/)) {
       // Could be a image, link, bare-link, footref, footnote, plain url, plain url w/o angle brackets
       type = mat[1] as TargetType
-      range = expandRange(cm, pos, type)
 
       const isBareLink = /\shmd-barelink\s/.test(styles)
+
+      if (state.linkText) {
+        // click on content of a link text.
+        range = expandRange(cm, pos, (token) => token.state.linkText || /(?:\s|^)link(?:\s|$)/.test(token.type))
+        type = "link"
+      } else {
+        range = expandRange(cm, pos, type)
+      }
 
       if (/^(?:image|link)$/.test(type) && !isBareLink) {
         // CodeMirror breaks [text] and (url)
@@ -310,14 +321,17 @@ export class Click implements Addon.Addon, Options {
 
       // now extract the URL. boring job
 
+      let tmp: number
+
       if (
-        (mat = text.match(/[^\\]\]\((.+)\)$/))     // .](url)     image / link without ref
+        text.slice(-1) === ')' &&
+        (tmp = text.lastIndexOf('](')) !== -1     // xxxx](url)     image / link without ref
       ) {
         // remove title part (if exists)
-        url = splitLink(mat[1]).url
+        url = splitLink(text.slice(tmp + 2, -1)).url
       } else if (
-        (mat = text.match(/[^\\]\]\[(.+)\]$/)) ||  // .][ref]     image / link with ref
-        (mat = text.match(/^\[(.+)\]\[\]$/)) ||  // [ref][]
+        (mat = text.match(/[^\\]\]\s?\[([^\]]+)\]$/)) ||  // .][ref]     image / link with ref
+        (mat = text.match(/^\[(.+)\]\s?\[\]$/)) ||  // [ref][]
         (mat = text.match(/^\[(.+)\](?:\:\s*)?$/))        // [barelink] or [^ref] or [footnote]:
       ) {
         if (isBareLink && mat[1].charAt(0) === '^') type = 'footref'

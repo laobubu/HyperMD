@@ -48,6 +48,11 @@ declare module "codemirror" {
 
   function startState<T>(mode: CodeMirror.Mode<T>): T;
   function copyState<T>(mode: CodeMirror.Mode<T>, state: T): T;
+
+  interface Mode<T> {
+    innerMode?<U>(state: T): { state: U, mode: CodeMirror.Mode<U> }
+  }
+
   /// Key Binding
 
   /** Multi-stroke key bindings can be specified by

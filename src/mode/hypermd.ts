@@ -219,6 +219,11 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     return ans.trim() || null
   }
 
+  newMode.innerMode = function (state) {
+    if (state.hmdInnerMode) return { mode: state.hmdInnerMode, state: state.hmdInnerState }
+    return rawMode.innerMode(state)
+  }
+
   newMode.token = function (stream, state) {
     if (state.hmdOverride) return state.hmdOverride(stream, state)
 
@@ -297,7 +302,6 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       ans += " " + (rawMode.token(stream, state) || "")
     }
 
-    const firstTokenOfLine = stream.column() === state.indentation
     var current = stream.current()
 
     /** Try to capture some internal functions from CodeMirror Markdown mode closure! */
@@ -364,6 +368,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         // make indentation (and potential list bullet) monospaced
         if (/^>\s+$/.test(current) && stream.peek() != ">") {
           stream.pos = stream.start + 1 // rewind!
+          current = ">"
           state.hmdOverride = (stream, state) => {
             stream.match(/^\s+((\d+[).]|[-*+])\s*)?/)
             state.hmdOverride = null
@@ -556,7 +561,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
           // then
           if (tableType) {
             const colUbound = state.hmdTableColumns.length - 1
-            if (tableType === TableType.NORMAL && (firstTokenOfLine || stream.match(/^\s*$/, false))) {
+            if (tableType === TableType.NORMAL && ((state.hmdTableCol === 0 && /^\s*\|$/.test(stream.string.slice(0, stream.pos))) || stream.match(/^\s*$/, false))) {
               ans += ` hmd-table-sep hmd-table-sep-dummy`
             } else if (state.hmdTableCol < colUbound) {
               const row = state.hmdTableRow
