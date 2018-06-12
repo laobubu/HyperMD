@@ -24,7 +24,8 @@ package-lock.json
 yarn.lock
 
 # Auto Generated Docs. See dev/docgen/index.ts
-docs/configurations.md
+docs/options-for-addons.md
+docs/powerpacks.md
 
 # Auto Generated Files. See dev/pre-build.js
 src/ai1.ts

@@ -78,11 +78,16 @@ function patchUMD(file) {
 
       if (!exportsAlias) {
         exportsAlias = "{}" // give a dist container anyway.
-        if (!config.dummyComponents.some(x => minimatch(fileModName, x))){
+        if (!config.dummyComponents.some(x => minimatch(fileModName, x))) {
           console.warn("[HyperMD] Not defined item in HyperMD.config: " + fileModName)
         }
+
+        if (/^powerpack\//.test(fileModName)) {
+          let baseName = path.basename(fileModName)
+          exportsAlias = `(this.HyperMD_PowerPack = this.HyperMD_PowerPack || {}, this.HyperMD_PowerPack["${baseName}"] = {})`
+        }
       } else {
-        exportsAlias = `(${exportsAlias} = ${exportsAlias} || {})` // "(HyperMD.ModuleX = HyperMD.ModuleX || {})"
+        exportsAlias = `(this.${exportsAlias} = this.${exportsAlias} || {})` // "(HyperMD.ModuleX = HyperMD.ModuleX || {})"
       }
     }
 

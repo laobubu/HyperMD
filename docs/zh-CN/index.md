@@ -16,15 +16,15 @@
 3. 如果想深入了解 HyperMD 的插件，请浏览[源代码](https://github.com/laobubu/HyperMD/)
    - 推荐使用 VSCode。
    - 以后说不准会用 TypeScript 生成文档。
+4. 阅读 [插件相关的编辑器选项][]
 
 ## 快速开始
 
 **注意**
 
-1. **必须等 CSS 样式加载好后，再初始化编辑器！**
-2. 如果有不需要的扩展，可以在 *编辑器选项* 里禁用。参考 [编辑器配置](./configurations.md)
-3. 用到的 **第三方库** 必须在 HyperMD 载入前载入。
-4. 一些库（例如 **MathJax**）需要特殊的配置才能用，参考 [编辑器配置](./configurations.md)
+1. **HyperMD 会在代码里 require 初始化所需的CSS样式文件**
+2. 如果有不需要的扩展，可以在 *编辑器选项* 里禁用。参考 [插件相关的编辑器选项][]
+3. 如果想利用 **第三方库** 增强 HyperMD 的功能，请使用 [PowerPack][] 来载入它们。
 
 ### 使用打包器 (webpack / parcel-bundler...)
 
@@ -129,7 +129,7 @@ require([
 ], function (CodeMirror, HyperMD) {
   var myTextarea = document.getElementById('myTextareaID')
   var editor = HyperMD.fromTextArea(myTextarea, {
-    /* optional editor options here */
+    /* 这里可以设置一些 编辑器选项 */
   })
 })
 
@@ -140,3 +140,7 @@ require([
 不喜欢打包器和模块加载器？你可以用纯 HTML 标签来引入 HyperMD 编辑器！
 
 请参考 [这个文件](../examples/ai1.html) 的源代码
+
+
+[插件相关的编辑器选项]: ./options-for-addons.md
+[PowerPack]: ../powerpacks.md

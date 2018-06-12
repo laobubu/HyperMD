@@ -1,6 +1,6 @@
 {
   "name": "hypermd",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
   "main": "./ai1.js",
   "types": "./ai1.d.ts",
@@ -26,6 +26,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/codemirror": "^0.0.56",
+    "@types/glob": "^5.0.35",
     "codemirror": "^5.37.0",
     "express": "^4.16.3",
     "glob": "^7.1.2",

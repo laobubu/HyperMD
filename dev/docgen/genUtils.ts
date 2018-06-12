@@ -139,8 +139,29 @@ export function makeComponentLink(component: string, extra?: string): MarkdownTe
   return makeLink(shortName, getComponentURL(component, extra))
 }
 
-export function commentsToText(commentNodes: ReadonlyArray<ts.CommentKind>) {
-  return ""
+export function commentsToText(commentNodes: ReadonlyArray<ts.CommentRange>, sf: ts.SourceFile) {
+  var ans = [] as string[]
+  if (!commentNodes) return ""
+
+  var sfText = sf.text
+
+  for (const node of commentNodes) {
+    if (node.kind === ts.SyntaxKind.SingleLineCommentTrivia) {
+      let it = sfText
+        .slice(node.pos, node.end)
+        .replace(/^\s*\/\/\s?/, '')
+      if (!/^\/\s*<reference/.test(it)) ans.push(it) // ignore ts tripe-slash reference
+    } else if (node.kind === ts.SyntaxKind.MultiLineCommentTrivia) {
+      ans.push(
+        sfText
+          .slice(node.pos, node.end)
+          .replace(/^\s*\/\*+\s*/, '')
+          .replace(/\s*\*+\/\s*$/, '')
+          .replace(/^\s*\*\s?/m, '')
+      )
+    }
+  }
+  return ans.join("\n")
 }
 
 /**

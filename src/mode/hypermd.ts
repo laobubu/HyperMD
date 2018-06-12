@@ -370,7 +370,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
           stream.pos = stream.start + 1 // rewind!
           current = ">"
           state.hmdOverride = (stream, state) => {
-            stream.match(/^\s+((\d+[).]|[-*+])\s*)?/)
+            stream.match(/^\s+((\d+[).]|[-*+])\s+)?/)
             state.hmdOverride = null
             return "hmd-indent-in-quote line-HyperMD-quote line-HyperMD-quote-" + state.quote
           }

@@ -16,15 +16,16 @@ Still under construction... Consider:
 3. Read the [source code](https://github.com/laobubu/HyperMD/) if you want to dive into HyperMD addons
    - VSCode is highly recommended.
    - Maybe someday the documentation will be generated with TypeScript.
+4. Read [Options-For-Addons][] to learn how to configure editors
+5. Read [PowerPacks][] if you want to utilize third-party libraries with HyperMD
 
 ## Quickstart
 
 **Note**
 
-1. **CSS must be loaded before initializing editor.**
-2. If there are addons you don't need, you may disable them via *editor options*, see [Configurations](./configurations.md)
-3. **Third-party libraries** must be loaded before hypermd.
-4. Some libraries (like **MathJax**) require further configuration, see [Configurations](./configurations.md)
+1. **CSS will be require-d by HyperMD core lib**
+2. If there are addons you don't need, you may disable them via *editor options*, see [Options-For-Addons][]
+3. If you want to utilize **third-party libraries**, use [PowerPacks][]; HyperMD only requires CodeMirror
 
 ### with bundlers (webpack / parcel-bundler...)
 
@@ -85,7 +86,7 @@ Let's say you are using [parcel-bundler][], simpily run `parcel index.html` and 
 
 First of all, *hypermd* requires CSS files in JavaScript,
 and RequireJS doesn't support `require("./style.css")`.
-Thus, **you have to load a [patch](../demo/patch-requirejs.js) before using RequireJS**
+Thus, **a [patch](../demo/patch-requirejs.js) is REQUIRED before using RequireJS**
 
 Besides, you might find [this demo script](../demo/index.js) helpful.
 
@@ -140,3 +141,7 @@ require([
 Don't want to use either bundler or module loader? You can still load HyperMD in plain browser environment.
 
 Please read the source code of [this demo](./examples/ai1.html)
+
+
+[options-for-addons]: ./options-for-addons.md
+[PowerPacks]: ./powerpacks.md
