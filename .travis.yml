@@ -14,20 +14,11 @@ deploy:
     target-branch: gh-pages
     on:
       branch: master
-  # Publish to NPM/GitHub Releases if tagged
+  # Publish to NPM if tagged
   - provider: npm
     email: "laobubu@gmail.com"
     api_key: $NPM_TOKEN
     skip_cleanup: true
-    on:
-      branch: master
-      tags: true
-  - provider: releases
-    skip_cleanup: true
-    email: "laobubu@gmail.com"
-    github-token: $GITHUB_TOKEN
-    file_glob: true
-    file: "**/*"
     on:
       branch: master
       tags: true
