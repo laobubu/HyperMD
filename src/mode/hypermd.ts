@@ -6,6 +6,7 @@
 
 import * as CodeMirror from "codemirror"
 import "codemirror/mode/markdown/markdown"
+import "codemirror/mode/htmlmixed/htmlmixed"
 import "codemirror/mode/stex/stex"
 
 import "./hypermd.css"
@@ -130,6 +131,7 @@ function resetTable(state: HyperMDState) {
   state.hmdTableCol = state.hmdTableRow = 0
 }
 
+const listInQuoteRE = /^\s+((\d+[).]|[-*+])\s+)?/;
 CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   var modeCfg = {
     math: true,
@@ -363,14 +365,23 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
       if (state.quote) {
         // mess up as less as possible
-        if (stream.eol()) ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
+        if (stream.eol()) {
+          ans += " line-HyperMD-quote line-HyperMD-quote-" + state.quote
+          if (!/^ {0,3}\>/.test(stream.string)) ans += " line-HyperMD-quote-lazy" // ">" is omitted
+        }
+
+        if (stream.start == 0 && (tmp = current.match(/^\s+/))) {
+          stream.pos = tmp[0].length // rewind
+          ans += " hmd-indent-in-quote"
+          return ans.trim()
+        }
 
         // make indentation (and potential list bullet) monospaced
         if (/^>\s+$/.test(current) && stream.peek() != ">") {
           stream.pos = stream.start + 1 // rewind!
           current = ">"
           state.hmdOverride = (stream, state) => {
-            stream.match(/^\s+((\d+[).]|[-*+])\s+)?/)
+            stream.match(listInQuoteRE)
             state.hmdOverride = null
             return "hmd-indent-in-quote line-HyperMD-quote line-HyperMD-quote-" + state.quote
           }

@@ -12,7 +12,7 @@
     "build_css": "node dev/build-css.js",
     "build_doc": "cd dev/docgen && tsc && node ../tmp/index.js",
     "dev": "node dev/dev.js",
-    "watch_js": "tsc -w",
+    "watch_js": "tsc -w --sourceMap --sourceRoot /src",
     "watch_css": "node dev/build-css.js -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

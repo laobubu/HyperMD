@@ -208,6 +208,15 @@
             &.HyperMD-footnote {
                 padding-left: $line-padding + $padding-left + $footnote-padding;
             }
+
+            span.cm-formatting-quote{
+                transform: translateZ(0); // avoid getting covered by pre:before
+                display: inline-block;
+                width: $quote-padding;
+                &:first-child {
+                    margin-left: - $quote-padding * $i;
+                }
+            }
         }
     }
 
@@ -670,14 +679,16 @@
             }
         }
 
-        span.cm-formatting-quote,
+        span.cm-formatting-quote {
+            color: transparent;
+        }
+
         span.cm-hmd-escape-backslash,
         span.cm-formatting-header {
-            width: 0px !important;
-            height: 1px;
             opacity: 0;
+            font-size: 0 !important;
             overflow: hidden;
-            display: inline-block;
+            display: inline;
         }
 
         span.cm-hmd-list-indent {

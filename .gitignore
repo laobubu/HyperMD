@@ -7,6 +7,8 @@ cache/
 *.d.ts
 !src/**/*.d.ts
 
+*.js.map
+
 *.js
 !demo/**/*.js
 !docs/**/*.js
