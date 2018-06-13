@@ -256,8 +256,8 @@ export class InsertFile implements Addon.Addon, Options /* if needed */ {
     ).bind(this, "byPaste", true)
 
     new FlipFlop(
-      /* ON  */() => this.cm.on("drop", this.pasteHandle),
-      /* OFF */() => this.cm.off("drop", this.pasteHandle)
+      /* ON  */() => this.cm.on("drop", this.dropHandle),
+      /* OFF */() => this.cm.off("drop", this.dropHandle)
     ).bind(this, "byDrop", true)
   }
 
