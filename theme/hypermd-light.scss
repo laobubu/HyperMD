@@ -331,8 +331,7 @@
     // }
     pre.HyperMD-codeblock {
         @extend %monospace;
-        line-height: 1em;
-        font-size: 90%;
+        line-height: 1.2;
         color: #922;
 
         // &.hmd-codeblock-indent {
@@ -341,6 +340,7 @@
             background-color: inherit;
             border: inherit;
             padding: inherit;
+            font-size: inherit;
         }
         // }
 
@@ -352,6 +352,12 @@
         &.HyperMD-codeblock-end {
             border-bottom: $codeblock-border;
             border-radius: 0 0 4px 4px;
+        }
+
+        &.HyperMD-codeblock-begin,
+        &.HyperMD-codeblock-end {
+            line-height: 1.0;
+            background: rgba(#000, 0.02);
         }
 
         border-left: $codeblock-border;
@@ -373,7 +379,7 @@
     .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link + .cm-formatting-link-string
     {
         display: inline-block;
-        font-size: .7em;
+        font-size: .85em;
         vertical-align: text-top;
     }
 
