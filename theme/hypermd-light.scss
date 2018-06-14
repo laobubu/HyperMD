@@ -132,6 +132,11 @@
         @extend %monospace;
     }
 
+    /// Front Matter
+    span.cm-hmd-frontmatter {
+        @extend %monospace;
+    }
+
     /// Headers
     // in fact stdheader has no special meaning; they are just normal headers
     // legacy naming problem

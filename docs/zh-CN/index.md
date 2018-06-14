@@ -53,6 +53,12 @@
 var HyperMD = require("hypermd")
 // hypermd 模块会引入 codemirror 和一堆 css 文件
 
+// 如果需要为特殊元素添加语法高亮，请载入对应的模式
+require("codemirror/mode/htmlmixed/htmlmixed") // Markdown 内嵌HTML
+require("codemirror/mode/stex/stex") // TeX 数学公式
+require("codemirror/mode/yaml/yaml") // Front Matter
+
+// 如果需要用第三方库增强 HyperMD 功能，请载入所需的 PowerPacks
 require("hypermd/powerpack/fold-math-with-katex") // 将会自动引入 "katex"
 require("hypermd/powerpack/hover-with-marked") // 将会自动引入 "marked"
 // 你还可以再此添加其他 power packs...
@@ -115,9 +121,12 @@ requirejs.config({
 
 require([
   'codemirror/lib/codemirror',
-  'hypermd/ai1',
+  'hypermd/ai1',  // 如果不想用 ai1 (all in one) 版本, 参考 demo/index.js
 
-  // 如果不想用 ai1 (all in one) 版本, 参考 demo/index.js
+  // 如果需要为特殊元素添加语法高亮，请载入对应的模式
+  "codemirror/mode/htmlmixed/htmlmixed", // Markdown 内嵌HTML
+  "codemirror/mode/stex/stex", // TeX 数学公式
+  "codemirror/mode/yaml/yaml", // Front Matter
 
   // 随后，使用 PowerPack 和各种第三方库来增强 HyperMD 功能。
   // 具体可用列表请参考文档，或者 demo/index.js

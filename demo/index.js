@@ -40,8 +40,12 @@ require([
   ///////////////////////////////////////
 
   // Code Highlighting
-  // NOTE: HyperMD addon "mode-loader" can load modes automatically
-  //       if it's configured properly
+  "codemirror/mode/htmlmixed/htmlmixed", // for embedded HTML
+  "codemirror/mode/stex/stex", // for Math TeX Formular
+  "codemirror/mode/yaml/yaml", // for Front Matters
+
+  // NOTE: For code blocks,
+  //       addon "mode-loader" can load modes automatically if configured properly
   'codemirror/mode/javascript/javascript',  // eg. javascript
 
   ///////////////////////////////////////

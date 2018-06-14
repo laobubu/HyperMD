@@ -6,8 +6,6 @@
 
 import * as CodeMirror from "codemirror"
 import "codemirror/mode/markdown/markdown"
-import "codemirror/mode/htmlmixed/htmlmixed"
-import "codemirror/mode/stex/stex"
 
 import "./hypermd.css"
 
@@ -76,6 +74,12 @@ export interface MarkdownState {
   indentationDiff?: number, // indentation minus list's indentation
 }
 
+export type InnerModeExitChecker = (stream: CodeMirror.StringStream, state: HyperMDState) => {
+  endPos?: number
+  skipInnerMode?: boolean
+  style?: string
+}
+
 export interface HyperMDState extends MarkdownState {
   hmdTable: TableType
   hmdTableID: string
@@ -83,10 +87,9 @@ export interface HyperMDState extends MarkdownState {
   hmdTableCol: number
   hmdTableRow: number
   hmdOverride: TokenFunc
-  hmdInnerStyle: string
-  hmdInnerExitStyle: string
-  hmdInnerExitTag: string
 
+  hmdInnerStyle: string
+  hmdInnerExitChecker: InnerModeExitChecker
   hmdInnerMode: CodeMirror.Mode<any>
   hmdInnerState: any
 
@@ -111,6 +114,8 @@ const NormalTableLooseRE = /^\s*\|/ // | unfinished row
 
 export const enum NextMaybe {
   NONE = 0,
+  FRONT_MATTER, // only appears once, for each Doc
+  FRONT_MATTER_END, // endline of front_matter not reached
 }
 
 export const enum LinkType {
@@ -142,6 +147,7 @@ function resetTable(state: HyperMDState) {
 const listInQuoteRE = /^\s+((\d+[).]|[-*+])\s+)?/;
 CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   var modeCfg = {
+    front_matter: "yaml", // or null if you doesn't need
     math: true,
     table: true,
     toc: true, // support [TOC] in a single line
@@ -181,11 +187,10 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     var ans = rawMode.startState() as HyperMDState
     resetTable(ans)
     ans.hmdOverride = null
-    ans.hmdInnerExitTag = null
-    ans.hmdInnerExitStyle = null
+    ans.hmdInnerExitChecker = null
     ans.hmdInnerMode = null
     ans.hmdLinkType = LinkType.NONE
-    ans.hmdNextMaybe = NextMaybe.NONE
+    ans.hmdNextMaybe = modeCfg.front_matter ? NextMaybe.FRONT_MATTER : NextMaybe.NONE
     ans.hmdNextState = null
     ans.hmdNextStyle = null
     ans.hmdNextPos = null
@@ -198,7 +203,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       "hmdLinkType", "hmdNextMaybe",
       "hmdTable", "hmdTableID", "hmdTableCol", "hmdTableRow",
       "hmdOverride",
-      "hmdInnerMode", "hmdInnerStyle", "hmdInnerExitTag", "hmdInnerExitStyle",
+      "hmdInnerMode", "hmdInnerStyle", "hmdInnerExitChecker",
       "hmdNextPos", "hmdNextState", "hmdNextStyle",
     ]
     for (const key of keys) ans[key] = s[key]
@@ -233,8 +238,8 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     var mode = state.hmdInnerMode || rawMode
     var f = mode.indent
 
-    if (!f) return 0
-    else return f.apply(mode, arguments)
+    if (typeof f === 'function') return f.apply(mode, arguments)
+    return CodeMirror.Pass
   }
 
   newMode.innerMode = function (state) {
@@ -244,6 +249,25 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
   newMode.token = function (stream, state) {
     if (state.hmdOverride) return state.hmdOverride(stream, state)
+
+    if (state.hmdNextMaybe === NextMaybe.FRONT_MATTER) { // Only appears once for each Doc
+      state.hmdNextMaybe = NextMaybe.FRONT_MATTER_END
+      if (stream.string === '---') {
+        return enterMode(stream, state, "yaml", {
+          style: "hmd-frontmatter",
+          fallbackMode: createDummyMode("---"),
+          exitChecker: function (stream, state) {
+            if (stream.string === '---') {
+              // found the endline of front_matter
+              state.hmdNextMaybe = NextMaybe.NONE
+              return { endPos: 3 }
+            } else {
+              return null
+            }
+          }
+        })
+      }
+    }
 
     const wasInHTML = (state.f === rawClosure.htmlBlock)
     const wasInCodeFence = state.code === -1
@@ -264,12 +288,16 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       //#region Math
       if (modeCfg.math && inMarkdownInline && (tmp = stream.match(/^\${1,2}/, false))) {
         let tag = tmp[0], mathLevel = tag.length
-        if (mathLevel === 2 || stream.string.indexOf(tag, stream.pos + mathLevel) !== -1) {
+        if (mathLevel === 2 || stream.string.slice(stream.pos).match(/[^\\]\$/)) {
           // $$ may span lines, $ must be paired
-          ans += enterMode(stream, state, "stex", tag) || ""
-          ans += " formatting formatting-math formatting-math-begin math math-" + mathLevel
-          state.hmdInnerStyle = "math"
-          state.hmdInnerExitStyle = "formatting formatting-math formatting-math-end math math-" + mathLevel
+          ans += enterMode(stream, state, "stex", {
+            style: "math",
+            fallbackMode: createDummyMode(tag),
+            exitChecker: createSimpleInnerModeExitChecker(tag, {
+              style: "formatting formatting-math formatting-math-end math-" + mathLevel
+            })
+          })
+          ans += " formatting formatting-math formatting-math-begin math-" + mathLevel
           return ans
         }
       }
@@ -620,8 +648,10 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         else if (stream.match("![CDATA[")) endTag = "]]>"
 
         if (endTag != null) {
-          enterMode(stream, state, null, endTag)
-          state.hmdInnerStyle = (ans += " comment hmd-cdata-html").trim()
+          return enterMode(stream, state, null, {
+            endTag,
+            style: (ans + " comment hmd-cdata-html").trim(),
+          })
         }
       }
 
@@ -632,32 +662,23 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   }
 
   function modeOverride(stream: CodeMirror.StringStream, state: HyperMDState): string {
-    const spos = stream.pos
-    const willExit = stream.match(state.hmdInnerExitTag, false)
+    const exit = state.hmdInnerExitChecker(stream, state)
     const extraStyle = state.hmdInnerStyle
 
-    let ans = state.hmdInnerMode.token(stream, state.hmdInnerState)
+    let ans = (!exit || !exit.skipInnerMode) && state.hmdInnerMode.token(stream, state.hmdInnerState) || ""
 
-    if (extraStyle) {
-      if (ans) ans += " " + extraStyle
-      else ans = extraStyle
-    }
+    if (extraStyle) ans += " " + extraStyle
+    if (exit) {
+      if (exit.style) ans += " " + exit.style
+      if (exit.endPos) stream.pos = exit.endPos
 
-    if (willExit) {
-      const exitStyle = state.hmdInnerExitStyle
-      if (exitStyle) {
-        if (ans) ans += " " + exitStyle
-        else ans = exitStyle
-      }
-
-      stream.pos = spos + state.hmdInnerExitTag.length
-      state.hmdInnerExitStyle = null
-      state.hmdInnerExitTag = null
+      state.hmdInnerExitChecker = null
       state.hmdInnerMode = null
       state.hmdInnerState = null
       state.hmdOverride = null
     }
-    return ans
+
+    return ans.trim() || null
   }
 
   /**
@@ -688,6 +709,50 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     return true
   }
 
+  function createDummyMode(endTag: string): CodeMirror.Mode<void> {
+    return {
+      token(stream) {
+        var endTagSince = stream.string.indexOf(endTag, stream.start)
+        if (endTagSince === -1) stream.skipToEnd() // endTag not in this line
+        else if (endTagSince === 0) stream.pos += endTag.length // current token is endTag
+        else {
+          stream.pos = endTagSince
+          if (stream.string.charAt(endTagSince - 1) === "\\") stream.pos++
+        }
+
+        return null
+      }
+    }
+  }
+
+  function createSimpleInnerModeExitChecker(endTag: string, retInfo?: ReturnType<InnerModeExitChecker>): InnerModeExitChecker {
+    if (!retInfo) retInfo = {}
+
+    return function (stream, state) {
+      if (stream.string.substr(stream.start, endTag.length) === endTag) {
+        retInfo.endPos = stream.start + endTag.length
+        return retInfo
+      }
+      return null
+    }
+  }
+
+  interface BasicInnerModeOptions {
+    skipFirstToken?: boolean
+    style?: string
+  }
+
+  interface InnerModeOptions1 extends BasicInnerModeOptions {
+    fallbackMode: CodeMirror.Mode<any>
+    exitChecker: InnerModeExitChecker
+  }
+
+  interface InnerModeOptions2 extends BasicInnerModeOptions {
+    endTag: string
+  }
+
+  type InnerModeOptions = InnerModeOptions1 | InnerModeOptions2
+
   /**
    * switch to another mode
    *
@@ -695,34 +760,27 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
    *
    * @returns if `skipFirstToken` not set, returns `innerMode.token(stream, innerState)`, meanwhile, stream advances
    */
-  function enterMode(stream: CodeMirror.StringStream, state: HyperMDState, mode: string | CodeMirror.Mode<any>, endTag: string, skipFirstToken?: boolean): string {
+  function enterMode(stream: CodeMirror.StringStream, state: HyperMDState, mode: string | CodeMirror.Mode<any>, opt: InnerModeOptions): string {
     if (typeof mode === "string") mode = CodeMirror.getMode(cmCfg, mode)
 
     if (!mode || mode["name"] === "null") {
-      // mode not loaded, create a dummy mode
-      mode = {
-        token(stream) {
-          var endTagSince = stream.string.indexOf(endTag, stream.start)
-          if (endTagSince === -1) stream.skipToEnd() // endTag not in this line
-          else if (endTagSince === 0) stream.pos += endTag.length // current token is endTag
-          else {
-            stream.pos = endTagSince
-            if (stream.string.charAt(endTagSince - 1) === "\\") stream.pos++
-          }
+      if ('endTag' in opt) mode = createDummyMode(opt.endTag)
+      else mode = opt.fallbackMode
 
-          return null
-        }
-      }
+      if (!mode) throw new Error("no mode")
     }
 
-    state.hmdInnerExitTag = endTag
+    state.hmdInnerExitChecker = ('endTag' in opt) ? createSimpleInnerModeExitChecker(opt.endTag) : opt.exitChecker
+    state.hmdInnerStyle = opt.style
     state.hmdInnerMode = mode
     state.hmdOverride = modeOverride
     state.hmdInnerState = CodeMirror.startState(mode)
 
-    if (!skipFirstToken) {
-      return mode.token(stream, state.hmdInnerState)
+    var ans = opt.style || ""
+    if (!opt.skipFirstToken) {
+      ans += " " + mode.token(stream, state.hmdInnerState)
     }
+    return ans.trim()
   }
 
   return newMode
