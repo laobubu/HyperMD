@@ -67,3 +67,21 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
 ### Other
 
 - Fix bugs
+
+## 0.3.5 2018-06-14
+
+*This is a literally minor update. Enjoy (if anyone is using this).*
+*未曾想到这又是一出没人看的独角戏，随缘吧（啊想去成都吃冒菜）*
+
+* **New Features**
+  * [Mode] Support YAML Front Matter
+  * [KeyMap] no indentation for new lines after MathBlock
+  * [Mode] Stop requiring unnecessary CodeMirror modes
+
+* **Fix**
+  * `insert-file` not work with Drag'n'Drop
+
+* **Appearance**
+  * Improve block-quote experience
+  * Slightly increased font-size
+  * [Demo Page] TOC & MathPreview
