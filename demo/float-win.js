@@ -66,6 +66,7 @@ function FloatWin(id) {
   }
 
   this.el = win
+  this.closeBtn = closeBtn
   this.visible = !/float-win-hidden/.test(win.className)
 }
 
