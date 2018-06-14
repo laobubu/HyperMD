@@ -125,6 +125,14 @@ export function newlineAndContinue(cm: cm_t) {
     }
 
     if (!handled) {
+      if (rangeEmpty && line.slice(pos.ch - 2, pos.ch) == "$$" && /math-end/.test(cm.getTokenTypeAt(pos))) {
+        // ignore indentations of MathBlock Tex lines
+        replacements.push("\n")
+        handled = true
+      }
+    }
+
+    if (!handled) {
       cm.execCommand("newlineAndIndent")
       return
     }

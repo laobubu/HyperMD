@@ -11,7 +11,13 @@ function init_toc(cm) {
       if (!cm.getStateAfter(lineNo).header) return // double check but is not header
       var level = tmp[1].length
 
-      newTOC += '<div data-line="' + lineNo + '" class="toc-item" style="padding-left:' + level + 'em">' + tmp[2] + '</div>'
+      var title = tmp[2]
+      title = title.replace(/([*_]{1,2}|~~|`+)(.+?)\1/g, '$2') // em / bold / del / code
+      title = title.replace(/\\(?=.)|\[\^.+?\]|\!\[((?:[^\\\]]+|\\.)+)\](\(.+?\)| ?\[.+?\])?/g, '') // images / escaping slashes / footref
+      title = title.replace(/\[((?:[^\\\]]+|\\.)+)\](\(.+?\)| ?\[.+?\])/g, '$1') // links
+      title = title.replace(/&/g, '&amp;')
+      title = title.replace(/</g, '&lt;')
+      newTOC += '<div data-line="' + lineNo + '" class="toc-item" style="padding-left:' + level + 'em">' + title + '</div>'
     })
     if (newTOC == lastTOC) return
     $toc.innerHTML = lastTOC = newTOC

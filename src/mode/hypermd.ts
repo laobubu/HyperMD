@@ -11,6 +11,14 @@ import "codemirror/mode/stex/stex"
 
 import "./hypermd.css"
 
+/**
+ * Markdown Extension Tokens
+ *
+ * - `$` Maybe a LaTeX
+ * - `|` Maybe a Table Col Separator
+ */
+const tokenBreakRE = /[^\\][$|]/
+
 const listRE = /^(?:[*\-+]|^[0-9]+([.)]))\s+/
 const urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i // from CodeMirror/mode/gfm
 const emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -221,6 +229,14 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     return ans.trim() || null
   }
 
+  newMode.indent = function (state, textAfter) {
+    var mode = state.hmdInnerMode || rawMode
+    var f = mode.indent
+
+    if (!f) return 0
+    else return f.apply(mode, arguments)
+  }
+
   newMode.innerMode = function (state) {
     if (state.hmdInnerMode) return { mode: state.hmdInnerMode, state: state.hmdInnerState }
     return rawMode.innerMode(state)
@@ -304,8 +320,6 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       ans += " " + (rawMode.token(stream, state) || "")
     }
 
-    var current = stream.current()
-
     /** Try to capture some internal functions from CodeMirror Markdown mode closure! */
     if (!rawClosure.htmlBlock && state.htmlState) rawClosure.htmlBlock = state.f;
 
@@ -313,6 +327,13 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     const inCodeFence = state.code === -1
     inMarkdown = inMarkdown && !(inHTML || inCodeFence)
     inMarkdownInline = inMarkdownInline && inMarkdown && !(state.code || state.indentedCode || state.linkHref)
+
+    // If find a markdown extension token (which is not escaped),
+    // break current parsed string into two parts and the first char of next part is the markdown extension token
+    if (inMarkdownInline && (tmp = stream.current().match(tokenBreakRE))) {
+      stream.pos = stream.start + tmp.index + 1 // rewind
+    }
+    var current = stream.current()
 
     if (inHTML != wasInHTML) {
       if (inHTML) {
@@ -352,7 +373,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       //#region Header, indentedCode, quote
 
       if (state.header) {
-        if (!state.prevLine.header) {
+        if (!state.prevLine || !state.prevLine.header) {
           ans += " line-HyperMD-header line-HyperMD-header-" + state.header
         } else {
           ans += " line-HyperMD-header-line line-HyperMD-header-line-" + state.header
@@ -508,10 +529,6 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
           stream.pos = stream.start + 1 // rewind to end of "|"
           current = "|"
           isTableSep = true
-        } else if (tmp = current.match(/\|/)) {
-          // break unformatted "text|char" into "text" and "|char"
-          stream.pos = stream.start + tmp.index // rewind
-          current = current.slice(0, tmp.index)
         }
 
         if (isTableSep) {
