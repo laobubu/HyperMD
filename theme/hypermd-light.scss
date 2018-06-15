@@ -8,6 +8,7 @@
 .CodeMirror.cm-s-hypermd-light {
     $fs: 12pt;  //default font-size
 
+    $line-height: 1.5;
     $line-margin: 10px;
     $line-padding: 5px;
     $footnote-padding: 40px;
@@ -27,7 +28,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	-webkit-font-smoothing: antialiased;
 
-    line-height: 1.5;
+    line-height: $line-height;
     font-size: $fs;
 
     %monospace {
@@ -153,7 +154,7 @@
 
     pre.HyperMD-header {
         // see https://github.com/laobubu/HyperMD/issues/25
-        line-height: 1.5 !important;
+        line-height: $line-height !important;
         font-family: inherit !important;
         padding-left: $line-padding !important;
         margin-left: 0 !important;
@@ -244,34 +245,40 @@
     }
 
     pre.HyperMD-list-line {
-        > span > span:first-child {
+        padding-top: $list-margin-after-line;
+        min-height: #{$line-height}em;
+
+        span.cm-formatting-list,
+        span.cm-hmd-list-indent {
+            text-align: right;
+            white-space: pre;
+            width: $list-bullet-width;
+            float: left;
+        }
+
+        span.cm-hmd-list-indent {
             margin-left: - $list-indent - $list-bullet-width;
         }
 
-        > span > span:first-child.cm-formatting-list,
-        &.HyperMD-list-line-nobullet > span > span:first-child {
-            margin-left: - $list-indent;
-            width: $list-bullet-width;
-        }
-
-        &:not(.HyperMD-list-line-nobullet) {
-            padding-top: $list-margin-after-line;
+        &.HyperMD-list-line-nobullet {
+            padding-top: initial;
+            span.cm-hmd-list-indent {
+                margin-left: - $list-bullet-width;
+            }
         }
     }
 
     @for $i from 1 through 9 {
+        $indent_i: $list-indent * $i + $list-margin;
+
         pre.HyperMD-list-line-#{$i} {
-            $indent_i: $list-indent * $i + $list-margin;
             padding-left: $line-padding + $indent_i;
         }
     }
 
     span.cm-formatting-list
     {
-        text-align: right;
-        display: inline-block;
-        white-space: pre;
-        width: $list-bullet-width;
+        margin-left: - $list-bullet-width;
         font-family: 'HyperMD-Bullets';
         color: #666;
         &.cm-list-2 {
@@ -294,7 +301,7 @@
         background-position: center 0;
         cursor: pointer;
 
-        &.cm-property {
+        &.cm-property { // checked
             background-position-y: -1em;
         }
 
@@ -302,7 +309,6 @@
 
         background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAwCAMAAAA8VkqRAAAAclBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACa4vOeAAAAJXRSTlMADcjpDswcLZOzsvOYBvWdbtvTX0D69+ORa1dRJCDtuaF7ZDkoQyuUXgAAAMhJREFUOMvt0reywjAUhOFjKxmcrgMZboL//V8Rm6GwkNUx0LClvhkVZ1fEZoqHqMwO7wuUSb0YxcJKxtLpxIt2SzJRykkQp5RgdAjaIKRJCEn6gWdA9OzRoqLVRscQnc9bdtXX/eyurOF7N3erLVDPwCGHxoVwamH1LwGUBfBbhrCvoLlMitL9DY8trLtJg7qoCj18VAN1OYE/YJBuDe1RJtBVo5wbqPb+GL5yWG1GLX0YZYw5iQ93yQ/yAHfZzu5qt/mxr97VFS15JGSVM0C6AAAAAElFTkSuQmCC');
         background-size: 1em;
-        // }
     }
 
     /// footnote for link and image
@@ -496,8 +502,6 @@
     /// hpyermd table
 
     pre.HyperMD-table-row {
-        line-height: 1.5;
-
         > span {
             display: inline-block;
             border-top: $table-border-style;
