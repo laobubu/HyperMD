@@ -122,7 +122,7 @@ requirejs.config({
 
 require([
   'codemirror/lib/codemirror',
-  'hypermd/ai1',  // If you doesn't want ai1 (all in one) build, see demo/index.js
+  'hypermd/everything',  // Want to tailor and pick components? Please see demo/index.js
 
   // Load these modes if you want highlighting ...
   "codemirror/mode/htmlmixed/htmlmixed", // for embedded HTML

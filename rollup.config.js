@@ -1,27 +1,8 @@
-import * as path from 'path'
 import buble from 'rollup-plugin-buble'
 import typescript from 'rollup-plugin-typescript2'
 import { uglify } from 'rollup-plugin-uglify'
 
-const watchMode = process.argv.includes("-w")
-const makeAi1 = process.argv.includes("--with-ai1") || !watchMode
-
-const srcDir = path.join(__dirname, "src")
-const { components, globalNames, externalNames, bundleFiles } = require(__dirname + '/dev/HyperMD.config')
-
-const banner = `
-/*!
- * HyperMD, copyright (c) by laobubu
- * Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
- *
- * Break the Wall between writing and preview, in a Markdown Editor.
- *
- * HyperMD makes Markdown editor on web WYSIWYG, based on CodeMirror
- *
- * Homepage: http://laobubu.net/HyperMD/
- * Issues: https://github.com/laobubu/HyperMD/issues
- */
-`.trim()
+const { banner, globalNames, externalNames, bundleFiles } = require(__dirname + '/dev/HyperMD.config')
 
 const plugins = {
   ts: typescript({
@@ -61,6 +42,9 @@ bundleFiles.forEach(item => {
   if (item.uglify) item_plugins.push(plugins.uglify) // optional: uglify
   item_plugins.push(plugins.buble) // Essential: Buble
 
+  var _banner = banner
+  if (item.banner) _banner += "\n" + item.banner
+
   var out = {
     input: "./" + item.entry,
     external: isExternal,
@@ -69,7 +53,7 @@ bundleFiles.forEach(item => {
       format: 'umd',
       name: item.name,
       globals: globalNames,
-      banner,
+      banner: _banner,
     },
     plugins: item_plugins
   }

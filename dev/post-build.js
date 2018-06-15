@@ -34,9 +34,7 @@ config.bundleFiles.forEach(item => {
 // Make TypeScript-built files work in plain browser environment
 
 /**
- * **tsc** may compile files to UMD modules.
- * However, TypeScript's UMD declaration is not compatible with plain browser env nor some bundler (like parcel-bunder)
- * and we shall do a post-process here.
+ * **tsc** built AMD modules, let's do a post-process and convert them to UMD modules
  *
  * This doesn't matter while developing (compatible with require.js)
  *
@@ -44,33 +42,31 @@ config.bundleFiles.forEach(item => {
  */
 function patchUMD(file) {
   utils.processTextFile(file, (data) => {
-    const doneMark = `//[HyperMD] UMD for plain environment!`
-    if (data.includes(doneMark)) return
+    const doneMark = `//[HyperMD] UMD patched!`
+    if (data.includes(doneMark)) return;
 
-    var tmp = data.match(/define\((\[.+?\]),\s*(\w+)/)
-    if (!tmp) return
+    var tmp = data.match(/\bdefine\((\[.+?\]),\s*/)
+    if (!tmp) return;
 
-    var factoryFnName = tmp[2]
-    var modules = JSON.parse(tmp[1]).slice(2) // skip require and exports
+    // data format:
+    //
+    // ... LEADING COMMENTS ...
+    // define(["require", "exports", "module1", "module2", "module3"], function (require, exports, foo, bar, baz) {
+    //    ... MAIN CODE ...
+    // });
 
-    var requiredModules = [] // ["codemirror", "../addon/xxx"]
-    var lutBody = []  // [ 'if (m === "../addon/fold") return HyperMD.Fold' ]
-    var exportsAlias = null // "HyperMD.FooBar"  global name in plain env
+    var data_head = data.slice(0, tmp.index)  // comments before define([
+    var data_tail = data.slice(tmp.index + tmp[0].length)  // function(require, exports, xxx) { ... });
+    var actualRefCount = data_tail.slice(0, data_tail.indexOf(')')).split(',').length - 2 // (argument count of mod function) - 2
 
-    { // build lut and requiredModules
-      let lut = {}
-      for (const mod of modules) {
-        if (mod == "require" || mod == "exports") continue;
-        if (mod in lut) continue;
-        let globalName = lut[mod] = config.getGlobalName(mod, file)
-        requiredModules.push(mod)
-        if (globalName) lutBody.push(`if (m === ${JSON.stringify(mod)}) return ${globalName};`)
-        else if (mod[0] == '.' && !/\.css$/.test(mod)) {
-          // "./not-exported/module"
-          console.warn(`[HyperMD] "${file}" 's dependency "${mod}" is NOT accessible in plain browser env!`)
-        }
-      }
+    { // dynamic require is forbidden
+      if (data_tail.indexOf('require(') !== -1) throw new Error("[HyperMD] require('xxx') is not allowed in " + file)
     }
+
+    /** @type {string[]} */
+    var modules = JSON.parse(tmp[1]).slice(2) // "require" and "exports" are excluded
+    var exportsAlias = "" // "HyperMD.FooBar"  global name in plain env
+    var moduleGlobalNames = [] // ["CodeMirror", "MathJax", "HyperMD", "HyperMD.Fold"]  global names in plain env
 
     { // decide exportsAlias
       let fileModName = file.replace(/\.[jt]s$|^\.[\/\\]/ig, '').replace(/\\/g, '/') // => "addon/foobar"
@@ -91,24 +87,36 @@ function patchUMD(file) {
       }
     }
 
-    // pbe = plain browser env
-    var pbeInsertPos = data.indexOf('}', tmp.index + tmp[0].length) + 1
-    var pbeInsert = `
-    else { ${doneMark}
-      ${factoryFnName}(function (m){
-        ${lutBody.join("\n        ")}
-      }, ${exportsAlias});
-    }`
+    { // check bad references and build moduleGlobalNames
+      for (let i = 0; i < modules.length; i++) {
+        let mod = modules[i]
+        if (mod == "require" || mod == "exports") throw new Error("WTF?");
 
-    // add explicit require("")-s for factory(require, exports)
-    var textBeforePBE = data.slice(0, pbeInsertPos)
-    var reqInsertPos = textBeforePBE.lastIndexOf(factoryFnName, tmp.index)
-    reqInsertPos = textBeforePBE.lastIndexOf("{", reqInsertPos) + 1 // pos after "{"
-    var reqInsert = requiredModules.map(x => `\n        require(${JSON.stringify(x)});`).join("")
+        let tmp = /^(\.[\.\/]*\/)(core\/.+|everything)$/.exec(mod)
+        if (tmp) {
+          let corrected = tmp[1] + "core"
+          console.warn(`[HyperMD][WARN] Please import "${corrected}" instead of "${mod}". Found in ${file}`)
+          mod = modules[i] = corrected
+        }
 
-    textBeforePBE = textBeforePBE.slice(0, reqInsertPos) + reqInsert + textBeforePBE.slice(reqInsertPos)
+        if (i < actualRefCount) {
+          let globalName = config.getGlobalName(mod, file)
+          moduleGlobalNames.push(globalName || "null")
 
-    data = textBeforePBE + pbeInsert + data.slice(pbeInsertPos)
+          if (!globalName)
+            console.warn(`[HyperMD][WARN] Module "${mod}" is NOT accessible in plain browser env! Found in ${file}`)
+        }
+      }
+    }
+
+    var interopData = `
+(function (mod){ ${doneMark}
+  /*commonjs*/  ("object"==typeof exports&&"undefined"!=typeof module) ? mod(null, exports, ${modules.map(x => `require("${x}")`).join(", ")}) :
+  /*amd*/       ("function"==typeof define&&define.amd) ? define(${ JSON.stringify(["require", "exports"].concat(modules))}, mod) :
+  /*plain env*/ mod(null, ${exportsAlias}, ${moduleGlobalNames.slice(0, actualRefCount).join(", ")});
+})(`
+
+    data = data_head + interopData + data_tail
 
     return data
   })

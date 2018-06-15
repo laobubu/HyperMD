@@ -51,14 +51,13 @@ export function getNamedDeclarations(sf: ts.SourceFile): Map<string, ReadonlyArr
       case SyntaxKind.GetAccessor:
       case SyntaxKind.SetAccessor:
       case SyntaxKind.TypeLiteral:
-      case SyntaxKind.VariableDeclaration:
         name = getDeclarationName(<ts.Declaration>node)
         addDeclaration(name, <ts.Declaration>node);
         break;
 
-      case SyntaxKind.VariableDeclarationList:
-        let vdlNode = <ts.VariableDeclarationList>node;
-        vdlNode.declarations.forEach(vdNode => {
+      case SyntaxKind.VariableStatement:
+        let vsNode = <ts.VariableStatement>node;
+        vsNode.declarationList.declarations.forEach(vdNode => {
           name = getDeclarationName(vdNode)
           addDeclaration(name, vdNode)
         })

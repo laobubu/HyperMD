@@ -54,6 +54,12 @@ exports.bundleFiles = [
     output: "ai1.js",
     name: "HyperMD",
     uglify: true,
+    banner: [
+      "//-----------------------------------------------//",
+      "// !! This file is for Plain Browser Env ONLY !! //",
+      "// !! Not Work With Bundlers                  !! //",
+      "//-----------------------------------------------//",
+    ].join("\n"),
   },
   {
     // not necessary but maybe you just want the core utils?
@@ -62,6 +68,20 @@ exports.bundleFiles = [
     name: "HyperMD",
   },
 ]
+
+exports.banner = `
+/*!
+ * HyperMD, copyright (c) by laobubu
+ * Distributed under an MIT license: http://laobubu.net/HyperMD/LICENSE
+ *
+ * Break the Wall between writing and preview, in a Markdown Editor.
+ *
+ * HyperMD makes Markdown editor on web WYSIWYG, based on CodeMirror
+ *
+ * Homepage: http://laobubu.net/HyperMD/
+ * Issues: https://github.com/laobubu/HyperMD/issues
+ */
+`.trim()
 
 /**
  * Get modules' object name in plain browser env

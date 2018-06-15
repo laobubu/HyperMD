@@ -6,11 +6,10 @@
 
 import * as CodeMirror from 'codemirror'
 import { Position } from 'codemirror'
-import { Addon, FlipFlop, suggestedEditorConfig, debounce, watchSize } from '../core'
+import { Addon, suggestedEditorConfig, visitElements, watchSize } from '../core'
 import { cm_t } from '../core/type'
 import { builtinFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 import './read-link'
-import { visitElements } from '../core/utils';
 
 /********************************************************************************** */
 /**

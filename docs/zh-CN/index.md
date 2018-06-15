@@ -121,7 +121,7 @@ requirejs.config({
 
 require([
   'codemirror/lib/codemirror',
-  'hypermd/ai1',  // 如果不想用 ai1 (all in one) 版本, 参考 demo/index.js
+  'hypermd/everything',  // 如果想选择性地只载入部分组件, 参考 demo/index.js
 
   // 如果需要为特殊元素添加语法高亮，请载入对应的模式
   "codemirror/mode/htmlmixed/htmlmixed", // Markdown 内嵌HTML
