@@ -40,6 +40,9 @@ export interface HandlerAction {
  * returns `true` if files are accepted and uploading, and HyperMD will put a placeholder there.
  * Then FileHandler may use `action` object to change the placeholder and finish uploading.
  *
+ * It's recommended (but not forced) to add "hmd-file-uploading" class to uploading item placeholders,
+ * and "hmd-file-uploaded" to uploaded item placeholders.
+ *
  * @see FileHandler
  * @see HandlerAction
  */
@@ -80,88 +83,6 @@ export function ajaxUpload(
 
 //#endregion
 
-/********************************************************************************** */
-//#region Default FileHandler
-
-/** a spinning gif image (16x16) */
-const spinGIF = ''
-const errorPNG = ''
-
-/**
- * Default FileHandler
- *
- * accepts images, uploads to https://sm.ms and inserts as `![](image_url)`
- */
-export const DefaultFileHandler: FileHandler = function (files, action) {
-  var unfinishedCount = 0
-
-  var placeholderForAll = document.createElement("div")
-  placeholderForAll.className = "HyperMD-insertFile-dfh-placeholder"
-  action.setPlaceholder(placeholderForAll)
-
-  /** @type {{name:string, url:string, placeholder:HTMLImageElement, blobURL:string}[]} */
-  var uploads = []
-
-  const supportBlobURL = typeof URL !== 'undefined'
-  var blobURLs = []
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i]
-    if (!/image\//.test(file.type)) continue
-
-    const blobURL = supportBlobURL ? URL.createObjectURL(file) : spinGIF
-    const name = file.name.match(/[^\\\/]+\.\w+$/)[0]
-    const url = null
-    const placeholder = document.createElement("img")
-
-    placeholder.onload = action.resize // img size changed
-    placeholder.className = "HyperMD-insertFile-dfh-uploading"
-    placeholder.src = blobURL
-    placeholderForAll.appendChild(placeholder)
-
-    uploads.push({
-      blobURL, name, url, placeholder,
-    })
-    unfinishedCount++
-
-    // now start upload image. once uploaded, `finishImage(index, url)` shall be called
-    Upload_SmMs(file, uploads.length - 1)
-  }
-
-  return unfinishedCount > 0
-
-  function finishImage(index, url) {
-    uploads[index].url = url
-
-    const placeholder = uploads[index].placeholder
-    placeholder.className = "HyperMD-insertFile-dfh-uploaded"
-    placeholder.src = url || errorPNG
-
-    if (supportBlobURL) URL.revokeObjectURL(uploads[index].blobURL)
-
-    if (--unfinishedCount === 0) {
-      let texts = uploads.map(it => `![${it.name}](${it.url})`)
-      action.finish(texts.join(" ") + " ")
-    }
-  }
-
-  function Upload_SmMs(file, index) {
-    ajaxUpload(
-      'https://sm.ms/api/upload',
-      {
-        smfile: file,
-        format: 'json'
-      },
-      function (o, e) {
-        const imgURL = (o && o.code == 'success') ? o.data.url : null
-        finishImage(index, imgURL)
-      }
-    )
-  }
-}
-
-//#endregion
-
 
 /********************************************************************************** */
 //#region Addon Options
@@ -188,7 +109,7 @@ export interface Options extends Addon.AddonOptions {
 export const defaultOption: Options = {
   byDrop: false,
   byPaste: false,
-  fileHandler: DefaultFileHandler,
+  fileHandler: null,
 }
 
 export const suggestedOption: Partial<Options> = {
@@ -204,12 +125,10 @@ declare global {
       /**
        * Options for InsertFile.
        *
-       * You may also provide a `false` to disable it; a `true` to enable it with DefaultFileHandler
+       * You may also provide a `false` to disable it; a `true` to enable it with `defaultOption.fileHandler`
+       * ( Note: you shall load a related PowerPack, or manually, to populate `defaultOption.fileHandler` )
        *
-       * Or provide a FileHandler(overwrite the default one), meanwhile, byDrop & byPaste will set to `true`
-       *
-       * @see FileHandler
-       * @see HandlerAction
+       * Or provide a FileHandler (overwrite the default one), meanwhile, byDrop & byPaste will set to `true`
        */
       hmdInsertFile?: OptionValueType
     }
@@ -273,8 +192,10 @@ export class InsertFile implements Addon.Addon, Options /* if needed */ {
     if (!data || !data.files || 0 === data.files.length) return false
     const files = data.files
 
-    var fileHandler = this.fileHandler || DefaultFileHandler
+    var fileHandler = this.fileHandler
     var handled = false
+
+    if (typeof fileHandler !== 'function') return false
 
     cm.operation(() => {
       // create a placeholder

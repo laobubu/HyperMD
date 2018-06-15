@@ -12,7 +12,7 @@ process.chdir(path.join(__dirname, ".."))
 //--------------------------------------------------------------
 // Add "export as namespace HyperMD;" mark
 
-utils.processTextFile("ai1.d.ts", (text) => {
+utils.processTextFile("everything.d.ts", (text) => {
   const mark = "\nexport as namespace HyperMD;\n"
   if (text.includes(mark)) return
 
@@ -100,7 +100,7 @@ function patchUMD(file) {
       }, ${exportsAlias});
     }`
 
-    // add explicit require("")-s before factory(require, exports)
+    // add explicit require("")-s for factory(require, exports)
     var textBeforePBE = data.slice(0, pbeInsertPos)
     var reqInsertPos = textBeforePBE.lastIndexOf(factoryFnName, tmp.index)
     reqInsertPos = textBeforePBE.lastIndexOf("{", reqInsertPos) + 1 // pos after "{"

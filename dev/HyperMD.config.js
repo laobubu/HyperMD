@@ -50,7 +50,7 @@ exports.externalNames = Object.keys(exports.globalNames)
  */
 exports.bundleFiles = [
   {
-    entry: "src/ai1.ts",
+    entry: "src/everything.ts",
     output: "ai1.js",
     name: "HyperMD",
     uglify: true,
@@ -91,6 +91,7 @@ exports.getGlobalName = function getGlobalName(moduleID, currentFile) {
 
   if (ans) return "HyperMD." + ans
   if (/^core(\/.+)?$/.test(cleanModuleID)) return "HyperMD"
+  if ("everything" === cleanModuleID) return "HyperMD"
 
   return null
 }

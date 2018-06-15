@@ -267,3 +267,17 @@ body.loaded #test-box .test-item.right .test-tooltip {
 #winLab [lab-bind]:hover .opt-tip {
     display: block;
 }
+
+/* SM.MS Image Hosting! */
+
+.smms-hosted-items:before {
+    content: "感谢 sm.ms 为 Demo 页提供图床";
+    color: #900;
+    font-weight: bold;
+    z-index: 100;
+    position: absolute;
+    background: #FFF;
+    padding: 4px 8px;
+    border: 8px solid #900;
+    pointer-events: none;
+}

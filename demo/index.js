@@ -73,6 +73,8 @@ require([
   /// PowerPack with third-party libraries  ///
   /////////////////////////////////////////////
 
+  'hypermd/powerpack/insert-file-with-smms',
+
   'hypermd/powerpack/hover-with-marked',
 
   'hypermd/powerpack/fold-math-with-katex',

@@ -472,6 +472,24 @@
 
     /// hyperMD stuff
 
+    /// hypermd/addon/insert-file
+
+    .hmd-file-uploading {
+        outline: 2px dashed #CCC;
+        outline-offset: -2px;
+        animation: hmd-file-uploading-ani 1.5s linear infinite;
+    }
+
+    @keyframes hmd-file-uploading-ani {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 0.7; }
+    }
+
+    .hmd-file-uploaded {
+        outline: 2px solid #6C3;
+        outline-offset: -2px;
+    }
+
     /// hypermd/addon/click
 
     .HyperMD-goback {
