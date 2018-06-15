@@ -85,3 +85,26 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
   * Improve block-quote experience
   * Slightly increased font-size
   * [Demo Page] TOC & MathPreview
+
+## 0.3.6  2018-6-15
+
+*Many sorry for webpack users, and ~~crazy~~ sm.ms lovers. Hope not ruin your day.*
+*坑真的是越填越多，又要~~不情愿地~~更新了。至少有人试用了算好消息吧。*
+
+* **Project Structure**
+  * **ai1** for plain browser env **ONLY**
+  * **everything** for module loaders / bundlers
+
+* **Removed**
+  * **insert-file**: Default FileHandler which uses sm.ms, is now depercated.
+    You MUST provided your own FileHandler, or use PowerPacks (if it's okay)
+
+* **Appearance**
+  * **List** : Fix : an empty line may appear if the first word is too looong
+
+* **Fix**
+  * **FoldMath** allow inline `$$ TeX $$` formulars (useful for Jekyll)
+  * **UMD Declaration** now works with WebPack. See issue #31
+    - *TypeScript UMD format s@@ks!*
+  * **Use AMD** module declaration while developing.
+  * **Dev/DocGen** exported-member extractor
