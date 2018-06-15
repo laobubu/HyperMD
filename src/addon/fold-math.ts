@@ -96,7 +96,8 @@ export const MathFolder: FolderFunc = (stream, token) => {
 
   // Now let's make a math widget!
 
-  var marker = insertMathMark(cm, from, to, expr, tokenLength, "math-" + tokenLength)
+  const isDisplayMode = tokenLength > 1 && from.ch == 0 && (noEndingToken || to.ch >= cm.getLine(to.line).length)
+  var marker = insertMathMark(cm, from, to, expr, tokenLength, isDisplayMode)
   foldMathAddon.editingExpr = null // try to hide preview
   return marker
 }
@@ -104,9 +105,9 @@ export const MathFolder: FolderFunc = (stream, token) => {
 /**
  * Insert a TextMarker, and try to render it with configured MathRenderer.
  */
-export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression: string, tokenLength: number, className?: string): TextMarker {
+export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression: string, tokenLength: number, isDisplayMode?: boolean): TextMarker {
   var span = document.createElement("span")
-  span.setAttribute("class", "hmd-fold-math " + (className || ''))
+  span.setAttribute("class", "hmd-fold-math math-" + (isDisplayMode ? 2 : 1))
   span.setAttribute("title", expression)
 
   var mathPlaceholder = document.createElement("span")
@@ -128,7 +129,7 @@ export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression:
   span.addEventListener("click", () => breakMark(cm, marker, tokenLength), false)
 
   const foldMathAddon = getAddon(cm)
-  var mathRenderer = foldMathAddon.createRenderer(span, tokenLength > 1 ? "display" : "")
+  var mathRenderer = foldMathAddon.createRenderer(span, isDisplayMode ? "display" : "")
   mathRenderer.onChanged = function () {
     if (mathPlaceholder) {
       span.removeChild(mathPlaceholder)
