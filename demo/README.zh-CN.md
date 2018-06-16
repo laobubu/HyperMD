@@ -11,7 +11,7 @@
 
 ## 选择 HyperMD 的 N 个理由
 
-HyperMD 是一组 [CodeMirror] 插件、模式和主题。
+HyperMD 是一组 [CodeMirror] 插件、模式、主题、编辑器命令（Commands）和按键绑定（KeyMap）等。
 
 你可以在一个页面上同时使用 HyperMD 和 CodeMirror。
 
@@ -39,7 +39,18 @@ HyperMD 是一组 [CodeMirror] 插件、模式和主题。
 8. **Power Pack** 机制，用各种第三方库和服务增强 HyperMD 功能
    - 例如 [MathJax][], [marked][], KaTeX ...
    - *[详细列表](https://laobubu.net/HyperMD/#./docs/powerpacks.md)*
-9. **[还有更多...][doc]**
+9. **KeyMap** 特制的按键绑定 "HyperMD":
+    + **表格**
+      - <kbd>回车</kbd> 使用 `| column | line |` 创建表格
+      - <kbd>回车</kbd> 插入一行或者结束表格（如果最后一行的格子都是空的）
+      - <kbd>Tab</kbd> 和 <kbd>Shift-Tab</kbd> 在表格间切换
+    + **列表**
+      - <kbd>Tab</kbd> 和 <kbd>Shift-Tab</kbd> 改变当前列表项的缩进
+    + **格式化** 光标旁边的单词（或者选中的文字）
+      - <kbd>Ctrl+B</kbd> **加粗**
+      - <kbd>Ctrl+I</kbd> *斜体*
+      - <kbd>Ctrl+D</kbd> ~~删除线~~
+10. **[还有更多...][doc]**
 
 ## 快速开始
 

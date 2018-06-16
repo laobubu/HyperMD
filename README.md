@@ -11,7 +11,7 @@
 
 ## Why use HyperMD?
 
-HyperMD is a set of [CodeMirror] add-ons / modes / themes.
+HyperMD is a set of [CodeMirror] add-ons / modes / themes / commands / keymap etc.
 
 You may use both original CodeMirror and HyperMD on the same page.
 
@@ -39,7 +39,18 @@ You may use both original CodeMirror and HyperMD on the same page.
 8. **Power Packs** integrate 3rd-party libs and services on-the-fly
    - [MathJax][], [marked][], KaTeX and more.
    - *[Read the list](https://laobubu.net/HyperMD/#./docs/powerpacks.md)*
-9. **[And More...][doc]**
+9. Tailored **KeyMap** "HyperMD":
+    + **Table**
+      - <kbd>Enter</kbd> Create a table with `| column | line |`
+      - <kbd>Enter</kbd> Insert new row, or finish a table (if last row is empty)
+      - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to navigate between cells
+    + **List**
+      - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to indent/unindent current list item
+    + **Formatting** a nearby word (or selected text)
+      - <kbd>Ctrl+B</kbd> **bold**
+      - <kbd>Ctrl+I</kbd> *emphasis*
+      - <kbd>Ctrl+D</kbd> ~~strikethrough~~
+10. **[And More...][doc]**
 
 ## Quickstart
 
