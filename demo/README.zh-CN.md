@@ -16,27 +16,30 @@ HyperMD 是一组 [CodeMirror] 插件、模式和主题。
 你可以在一个页面上同时使用 HyperMD 和 CodeMirror。
 
 1. Markdown 写作和预览，一个框就够了
-    - **粗体字**、*斜体字*、~~删除线~~、`Code`
-    - [链接](https://laobubu.net)、图片、脚注
-    - 引用块、代码块
-    - 标题
-    - 水平线
-    - [x] 列表（支持层叠列表、待办事项框）
-    - TeX 公式渲染，例如 $ e^{ i\pi } + 1 = 0 $ 或者多行公式块 [^4]
-    - 普通表格
+   - **各种常规 Markdown 元素**
+     + **粗体字**、*斜体字*、~~删除线~~、`Code`
+     + [链接](https://laobubu.net)、图片
+     + 标题 / 引用块 / 代码块 / 列表 / 水平分割线
+   - **扩展的 Markdown 语法**
+     + 简单表格
+     + 脚注 [^1]
+     + [x] TODO 列表 (可点击勾选框, 改变状态)
+     + YAML Front Matter
+   - 行内 $\LaTeX$ 公式渲染，同时也支持多行公式块 [^4]
 2. **按着 Alt 点击** 可以打开链接，或者跳到脚注 [^1]
 3. **代码块语法高亮** 支持数百种语言 [^2]
 4. **鼠标悬停** 可以查看脚注内容
 5. **复制粘贴** 自动转换网页内容为 Markdown [^5]
 6. **可复用大量 CodeMirror 插件**，包括
-    - VIM/Emacs 模式、自定义按键绑定
-    - Diff and Merge
-    - 全屏
-    - 各种主题 [^3]
-7. **自动载入语法高亮规则**
-8. **上传图片** 只需要复制粘贴，或者把文件拖进来就行了
-9. **Power Pack** 用各种第三方库增强 HyperMD 功能，例如 [MathJax][], [marked][], KaTeX ...
-10. **[还有更多...][doc]**
+   - VIM/Emacs 模式、自定义按键绑定
+   - Diff and Merge
+   - 全屏
+   - 各种主题 [^3]
+7. **上传图片** 只需要复制粘贴，或者把文件拖进来就行了
+8. **Power Pack** 机制，用各种第三方库和服务增强 HyperMD 功能
+   - 例如 [MathJax][], [marked][], KaTeX ...
+   - *[详细列表](https://laobubu.net/HyperMD/#./docs/powerpacks.md)*
+9. **[还有更多...][doc]**
 
 ## 快速开始
 
@@ -51,13 +54,64 @@ var editor = HyperMD.fromTextArea(myTextarea)
 
 如果你是 [RequireJS][] 用户，或者纯粹 HTML 标签爱好者，请参考 [文档中的"快速开始"部分][doc]!
 
+
+## 特别感谢
+
+💎 **服务和资源**
+
+<table>
+  <tr>
+    <td width="50%">
+      <b><a href="https://icomoon.io/#icons-icomoon">IcoMoon</a> - The IconPack(免费版)</b><br>
+      <small>
+        <em>Demo Page</em> uses IcoMoon icons. Related files are stored in <a href="https://github.com/laobubu/HyperMD/tree/master/demo/svgicon">demo/svgicon</a>.
+      </small>
+    </td>
+    <td>
+      <b><a href="http://www.codecogs.com">CodeCogs</a> - An Open Source Scientific Library</b><br>
+      <small>
+        <em>FoldMath</em> uses codecogs' service as the default TeX MathRenderer.<br>
+        (You may load PowerPack to use other renderer, eg. KaTeX or MathJax)
+      </small>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b><a href="https://sm.ms/">SM.MS</a> - 免费图床服务</b><br>
+      <small>
+        <em>在线演示页</em> 和 <em>PowerPack/insert-file-with-smms</em> 使用了 SM.MS 开放API来上传和存储用户插入的图片。<br>
+        (若你想在你的编辑器里使用 SM.MS 服务，请使用对应 PowerPack)
+      </small>
+    </td>
+    <td>
+      <b><a href="https://codemirror.net/">CodeMirror</a></b> - In-browser code editor.<br>
+      <b><a href="http://requirejs.org/">RequireJS</a></b> - A JavaScript AMD module loader.<br>
+      <b><a href="https://khan.github.io/KaTeX/">KaTeX</a></b> - The fastest math typesetting library for the web.<br>
+      <b><a href="https://github.com/chjj/marked/">marked</a></b>,
+      <b><a href="https://github.com/domchristie/turndown/">turndown</a></b>
+      and more remarkable libs.
+      <br>
+    </td>
+  </tr>
+</table>
+
+
+🙏 **Sponsors** _(按日期排序)_
+
+<div class="sponsors">
+  <span>☕Phithon</span>
+  <span>☕c*i</span>
+  <span>☕*Yuan</span>
+</div>
+
+
 ## 一起来搞事
 
 HyperMD 是 [laobubu] 的一个开源项目，欢迎你：
 
- - [在 GitHub 贡献代码](https://github.com/laobubu/HyperMD/) ，编写你的组件和主题
- - [帮我买杯咖啡](https://laobubu.net/donate.html)
- - 将 HyperMD 分享给更多人
+- [在 GitHub 贡献代码](https://github.com/laobubu/HyperMD/) ，编写你的组件和主题
+- [帮我买杯咖啡](https://laobubu.net/donate.html)
+- 将 HyperMD 分享给更多人
 
 
 

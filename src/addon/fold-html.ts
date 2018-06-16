@@ -126,18 +126,18 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
   const to: Position = { line: endInfo.lineNo, ch: endInfo.token.end }
 
   const inlineMode: boolean = from.ch != 0 || to.ch < cm.getLine(to.line).length
-  if (!inlineMode) {
-    // if not inline mode, be greddy and eat following blank lines (except last line of editor)!
-    let lastLine: number = cm.lastLine() - 1
-    let allowCount: number = 1
-    while (allowCount > 0 && to.line < lastLine) {
-      let nextLine: string = cm.getLine(to.line + 1)
-      if (!/^\s*$/.test(nextLine)) break
-      to.line++
-      to.ch = nextLine.length
-      allowCount--
-    }
-  }
+  // if (!inlineMode) {
+  //   // if not inline mode, be greddy and eat following blank lines (except last line of editor)!
+  //   let lastLine: number = cm.lastLine() - 1
+  //   let allowCount: number = 1
+  //   while (allowCount > 0 && to.line < lastLine) {
+  //     let nextLine: string = cm.getLine(to.line + 1)
+  //     if (!/^\s*$/.test(nextLine)) break
+  //     to.line++
+  //     to.ch = nextLine.length
+  //     allowCount--
+  //   }
+  // }
 
   var addon = getAddon(cm)
   var html: string = cm.getRange(from, to)

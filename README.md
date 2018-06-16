@@ -16,27 +16,30 @@ HyperMD is a set of [CodeMirror] add-ons / modes / themes.
 You may use both original CodeMirror and HyperMD on the same page.
 
 1. Write, and preview on the fly
-    - **Strong**, *Emphasis*, ~~Strikethrough~~, `Code`
-    - [Links](https://laobubu.net), Images, Footnotes
-    - Block-quotes, code blocks
-    - Headers
-    - Horizontal Rules
-    - [x] Lists (nested, ordered, unordered, tasks with checkbox)
-    - TeX Formula, like $ e^{ i\pi } + 1 = 0 $ or multi-line math blocks [^4]
-    - Simple Tables
+   - **Regular Markdown** blocks and elements
+     + **Strong**, *Emphasis*, ~~Strikethrough~~, `Code`
+     + [Links](https://laobubu.net), Images
+     + Title / Quote / Code Block / List / Horizontal Rule
+   - **Markdown Extension**
+     + Simple Table
+     + Footnote [^1]
+     + [x] TODO List (with clickable checkboxes)
+     + YAML Front Matter
+   - Inline $\LaTeX$ Formula, and multi-line math blocks [^4]
 2. **Alt+Click** to follow link / footnote [^1]
 3. **Syntax Highlight** for 120+ languages code blocks [^2]
 4. **Hover** to read footnotes
 5. **Copy and Paste**, translate HTML into Markdown [^5]
 6. **Massive CodeMirror Add-ons** can be loaded, including:
-    - VIM/Emacs mode and Configurable keybindings
-    - Diff and Merge
-    - Fullscreen
-    - Themes [^3]
-7. **Code Block Highlighting** language modes are loaded automatically
-8. **Upload Images** copy and paste, or drag'n'drop
-9. **Power Packs** power up HyperMD with 3rd-party libs like [MathJax][], [marked][], KaTeX ...
-10. **[And More...][doc]**
+   - VIM/Emacs mode and Configurable keybindings
+   - Diff and Merge
+   - Fullscreen
+   - Themes [^3]
+7. **Upload Images** and files via clipboard, or drag'n'drop
+8. **Power Packs** integrate 3rd-party libs and services on-the-fly
+   - [MathJax][], [marked][], KaTeX and more.
+   - *[Read the list](https://laobubu.net/HyperMD/#./docs/powerpacks.md)*
+9. **[And More...][doc]**
 
 ## Quickstart
 
@@ -51,14 +54,64 @@ If you use bundlers, that's all. CSS will be imported via "hypermd" javascript.
 
 For [RequireJS][] users and pure HTML lovers, please read [QuickStart Section in Documentation][doc]!
 
+## Special Thanks
+
+💎 **Service and Resource**
+
+<table>
+  <tr>
+    <td width="50%">
+      <b><a href="https://icomoon.io/#icons-icomoon">IcoMoon</a></b> - The IconPack(Free Version)<br>
+      <small>
+        <em>Demo Page</em> uses IcoMoon icons. Related files are stored in <a href="https://github.com/laobubu/HyperMD/tree/master/demo/svgicon">demo/svgicon</a>.
+      </small>
+    </td>
+    <td>
+      <b><a href="http://www.codecogs.com">CodeCogs</a></b> - An Open Source Scientific Library<br>
+      <small>
+        <em>FoldMath</em> uses codecogs' service as the default TeX MathRenderer.<br>
+        (You may load PowerPack to use other renderer, eg. KaTeX or MathJax)
+      </small>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b><a href="https://sm.ms/">SM.MS</a></b> - A Free Image Hosting service<br>
+      <small>
+        <em>Demo Page</em> and <em>PowerPack/insert-file-with-smms</em> use SM.MS open API to upload user-inserted images.<br>
+        (If you want to integrate SM.MS service, use the PowerPack)
+      </small>
+    </td>
+    <td>
+      <b><a href="https://codemirror.net/">CodeMirror</a></b> - In-browser code editor.<br>
+      <b><a href="http://requirejs.org/">RequireJS</a></b> - A JavaScript AMD module loader.<br>
+      <b><a href="https://khan.github.io/KaTeX/">KaTeX</a></b> - The fastest math typesetting library for the web.<br>
+      <b><a href="https://github.com/chjj/marked/">marked</a></b>,
+      <b><a href="https://github.com/domchristie/turndown/">turndown</a></b>
+      and more remarkable libs.
+      <br>
+    </td>
+  </tr>
+</table>
+
+
+🙏 **Sponsors** _(sorted by date)_
+
+<div class="sponsors">
+  <span>☕Phithon</span>
+  <span>☕c*i</span>
+  <span>☕*Yuan</span>
+</div>
+
+
 ## Contributing
 
 HyperMD is a personal Open-Source project by [laobubu].
 Contributions are welcomed. You may:
 
- - [Fork on GitHub](https://github.com/laobubu/HyperMD/) , create your amazing themes and add-ons.
- - [Buy me a Coffee](https://laobubu.net/donate.html)
- - Spread HyperMD to the world!
+- [Fork on GitHub](https://github.com/laobubu/HyperMD/) , create your amazing themes and add-ons.
+- [Buy me a Coffee](https://laobubu.net/donate.html)
+- Spread HyperMD to the world!
 
 
 

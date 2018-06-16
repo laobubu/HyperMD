@@ -281,3 +281,13 @@ body.loaded #test-box .test-item.right .test-tooltip {
     border: 8px solid #900;
     pointer-events: none;
 }
+
+/* sponsors */
+
+.sponsors > span{
+    display: inline-block;
+    border: 1px solid #999;
+    padding: 3px 6px;
+    border-radius: 5px;
+    font-size: 87%;
+}
