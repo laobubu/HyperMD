@@ -11,7 +11,7 @@
 
 ## Why use HyperMD?
 
-HyperMD is a set of [CodeMirror] add-ons / modes / themes / commands / keymap etc.
+HyperMD is a set of [CodeMirror][] add-ons / modes / themes / commands / keymap etc.
 
 You may use both original CodeMirror and HyperMD on the same page.
 
@@ -37,8 +37,8 @@ You may use both original CodeMirror and HyperMD on the same page.
    - Themes [^3]
 7. **Upload Images** and files via clipboard, or drag'n'drop
 8. **Power Packs** integrate 3rd-party libs and services on-the-fly
-   - [MathJax][], [marked][], KaTeX and more.
-   - *[Read the list](https://laobubu.net/HyperMD/#./docs/powerpacks.md)*
+   - [MathJax][], [marked][], [KaTeX][] and more.
+   - *[Read the list][powerpacks]*
 9. Tailored **KeyMap** "HyperMD":
     + **Table**
       - <kbd>Enter</kbd> Create a table with `| column | line |`
@@ -64,6 +64,8 @@ var editor = HyperMD.fromTextArea(myTextarea)
 If you use bundlers, that's all. CSS will be imported via "hypermd" javascript.
 
 For [RequireJS][] users and pure HTML lovers, please read [QuickStart Section in Documentation][doc]!
+
+To integrate other third-party libs and services, read [PowerPacks][]
 
 ## Special Thanks
 
@@ -127,14 +129,15 @@ Contributions are welcomed. You may:
 
 
 -------------------------------------------------------
-[CodeMirror]: https://codemirror.net/   A powerful text editor for the browser.
-[RequireJS]:  http://requirejs.org/   A JavaScript AMD module loader.
-[MathJax]:  https://www.mathjax.org/  A display engine for mathematics.
-[marked]:   https://github.com/chjj/marked/  A markdown parser and compiler.
-[turndown]: https://github.com/domchristie/turndown An HTML to Markdown converter
-[turndown-plugin-gfm]: https://github.com/domchristie/turndown-plugin-gfm Turndown plugin to add GitHub Flavored Markdown extensions
-[laobubu]:  https://laobubu.net/  The author of HyperMD.
-[doc]: https://laobubu.net/HyperMD/docs/ HyperMD Documentation
+
+[CodeMirror]: https://codemirror.net/
+[RequireJS]: http://requirejs.org/
+[MathJax]: https://www.mathjax.org/
+[marked]: https://github.com/chjj/marked/
+[katex]: https://khan.github.io/KaTeX/
+[laobubu]: https://laobubu.net/
+[doc]: https://laobubu.net/HyperMD/docs/
+[powerpacks]: https://laobubu.net/HyperMD/#./docs/powerpacks.md
 
 [^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.
