@@ -92,26 +92,33 @@
     <fieldset>
       <legend><em>Fold</em></legend>
       <p>
-        <label lab-bind lab-bind-ff="Fold.ff_builtin.image">
+        <label lab-bind lab-bind-fold="image">
           <input type="checkbox">image
           <span class="opt-tip">hmdFold.image</span>
         </label>
-        <label lab-bind lab-bind-ff="Fold.ff_builtin.link">
+        <label lab-bind lab-bind-fold="link">
           <input type="checkbox">link
           <span class="opt-tip">hmdFold.link</span>
         </label>
-        <label lab-bind lab-bind-ff="Fold.ff_builtin.math">
+        <label lab-bind lab-bind-fold="math">
           <input type="checkbox">math
           <span class="opt-tip">
             <em>(Requires fold-math Addon)</em><br>
             hmdFold.math
           </span>
         </label>
-        <label lab-bind lab-bind-ff="Fold.ff_builtin.html">
+        <label lab-bind lab-bind-fold="html">
           <input type="checkbox">html
           <span class="opt-tip">
             <em>(Requires fold-html Addon)</em><br>
             hmdFold.html
+          </span>
+        </label>
+        <label lab-bind lab-bind-fold="emoji">
+          <input type="checkbox">emoji
+          <span class="opt-tip">
+            <em>(Requires fold-emoji Addon)</em><br>
+            hmdFold.emoji
           </span>
         </label>
       </p>

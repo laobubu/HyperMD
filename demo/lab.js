@@ -7,14 +7,29 @@ function init_lab(cm) {
     var $item = $items[i]
     var attr = $item.getAttribute('lab-bind')
     var attrFF = $item.getAttribute('lab-bind-ff')
+    var attrFold = $item.getAttribute('lab-bind-fold')
 
     if (attrFF) { // HyperMD.FlipFlop
       bind(cm.hmd, attrFF + ".state", $item, {
         updateObj: updateFlipFlop
       })
+    } else if (attrFold) { // HyperMD.Fold
+      var foldOpts = cm.hmd.Fold._enabled
+      if (!(attrFold in foldOpts)) {
+        foldOpts[attrFold] = false
+      }
+      bind(foldOpts, attrFold, $item, {
+        updateObj: updateFoldState
+      })
     } else {
       bind(cm.hmd, attr, $item)
     }
+  }
+
+  //----------------------------
+
+  function updateFoldState(_, type, enabled) {
+    cm.hmd.Fold.setStatus(type, enabled)
   }
 
   //----------------------------
