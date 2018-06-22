@@ -76,128 +76,151 @@ export enum RequestRangeResult {
 //#endregion
 
 /********************************************************************************** */
+//#region FolderFunc Registry
+
+export var folderRegistry: Record<string, FolderFunc> = {}
+
+/**
+ * Add a Folder to the System Folder Registry
+ *
+ * @param name eg. "math"  "html"  "image"  "link"
+ * @param folder
+ * @param suggested enable this folder in suggestedEditorConfig
+ * @param force if a folder with same name is already exists, overwrite it. (dangerous)
+ */
+export function registerFolder(name: string, folder: FolderFunc, suggested: boolean, force?: boolean) {
+  var registry = folderRegistry
+
+  if (name in registry && !force) throw new Error(`Folder ${name} already registered`)
+
+  defaultOption[name] = false
+  suggestedOption[name] = !!suggested
+  registry[name] = folder
+}
+
+//#endregion
+
+/********************************************************************************** */
 //#region builtinFolder
 
-export var builtinFolder: Record<string, FolderFunc> = {
-  image(stream, token) {
-    const cm = stream.cm
-    const imgRE = /\bimage-marker\b/
-    const urlRE = /\bformatting-link-string\b/   // matches the parentheses
-    if (imgRE.test(token.type) && token.string === "!") {
-      var lineNo = stream.lineNo
+export const ImageFolder: FolderFunc = function (stream, token) {
+  const cm = stream.cm
+  const imgRE = /\bimage-marker\b/
+  const urlRE = /\bformatting-link-string\b/   // matches the parentheses
+  if (imgRE.test(token.type) && token.string === "!") {
+    var lineNo = stream.lineNo
 
-      // find the begin and end of url part
-      var url_begin = stream.findNext(urlRE)
-      var url_end = stream.findNext(urlRE, url_begin.i_token + 1)
+    // find the begin and end of url part
+    var url_begin = stream.findNext(urlRE)
+    var url_end = stream.findNext(urlRE, url_begin.i_token + 1)
 
-      let from: Position = { line: lineNo, ch: token.start }
-      let to: Position = { line: lineNo, ch: url_end.token.end }
-      let rngReq = stream.requestRange(from, to)
+    let from: Position = { line: lineNo, ch: token.start }
+    let to: Position = { line: lineNo, ch: url_end.token.end }
+    let rngReq = stream.requestRange(from, to)
 
-      if (rngReq === RequestRangeResult.OK) {
-        var url: string
-        var title: string
+    if (rngReq === RequestRangeResult.OK) {
+      var url: string
+      var title: string
 
-        { // extract the URL
-          let rawurl = cm.getRange(    // get the URL or footnote name in the parentheses
-            { line: lineNo, ch: url_begin.token.start + 1 },
-            { line: lineNo, ch: url_end.token.start }
-          )
-          if (url_end.token.string === "]") {
-            let tmp = cm.hmdReadLink(rawurl, lineNo)
-            if (!tmp) return null // Yup! bad URL?!
-            rawurl = tmp.content
-          }
-          url = splitLink(rawurl).url
-          url = cm.hmdResolveURL(url)
-        }
-
-        { // extract the title
-          title = cm.getRange(
-            { line: lineNo, ch: from.ch + 2 },
-            { line: lineNo, ch: url_begin.token.start - 1 }
-          )
-        }
-
-        var img = document.createElement("img")
-        var marker = cm.markText(
-          from, to,
-          {
-            collapsed: true,
-            replacedWith: img,
-          }
+      { // extract the URL
+        let rawurl = cm.getRange(    // get the URL or footnote name in the parentheses
+          { line: lineNo, ch: url_begin.token.start + 1 },
+          { line: lineNo, ch: url_end.token.start }
         )
-
-        img.addEventListener('load', () => {
-          img.classList.remove("hmd-image-loading")
-          marker.changed()
-        }, false)
-        img.addEventListener('error', () => {
-          img.classList.remove("hmd-image-loading")
-          img.classList.add("hmd-image-error")
-          marker.changed()
-        }, false)
-        img.addEventListener('click', () => breakMark(cm, marker), false)
-
-        img.className = "hmd-image hmd-image-loading"
-        img.src = url
-        img.title = title
-        return marker
-      } else {
-        if (DEBUG) {
-          console.log("[image]FAILED TO REQUEST RANGE: ", rngReq)
+        if (url_end.token.string === "]") {
+          let tmp = cm.hmdReadLink(rawurl, lineNo)
+          if (!tmp) return null // Yup! bad URL?!
+          rawurl = tmp.content
         }
+        url = splitLink(rawurl).url
+        url = cm.hmdResolveURL(url)
+      }
+
+      { // extract the title
+        title = cm.getRange(
+          { line: lineNo, ch: from.ch + 2 },
+          { line: lineNo, ch: url_begin.token.start - 1 }
+        )
+      }
+
+      var img = document.createElement("img")
+      var marker = cm.markText(
+        from, to,
+        {
+          collapsed: true,
+          replacedWith: img,
+        }
+      )
+
+      img.addEventListener('load', () => {
+        img.classList.remove("hmd-image-loading")
+        marker.changed()
+      }, false)
+      img.addEventListener('error', () => {
+        img.classList.remove("hmd-image-loading")
+        img.classList.add("hmd-image-error")
+        marker.changed()
+      }, false)
+      img.addEventListener('click', () => breakMark(cm, marker), false)
+
+      img.className = "hmd-image hmd-image-loading"
+      img.src = url
+      img.title = title
+      return marker
+    } else {
+      if (DEBUG) {
+        console.log("[image]FAILED TO REQUEST RANGE: ", rngReq)
       }
     }
+  }
 
-    return null
-  },
+  return null
+}
 
-  link(stream, token) {
-    const cm = stream.cm
-    const urlRE = /\bformatting-link-string\b/   // matches the parentheses
-    const endTest = (token: Token) => (urlRE.test(token.type) && token.string === ")")
+export const LinkFolder: FolderFunc = function (stream, token) {
+  const cm = stream.cm
+  const urlRE = /\bformatting-link-string\b/   // matches the parentheses
+  const endTest = (token: Token) => (urlRE.test(token.type) && token.string === ")")
 
-    if (
-      token.string === "(" && urlRE.test(token.type) && // is URL left parentheses
-      (stream.i_token === 0 || !/\bimage/.test(stream.lineTokens[stream.i_token - 1].type)) // not a image URL
-    ) {
-      var lineNo = stream.lineNo
+  if (
+    token.string === "(" && urlRE.test(token.type) && // is URL left parentheses
+    (stream.i_token === 0 || !/\bimage/.test(stream.lineTokens[stream.i_token - 1].type)) // not a image URL
+  ) {
+    var lineNo = stream.lineNo
 
-      var url_end = stream.findNext(endTest)
+    var url_end = stream.findNext(endTest)
 
-      let from: Position = { line: lineNo, ch: token.start }
-      let to: Position = { line: lineNo, ch: url_end.token.end }
-      let rngReq = stream.requestRange(from, to)
+    let from: Position = { line: lineNo, ch: token.start }
+    let to: Position = { line: lineNo, ch: url_end.token.end }
+    let rngReq = stream.requestRange(from, to)
 
-      if (rngReq === RequestRangeResult.OK) {
-        var text = cm.getRange(from, to)
-        var { url, title } = splitLink(text.substr(1, text.length - 2))
+    if (rngReq === RequestRangeResult.OK) {
+      var text = cm.getRange(from, to)
+      var { url, title } = splitLink(text.substr(1, text.length - 2))
 
-        var img = document.createElement("span")
-        img.setAttribute("class", "hmd-link-icon")
-        img.setAttribute("title", url + "\n" + title)
-        img.setAttribute("data-url", url)
+      var img = document.createElement("span")
+      img.setAttribute("class", "hmd-link-icon")
+      img.setAttribute("title", url + "\n" + title)
+      img.setAttribute("data-url", url)
 
-        var marker = cm.markText(
-          from, to,
-          {
-            collapsed: true,
-            replacedWith: img,
-          }
-        )
-
-        img.addEventListener('click', () => breakMark(cm, marker), false)
-        return marker
-      } else {
-        if (DEBUG) {
-          console.log("[link]FAILED TO REQUEST RANGE: ", rngReq)
+      var marker = cm.markText(
+        from, to,
+        {
+          collapsed: true,
+          replacedWith: img,
         }
+      )
+
+      img.addEventListener('click', () => breakMark(cm, marker), false)
+      return marker
+    } else {
+      if (DEBUG) {
+        console.log("[link]FAILED TO REQUEST RANGE: ", rngReq)
       }
     }
+  }
 
-    return null
-  },
+  return null
 }
 
 //#endregion
@@ -221,49 +244,32 @@ export function breakMark(cm: cm_t, marker: TextMarker, chOffset?: number) {
 /********************************************************************************** */
 //#region Addon Options
 
-export interface Options extends Addon.AddonOptions {
-  /** Fold Images */
-  image: boolean
-
-  /** Fold Link URL */
-  link: boolean
-
-  /** Enable TeX math folding. requires `fold-math` addon */
-  math: boolean
-
-  /** Fold HTML. requires `fold-html` addon */
-  html: boolean
-
-  /** User custom FolderFunc. All will be enabled. */
-  customFolders: { [type: string]: FolderFunc }
-}
+export type Options = Record<string, boolean>
 
 export const defaultOption: Options = {
-  image: false,
-  link: false,
-  math: false,
-  html: false,
-  customFolders: {},
+  /* will be populated by registerFolder() */
 }
 
-export const suggestedOption: Partial<Options> = {
-  image: true,
-  link: true,
-  math: true,
-  html: false, // this feature can be dangerous
+export const suggestedOption: Options = {
+  /* will be populated by registerFolder() */
 }
 
-export type OptionValueType = Partial<Options> | boolean;
+export type OptionValueType = Options | boolean;
 
 declare global {
   namespace HyperMD {
     interface EditorConfiguration {
       /**
-       * Options for Fold.
+       * Enable/disable registered folders, for current editor instance.
        *
-       * You may also provide a `false` to disable all built-in folders; a `true` to enable all of them.
+       * `hmdFold` accepts:
        *
-       * **NOTE: if a boolean is given, your `customFolders` will be cleared**
+       * 1. `true` -- only enable suggested folders
+       * 2. `false` -- disable all kinds of folders
+       * 3. `{ [FolderType]: boolean }` -- enable / disable folders
+       *    - Note: registered but not configured folder kinds will be disabled
+       *
+       * @example { image: true, link: true, math: true, html: false }
        */
       hmdFold?: OptionValueType
     }
@@ -274,33 +280,24 @@ suggestedEditorConfig.hmdFold = suggestedOption
 
 CodeMirror.defineOption("hmdFold", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
 
-  ///// convert newVal's type to `Partial<Options>`, if it is not.
+  ///// convert newVal's type to `Record<string, boolean>`, if it is not.
 
   if (!newVal || typeof newVal === "boolean") {
-    let enabled = !!newVal
-    newVal = {}
-    for (const type in builtinFolder) newVal[type] = enabled
+    newVal = newVal ? suggestedOption : defaultOption
+  }
+
+  if ('customFolders' in newVal) {
+    console.error('[HyperMD][Fold] `customFolders` is removed. To use custom folders, `registerFolder` first.')
+    delete newVal['customFolders']
   }
 
   ///// apply config
   var inst = getAddon(cm)
-  for (const type in builtinFolder) inst.setBuiltinStatus(type, newVal[type])
-
-  if (typeof newVal.customFolders !== "object") newVal.customFolders = {}
-
-  var customFolderTypes = []
-  for (const key in newVal.customFolders) {
-    if (newVal.customFolders.hasOwnProperty(key)) {
-      customFolderTypes.push(key)
-      if (!(key in inst.folded)) inst.folded[key] = []
-    }
+  for (const type in folderRegistry) {
+    inst.setStatus(type, newVal[type])
   }
+  // then, folding task will be queued by setStatus()
 
-  //TODO: shall we clear disappeared folder's legacy?
-  inst.customFolderTypes = customFolderTypes
-
-  ///// start a fold
-  inst.startFold()
 })
 
 //#endregion
@@ -309,26 +306,25 @@ CodeMirror.defineOption("hmdFold", defaultOption, function (cm: cm_t, newVal: Op
 //#region Addon Class
 
 export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
-  // stores builtin Folder status with FlipFlops
-  public ff_builtin = {} as { [type: string]: FlipFlop<boolean> }
-
-  customFolders: { [type: string]: FolderFunc; };
-  customFolderTypes: string[];
+  /**
+   * stores Folder status for current editor
+   * @private To enable/disable folders, use `setStatus()`
+   */
+  private _enabled: Record<string, boolean> = {}
 
   /** Folder's output goes here */
-  public folded: { [type: string]: CodeMirror.TextMarker[]; } = {};
+  public folded: Record<string, CodeMirror.TextMarker[]> = {};
 
-  /** Update a builtin folder's status, and fold/unfold */
-  setBuiltinStatus(type: string, status: boolean) {
-    if (!(type in builtinFolder)) return
+  /** enable/disable one kind of folder, in current editor */
+  setStatus(type: string, enabled: boolean) {
+    if (!(type in folderRegistry)) return
 
-    var ff = this.ff_builtin[type]
-    if (!ff) { //whoops, the FlipFlop not created
-      ff = new FlipFlop(this.startFold, this.clear.bind(this, type))
-      this.ff_builtin[type] = ff
+    if (!this._enabled[type] !== !enabled) {
+      this._enabled[type] = !!enabled
+
+      if (enabled) this.startFold()
+      else this.clear(type)
     }
-
-    ff.setBool(status)
   }
 
   constructor(public cm: cm_t) {
@@ -429,15 +425,9 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 
         if (tokenFoldable) {
           // try built-in folders
-          for (type in this.ff_builtin) {
-            if (this.ff_builtin[type].state && (marker = builtinFolder[type](this, token))) break
-          }
-
-          if (!marker) {
-            // try custom folders
-            for (type of this.customFolderTypes) {
-              if (marker = this.customFolders[type](this, token)) break
-            }
+          for (type in folderRegistry) {
+            if (!this._enabled[type]) continue
+            if (marker = folderRegistry[type](this, token)) break
           }
         }
 
@@ -522,3 +512,10 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 /** ADDON GETTER (Singleton Pattern): a editor can have only one Fold instance */
 export const getAddon = Addon.Getter("Fold", Fold, defaultOption)
 declare global { namespace HyperMD { interface HelperCollection { Fold?: Fold } } }
+
+/********************************************************************************** */
+
+// register default folders
+
+registerFolder("image", ImageFolder, true)
+registerFolder("link", LinkFolder, true)

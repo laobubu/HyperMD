@@ -108,3 +108,21 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
     - *TypeScript UMD format s@@ks!*
   * **Use AMD** module declaration while developing.
   * **Dev/DocGen** exported-member extractor
+
+## 0.3.7
+
+* **Fix**
+  * Adjacent headers, the latter was not correctly styled
+  * **addon/fold-html**: stop eating extra blank lines
+
+* **Removed**
+  * **addon/fold**: editor option `hmdFold` will no longer accept `customFolders`.
+    Please use the new method *registerFolder*.
+
+* **Add**
+  * **addon/fold**: module now exports new method *registerFolder*
+    * *Declaration*: `registerFolder(name, folderFunc, isSuggested)`
+    * To use custom folders:
+      1. `registerFolder("my_folder", myFolderFunc, false)`
+      2. enable *my_folder* via editor option `hmdFold`
+    * In plain browser env, it's defined as `HyperMD.Fold.registerFolder`

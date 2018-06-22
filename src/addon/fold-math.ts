@@ -11,7 +11,7 @@ import * as CodeMirror from 'codemirror'
 import { Addon, FlipFlop, tryToRun, suggestedEditorConfig } from '../core'
 import { TextMarker, Position, Token } from 'codemirror'
 import { cm_t } from '../core/type'
-import { builtinFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
+import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 
 const DEBUG = false
 
@@ -157,7 +157,7 @@ export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression:
 
 //#endregion
 
-builtinFolder["math"] = MathFolder // inject fold's builtinFolders! Not cool but it works
+registerFolder("math", MathFolder, true)
 
 /********************************************************************************** */
 //#region Default Renderer

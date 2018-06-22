@@ -400,11 +400,11 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
       //#region Header, indentedCode, quote
 
-      if (state.header) {
-        if (!state.prevLine || !state.prevLine.header) {
-          ans += " line-HyperMD-header line-HyperMD-header-" + state.header
-        } else {
+      if (bol && state.header) {
+        if (/^(?:---+|===+)\s*$/.test(stream.string) && state.prevLine && state.prevLine.header) {
           ans += " line-HyperMD-header-line line-HyperMD-header-line-" + state.header
+        } else {
+          ans += " line-HyperMD-header line-HyperMD-header-" + state.header
         }
       }
 
@@ -419,7 +419,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
           if (!/^ {0,3}\>/.test(stream.string)) ans += " line-HyperMD-quote-lazy" // ">" is omitted
         }
 
-        if (stream.start == 0 && (tmp = current.match(/^\s+/))) {
+        if (bol && (tmp = current.match(/^\s+/))) {
           stream.pos = tmp[0].length // rewind
           ans += " hmd-indent-in-quote"
           return ans.trim()

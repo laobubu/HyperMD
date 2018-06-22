@@ -11,6 +11,7 @@
 import * as ts from "typescript"
 import * as fs from "fs"
 import * as path from "path"
+import * as child_process from "child_process"
 
 const sys = ts.sys
 export const basePath = path.normalize(path.join(__dirname, "../.."));
@@ -112,3 +113,15 @@ export function updateDocTmp(content: string) {
   updateFile(doctmp, content)
   doctmp_text = content
 }
+
+export const packageJSON = JSON.parse(fs.readFileSync(path.join(__dirname, "../../package.json"), "utf-8"))
+
+export const projectInfo = (function () {
+  var gitver = child_process.execSync("git rev-parse HEAD").toString().substr(0, 8)
+  var gitClean = child_process.execSync("git diff-index HEAD --").toString().trim().length == 0
+  return {
+    version: packageJSON.version,
+    git: gitver,
+    gitClean,
+  }
+})()

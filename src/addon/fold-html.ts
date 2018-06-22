@@ -8,7 +8,7 @@ import * as CodeMirror from 'codemirror'
 import { Position } from 'codemirror'
 import { Addon, suggestedEditorConfig, visitElements, watchSize } from '../core'
 import { cm_t } from '../core/type'
-import { builtinFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
+import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 import './read-link'
 
 /********************************************************************************** */
@@ -156,7 +156,7 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
 }
 //#endregion
 
-builtinFolder["html"] = HTMLFolder // inject fold's builtinFolders! Not cool but it works
+registerFolder("html", HTMLFolder, false)
 
 /********************************************************************************** */
 //#region Addon Options
