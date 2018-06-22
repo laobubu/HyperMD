@@ -126,3 +126,4 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
       1. `registerFolder("my_folder", myFolderFunc, false)`
       2. enable *my_folder* via editor option `hmdFold`
     * In plain browser env, it's defined as `HyperMD.Fold.registerFolder`
+  * **addon/fold-emoji**: fold emoji marks :smile:

@@ -510,7 +510,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one Fold instance */
-export const getAddon = Addon.Getter("Fold", Fold, defaultOption)
+export const getAddon = Addon.Getter("Fold", Fold)
 declare global { namespace HyperMD { interface HelperCollection { Fold?: Fold } } }
 
 /********************************************************************************** */

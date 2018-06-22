@@ -59,6 +59,7 @@ require([
   'hypermd/addon/fold',
   'hypermd/addon/fold-math',
   'hypermd/addon/fold-html',
+  'hypermd/addon/fold-emoji',
   'hypermd/addon/read-link',
   'hypermd/addon/click',
   'hypermd/addon/hover',
@@ -95,6 +96,7 @@ require([
       link: true,
       math: true,
       html: true, // maybe dangerous
+      emoji: true,
     }
   })
   editor.setSize(null, "100%") // set height
