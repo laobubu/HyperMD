@@ -3,7 +3,7 @@
 //
 // POWERPACK for "addon/fold-emoji"
 //
-// Use EmojiOne to render emoji `:smile:` :smile:
+// Use EmojiOne to lookup emojis and render emoji `:smile:` :smile:
 //
 // Please follow https://www.emojione.com/licenses/free if you use this powerpack.
 // 使用前请注意阅读 EmojiOne 使用许可

@@ -24,6 +24,7 @@ if (requirejs) requirejs.config({
     { name: 'turndown', main: 'lib/turndown.browser.umd.js' },
     { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
     { name: 'emojione', main: 'lib/js/emojione.min.js' },
+    { name: 'twemoji', main: '2/twemoji.amd.js' },
   ],
   waitSeconds: 15
 })
@@ -76,6 +77,7 @@ require([
   /////////////////////////////////////////////
 
   'hypermd/powerpack/fold-emoji-with-emojione',
+  // 'hypermd/powerpack/fold-emoji-with-twemoji',
 
   'hypermd/powerpack/insert-file-with-smms',
 

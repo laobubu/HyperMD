@@ -1,5 +1,15 @@
 // This file contains short and brief typings
 
+//#region twemoji ---------------------------------------------------
+declare module "twemoji" {
+  /** Given a generic string, replaces all emoji with an <img> tag. */
+  export function parse(text: string, options?: any): string;
+
+  /** In contrast to string parsing, if the first argument is an HTMLElement, generated image tags will replace emoji that are inside #text nodes only without compromising surrounding nodes or listeners, and completely avoiding the usage of innerHTML. */
+  export function parse(dom: HTMLElement): void;
+}
+//#endregion
+
 //#region katex ---------------------------------------------------
 declare module "katex" {
   export function render(expr: string, target: HTMLElement, opts?: any);
