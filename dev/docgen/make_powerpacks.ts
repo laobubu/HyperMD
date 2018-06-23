@@ -66,7 +66,7 @@ Note that in plain browser env, PowerPack-exported things are stored in
     for (const lib of tp_libs.values()) {
       tp_libs_str += "  " + makeLink(lib, 'https://www.npmjs.com/package/' + lib)
     }
-    yield "📦 **Third-Party Libs**: " + tp_libs_str
+    yield "📦 **Third-Party Libs**: " + (tp_libs_str || "(None)")
     yield ""
 
 
@@ -108,7 +108,9 @@ Note that in plain browser env, PowerPack-exported things are stored in
     }
 
     // get leading comments
-    yield commentsToText(ts.getLeadingCommentRanges(sf.text, 0), sf).trimRight().replace(/^/gm, '> ')
+    yield "📕 **Description**:"
+    yield ""
+    yield commentsToText(ts.getLeadingCommentRanges(sf.text, 0), sf)
     yield ""
     yield ""
   }

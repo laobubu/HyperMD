@@ -5,6 +5,8 @@
 //
 // Use [twemoji](https://github.com/twitter/twemoji) to render emoji `:smile:` :smile:
 //
+// :warning: **License**:
+//
 // Please follow https://github.com/twitter/twemoji#license if you use this powerpack.
 // 使用前请注意阅读 twemoji 使用许可
 //

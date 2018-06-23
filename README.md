@@ -96,11 +96,12 @@ To integrate other third-party libs and services, read [PowerPacks][]
       </small>
     </td>
     <td>
-      <b><a href="https://www.emojione.com/">EmojiOne</a></b> - Open-Source emoji icons<br>
+      <b><a href="https://www.emojione.com/">EmojiOne</a></b> - Open emoji icons<br>
       <small>
         <em>Demo Page</em> and <em>PowerPack/fold-emoji-with-emojione</em> use
         Emoji icons provided free by <a href="https://www.emojione.com/">EmojiOne</a>
-        <a href="https://www.emojione.com/licenses/free"><em>(free license)</em></a>
+        <a href="https://www.emojione.com/licenses/free"><em>(free license)</em></a><br>
+        (You may use other alternatives, eg. twemoji from twitter)
       </small>
     </td>
   </tr>

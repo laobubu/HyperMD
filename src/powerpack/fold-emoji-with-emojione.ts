@@ -5,6 +5,8 @@
 //
 // Use EmojiOne to lookup emojis and render emoji `:smile:` :smile:
 //
+// :warning: **License**:
+//
 // Please follow https://www.emojione.com/licenses/free if you use this powerpack.
 // 使用前请注意阅读 EmojiOne 使用许可
 //

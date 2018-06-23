@@ -3,8 +3,12 @@
 //
 // POWERPACK for "addon/paste"
 //
-// Turndown is an excellent HTML-to-Markdown library
-// Give it a try!
+// This module provides `TurndownConvertor`, which can convert copied HTML into Markdown.
+//
+// :bulb: **Hint**:
+//
+// This module also supports GFM extensions (eg. tables) via [turndown-plugin-gfm](https://www.npmjs.com/package/turndown-plugin-gfm).
+// Load `turndown-plugin-gfm` after this module and it will be automatically used while pasting.
 //
 
 /// <reference path="./typings/turndown.d.ts" />

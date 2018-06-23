@@ -7,6 +7,7 @@ index.html
 tmp/
 tests/
 dev/
+!docs/*.md
 docs/
 src/
 rollup.config.js

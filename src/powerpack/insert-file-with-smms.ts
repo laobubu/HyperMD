@@ -3,7 +3,14 @@
 //
 // POWERPACK for "addon/paste"
 //
-// Use http://sm.ms as the default destination when user wants to upload files and files are images
+// Use http://sm.ms as the default destination when user wants to upload images.
+//
+// :bulb: **Hint**:
+//
+// Feel free to copy codes from this module, alter `Upload_One`,
+// and make a new `FileHandler` which uploads images to somewhere else.
+//
+// :warning: **Attribution Required**
 //
 // If you are using this PowerPack, please add "Uploaded images are hosted by https://sm.ms" to your app
 // 如果使用了此 PowerPack，请别忘记添加 “由 https://sm.ms 提供图床服务”

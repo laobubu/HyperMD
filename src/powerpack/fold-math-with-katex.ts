@@ -3,7 +3,9 @@
 //
 // POWERPACK for "addon/fold-math"
 //
-// Use KaTeX to render the formulars
+// Use KaTeX to render TeX formulars.
+//
+// :warning: In plain browser env, don't forget to load `katex/dist/katex.min.css`.
 //
 
 /// <reference path="./typings/_misc.d.ts" />

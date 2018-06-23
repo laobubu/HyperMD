@@ -95,11 +95,12 @@ var editor = HyperMD.fromTextArea(myTextarea)
       </small>
     </td>
     <td>
-      <b><a href="https://www.emojione.com/">EmojiOne</a> - 开源 emoji 表情图标</b><br>
+      <b><a href="https://www.emojione.com/">EmojiOne</a> - 开放的 emoji 表情图标</b><br>
       <small>
         <em>在线演示页</em> 和 <em>PowerPack/fold-emoji-with-emojione</em> 使用了
         <a href="https://www.emojione.com/">EmojiOne</a> 免费提供的 emoji 表情图标
-        <a href="https://www.emojione.com/licenses/free"><em>(免费版许可)</em></a>
+        <a href="https://www.emojione.com/licenses/free"><em>(免费版许可)</em></a><br>
+        （你也可以使用其他图标库，例如来自 twitter 的 twemoji）
       </small>
     </td>
   </tr>

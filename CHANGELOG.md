@@ -129,3 +129,8 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
   * **addon/fold-emoji**: fold emoji marks :smile:
   * **powerpack**
     + fold-emoji-with-emojione
+    + fold-emoji-with-twemoji
+
+* **Other**
+  * English fundamental docs are now published within NPM package.
+  * PowerPack documentation is much more friendly.

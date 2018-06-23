@@ -3,8 +3,23 @@
 //
 // POWERPACK for "addon/fold-math"
 //
-// Use MathJax to render the formulars
+// Use MathJax to render TeX formulars.
 //
+// :warning: **Configuration Required**
+//
+// Before loading this module, make sure that you've finished [configuring MathJax](http://docs.mathjax.org/en/latest/configuration.html) like this:
+//
+// ```html
+// <script type="text/x-mathjax-config">
+// MathJax.Hub.Config({
+//     jax: ["input/TeX", "output/HTML-CSS","output/NativeMML","output/SVG"],
+//     extensions: ["MathMenu.js","MathZoom.js", "AssistiveMML.js", "a11y/accessibility-menu.js"],
+//     TeX: {
+//         extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+//     }
+// });
+// </script>
+// ```
 
 declare global { const MathJax } // @types/MathJax is not fully typed
 
