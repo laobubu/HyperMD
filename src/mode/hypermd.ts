@@ -88,6 +88,8 @@ export interface HyperMDState extends MarkdownState {
   hmdTableRow: number
   hmdOverride: TokenFunc
 
+  hmdHashtag: HashtagType
+
   hmdInnerStyle: string
   hmdInnerExitChecker: InnerModeExitChecker
   hmdInnerMode: CodeMirror.Mode<any>
@@ -99,6 +101,12 @@ export interface HyperMDState extends MarkdownState {
   hmdNextState: HyperMDState
   hmdNextStyle: string
   hmdNextPos: number
+}
+
+export const enum HashtagType {
+  NONE = 0,
+  NORMAL, // hashtag text with no unescaped spaces
+  WITH_SPACE, // hashtag text
 }
 
 export const enum TableType {
@@ -145,6 +153,20 @@ function resetTable(state: HyperMDState) {
 }
 
 const listInQuoteRE = /^\s+((\d+[).]|[-*+])\s+)?/;
+
+const defaultTokenTypeOverrides = {
+  hr: "line-HyperMD-hr hr",
+  // HyperMD needs to know the level of header/indent. using tokenTypeOverrides is not enough
+  // header: "line-HyperMD-header header",
+  // quote: "line-HyperMD-quote quote",
+  // Note: there are some list related process below
+  list1: "list-1",
+  list2: "list-2",
+  list3: "list-3",
+  code: "inline-code",
+  hashtag: "hashtag meta",
+}
+
 CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   var modeCfg = {
     front_matter: "yaml", // or null if you doesn't need
@@ -152,6 +174,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     table: true,
     toc: true, // support [TOC] in a single line
     orgModeMarkup: true, // support OrgMode-like Markup like #+TITLE: my document
+    hashtag: true, // support #hashtag
 
     fencedCodeBlockHighlighting: true,
     name: "markdown",
@@ -159,20 +182,14 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     taskLists: true,
     strikethrough: true,
     emoji: true,
-    tokenTypeOverrides: {
-      hr: "line-HyperMD-hr hr",
-      // HyperMD needs to know the level of header/indent. using tokenTypeOverrides is not enough
-      // header: "line-HyperMD-header header",
-      // quote: "line-HyperMD-quote quote",
-      // Note: there are some list related process below
-      list1: "list-1",
-      list2: "list-2",
-      list3: "list-3",
-      code: "inline-code",
-      gitHubSpice: false
-    },
+
+    /** @see defaultTokenTypeOverrides */
+    tokenTypeOverrides: defaultTokenTypeOverrides as Record<string, string>,
   }
   Object.assign(modeCfg, modeCfgUser)
+  if (modeCfg.tokenTypeOverrides !== defaultTokenTypeOverrides) {
+    modeCfg.tokenTypeOverrides = Object.assign({}, defaultTokenTypeOverrides, modeCfg.tokenTypeOverrides) as Record<string, string>
+  }
   modeCfg["name"] = "markdown"
 
   /** functions from CodeMirror Markdown mode closure. Only for status checking */
@@ -194,6 +211,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     ans.hmdNextState = null
     ans.hmdNextStyle = null
     ans.hmdNextPos = null
+    ans.hmdHashtag = HashtagType.NONE
     return ans
   }
 
@@ -205,6 +223,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       "hmdOverride",
       "hmdInnerMode", "hmdInnerStyle", "hmdInnerExitChecker",
       "hmdNextPos", "hmdNextState", "hmdNextStyle",
+      "hmdHashtag",
     ]
     for (const key of keys) ans[key] = s[key]
 
@@ -346,6 +365,11 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       state.hmdNextPos = null
     } else {
       ans += " " + (rawMode.token(stream, state) || "")
+    }
+
+    // add extra styles
+    if (state.hmdHashtag !== HashtagType.NONE) {
+      ans += " " + modeCfg.tokenTypeOverrides.hashtag
     }
 
     /** Try to capture some internal functions from CodeMirror Markdown mode closure! */
@@ -655,6 +679,41 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         }
       }
 
+      //#endregion
+
+      //#region Hashtag
+      if (modeCfg.hashtag && inMarkdownInline) {
+        switch (state.hmdHashtag) {
+          case HashtagType.NONE:
+            if (current === '#' && !(bol && / header/.test(ans))) {
+              state.hmdHashtag =
+                (stream.match(/^[^\s\[\]\\#*_](?:[^\[\]\\#\*]+|\\.)*[^\s\[\]\\#*_]#/, false) && HashtagType.WITH_SPACE) ||
+                (stream.match(/^[^\s\[\]\\#*_](?:(?:[^\s\[\]\\#\*]+|\\.)*[^\s\[\]\\#*_])?(?:\s|$)/, false) && HashtagType.NORMAL) ||
+                HashtagType.NONE
+              if (state.hmdHashtag) {
+                ans += " formatting formatting-hashtag hashtag-begin " + modeCfg.tokenTypeOverrides.hashtag
+              }
+            }
+            break;
+          case HashtagType.NORMAL:
+            if (
+              stream.eol() || // end of line, or
+              (stream.peek() === ' ' && !/formatting-escape/.test(ans)) // next char is space, but not escaped
+            ) {
+              // end the hashtag
+              ans += " hashtag-end"
+              state.hmdHashtag = HashtagType.NONE
+            }
+            break;
+          case HashtagType.WITH_SPACE:
+            if (current === '#' && !/hmd-escape-char/.test(ans)) {
+              // end the hashtag if meet unescaped #
+              ans += " formatting formatting-hashtag hashtag-end"
+              state.hmdHashtag = HashtagType.NONE
+            }
+            break;
+        }
+      }
       //#endregion
     }
 

@@ -26,6 +26,8 @@ You may use both original CodeMirror and HyperMD on the same page.
      + [x] TODO List (with clickable checkboxes)
      + YAML Front Matter
    - Inline $\LaTeX$ Formula, and multi-line math blocks [^4]
+   - Emoji from shortname: `:joy:` => :joy:
+   - #hashtag support [^6]
 2. **Alt+Click** to follow link / footnote [^1]
 3. **Syntax Highlight** for 120+ languages code blocks [^2]
 4. **Hover** to read footnotes
@@ -155,3 +157,4 @@ Contributions are welcomed. You may:
 [^3]: If the theme is not designed for HyperMD, some features might not be present.
 [^4]: Math block use `$$` to wrap your TeX expression.
 [^5]: Use `Ctrl+Shift+V` to paste plain text.
+[^6]: If tag name contains space, you may use #escape\ backslash or #use two hash symbol#

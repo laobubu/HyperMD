@@ -17,7 +17,7 @@ import { HyperMDState } from '../mode/hypermd';
 /********************************************************************************** */
 //#region CLICK HANDLER
 
-export type TargetType = "image" | "link" | "footref" | "url" | "todo"
+export type TargetType = "image" | "link" | "footref" | "url" | "todo" | "hashtag"
 export interface ClickInfo {
   type: TargetType
   text: string
@@ -35,6 +35,8 @@ export interface ClickInfo {
 
 /**
  * User may define his click handler, which has higher priority than HyperMD's.
+ *
+ * param `info` is a ClickInfo object, containing target type, text etc.
  *
  * Custom handler may return `false` to prevent HyperMD's default behavior.
  */
@@ -157,7 +159,7 @@ export const suggestedOption: Partial<Options> = {
   enabled: true,  // we recommend lazy users to enable this fantastic addon!
 }
 
-export type OptionValueType = Partial<Options> | boolean;
+export type OptionValueType = Partial<Options> | boolean | ClickHandler;
 
 declare global {
   namespace HyperMD {
@@ -358,6 +360,11 @@ export class Click implements Addon.Addon, Options {
       type = "todo"
       range = expandRange(cm, pos, "formatting-task")
       range.to.ch = cm.getLine(pos.line).length
+      text = cm.getRange(range.from, range.to)
+      url = null
+    } else if (styles.match(/\shashtag/)) {
+      type = "hashtag"
+      range = expandRange(cm, pos, "hashtag")
       text = cm.getRange(range.from, range.to)
       url = null
     }

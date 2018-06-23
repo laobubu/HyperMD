@@ -159,4 +159,10 @@ function clickHandler(info, cm) {
       return false
     }
   }
+  if (info.type === "hashtag") {
+    var msg = "You clicked a hashtag"
+    if (info.ctrlKey) msg += " (with Ctrl)"
+    if (info.altKey) msg += " (with Alt)"
+    console.log(msg, info.text, info.pos)
+  }
 }

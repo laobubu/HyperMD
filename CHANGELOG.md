@@ -120,6 +120,11 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
     Please use the new method *registerFolder*.
 
 * **Add**
+  * **mode**
+    * **Hashtag** syntax! People #hashtag #everything in life#
+  * **addon/click**:
+    - Clicking on hashtags now trigs the _ClickHandler_
+    - ClickInfo: new _TargetType_: `"hashtag"`
   * **addon/fold**: module now exports new method *registerFolder*
     * *Declaration*: `registerFolder(name, folderFunc, isSuggested)`
     * To use custom folders:
