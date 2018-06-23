@@ -96,6 +96,16 @@ To integrate other third-party libs and services, read [PowerPacks][]
       </small>
     </td>
     <td>
+      <b><a href="https://www.emojione.com/">EmojiOne</a></b> - Open-Source emoji icons<br>
+      <small>
+        <em>Demo Page</em> and <em>PowerPack/fold-emoji-with-emojione</em> use
+        Emoji icons provided free by <a href="https://www.emojione.com/">EmojiOne</a>
+        <a href="https://www.emojione.com/licenses/free"><em>(free license)</em></a>
+      </small>
+    </td>
+  </tr>
+  <tr>
+    <td>
       <b><a href="https://codemirror.net/">CodeMirror</a></b> - In-browser code editor.<br>
       <b><a href="http://requirejs.org/">RequireJS</a></b> - A JavaScript AMD module loader.<br>
       <b><a href="https://khan.github.io/KaTeX/">KaTeX</a></b> - The fastest math typesetting library for the web.<br>

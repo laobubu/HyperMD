@@ -127,3 +127,5 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
       2. enable *my_folder* via editor option `hmdFold`
     * In plain browser env, it's defined as `HyperMD.Fold.registerFolder`
   * **addon/fold-emoji**: fold emoji marks :smile:
+  * **powerpack**
+    + fold-emoji-with-emojione

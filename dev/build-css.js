@@ -7,7 +7,7 @@ const sass = require('sass')
 
 function scan_and_compile(pattern = "**/*.scss", watch = false) {
   glob(pattern, {
-    ignore: "node_modules/"
+    ignore: "node_modules/**/*"
   }, (err, matches) => {
     matches.forEach(filename => {
       compile_sass(filename)

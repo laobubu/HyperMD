@@ -20,6 +20,7 @@ export const defaultChecker: EmojiChecker = (text) => text in defaultDict
 export const defaultRenderer: EmojiRenderer = (text) => {
   var el = document.createElement("span")
   el.textContent = defaultDict[text]
+  el.title = text
   return el
 }
 
@@ -152,7 +153,7 @@ export class FoldEmoji implements Addon.Addon, Options {
     var cm = this.cm
     var el = ((text in this.myEmoji) && this.myEmoji[text](text)) || this.emojiRenderer(text)
 
-    if (!el) return null
+    if (!el || !el.tagName) return null
     if (el.className.indexOf('hmd-emoji') === -1) el.className += " hmd-emoji"
 
     var marker = cm.markText(from, to, {
@@ -161,6 +162,11 @@ export class FoldEmoji implements Addon.Addon, Options {
     })
 
     el.addEventListener("click", breakMark.bind(this, cm, marker, 1), false)
+
+    if (el.tagName.toLowerCase() === 'img') {
+      el.addEventListener('load', () => marker.changed(), false)
+      el.addEventListener('dragstart', (ev) => ev.preventDefault(), false)
+    }
 
     return marker
   }

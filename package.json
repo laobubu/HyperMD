@@ -43,10 +43,12 @@
     "codemirror": "^5.37.0"
   },
   "optionalDependencies": {
+    "emojione": "^3.1.6",
     "katex": "^0.10.0-alpha",
     "marked": "^0.4.0",
     "mathjax": "^2.7.0",
     "turndown": "^4.0.1",
-    "turndown-plugin-gfm": "^1.0.1"
+    "turndown-plugin-gfm": "^1.0.1",
+    "twemoji": "^11.0.0"
   }
 }

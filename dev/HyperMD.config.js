@@ -42,6 +42,7 @@ exports.globalNames = {
   katex: "katex",
   mathjax: "MathJax",
   turndown: "TurndownService",
+  emojione: "emojione",
 }
 
 exports.externalNames = Object.keys(exports.globalNames)

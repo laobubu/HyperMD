@@ -95,6 +95,16 @@ var editor = HyperMD.fromTextArea(myTextarea)
       </small>
     </td>
     <td>
+      <b><a href="https://www.emojione.com/">EmojiOne</a> - 开源 emoji 表情图标</b><br>
+      <small>
+        <em>在线演示页</em> 和 <em>PowerPack/fold-emoji-with-emojione</em> 使用了
+        <a href="https://www.emojione.com/">EmojiOne</a> 免费提供的 emoji 表情图标
+        <a href="https://www.emojione.com/licenses/free"><em>(免费版许可)</em></a>
+      </small>
+    </td>
+  </tr>
+  <tr>
+    <td>
       <b><a href="https://codemirror.net/">CodeMirror</a></b> - In-browser code editor.<br>
       <b><a href="http://requirejs.org/">RequireJS</a></b> - A JavaScript AMD module loader.<br>
       <b><a href="https://khan.github.io/KaTeX/">KaTeX</a></b> - The fastest math typesetting library for the web.<br>
