@@ -43,6 +43,7 @@ exports.globalNames = {
   mathjax: "MathJax",
   turndown: "TurndownService",
   emojione: "emojione",
+  twemoji: "twemoji",
 }
 
 exports.externalNames = Object.keys(exports.globalNames)
