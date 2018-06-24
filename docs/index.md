@@ -7,8 +7,15 @@
 > **Notice**
 >
 > All links are DIRECTLY clickable. Feel free to click without `Ctrl` or `Alt`!
-> [Try out]
 
+> **Notice**
+>
+> Some document files are auto generated and excluded in source code repository.
+>
+> Please read this document on
+> [HyperMD Demo](https://laobubu.net/HyperMD/?directOpen#./docs/index.md)
+> or
+> [GitHub gh-pages branch](https://github.com/laobubu/HyperMD/blob/gh-pages/docs/index.md)
 
 ## Level 1
 
@@ -35,6 +42,11 @@ Assuming there is a variable named as `cm`, storing your editor instance.
   - `HyperMD.switchToNormal(cm)`
   - `HyperMD.switchToHyperMD(cm)`
 
++ **Update HyperMD Editor/Addon Options**
+  - You can use `cm.setOption(name, value)` during runtime
+  - HyperMD-related addon option names always start with "hmd",
+    the full list can be found here: [Options-for-Addons][]
+
 + **Handle Relative URL**
   - Image and Link URL in Markdown can be relative URL.
   - HyperMD editors have a API `cm.hmdResolveURL("../relative/url")`, which is provided by addon _ReadLink_.
@@ -59,13 +71,32 @@ In this section, you will learn how HyperMD magic works, and write some advanced
 1. To support some syntax-based feature, eg. #hashtag , you have to
    - [Configure the Mode](./options-for-mode.md)
    - or [submit a feature request](https://github.com/laobubu/HyperMD/issues/new) if the syntax is not supported yet.
+2. The parsed token info is essential and useful.
+   - :bulb: **Hint**: You can use [CodeMirror mode-related API](https://codemirror.net/doc/manual.html#api_mode) to extract the parsed info.
+     + [getTokenAt](https://codemirror.net/doc/manual.html#getTokenAt)
+     + [getLineTokens](https://codemirror.net/doc/manual.html#getLineTokens)
+     + [getTokenTypeAt](https://codemirror.net/doc/manual.html#getTokenTypeAt)
+     + _and more_
 
 ## Level 4
 
-In this section, you will learn how to write a HyperMD addon.
+In this section, you will learn how to write a HyperMD addon / powerpack.
+
+**PowerPacks** are optional modules that integrate 3rd-party libs and services to HyperMD.
+They work with specific addons and 3rd-party libs.
+
+Here is a list of [HyperMD built-in PowerPacks](./powerpacks.md) and their source code can be found [here](https://github.com/laobubu/HyperMD/tree/master/src/powerpack).
+
+(this part is under construction)
 
 ## Level 5
 
 Understand TypeScript and CodeMirror? Want to add new features to HyperMD core? Great! Let's dive into HyperMD.
 
 [The source code of HyperMD](https://github.com/laobubu/HyperMD/) is open on GitHub! To develop, VSCode is highly recommended.
+
+(this part is under construction)
+
+-----
+
+[options-for-addons]: ./options-for-addons.md

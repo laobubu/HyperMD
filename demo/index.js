@@ -151,7 +151,7 @@ var allowDirectOpen = /directOpen/.test(window.location.search)
 function clickHandler(info, cm) {
   if (info.type === "link" || info.type === "url") {
     var url = info.url
-    if ((allowDirectOpen || info.ctrlKey || info.altKey) && /\.(?:md|markdown)$/.test(url.replace(/[?#].*$/, ''))) {
+    if ((allowDirectOpen || info.ctrlKey || info.altKey) && !/^http/i.test(url) && /\.(?:md|markdown)$/.test(url.replace(/[?#].*$/, ''))) {
       // open a link whose URL is *.md with ajax_load_file
       // and supress HyperMD default behavoir
       load_and_update_editor(url) // see index2.js
