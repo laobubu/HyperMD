@@ -95,6 +95,11 @@ require([
 
   // HyperMD magic. See https://laobubu.net/HyperMD/docs/
   var editor = HyperMD.fromTextArea(myTextarea, {
+    mode: {
+      name: "hypermd",
+      hashtag: true,  // this syntax is not actived by default
+    },
+
     hmdClick: clickHandler,
     hmdFold: {
       image: true,

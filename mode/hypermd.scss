@@ -10,10 +10,6 @@
 }
 
 .CodeMirror {
-    span.cm-formatting {
-        transition: opacity .15s;
-    }
-
     span.hmd-hidden-token {
         &.cm-formatting-em,
         &.cm-formatting-strong,

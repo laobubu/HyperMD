@@ -80,7 +80,7 @@ export function switchToNormal(editor: cm_t, theme?: string) {
  * @param {cm_t} editor Created by **HyperMD.fromTextArea**
  * @param {string} [theme]
  */
-export function switchToHyperMD(editor: cm_t, theme: string) {
+export function switchToHyperMD(editor: cm_t, theme?: string) {
   editor.setOption('theme', theme || 'hypermd-light')
   editor.setOption('hmdFold', true)
   editor.setOption('hmdHideToken', true)

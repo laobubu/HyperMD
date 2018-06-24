@@ -61,14 +61,7 @@ export interface Options extends Addon.AddonOptions {
   /**
    * you may add your custom emojis, which have higher priority than standard emojis
    *
-   * @example
-   * {
-   *   [":doge:"]() {
-   *      var img = document.createElement("img")
-   *      img.src = "../images/doge.png"
-   *      return img
-   *   }
-   * }
+   * @example { ":doge:": a_function_that_creates_doge_img_element }
    */
   myEmoji: { [name: string]: EmojiRenderer }
 
@@ -198,7 +191,7 @@ declare global { namespace HyperMD { interface HelperCollection { FoldEmoji?: Fo
     "heavy_plus_sign:➕;heavy_minus_sign:➖;heavy_division_sign:➗;white_flower:💮;100:💯;heavy_check_mark:✔️;ballot_box_with_check:☑️;radio_button:🔘;link:🔗;curly_loop:➰;wavy_dash:〰️;part_alternation_mark:〽️;trident:🔱;black_square::black_square:;white_square::white_square:;white_check_mark:✅;black_square_button:🔲;white_square_button:🔳;black_circle:⚫️;white_circle:⚪️;red_circle:🔴;large_blue_circle:🔵;large_blue_diamond:🔷;large_orange_diamond:🔶;small_blue_diamond:🔹;small_orange_diamond:🔸;small_red_triangle:🔺;small_red_triangle_down:🔻",
   ];
 
-  const matRE = /([-\w]+:)([^;]+);/ug
+  const matRE = /([-\w]+:)([^;]+);/g
   let t: RegExpMatchArray
   for (let i = 0; i < parts.length; i++) {
     matRE.lastIndex = 0

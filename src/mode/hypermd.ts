@@ -52,6 +52,11 @@ export interface MarkdownState {
   linkHref: boolean,
   linkTitle: boolean,
 
+  // hidden state
+  image?: boolean,
+  imageMarker?: boolean,
+  imageAltText?: boolean,
+
   /** -1 means code-block and +1,2,3... means ``inline ` quoted codes`` */
   code: false | number,
   em: false | string,
@@ -169,12 +174,12 @@ const defaultTokenTypeOverrides = {
 
 CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   var modeCfg = {
-    front_matter: "yaml", // or null if you doesn't need
+    front_matter: true,
     math: true,
     table: true,
     toc: true, // support [TOC] in a single line
     orgModeMarkup: true, // support OrgMode-like Markup like #+TITLE: my document
-    hashtag: true, // support #hashtag
+    hashtag: false, // support #hashtag
 
     fencedCodeBlockHighlighting: true,
     name: "markdown",
@@ -270,8 +275,8 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     if (state.hmdOverride) return state.hmdOverride(stream, state)
 
     if (state.hmdNextMaybe === NextMaybe.FRONT_MATTER) { // Only appears once for each Doc
-      state.hmdNextMaybe = NextMaybe.FRONT_MATTER_END
       if (stream.string === '---') {
+        state.hmdNextMaybe = NextMaybe.FRONT_MATTER_END
         return enterMode(stream, state, "yaml", {
           style: "hmd-frontmatter",
           fallbackMode: createDummyMode("---"),
@@ -285,6 +290,8 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
             }
           }
         })
+      } else {
+        state.hmdNextMaybe = NextMaybe.NONE
       }
     }
 
@@ -685,11 +692,27 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       if (modeCfg.hashtag && inMarkdownInline) {
         switch (state.hmdHashtag) {
           case HashtagType.NONE:
-            if (current === '#' && !(bol && / header/.test(ans))) {
+            if (
+              current === '#' &&
+              !state.linkText && !state.image &&
+              stream.peek() != ' ' &&
+              !(bol && / header/.test(ans)) &&
+              (bol || /^\s*$/.test(stream.string.charAt(stream.start - 1)))
+            ) {
+              let escape_removed_str = stream.string.slice(stream.pos).replace(/\\./g, '')
               state.hmdHashtag =
-                (stream.match(/^[^\s\[\]\\#*_](?:[^\[\]\\#\*]+|\\.)*[^\s\[\]\\#*_]#/, false) && HashtagType.WITH_SPACE) ||
-                (stream.match(/^[^\s\[\]\\#*_](?:(?:[^\s\[\]\\#\*]+|\\.)*[^\s\[\]\\#*_])?(?:\s|$)/, false) && HashtagType.NORMAL) ||
-                HashtagType.NONE
+                ((tmp = escape_removed_str.match(/^([^#]*[^\s#])#/)) && HashtagType.WITH_SPACE) ||
+                ((tmp = escape_removed_str.match(/^([^\s#]+)(?:\s|$)/)) && HashtagType.NORMAL) ||
+                HashtagType.NONE;
+
+              if (state.hmdHashtag) {
+                // check if tag name (tmp[1]) is invalid
+                if (
+                  /[\[\]#\*]/.test(tmp[1]) ||
+                  /^[\s\d_]|_\s|\s_|[_\s]$/.test(tmp[1])
+                ) state.hmdHashtag = HashtagType.NONE;
+              }
+
               if (state.hmdHashtag) {
                 ans += " formatting formatting-hashtag hashtag-begin " + modeCfg.tokenTypeOverrides.hashtag
               }

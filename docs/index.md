@@ -9,148 +9,63 @@
 > All links are DIRECTLY clickable. Feel free to click without `Ctrl` or `Alt`!
 > [Try out]
 
-Still under construction... Consider:
 
-1. Read [README](../README.md) if you use RequireJS
-2. Read the source code of [this demo](./examples/ai1.html) if you prefer old-school HTML tags
-3. Read the [source code](https://github.com/laobubu/HyperMD/) if you want to dive into HyperMD addons
-   - VSCode is highly recommended.
-   - Maybe someday the documentation will be generated with TypeScript.
-4. Read [Options-For-Addons][] to learn how to configure editors
-5. Read [PowerPacks][] if you want to utilize third-party libraries with HyperMD
+## Level 1
 
-## Quickstart
+In this section, you will learn how to make HyperMD basically runs on your webpage.
 
-**Note**
++ [**Quick Start**](./quick-start.md): first of all, let's put HyperMD into your webpage...
++ [**PowerPacks**](./powerpacks.md): and integrate 3rd-party libs and services, make HyperMD more powerful!
 
-1. **CSS will be require-d by HyperMD core lib**
-2. If there are addons you don't need, you may disable them via *editor options*, see [Options-For-Addons][]
-3. If you want to utilize **third-party libraries**, use [PowerPacks][]; HyperMD only requires CodeMirror
+Once a editor is ready, lots of API and methods are available. These pages can be helpful.
 
-### with bundlers (webpack / parcel-bundler...)
++ [**CodeMirror's API**](https://codemirror.net/doc/manual.html#api): remember that a HyperMD editor is also a CodeMirror editor!
 
-First of all, run `npm install hypermd codemirror`
-and `npm install katex marked` (or you may skip latter two libs and remove `powerpack` parts from the code)
+## Level 2
 
-Now, code time. Make a simple `index.html`
+In this section, you will try to add some interesting features to your editor.
 
-```html
-<!DOCTYPE HTML>
-<html>
-  <head>
-    <title>My Awesome Webpage</title>
-  </head>
-  <body>
-    <textarea id="myTextarea"># Hello World</textarea>
+Assuming there is a variable named as `cm`, storing your editor instance.
 
-    <script src="index.js"></script>
-  </body>
-</html>
-```
++ **Load and Save Content**
+  - `cm.getValue()` returns Markdown text string
+  - `cm.setValue(text)`
 
-And write several lines into `index.js`:
++ **Toggle WYSIWYG mode**
+  - `HyperMD.switchToNormal(cm)`
+  - `HyperMD.switchToHyperMD(cm)`
 
-```js
-var HyperMD = require("hypermd")
-// some .css files will be implicitly imported by "hypermd"
-// you may get the list with HyperMD Dependency Walker
++ **Handle Relative URL**
+  - Image and Link URL in Markdown can be relative URL.
+  - HyperMD editors have a API `cm.hmdResolveURL("../relative/url")`, which is provided by addon _ReadLink_.
+  - _ReadLink_ the addon resolves relative paths, and its `baseURI` is configurable.
+  - Before loading Markdown text, `cm.setOption('hmdReadLink', { baseURI: "xxx" })`
+    where `xxx` is the absolute path to current markdown file. eg. `http://laobubu.net/notes/2018/test.md`
 
-// Load these modes if you want highlighting ...
-require("codemirror/mode/htmlmixed/htmlmixed") // for embedded HTML
-require("codemirror/mode/stex/stex") // for Math TeX Formular
-require("codemirror/mode/yaml/yaml") // for Front Matters
+## Level 3
 
-// Load PowerPacks if you want to utilize 3rd-party libs
-require("hypermd/powerpack/fold-math-with-katex") // implicitly requires "katex"
-require("hypermd/powerpack/hover-with-marked") // implicitly requires "marked"
-// and other power packs...
-// Power packs need 3rd-party libraries. Don't forget to install them!
+In this section, you will learn how HyperMD magic works, and write some advanced handlers.
 
-var myTextarea = document.getElementById("myTextarea")
-var cm = HyperMD.fromTextArea(myTextarea, {
-  /* optional editor options here */
-  hmdModeLoader: false, // see NOTEs below
-})
-```
+1. A document (Markdown text) is loaded
+2. __HyperMD Mode__ parses, tokenizes and styles the text
+3. __Addons__ use the parsed info to implement features
+   + __HideToken__ hides `*`s, `~~`s and more formatting tokens
+   + __Click__ checks the clicked element's token type, and call ClickHandler
+   + __FoldMath__ checks if a token is the beginning of a formula (usually, a `$`), folds to the end and renders $\TeX$ formula
+   + _and more_
 
-Let's say you are using [parcel-bundler][], simpily run `parcel index.html` and voila!
+**Conclusion**:
 
-[parcel-bundler]: https://parceljs.org/  Blazing fast, zero configuration web application bundler
+1. To support some syntax-based feature, eg. #hashtag , you have to
+   - [Configure the Mode](./options-for-mode.md)
+   - or [submit a feature request](https://github.com/laobubu/HyperMD/issues/new) if the syntax is not supported yet.
 
-> **You would need css-loader**
->
-> HyperMD contains code like `require("xxx.css")`. Make sure you have [css-loader](https://github.com/webpack-contrib/css-loader) configured.
-> Some bundlers might have already prepared it for you, like [parcel-bundler][].
+## Level 4
 
-> ***mode-loader* will be unavaliable**
->
-> Bundlers use closures, making CodeMirror invisible to global. You may...
-> Expose `CodeMirror` to global and set editor option `hmdModeLoader` to something like `"https://cdn.jsdelivr.net/npm/codemirror/"`.
-> Or load language modes via `require("codemirror/mode/haskell/haskell")` before creating a editor.
+In this section, you will learn how to write a HyperMD addon.
 
-### with [RequireJS](http://requirejs.org/) the module loader
+## Level 5
 
-First of all, *hypermd* requires CSS files in JavaScript,
-and RequireJS doesn't support `require("./style.css")`.
-Thus, **a [patch](../demo/patch-requirejs.js) is REQUIRED before using RequireJS**
+Understand TypeScript and CodeMirror? Want to add new features to HyperMD core? Great! Let's dive into HyperMD.
 
-Besides, you might find [this demo script](../demo/index.js) helpful.
-
-```js
-
-// 1. Configure RequireJS
-
-requirejs.config({
-  // baseUrl: "/node_modules/",                  // using local version
-  // baseUrl: "https://cdn.jsdelivr.net/npm/",   // or use CDN
-  baseUrl: "/node_modules/",
-
-  // (Remove this section if you occur errors with CDN)
-  // RequireJS doesn't read package.json or detect entry file.
-  packages: [
-    { name: 'codemirror', main: 'lib/codemirror.js' },
-    { name: 'mathjax', main: 'MathJax.js' },
-    { name: 'katex', main: 'dist/katex.min.js' },
-    { name: 'marked', main: 'lib/marked.js' },
-    { name: 'turndown', main: 'lib/turndown.browser.umd.js' },
-    { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
-  ],
-  waitSeconds: 15
-})
-
-// 2. Declare your main module
-
-require([
-  'codemirror/lib/codemirror',
-  'hypermd/everything',  // Want to tailor and pick components? Please see demo/index.js
-
-  // Load these modes if you want highlighting ...
-  "codemirror/mode/htmlmixed/htmlmixed", // for embedded HTML
-  "codemirror/mode/stex/stex", // for Math TeX Formular
-  "codemirror/mode/yaml/yaml", // for Front Matters
-
-  // Then, use PowerPack to power-up HyperMD, with third-party libraries
-  // The list can be found in documents, or demo/index.js
-  'hypermd/powerpack/fold-math-with-katex',
-
-  'hypermd/powerpack/paste-with-turndown',
-  'turndown-plugin-gfm',
-
-], function (CodeMirror, HyperMD) {
-  var myTextarea = document.getElementById('myTextareaID')
-  var editor = HyperMD.fromTextArea(myTextarea, {
-    /* optional editor options here */
-  })
-})
-
-```
-
-### with plain HTML
-
-Don't want to use either bundler or module loader? You can still load HyperMD in plain browser environment.
-
-Please read the source code of [this demo](./examples/ai1.html)
-
-
-[options-for-addons]: ./options-for-addons.md
-[PowerPacks]: ./powerpacks.md
+[The source code of HyperMD](https://github.com/laobubu/HyperMD/) is open on GitHub! To develop, VSCode is highly recommended.

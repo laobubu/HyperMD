@@ -157,4 +157,4 @@ Contributions are welcomed. You may:
 [^3]: If the theme is not designed for HyperMD, some features might not be present.
 [^4]: Math block use `$$` to wrap your TeX expression.
 [^5]: Use `Ctrl+Shift+V` to paste plain text.
-[^6]: If tag name contains space, you may use #escape\ backslash or #use two hash symbol#
+[^6]: Disabled by default, see [doc]; #use two hash symbol# if tag name contains spaces.

@@ -121,7 +121,7 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
 
 * **Add**
   * **mode**
-    * **Hashtag** syntax! People #hashtag #everything in life#
+    * **Hashtag** syntax! People #hashtag #everything in life# (disabled by default)
   * **addon/click**:
     - Clicking on hashtags now trigs the _ClickHandler_
     - ClickInfo: new _TargetType_: `"hashtag"`

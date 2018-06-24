@@ -7,6 +7,52 @@ import { makeComponentLink, InterfaceProperty, makePropertiesSection, extractInt
 
 const config = require("../HyperMD.config")
 
+const prologue = `
+Once a HyperMD addons are loaded, you may configure them via editor options.
+
+# ✨ Usage
+
+## While Initializing
+
+Both CodeMirror and HyperMD provide a method \`fromTextArea\`
+
+\`\`\`js
+var cm = HyperMD.fromTextArea(myTextarea, {
+  /* editor options here */
+
+  // example 1
+  hmdClick: {
+    enabled: true,
+    handler: onClickMarkdown,
+  },
+
+  // example 2. hmdHideToken also accepts boolean
+  hmdHideToken: false,
+})
+\`\`\`
+
+## During Runtime
+
+Use \`setOption\` method of the editor
+
+\`\`\`js
+// example 3, use setOption method
+cm.setOption("hmdClick", {
+  enabled: false,
+})
+\`\`\`
+
+> :warning: **You shall use \`setOption\`**
+>
+> Sometimes, directly accessing _addon instance_'s property like \`cm.hmd.Click.enabled = false;\`
+> **might** work for some addons / options, but it's **not guranteed** (depends on the addon).
+> Take the non-standard approach at your own risk.
+
+
+
+# 📕 Options
+`
+
 export interface AddonInfo {
   name: string, // "addon/foobar"
   brief_description: string, // "One sentence introducing Foobar"
@@ -84,8 +130,9 @@ export function make(): string {
   //#endregion
 
   var result = [
-    "# HyperMD Configurations",
+    "# Options for Addons",
     makeAutoDocNotice(__filename),
+    prologue.trim(),
   ]
 
   //#region [phase #2] make the result      ---------------------------------------------------------
