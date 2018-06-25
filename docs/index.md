@@ -32,27 +32,27 @@ Once a editor is ready, lots of API and methods are available. These pages can b
 
 In this section, you will try to add some interesting features to your editor.
 
-Assuming there is a variable named as `cm`, storing your editor instance.
+Assuming there is a variable named as `editor`, storing your editor instance.
 
 + **Load and Save Content**
-  - `cm.getValue()` returns Markdown text string
-  - `cm.setValue(text)`
+  - `editor.getValue()` returns Markdown text string
+  - `editor.setValue(text)`
 
 + **Toggle WYSIWYG mode**
-  - `HyperMD.switchToNormal(cm)`
-  - `HyperMD.switchToHyperMD(cm)`
+  - `HyperMD.switchToNormal(editor)`
+  - `HyperMD.switchToHyperMD(editor)`
 
 + **Update HyperMD Editor/Addon Options**
-  - You can use `cm.setOption(name, value)` during runtime
+  - You can use `editor.setOption(name, value)` during runtime
   - HyperMD-related addon option names always start with "hmd",
     the full list can be found here: [Options-for-Addons][]
 
 + **Handle Relative URL**
   - Image and Link URL in Markdown can be relative URL.
-  - HyperMD editors have a API `cm.hmdResolveURL("../relative/url")`, which is provided by addon _ReadLink_.
+  - HyperMD editors have a API `editor.hmdResolveURL("../relative/url")`, which is provided by addon _ReadLink_.
   - _ReadLink_ the addon resolves relative paths, and its `baseURI` is configurable.
-  - Before loading Markdown text, `cm.setOption('hmdReadLink', { baseURI: "xxx" })`
-    where `xxx` is the absolute path to current markdown file. eg. `http://laobubu.net/notes/2018/test.md`
+  - Before loading Markdown text, `editor.setOption('hmdReadLink', { baseURI: "xxx" })`
+    where `xxx` is the absolute path to the directory. eg. `http://laobubu.net/notes/2018/6/` (without filename)
 
 ## Level 3
 

@@ -39,7 +39,7 @@ function bind(id, func, event) {
   for (var i = 0; i < navigator.languages.length; i++) {
     var lang = navigator.languages[i]
 
-    if (lang === "zh-CN") demo_filename = "./demo/README.zh-CN.md"
+    if (lang === "zh-CN") demo_filename = "./docs/zh-CN/README.md"
     else continue
 
     break
