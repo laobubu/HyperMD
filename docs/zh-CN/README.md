@@ -1,6 +1,6 @@
 # HyperMD
 
-![HyperMD Markdown Editor](../demo/logo.png)
+![HyperMD Markdown Editor](../../demo/logo.png)
 
 **打破** Markdown *写作* 和 *预览* 的 **次元壁**！
 
