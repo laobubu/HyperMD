@@ -56,8 +56,6 @@ var cm = HyperMD.fromTextArea(myTextarea, {
 
 Let's say you are using [parcel-bundler][], simpily run `parcel index.html` and voila!
 
-[parcel-bundler]: https://parceljs.org/  Blazing fast, zero configuration web application bundler
-
 > **You would need css-loader**
 >
 > HyperMD contains code like `require("xxx.css")`. Make sure you have [css-loader](https://github.com/webpack-contrib/css-loader) configured.
@@ -89,7 +87,7 @@ requirejs.config({
   baseUrl: "/node_modules/",
 
   // (Remove this section if you occur errors with CDN)
-  // RequireJS doesn't read package.json or detect entry file.
+  // RequireJS doesn't read package.json. Let's tell it the entries of modules.
   packages: [
     { name: 'codemirror', main: 'lib/codemirror.js' },
     { name: 'mathjax', main: 'MathJax.js' },
@@ -141,7 +139,34 @@ Please read the source code of [this demo](./examples/ai1.html)
 
 
 
+## convert existed CodeMirror markdown editor to HyperMD editor
+
+If a markdown editor (based on CodeMirror ≥ 5.37.0) is already initialized and presented on page,
+you can easily turn it into HyperMD markdown editor!
+
+**Invoke `HyperMD.switchToHyperMD(editor);`** where `editor` is the CodeMirror editor instance.
+
+> :warning: **Closure problem**, again...
+>
+> CodeMirror and HyperMD __must__ be loaded by the same method: either bundler, RequireJS or `<script>` tags.
+> If not same, HyperMD might not work properly because it can't access the correct CodeMirror!
+>
+> Some components (eg. SimpleMDE, React-CodeMirror) use their __private__ CodeMirror build,
+> which is __not supported__ by HyperMD. Further tweaking is required.
+> [(example for react-codemirror)](https://github.com/laobubu/HyperMD/issues/26#issuecomment-391420190)
+
+This will update editor options with `HyperMD.suggestedEditorConfig`.
+If there are options you don't like, you may overwrite it, with the 2nd parameter of `switchToHyperMD`:
+
+```js
+// example: I want to keep "vim" keyMap
+HyperMD.switchToHyperMD(editor, {
+  keyMap: "vim"
+})
+```
 
 
+
+[parcel-bundler]: https://parceljs.org/
 [options-for-addons]: ./options-for-addons.md
 [PowerPacks]: ./powerpacks.md

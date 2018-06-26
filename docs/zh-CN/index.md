@@ -106,7 +106,7 @@ requirejs.config({
   baseUrl: "/node_modules/",
 
   // (如果你使用 CDN 遇到问题，删除这段)
-  // RequireJS doesn't read package.json or detect entry file.
+  // RequireJS 不会去解析 package.json ，需要手动设置各个模块的入口文件名
   packages: [
     { name: 'codemirror', main: 'lib/codemirror.js' },
     { name: 'mathjax', main: 'MathJax.js' },
@@ -114,6 +114,8 @@ requirejs.config({
     { name: 'marked', main: 'lib/marked.js' },
     { name: 'turndown', main: 'lib/turndown.browser.umd.js' },
     { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
+    { name: 'emojione', main: 'lib/js/emojione.min.js' },
+    { name: 'twemoji', main: '2/twemoji.amd.js' },
   ],
   waitSeconds: 15
 })
@@ -150,6 +152,34 @@ require([
 不喜欢打包器和模块加载器？你可以用纯 HTML 标签来引入 HyperMD 编辑器！
 
 请参考 [这个文件](../examples/ai1.html) 的源代码
+
+
+## 将已有的 CodeMirror markdown 编辑器转成 HyperMD 模式
+
+如果你的页面上已经有一个基于 CodeMirror（版本 ≥ 5.37.0） 的 Markdown 编辑器了，
+你可以很轻松地将它转换为 HyperMD 模式：
+
+**调用 `HyperMD.switchToHyperMD(editor);` 即可**，其中 `editor` 是那个 CodeMirror 编辑器实例
+
+> :warning: **还是闭包的问题**...
+>
+> CodeMirror 和 HyperMD __必须__ 用相同的方法载入：要么用打包器, 要么 RequireJS 或者 `<script>` 标签。
+> 如果不一致，HyperMD 可能会无法正常工作，因为它无法访问正确的 CodeMirror！
+>
+> 有的组件 (例如 SimpleMDE, React-CodeMirror) 使用了其 __私有的__ CodeMirror 版本,
+> HyperMD 是不支持的。如果要支持的话，可能得花一点功夫……
+> [(例如 react-codemirror 得这样搞)](https://github.com/laobubu/HyperMD/issues/26#issuecomment-391420190)
+
+此操作会把 `HyperMD.suggestedEditorConfig` 里面的配置逐个应用到你的编辑器上，
+如果有不喜欢的配置项，你可以使用 `switchToHyperMD` 的第二个可选参数来覆盖之：
+
+```js
+// 举个栗子： 我就是想用 "vim" 按键绑定
+HyperMD.switchToHyperMD(editor, {
+  keyMap: "vim"
+})
+```
+
 
 
 [插件相关的编辑器选项]: ./options-for-addons.md

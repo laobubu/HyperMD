@@ -5,7 +5,6 @@
 
 %hidden-token {
     display: inline;
-    opacity: 0;
     font-size: 0 !important;
 }
 
@@ -21,8 +20,8 @@
     }
 
     /* adding some CodeMirror-not-implemented styles' default style */
-    span.cm-inline-code,
-    span.cm-math {
+    .cm-inline-code,
+    .cm-math {
         color: #900;
     }
 
@@ -49,8 +48,8 @@
     }
 
     /* addon/fold */
-    span.hmd-link-icon:after { // Link Placeholder
-        content: "»";
+    .hmd-link-icon:after { // Link Placeholder
+        content: "🔗»";
         color: #009;
         text-shadow: 0 0 2px #69F;
     }
@@ -68,13 +67,13 @@
         .hmd-table-column-center { text-align: center }
         .hmd-table-column-right { text-align: right }
 
-        span.cm-hmd-table-sep {
+        .cm-hmd-table-sep {
             @extend %inline-block;
         }
     }
 
     /* addon/fold-math */
-    span.hmd-fold-math {
+    .hmd-fold-math {
         @extend %inline-block;
         &.hmd-fold-math.math-2 { // aka. display mode
             width: 100%;

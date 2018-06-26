@@ -504,8 +504,10 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       if (wasLinkText !== state.linkText) {
         if (!wasLinkText) {
           // entering a link
-          tmp = stream.match(/^([^\]]+)\](\(| ?\[|\:)?/, false) || ["](", "", "("] // make a fake link
-          if (!tmp[2]) { // barelink
+          tmp = stream.match(/^([^\]]+)\](\(| ?\[|\:)?/, false)
+          if (!tmp) { // maybe met a line-break in link text?
+            state.hmdLinkType = LinkType.BARELINK
+          } else if (!tmp[2]) { // barelink
             if (tmp[1].charAt(0) === "^") {
               state.hmdLinkType = LinkType.FOOTREF
             } else {

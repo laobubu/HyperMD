@@ -153,6 +153,11 @@ declare module "codemirror" {
     lookAhead(lineCount: number): string
   }
 
+  interface LineWidget {
+    on(event: "redraw", fn: Function): void
+    off(event: "redraw", fn: Function): void
+  }
+
   interface Editor extends CodeMirror.Doc, HyperMD.Editor {
     display: any
     options: any
@@ -201,6 +206,9 @@ declare module "codemirror" {
      */
     on(eventName: 'clear', handler: (this: CodeMirror.Editor, from: CodeMirror.Position, to: CodeMirror.Position) => void): void;
     off(eventName: 'clear', handler: (this: CodeMirror.Editor, from: CodeMirror.Position, to: CodeMirror.Position) => void): void;
+
+    on(eventName: 'hide' | 'unhide', handler: Function): void;
+    off(eventName: 'hide' | 'unhide', handler: Function): void;
   }
 
   interface LineHandle {

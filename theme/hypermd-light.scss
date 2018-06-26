@@ -5,7 +5,7 @@
     font-style: normal;
 }
 
-.CodeMirror.cm-s-hypermd-light {
+.cm-s-hypermd-light {
     $fs: 12pt;  //default font-size
 
     $line-height: 1.5;
@@ -28,8 +28,9 @@
     $hashtag-padding-x: 6px;
     $hashtag-padding-y: 0.1em;
     $hashtag-radius: 8px;
+    $hr-image: $table-row-1-image;
 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: -apple-system, BlinkMacSystemFont, "Open Sans", "Helvetica Neue", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	-webkit-font-smoothing: antialiased;
 
     line-height: $line-height;
@@ -163,11 +164,10 @@
         padding-left: $line-padding !important;
         margin-left: 0 !important;
         border-left: 0 !important;
+        padding-bottom: .25em;
         > span > span:first-child {
             margin-left: 0 !important;
         }
-
-        color: #333;
 
         &.HyperMD-header-1 { font-weight: 600; font-size: $fs * 2 }
         &.HyperMD-header-2 { font-weight: 600; font-size: $fs * 1.5 }
@@ -188,7 +188,7 @@
     /// Horizontal Rule
 
     pre.HyperMD-hr{
-        background: url('data:image/gif;base64,R0lGODlhAQACAIAAAOTq8kNWcCH5BAAAAAAALAAAAAABAAIAAAICDAoAOw==') repeat-x 0px center;
+        background: url(#{$hr-image}) repeat-x 0px center;
         text-shadow: 0 0 2px #FFF;
     }
 
@@ -599,8 +599,8 @@
         &.HyperMD-table-row-0 {
             // title row
             font-weight: 600;
-            .cm-strong {
-                font-weight: 700;
+            span.cm-strong {
+                font-weight: 800;
             }
         }
 
@@ -758,9 +758,7 @@
 
         span.cm-hmd-escape-backslash,
         span.cm-formatting-header {
-            opacity: 0;
             font-size: 0 !important;
-            overflow: hidden;
             display: inline;
         }
 

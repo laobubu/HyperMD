@@ -9,7 +9,6 @@
 import * as CodeMirror from 'codemirror'
 import { Addon, FlipFlop, expandRange, suggestedEditorConfig } from '../core'
 
-import { addClass, rmClass } from '../core'
 import { cm_t } from '../core/type'
 import { splitLink } from './read-link'
 import { HyperMDState } from '../mode/hypermd';
@@ -214,12 +213,10 @@ export class Click implements Addon.Addon, Options {
       /* ON  */() => {
         this.lineDiv.addEventListener("mousedown", this._mouseDown, false)
         el.addEventListener("keydown", this._keyDown, false)
-        el.addEventListener("keyup", this._keyUp, false)
       },
       /* OFF */() => {
         this.lineDiv.removeEventListener("mousedown", this._mouseDown, false)
         el.removeEventListener("keydown", this._keyDown, false)
-        el.removeEventListener("keyup", this._keyUp, false)
       }
     ).bind(this, "enabled", true)
   }
@@ -227,23 +224,31 @@ export class Click implements Addon.Addon, Options {
   /** CodeMirror's <pre>s container */
   private lineDiv: HTMLDivElement
 
-  /** Firefox */
-  private _hadAlt: boolean
+  /** It's not  */
+  private _KeyDetectorActive: boolean
 
   /** remove modifier className to editor DOM */
-  private _keyUp = (ev: KeyboardEvent) => {
-    var kc = ev.keyCode || ev.which
-    var className = ""
-    if (kc == 17) className = "HyperMD-with-ctrl"
-    if (kc == 18) className = "HyperMD-with-alt"
+  private _mouseMove_keyDetect = (ev: KeyboardEvent) => {
+    var el = this.el
+    var className = el.className, newClassName = className
 
-    /** FireFox */
-    if (!className && this._hadAlt && !ev.altKey) {
-      this._hadAlt = false
-      className = "HyperMD-with-alt"
+    const altClass = "HyperMD-with-alt"
+    const ctrlClass = "HyperMD-with-ctrl"
+
+    if (!ev.altKey && className.indexOf(altClass) >= 0) {
+      newClassName = className.replace(altClass, "");
     }
 
-    if (className) rmClass(this.el, className)
+    if (!ev.ctrlKey && className.indexOf(ctrlClass) >= 0) {
+      newClassName = className.replace(ctrlClass, "");
+    }
+
+    if (!ev.altKey && !ev.ctrlKey) {
+      this._KeyDetectorActive = false;
+      el.removeEventListener('mousemove', this._mouseMove_keyDetect, false);
+    }
+
+    if (className != newClassName) el.className = newClassName.trim()
   }
 
   /** add modifier className to editor DOM */
@@ -253,10 +258,15 @@ export class Click implements Addon.Addon, Options {
     if (kc == 17) className = "HyperMD-with-ctrl"
     if (kc == 18) className = "HyperMD-with-alt"
 
-    /** FireFox */
-    if (kc == 18) this._hadAlt = true
+    var el = this.el
+    if (className && el.className.indexOf(className) == -1) {
+      el.className += " " + className;
+    }
 
-    if (className) addClass(this.el, className)
+    if (!this._KeyDetectorActive) {
+      this._KeyDetectorActive = true;
+      this.el.addEventListener('mousemove', this._mouseMove_keyDetect, false);
+    }
   }
 
   /** last click info */

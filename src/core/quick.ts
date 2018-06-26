@@ -51,7 +51,7 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
  * @returns {cm_t}
  */
 export function fromTextArea(textArea: HTMLTextAreaElement, config?: object): cm_t {
-  var final_config = Object.assign({}, suggestedEditorConfig, config)
+  var final_config = { ...suggestedEditorConfig, ...config }
 
   var cm = CodeMirror.fromTextArea(textArea, final_config) as any as cm_t
 
@@ -64,26 +64,41 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config?: object): cm
  * Disable HyperMD visual effects.
  * Interactive addons like click or paste are not affected.
  *
- * @param {cm_t} editor Created by **HyperMD.fromTextArea**
- * @param {string} [theme]
+ * @param {cm_t} editor Any CodeMirror Editor! Created by HyperMD or CodeMirror
  */
-export function switchToNormal(editor: cm_t, theme?: string) {
-  editor.setOption('theme', theme || "default")
-  editor.setOption('hmdFold', false)  // unfold all folded parts
-  editor.setOption('hmdHideToken', false) // stop hiding tokens
-  editor.setOption('hmdTableAlign', false)  // stop aligining table columns
+export function switchToNormal(editor: cm_t);
+export function switchToNormal(editor: cm_t, theme: string);
+export function switchToNormal(editor: cm_t, options: CodeMirror.EditorConfiguration);
+export function switchToNormal(editor: cm_t, options_or_theme?: CodeMirror.EditorConfiguration | string) {
+  var opt: CodeMirror.EditorConfiguration = {
+    theme: "default",
+    hmdFold: false, // unfold all folded parts
+    hmdHideToken: false, // stop hiding tokens
+    hmdTableAlign: false, // stop aligining table columns
+  }
+
+  if (typeof options_or_theme === 'string') options_or_theme = { theme: options_or_theme };
+  Object.assign(opt, options_or_theme)
+
+  for (const key in opt) {
+    editor.setOption(key, opt[key])
+  }
 }
 
 /**
- * Revert what `HyperMD.switchToNormal` does
+ * Apply HyperMD suggestedEditorConfig to a CodeMirror Editor
  *
- * @param {cm_t} editor Created by **HyperMD.fromTextArea**
- * @param {string} [theme]
+ * @param {cm_t} editor Any CodeMirror Editor! Created by HyperMD or CodeMirror
  */
-export function switchToHyperMD(editor: cm_t, theme?: string) {
-  editor.setOption('theme', theme || 'hypermd-light')
-  editor.setOption('hmdFold', true)
-  editor.setOption('hmdHideToken', true)
-  editor.setOption('hmdTableAlign', true)
+export function switchToHyperMD(editor: cm_t);
+export function switchToHyperMD(editor: cm_t, theme: string);
+export function switchToHyperMD(editor: cm_t, options: CodeMirror.EditorConfiguration);
+export function switchToHyperMD(editor: cm_t, options_or_theme?: CodeMirror.EditorConfiguration | string) {
+  if (typeof options_or_theme === 'string') options_or_theme = { theme: options_or_theme };
+  var opt = { ...suggestedEditorConfig, ...options_or_theme }
+
+  for (const key in opt) {
+    editor.setOption(key, opt[key])
+  }
 }
 

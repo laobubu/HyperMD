@@ -112,7 +112,9 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
 ## 0.3.7
 
 * **Fix**
-  * Adjacent headers, the latter was not correctly styled
+  * **mode**
+    + Adjacent headers, the latter was not correctly styled
+    + Wrong behavoir at links whose text contains line break
   * **addon/fold-html**: stop eating extra blank lines
 
 * **Removed**
@@ -138,4 +140,5 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
 
 * **Other**
   * English fundamental docs are now published within NPM package.
-  * PowerPack documentation is much more friendly.
+  * Documentation is much more friendly.
+  * Theme hypermd-light refined.
