@@ -3,6 +3,7 @@ tmp/
 .DS_Store
 .rpt2_cache
 cache/
+.vscode/
 
 *.d.ts
 !src/**/*.d.ts
@@ -13,6 +14,7 @@ cache/
 !demo/**/*.js
 !docs/**/*.js
 !dev/**/*.js
+!test/**/*.js
 !rollup.config.js
 
 *.css

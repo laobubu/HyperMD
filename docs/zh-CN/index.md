@@ -7,11 +7,20 @@
 > **提示**
 >
 > 页面上所有的链接都是可以直接点开的。不用按着 `Ctrl` 或者 `Alt`，随便点！
-> [试试看]
+
+> **提示**
+>
+> 文档里有些东西是由程序生成的，不在 master 分枝里。
+>
+> 如果要阅读文档，请访问
+> [HyperMD 在线演示](https://laobubu.net/HyperMD/?directOpen#./docs/zh-CN/index.md)
+> 或者
+> [GitHub gh-pages 分枝](https://github.com/laobubu/HyperMD/blob/gh-pages/docs/zh-CN/index.md)
 
 文档还没写完……请考虑：
 
-1. 如果你使用模块加载器，请参考 [主页的README文档](../../demo/README.zh-CN.md)
+0. 看英文版：[English Version](../index.md)
+1. 如果你使用模块加载器，请参考 [主页的README文档](./README.md)
 2. 如果你更喜欢用传统 HTML 标签来引入编辑器，请参考 [这个文件](../examples/ai1.html) 的源代码
 3. 如果想深入了解 HyperMD 的插件，请浏览[源代码](https://github.com/laobubu/HyperMD/)
    - 推荐使用 VSCode。

@@ -6,8 +6,8 @@
 
 [![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd) [![Build Status](https://travis-ci.org/laobubu/HyperMD.svg?branch=master)](https://travis-ci.org/laobubu/HyperMD)
 
-[Online Demo](https://laobubu.net/HyperMD/)
-[中文介绍](./demo/README.zh-CN.md)
+[Online Demo](https://laobubu.net/HyperMD/) |
+[中文介绍](./docs/zh-CN/README.md)
 
 ## Why use HyperMD?
 

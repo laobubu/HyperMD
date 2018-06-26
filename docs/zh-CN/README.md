@@ -1,13 +1,13 @@
 # HyperMD
 
-![HyperMD Markdown Editor](../demo/logo.png)
+![HyperMD Markdown Editor](../../demo/logo.png)
 
 **打破** Markdown *写作* 和 *预览* 的 **次元壁**！
 
 [![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd) [![Build Status](https://travis-ci.org/laobubu/HyperMD.svg?branch=master)](https://travis-ci.org/laobubu/HyperMD)
 
 [在线演示](https://laobubu.net/HyperMD/)
-[English](../README.md)
+[English](../../README.md)
 
 ## 选择 HyperMD 的 N 个理由
 
@@ -147,7 +147,7 @@ HyperMD 是 [laobubu] 的一个开源项目，欢迎你：
 [turndown]: https://github.com/domchristie/turndown 一个 HTML 转 Markdown 的组件
 [turndown-plugin-gfm]: https://github.com/domchristie/turndown-plugin-gfm 为 turndown 添加删除线和表格支持
 [laobubu]:  https://laobubu.net/  HyperMD 的作者
-[doc]: https://laobubu.net/HyperMD/docs/ HyperMD 的文档
+[doc]: ./index.md
 
 [^1]: 按着 Ctrl 点击也行
 [^2]: 只要是 CodeMirror 支持的都能用

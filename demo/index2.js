@@ -1,5 +1,7 @@
 /* global editor, is_running_demo, HyperMD */
 
+/// <reference path="./index.js" />
+
 // the following code is just for test.
 // useless for you.
 
@@ -39,7 +41,7 @@ function bind(id, func, event) {
   for (var i = 0; i < navigator.languages.length; i++) {
     var lang = navigator.languages[i]
 
-    if (lang === "zh-CN") demo_filename = "./demo/README.zh-CN.md"
+    if (lang === "zh-CN") demo_filename = "./docs/zh-CN/README.md"
     else continue
 
     break
@@ -115,8 +117,7 @@ function load_and_update_editor(url) {
 
     history_op = "pushState"
 
-    /** global allowDirectOpen */
-    if (!allowDirectOpen && /\/docs\//.test(url)) allowDirectOpen = true
+    if (!allowDirectOpen && url.indexOf('/docs/') >= 0 && url.indexOf('README') === -1) allowDirectOpen = true
 
     editor.setOption('hmdReadLink', { baseURI: current_baseuri }) // for images and links in Markdown
     editor.setValue(text)

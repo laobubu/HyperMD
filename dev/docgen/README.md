@@ -18,7 +18,7 @@ See *index.ts*
 
 ## Dev
 
-Use VSCode to develop and debug. Open HyperMD directory as the workspace and edit `.vscode/launch.json`:
+Use VSCode to develop and debug. Open this directory ( dev/docgen ) as the workspace and create `.vscode/launch.json`:
 
 ```js
 {
@@ -39,6 +39,6 @@ Use VSCode to develop and debug. Open HyperMD directory as the workspace and edi
 
 Then...
 
-1. Run in terminal: `cd dev/docgen` and `npx tsc -w`
-2. Files will be compiled into `dev/tmp` dir and updated automatically
+1. Run in terminal: `npx tsc -w`
+2. Files will be compiled into `../tmp` dir and updated automatically
 3. Press `F5` to debug a script
