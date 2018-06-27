@@ -160,7 +160,7 @@ function resetTable(state: HyperMDState) {
 const listInQuoteRE = /^\s+((\d+[).]|[-*+])\s+)?/;
 
 const defaultTokenTypeOverrides = {
-  hr: "line-HyperMD-hr hr",
+  hr: "line-HyperMD-hr line-background-HyperMD-hr-bg hr",
   // HyperMD needs to know the level of header/indent. using tokenTypeOverrides is not enough
   // header: "line-HyperMD-header header",
   // quote: "line-HyperMD-quote quote",
@@ -407,8 +407,8 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       if (!state.localMode || !wasInCodeFence) ans = ans.replace("inline-code", "")
       ans += " line-HyperMD-codeblock line-background-HyperMD-codeblock-bg"
       if (inCodeFence !== wasInCodeFence) {
-        if (!inCodeFence) ans += " line-HyperMD-codeblock-end"
-        else if (!wasInCodeFence) ans += " line-HyperMD-codeblock-begin"
+        if (!inCodeFence) ans += " line-HyperMD-codeblock-end line-background-HyperMD-codeblock-end-bg"
+        else if (!wasInCodeFence) ans += " line-HyperMD-codeblock-begin line-background-HyperMD-codeblock-begin-bg"
       }
     }
 

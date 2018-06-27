@@ -8,37 +8,54 @@
 .cm-s-hypermd-light {
     $fs: 12pt;  //default font-size
 
+    $editor-background: #FFF;
+    $editor-color: #000;
+
     $line-height: 1.5;
     $line-margin: 10px;
     $line-padding: 5px;
+
     $footnote-padding: 40px;
+
     $quote-margin: 2px;
     $quote-padding: 20px;
+
     $list-margin: 10px;
     $list-indent: 30px;
     $list-bullet-width: 30px;
     $list-margin-after-line: .3em;
+
     $table-border-style: 1px solid #999;
     $table-row1-height: 8px;
     $table-sep-width: 15px;
     $table-sep-image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=';
     $table-row-1-image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAQAAAAziH6sAAAADklEQVR42mOc+Z9x5n8ACTkDM4ikM1IAAAAASUVORK5CYII=';
+
     $codeblock-border: 1px solid #CCC;
+    $codeblock-padding: 5px;
+
     $hashtag-fontsize: 0.84em;
     $hashtag-padding-x: 6px;
     $hashtag-padding-y: 0.1em;
     $hashtag-radius: 8px;
+
+    $hr-color: #999;
     $hr-image: $table-row-1-image;
+    $hr-padding: 5px;
 
     font-family: -apple-system, BlinkMacSystemFont, "Open Sans", "Helvetica Neue", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-	-webkit-font-smoothing: antialiased;
-
-    line-height: $line-height;
-    font-size: $fs;
+    -webkit-font-smoothing: antialiased;
 
     %monospace {
         font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
     }
+
+    //------------------------------------------------------------------
+
+    line-height: $line-height;
+    font-size: $fs;
+    background: $editor-background;
+    color: $editor-color;
 
     /// Fold-HTML
 
@@ -113,7 +130,7 @@
         color: #ccc;
     }
     .CodeMirror-gutters {
-        border-right: $line-margin solid #FFF;
+        border-right: $line-margin solid $editor-background;
         padding-right: 5px;
     }
     .CodeMirror-line {
@@ -187,9 +204,15 @@
 
     /// Horizontal Rule
 
-    pre.HyperMD-hr{
+    pre.HyperMD-hr {
+        @extend %monospace;
+        text-shadow: -1px 0 $editor-background, -1px -1px $editor-background, -1px 1px $editor-background, 1px -1px $editor-background, 1px 1px $editor-background, 1px 0 $editor-background, -2px 0 $editor-background, 2px 0 $editor-background, 0 -1px $editor-background, 0 1px $editor-background;
+    }
+
+    div.HyperMD-hr-bg {
+        left: $line-padding - $hr-padding;
+        right: $line-padding - $hr-padding;
         background: url(#{$hr-image}) repeat-x 0px center;
-        text-shadow: 0 0 2px #FFF;
     }
 
     /// blockquote
@@ -352,31 +375,30 @@
             padding: inherit;
             font-size: inherit;
         }
-        // }
-
-        &.HyperMD-codeblock-begin {
-            border-top: $codeblock-border;
-            border-radius: 4px 4px 0 0;
-        }
-
-        &.HyperMD-codeblock-end {
-            border-bottom: $codeblock-border;
-            border-radius: 0 0 4px 4px;
-        }
-
-        &.HyperMD-codeblock-begin,
-        &.HyperMD-codeblock-end {
-            line-height: 1.0;
-            background: rgba(#000, 0.02);
-        }
-
-        border-left: $codeblock-border;
-        border-right: $codeblock-border;
     }
 
     // note: this is a background style
     div.HyperMD-codeblock-bg {
-        background-color: rgba(#eee, .5);
+        left: $line-padding - $codeblock-padding;
+        right: $line-padding - $codeblock-padding;
+        background-color: #FAFAFA;
+        border-left: $codeblock-border;
+        border-right: $codeblock-border;
+    }
+
+    div.HyperMD-codeblock-begin-bg {
+        border-top: $codeblock-border;
+        border-radius: 4px 4px 0 0;
+    }
+
+    div.HyperMD-codeblock-end-bg {
+        border-bottom: $codeblock-border;
+        border-radius: 0 0 4px 4px;
+    }
+
+    div.HyperMD-codeblock-begin-bg,
+    div.HyperMD-codeblock-end-bg {
+        background-color: #EEE;
     }
 
 
@@ -543,9 +565,7 @@
         background-color: lighten(#4078c0, 20%);
         color: #f7f7f7;
         cursor: pointer;
-        // transition: .2s;
         &:hover {
-            // background-color: #fafafa;
             color: transparent;
             text-align: left;
             &:before {
@@ -630,7 +650,7 @@
 
     /// hypermd/addon/hover
 
-    div.HyperMD-hover {
+    &.CodeMirror div.HyperMD-hover {
         > .HyperMD-hover-content {
             background-color: #000;
             background-color: rgba(#000, .7);
@@ -732,10 +752,13 @@
     pre.hmd-inactive-line {
         // background: aqua;  // just for debug
 
-        &.HyperMD-table-row-1,  // table line |:--------:|:-------:|
-        &.HyperMD-hr             // hr line    -------------
-        {
+        &.HyperMD-table-row-1 {  // table line |:--------:|:-------:|
             color: transparent;
+            text-shadow: none;
+        }
+
+        &.HyperMD-hr {
+            color: $hr-color;
             text-shadow: none;
         }
 
