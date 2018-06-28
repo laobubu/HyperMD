@@ -21,6 +21,7 @@ const listRE = /^(?:[*\-+]|^[0-9]+([.)]))\s+/
 const urlRE = /^((?:(?:aaas?|about|acap|adiumxtra|af[ps]|aim|apt|attachment|aw|beshare|bitcoin|bolo|callto|cap|chrome(?:-extension)?|cid|coap|com-eventbrite-attendee|content|crid|cvs|data|dav|dict|dlna-(?:playcontainer|playsingle)|dns|doi|dtn|dvb|ed2k|facetime|feed|file|finger|fish|ftp|geo|gg|git|gizmoproject|go|gopher|gtalk|h323|hcp|https?|iax|icap|icon|im|imap|info|ipn|ipp|irc[6s]?|iris(?:\.beep|\.lwz|\.xpc|\.xpcs)?|itms|jar|javascript|jms|keyparc|lastfm|ldaps?|magnet|mailto|maps|market|message|mid|mms|ms-help|msnim|msrps?|mtqp|mumble|mupdate|mvn|news|nfs|nih?|nntp|notes|oid|opaquelocktoken|palm|paparazzi|platform|pop|pres|proxy|psyc|query|res(?:ource)?|rmi|rsync|rtmp|rtsp|secondlife|service|session|sftp|sgn|shttp|sieve|sips?|skype|sm[bs]|snmp|soap\.beeps?|soldat|spotify|ssh|steam|svn|tag|teamspeak|tel(?:net)?|tftp|things|thismessage|tip|tn3270|tv|udp|unreal|urn|ut2004|vemmi|ventrilo|view-source|webcal|wss?|wtai|wyciwyg|xcon(?:-userid)?|xfire|xmlrpc\.beeps?|xmpp|xri|ymsgr|z39\.50[rs]?):(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\([^\s()<>]*\))+(?:\([^\s()<>]*\)|[^\s`*!()\[\]{};:'".,<>?«»“”‘’]))/i // from CodeMirror/mode/gfm
 const emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 const url2RE = /^\.{0,2}\/[^\>\s]+/
+const hashtagRE = /^(?:[-()/a-zA-Z0-9ァ-ヺー-ヾｦ-ﾟｰ０-９Ａ-Ｚａ-ｚぁ-ゖ゙-ゞー々ぁ-んァ-ヾ一-\u9FEF㐀-䶵﨎﨏﨑﨓﨔﨟﨡﨣﨤﨧-﨩]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d])+/
 
 export type TokenFunc = (stream: CodeMirror.StringStream, state: HyperMDState) => string
 
@@ -177,7 +178,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
     front_matter: true,
     math: true,
     table: true,
-    toc: true, // support [TOC] in a single line
+    toc: true, // support [TOC] and [TOCM]
     orgModeMarkup: true, // support OrgMode-like Markup like #+TITLE: my document
     hashtag: false, // support #hashtag
 
@@ -346,7 +347,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       //#endregion
 
       //#region [TOC] in a single line
-      if (bol && modeCfg.toc && stream.match(/^\[TOC\]\s*$/i)) {
+      if (bol && modeCfg.toc && stream.match(/^\[TOCM?\]\s*$/i)) {
         return "meta line-HyperMD-toc hmd-toc"
       }
       //#endregion
@@ -697,22 +698,38 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
             if (
               current === '#' &&
               !state.linkText && !state.image &&
-              stream.peek() != ' ' &&
-              !(bol && / header/.test(ans)) &&
               (bol || /^\s*$/.test(stream.string.charAt(stream.start - 1)))
             ) {
               let escape_removed_str = stream.string.slice(stream.pos).replace(/\\./g, '')
-              state.hmdHashtag =
-                ((tmp = escape_removed_str.match(/^([^#]*[^\s#])#/)) && HashtagType.WITH_SPACE) ||
-                ((tmp = escape_removed_str.match(/^([^\s#]+)(?:\s|$)/)) && HashtagType.NORMAL) ||
-                HashtagType.NONE;
 
-              if (state.hmdHashtag) {
-                // check if tag name (tmp[1]) is invalid
-                if (
-                  /[\[\]#\*]/.test(tmp[1]) ||
-                  /^[\s\d_]|_\s|\s_|[_\s]$/.test(tmp[1])
-                ) state.hmdHashtag = HashtagType.NONE;
+              if (
+                (tmp = hashtagRE.exec(escape_removed_str))
+              ) {
+                if (/^\d+$/.test(tmp[0])) state.hmdHashtag = HashtagType.NONE
+                else state.hmdHashtag = HashtagType.NORMAL
+
+                escape_removed_str = escape_removed_str.slice(tmp[0].length)
+                do {
+                  // found tailing #
+                  if (
+                    escape_removed_str[0] === '#' &&
+                    (escape_removed_str.length === 1 || !hashtagRE.test(escape_removed_str[1]))
+                  ) {
+                    state.hmdHashtag = HashtagType.WITH_SPACE
+                    break
+                  }
+                  if (tmp = escape_removed_str.match(/^\s+/)) {
+                    escape_removed_str = escape_removed_str.slice(tmp[0].length)
+                    if (tmp = escape_removed_str.match(hashtagRE)) {
+                      // found a space + valid tag text parts
+                      // continue this loop until tailing # is found
+                      escape_removed_str = escape_removed_str.slice(tmp[0].length)
+                      continue
+                    }
+                  }
+                  // can't establish a Hashtag WITH_SPACE. stop
+                  break
+                } while (true);
               }
 
               if (state.hmdHashtag) {
@@ -721,18 +738,32 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
             }
             break;
           case HashtagType.NORMAL:
-            if (
-              stream.eol() || // end of line, or
-              (stream.peek() === ' ' && !/formatting-escape/.test(ans)) // next char is space, but not escaped
-            ) {
-              // end the hashtag
+            let endHashTag = false
+
+            if (!/formatting/.test(ans) && !/^\s*$/.test(current)) {
+              // if invalid hashtag char found, break current parsed text part
+              tmp = current.match(hashtagRE)
+              let backUpChars = current.length - (tmp ? tmp[0].length : 0)
+              if (backUpChars > 0) {
+                stream.backUp(backUpChars)
+                endHashTag = true
+              }
+            }
+
+            if (!endHashTag) endHashTag = stream.eol() // end of line
+            if (!endHashTag) endHashTag = !hashtagRE.test(stream.peek()) // or next char is invalid to hashtag name
+            // escaped char is always invisible to stream. no worry
+
+            if (endHashTag) {
               ans += " hashtag-end"
               state.hmdHashtag = HashtagType.NONE
             }
             break;
           case HashtagType.WITH_SPACE:
-            if (current === '#' && !/hmd-escape-char/.test(ans)) {
+            // escaped char is always invisible to stream. no worry
+            if (current === '#') {
               // end the hashtag if meet unescaped #
+              ans = ans.replace(/\sformatting-header(?:-\d+)?/g, '')
               ans += " formatting formatting-hashtag hashtag-end"
               state.hmdHashtag = HashtagType.NONE
             }

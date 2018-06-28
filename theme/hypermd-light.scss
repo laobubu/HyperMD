@@ -206,7 +206,8 @@
 
     pre.HyperMD-hr {
         @extend %monospace;
-        text-shadow: -1px 0 $editor-background, -1px -1px $editor-background, -1px 1px $editor-background, 1px -1px $editor-background, 1px 1px $editor-background, 1px 0 $editor-background, -2px 0 $editor-background, 2px 0 $editor-background, 0 -1px $editor-background, 0 1px $editor-background;
+        background-color: $editor-background;
+        background-color: rgba($editor-background, 0.7);
     }
 
     div.HyperMD-hr-bg {
@@ -398,7 +399,7 @@
 
     div.HyperMD-codeblock-begin-bg,
     div.HyperMD-codeblock-end-bg {
-        background-color: #EEE;
+        background-color: #F3F3F3;
     }
 
 
@@ -758,8 +759,8 @@
         }
 
         &.HyperMD-hr {
-            color: $hr-color;
-            text-shadow: none;
+            color: transparent;
+            background-color: transparent;
         }
 
         &.HyperMD-table-row-1 > span {

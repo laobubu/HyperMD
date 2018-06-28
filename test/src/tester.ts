@@ -11,7 +11,7 @@ export interface TaskResult {
   name: string; // always same as task.name
   task: Task,
   success: boolean,
-  detail: any,
+  detail: string | Error | HTMLElement,
 }
 
 export interface TestResult {
@@ -23,6 +23,38 @@ export interface TestResult {
 }
 
 const NAME_SEPARATOR = " / ";
+
+export function elt(tag: string, attr?: Record<string, string>, text?: string) {
+  var ans = document.createElement(tag)
+  if (attr) for (var k in attr) ans.setAttribute(k, attr[k])
+  if (text) ans.textContent = text
+  return ans
+}
+
+export function renderResult(tr: TaskResult): HTMLElement {
+  if (!tr || tr.success) return null
+  const ans = elt("div", { "class": "task-result task-result-fail" })
+
+  ans.appendChild(elt("h3", null, tr.name))
+
+  const detail = tr.detail
+  if (detail) {
+    if (typeof detail === 'string') {
+      ans.appendChild(elt("pre", null, detail))
+    } else if ('tagName' in detail) {
+      ans.appendChild(detail)
+    } else if ('message' in detail) {
+      let el = elt("div", { "class": "task-result-error" })
+      el.appendChild(elt("pre", { "class": "task-result-error-message" }, detail.toString()))
+      el.appendChild(elt("pre", { "class": "task-result-error-stack" }, detail.stack || "(no stack)"))
+      ans.appendChild(el)
+    } else {
+      ans.appendChild(elt("pre", null, JSON.stringify(detail, null, 2)))
+    }
+  }
+
+  return ans
+}
 
 export class Test {
   public tasks: Task[] = [];
@@ -39,11 +71,19 @@ export class Test {
     if (typeof arg1 !== 'string') {
       if ('tasks' in arg1) {
         // is "Test". Convert it to "Task"
+        let name = this.name + NAME_SEPARATOR + arg1.name
         this.tasks.push({
-          name: this.name + NAME_SEPARATOR + arg1.name,
+          name: name,
           async fn(d) {
             let ans = await arg1.run()
-            d.detail = ans
+            let el = elt("div", { "class": "subtest-result" })
+            el.appendChild(elt("h3", null, name))
+            el.appendChild(elt("p", null, `Success: ${ans.success} / ${ans.count}. Failed: ${ans.fail}`))
+            ans.details.forEach(it => {
+              var el2 = renderResult(it)
+              if (el2) el.appendChild(el2)
+            })
+            d.detail = el
             return ans.fail == 0
           }
         })

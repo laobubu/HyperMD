@@ -16,9 +16,9 @@ var basic_mods = ['hypermd_test/tester']
 var require_mods = caseNames.map(function (x) { return "hypermd_test/" + x })
 
 boot_test(
-  require_mods.concat(basic_mods),
-  function () {
-    var modules = Array.prototype.slice.call(arguments, 0)
+  basic_mods.concat(require_mods),
+  function (tester) {
+    var modules = Array.prototype.slice.call(arguments, basic_mods.length)
 
     for (var idx = 0; idx < caseNames.length; idx++) {
       var modName = caseNames[idx]
@@ -27,6 +27,7 @@ boot_test(
       test.run((test, task_s, test_s) => {
         if (!task_s.success) {
           document.getElementById("progress-bar").classList.add("failed")
+          document.body.appendChild(tester.renderResult(task_s))
         }
 
         var percent = Math.round((test_s.success + test_s.fail) / test_s.count * 100) + '%'
