@@ -19,6 +19,9 @@ import 'codemirror/addon/fold/foldgutter.css'
 
 import '../theme/hypermd-light.css'
 
+// if (HyperMD_Mark in editor), the editor was a HyperMD mode at least once
+const HyperMD_Mark = '__hypermd__'
+
 /**
  * The default configuration that used by `HyperMD.fromTextArea`
  *
@@ -41,6 +44,17 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
 }
 
 /**
+ * Editor Options that disable HyperMD WYSIWYG visual effects.
+ * These option will be applied when user invoke `switchToNormal`.
+ *
+ * Addons about visual effects, shall update this object!
+ */
+export var normalVisualConfig: CodeMirror.EditorConfiguration = {
+  theme: "default",
+  /* eg. hmdFold: false, */
+}
+
+/**
  * Initialize an editor from a <textarea>
  * Calling `CodeMirror.fromTextArea` with recommended HyperMD options
  *
@@ -53,7 +67,8 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
 export function fromTextArea(textArea: HTMLTextAreaElement, config?: object): cm_t {
   var final_config = { ...suggestedEditorConfig, ...config }
 
-  var cm = CodeMirror.fromTextArea(textArea, final_config) as any as cm_t
+  var cm = CodeMirror.fromTextArea(textArea, final_config)
+  cm[HyperMD_Mark] = true
 
   return cm
 }
@@ -64,21 +79,19 @@ export function fromTextArea(textArea: HTMLTextAreaElement, config?: object): cm
  * Disable HyperMD visual effects.
  * Interactive addons like click or paste are not affected.
  *
- * @param {cm_t} editor Any CodeMirror Editor! Created by HyperMD or CodeMirror
+ * If this CodeMirror editor is not in HyperMD mode, `switchToNormal` will do nothing.
+ *
+ * @param {cm_t} editor Any CodeMirror Editor! Created by HyperMD.fromTextArea, or `switchToHyperMD`-ed
  */
 export function switchToNormal(editor: cm_t);
 export function switchToNormal(editor: cm_t, theme: string);
 export function switchToNormal(editor: cm_t, options: CodeMirror.EditorConfiguration);
 export function switchToNormal(editor: cm_t, options_or_theme?: CodeMirror.EditorConfiguration | string) {
-  var opt: CodeMirror.EditorConfiguration = {
-    theme: "default",
-    hmdFold: false, // unfold all folded parts
-    hmdHideToken: false, // stop hiding tokens
-    hmdTableAlign: false, // stop aligining table columns
-  }
+  // this CodeMirror editor has never been in HyperMD mode. `switchToNormal` is meanless
+  if (!editor[HyperMD_Mark]) return;
 
   if (typeof options_or_theme === 'string') options_or_theme = { theme: options_or_theme };
-  Object.assign(opt, options_or_theme)
+  var opt = { ...normalVisualConfig, ...options_or_theme }
 
   for (const key in opt) {
     editor.setOption(key, opt[key])
@@ -95,7 +108,18 @@ export function switchToHyperMD(editor: cm_t, theme: string);
 export function switchToHyperMD(editor: cm_t, options: CodeMirror.EditorConfiguration);
 export function switchToHyperMD(editor: cm_t, options_or_theme?: CodeMirror.EditorConfiguration | string) {
   if (typeof options_or_theme === 'string') options_or_theme = { theme: options_or_theme };
-  var opt = { ...suggestedEditorConfig, ...options_or_theme }
+  var opt: CodeMirror.EditorConfiguration = {};
+  if (HyperMD_Mark in editor) {
+    // has been HyperMD mode once. Only modify visual-related options
+    for (const key in normalVisualConfig) {
+      opt[key] = suggestedEditorConfig[key]
+    }
+    Object.assign(opt, options_or_theme)
+  } else {
+    // this CodeMirror editor is new to HyperMD
+    Object.assign(opt, suggestedEditorConfig, options_or_theme)
+    editor[HyperMD_Mark] = true
+  }
 
   for (const key in opt) {
     editor.setOption(key, opt[key])

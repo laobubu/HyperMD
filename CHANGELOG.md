@@ -122,6 +122,10 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
     Please use the new method *registerFolder*.
 
 * **Add**
+  * **core**
+    * **normalVisualConfig**: addons that make visual effects, shall update `HyperMD.normalVisualConfig`
+      in order to make `HyperMD.switchToNormal(editor)` work properly.
+      (eg. _HideToken_ `hmdHideToken` shall be `false` when switching to normal mode)
   * **mode**
     * **Hashtag** syntax! People #hashtag #everything in life# (disabled by default)
     * **TOC Placeholder** supports `[TOC]` and `[TOCM]` mark

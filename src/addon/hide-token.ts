@@ -7,7 +7,7 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, cm_internal, updateCursorDisplay, debounce, suggestedEditorConfig } from '../core'
+import { Addon, FlipFlop, cm_internal, updateCursorDisplay, debounce, suggestedEditorConfig, normalVisualConfig } from '../core'
 
 import { cm_t } from '../core/type'
 
@@ -54,6 +54,7 @@ declare global {
 }
 
 suggestedEditorConfig.hmdHideToken = suggestedOption
+normalVisualConfig.hmdHideToken = false
 
 CodeMirror.defineOption("hmdHideToken", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
 

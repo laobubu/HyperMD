@@ -7,7 +7,7 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, debounce, TokenSeeker, suggestedEditorConfig } from '../core'
+import { Addon, FlipFlop, debounce, TokenSeeker, suggestedEditorConfig, normalVisualConfig } from '../core'
 import { TextMarker, Position, Token } from 'codemirror'
 import { cm_t } from '../core/type'
 import { splitLink } from './read-link'
@@ -277,6 +277,7 @@ declare global {
 }
 
 suggestedEditorConfig.hmdFold = suggestedOption
+normalVisualConfig.hmdFold = false
 
 CodeMirror.defineOption("hmdFold", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
 
