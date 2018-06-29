@@ -280,7 +280,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
         state.hmdNextMaybe = NextMaybe.FRONT_MATTER_END
         return enterMode(stream, state, "yaml", {
           style: "hmd-frontmatter",
-          fallbackMode: createDummyMode("---"),
+          fallbackMode: () => createDummyMode("---"),
           exitChecker: function (stream, state) {
             if (stream.string === '---') {
               // found the endline of front_matter
@@ -313,13 +313,18 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       // now implement some extra features that require higher priority than CodeMirror's markdown
 
       //#region Math
-      if (modeCfg.math && inMarkdownInline && (tmp = stream.match(/^\${1,2}/, false))) {
+      if (modeCfg.math && inMarkdownInline && (tmp = stream.match(/^\${1,2}/))) {
         let tag = tmp[0], mathLevel = tag.length
         if (mathLevel === 2 || stream.string.slice(stream.pos).match(/[^\\]\$/)) {
           // $$ may span lines, $ must be paired
-          ans += enterMode(stream, state, "stex", {
+          let texMode = CodeMirror.getMode(cmCfg, {
+            name: "stex",
+            inMathMode: true,
+          })
+          ans += enterMode(stream, state, texMode, {
             style: "math",
-            fallbackMode: createDummyMode(tag),
+            skipFirstToken: true,
+            fallbackMode: () => createDummyMode(tag),
             exitChecker: createSimpleInnerModeExitChecker(tag, {
               style: "formatting formatting-math formatting-math-end math-" + mathLevel
             })
@@ -858,7 +863,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
   }
 
   interface InnerModeOptions1 extends BasicInnerModeOptions {
-    fallbackMode: CodeMirror.Mode<any>
+    fallbackMode: () => CodeMirror.Mode<any>
     exitChecker: InnerModeExitChecker
   }
 
@@ -880,7 +885,7 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
 
     if (!mode || mode["name"] === "null") {
       if ('endTag' in opt) mode = createDummyMode(opt.endTag)
-      else mode = opt.fallbackMode
+      else mode = (typeof opt.fallbackMode === 'function') && opt.fallbackMode()
 
       if (!mode) throw new Error("no mode")
     }
