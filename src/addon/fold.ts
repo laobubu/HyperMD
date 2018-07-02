@@ -14,6 +14,10 @@ import { splitLink } from './read-link'
 
 const DEBUG = false
 
+export interface TextMarkerEx extends CodeMirror.TextMarker {
+  _hmd_fold_type?: string
+}
+
 /********************************************************************************** */
 //#region FolderFunc & FoldStream declaration
 
@@ -314,7 +318,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
   private _enabled: Record<string, boolean> = {}
 
   /** Folder's output goes here */
-  public folded: Record<string, CodeMirror.TextMarker[]> = {};
+  public folded: Record<string, TextMarkerEx[]> = {};
 
   /** enable/disable one kind of folder, in current editor */
   setStatus(type: string, enabled: boolean) {
@@ -332,8 +336,27 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
     super(cm)
 
     cm.on("changes", (cm, changes) => {
-      var fromLine = changes.reduce((prev, curr) => Math.min(prev, curr.from.line), cm.lastLine())
-      this.startFold()
+      var lineMin = cm.lastLine(), lineMax = cm.firstLine();
+      var changedMarkers: TextMarkerEx[] = []
+
+      for (const change of changes) {
+        let a = change.from.line, b = change.to.line;
+        if (a > b) [a, b] = [b, a];
+        if (a < lineMin) lineMin = a;
+        if (b > lineMax) lineMax = b;
+
+        let markers = cm.findMarks(change.from, change.to) as TextMarkerEx[]
+        for (const marker of markers) {
+          if (marker._hmd_fold_type) changedMarkers.push(marker)
+        }
+      }
+
+      for (const m of changedMarkers) {
+        m.clear() // TODO: add "changed" handler for FolderFunc
+      }
+
+      this._quickFoldHint.push(lineMin, lineMax);
+      this.startQuickFold();
     })
     cm.on("cursorActivity", (cm) => {
       this.startQuickFold()
@@ -412,7 +435,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
       while (this.i_token < tokens.length) {
         var token = tokens[this.i_token]
         var type: string
-        var marker: TextMarker = null
+        var marker: TextMarkerEx = null
 
         var tokenFoldable: boolean = true
         {
@@ -438,6 +461,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
         } else {
           var { from, to } = marker.find();
           (this.folded[type] || (this.folded[type] = [])).push(marker)
+          marker._hmd_fold_type = type;
           marker.on('clear', (from, to) => {
             var markers = this.folded[type]
             var idx: number

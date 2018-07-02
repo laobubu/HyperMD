@@ -313,19 +313,19 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
       // now implement some extra features that require higher priority than CodeMirror's markdown
 
       //#region Math
-      if (modeCfg.math && inMarkdownInline && (tmp = stream.match(/^\${1,2}/))) {
-        let tag = tmp[0], mathLevel = tag.length
+      if (modeCfg.math && inMarkdownInline && (tmp = stream.match(/^\${1,2}/, false))) {
+        let endTag = tmp[0]
+        let mathLevel = endTag.length as (1 | 2)
         if (mathLevel === 2 || stream.string.slice(stream.pos).match(/[^\\]\$/)) {
           // $$ may span lines, $ must be paired
           let texMode = CodeMirror.getMode(cmCfg, {
             name: "stex",
-            inMathMode: true,
           })
           ans += enterMode(stream, state, texMode, {
             style: "math",
-            skipFirstToken: true,
-            fallbackMode: () => createDummyMode(tag),
-            exitChecker: createSimpleInnerModeExitChecker(tag, {
+            skipFirstToken: false, // current token is a valid beginning of formulas in sTeX
+            fallbackMode: () => createDummyMode(endTag),
+            exitChecker: createSimpleInnerModeExitChecker(endTag, {
               style: "formatting formatting-math formatting-math-end math-" + mathLevel
             })
           })

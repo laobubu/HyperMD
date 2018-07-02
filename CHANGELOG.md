@@ -116,6 +116,7 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
     + Adjacent headers, the latter was not correctly styled
     + Wrong behavoir at links whose text contains line break
   * **addon/fold-html**: stop eating extra blank lines
+  * **addon/fold**: if marked (aka. folded) text changed, corresponding FolderFunc will be re-called.
 
 * **Removed**
   * **addon/fold**: editor option `hmdFold` will no longer accept `customFolders`.
