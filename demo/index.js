@@ -146,17 +146,20 @@ require([
   }
 })
 
-var allowDirectOpen = /directOpen/.test(window.location.search)
+var demoPageConfig = {
+  directOpen: /directOpen/.test(window.location.search),
+  mathPreview: true,
+}
 
 function clickHandler(info, cm) {
   if (info.type === "link" || info.type === "url") {
     var url = info.url
-    if ((allowDirectOpen || info.ctrlKey || info.altKey) && !/^http/i.test(url) && /\.(?:md|markdown)$/.test(url.replace(/[?#].*$/, ''))) {
+    if ((demoPageConfig.directOpen || info.ctrlKey || info.altKey) && !/^http/i.test(url) && /\.(?:md|markdown)$/.test(url.replace(/[?#].*$/, ''))) {
       // open a link whose URL is *.md with ajax_load_file
       // and supress HyperMD default behavoir
       load_and_update_editor(url) // see index2.js
       return false
-    } else if (allowDirectOpen && url) {
+    } else if (demoPageConfig.directOpen && url) {
       window.open(url)
       return false
     } else if (/^\[(?:Try out|试试看)\]$/i.test(info.text)) {

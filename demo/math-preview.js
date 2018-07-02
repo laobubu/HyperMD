@@ -9,6 +9,7 @@ function init_math_preview(cm) {
 
   function updatePreview(expr) {
     if (supressed) return
+    if (!demoPageConfig.mathPreview) return
 
     if (!mathRenderer) { // initialize renderer and preview window
       mathRenderer = cm.hmd.FoldMath.createRenderer(

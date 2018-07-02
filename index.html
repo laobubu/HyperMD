@@ -31,7 +31,7 @@
     <button class="float-win-close"><svg class="icon icon-cross"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-cross"></use></svg></button>
     Math Preview
   </div>
-  <div id="math-preview-content"></div>
+  <div class="float-win-content" id="math-preview-content"></div>
 </div>
 
 <div id="winLab" class="float-win float-win-hidden">
@@ -39,8 +39,7 @@
     <button class="float-win-close"><svg class="icon icon-cross"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-cross"></use></svg></button>
     Lab
   </div>
-  <div id="math-preview-content">
-    <p>See what addons can do!</p>
+  <div class="float-win-content" style="column-count: 2">
     <fieldset>
       <legend>Behavior</legend>
       <p>
@@ -56,13 +55,6 @@
         </label>
       </p>
       <p>
-        <em>ReadLink</em> resolve relative URLs:<br>
-        <label lab-bind="ReadLink.baseURI">BaseURI
-          <input type="text" style="width: 250px">
-          <span class="opt-tip">hmdReadLink.BaseURI</span>
-      </p>
-
-      <p>
         <em>InsertFile</em> by
         <label lab-bind="InsertFile.byPaste">
           <input type="checkbox">Paste
@@ -71,6 +63,16 @@
         <label lab-bind="InsertFile.byDrop">
           <input type="checkbox">Drag'n'Drop
           <span class="opt-tip">hmdInsertFile.byDrop</span>
+        </label>
+      </p>
+    </fieldset>
+    <fieldset>
+      <legend><em>ReadLink</em></legend>
+      <p>
+        Resolve relative URL with <br>
+        <label lab-bind="ReadLink.baseURI">BaseURI
+          <input type="text" style="width: 250px">
+          <span class="opt-tip">hmdReadLink.BaseURI</span>
         </label>
       </p>
     </fieldset>
@@ -109,17 +111,32 @@
         </label>
         <label lab-bind lab-bind-fold="html">
           <input type="checkbox">html
-          <span class="opt-tip">
+          <span class="opt-tip at-right">
             <em>(Requires fold-html Addon)</em><br>
             hmdFold.html
           </span>
         </label>
         <label lab-bind lab-bind-fold="emoji">
           <input type="checkbox">emoji
-          <span class="opt-tip">
+          <span class="opt-tip at-right">
             <em>(Requires fold-emoji Addon)</em><br>
             hmdFold.emoji
           </span>
+        </label>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend><em>Demo Page</em> Features</legend>
+      <p><small>These features only work on current page.</small></p>
+      <p>
+        <label lab-bind lab-bind-demo="directOpen">
+          <input type="checkbox">directOpen
+          <span class="opt-tip">Click to open links, without alt / ctrl</span>
+        </label>
+        <label lab-bind lab-bind-demo="mathPreview">
+          <input type="checkbox">mathPreview
+          <span class="opt-tip at-right">Display a preview while writing TeX formula</span>
         </label>
       </p>
     </fieldset>
@@ -185,9 +202,9 @@
 
     <div class="test-item">
         <button onclick="winLab.show(true)">
-            <svg class="icon icon-lab"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-lab"></use></svg>
+            <svg class="icon icon-lab"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-lab"></use></svg> <span class="phone-hidden">Lab</span>
         </button>
-        <div class="test-tooltip">Lab</div>
+        <div class="test-tooltip">Inspect editor (and demo page) options</div>
     </div>
 </div>
 <script src="./demo/index2.js"></script>

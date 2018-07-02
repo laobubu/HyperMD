@@ -8,6 +8,7 @@ function init_lab(cm) {
     var attr = $item.getAttribute('lab-bind')
     var attrFF = $item.getAttribute('lab-bind-ff')
     var attrFold = $item.getAttribute('lab-bind-fold')
+    var attrDemo = $item.getAttribute('lab-bind-demo')
 
     if (attrFF) { // HyperMD.FlipFlop
       bind(cm.hmd, attrFF + ".state", $item, {
@@ -21,6 +22,8 @@ function init_lab(cm) {
       bind(foldOpts, attrFold, $item, {
         updateObj: updateFoldState
       })
+    } else if (attrDemo) { // Demo page features (see index.js  demoPageConfig )
+      bind(demoPageConfig, attrDemo, $item)
     } else {
       bind(cm.hmd, attr, $item)
     }

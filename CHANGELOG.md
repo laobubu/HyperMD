@@ -109,7 +109,10 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
   * **Use AMD** module declaration while developing.
   * **Dev/DocGen** exported-member extractor
 
-## 0.3.7
+## 0.3.7  2018-7-2
+
+*Introducing hashtags and emojis! Can anyone tell me how to popularize HyperMD?*
+*哎呀实习机会貌似黄了啊！而且这个项目又无人问津了啊？*
 
 * **Fix**
   * **mode**
