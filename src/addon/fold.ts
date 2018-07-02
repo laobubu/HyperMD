@@ -342,6 +342,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
       for (const change of changes) {
         let a = change.from.line, b = change.to.line;
         if (a > b) [a, b] = [b, a];
+        b += change.text.length
         if (a < lineMin) lineMin = a;
         if (b > lineMax) lineMax = b;
 

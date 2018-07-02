@@ -1,6 +1,6 @@
 {
   "name": "hypermd",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
   "main": "./everything.js",
   "types": "./everything.d.ts",

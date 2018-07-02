@@ -151,3 +151,11 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
   * English fundamental docs are now published within NPM package.
   * Documentation is much more friendly.
   * Theme hypermd-light refined.
+
+## 0.3.8  2018-7-2
+
+*Minor Fix for Fold addon!*
+*哎哟毒奶奶到了机会！*
+
+* **Fix**
+  * **addon/fold**: folding not work if multi lines inserted
