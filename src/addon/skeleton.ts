@@ -16,9 +16,9 @@
 //    - It's highly suggested to finish the docs, see //TODO: write doc
 //    - Note the defaultOption shall be the status when this addon is disabled!
 //    - As for `FlipFlop` and `ff_*`, you might want to reading CONTRIBUTING.md
-// 5. Remove this check-list
-// 6. Modify `DESCRIPTION: ` above
-// 6. Build, Publish, Pull Request etc.
+// 5. Modify `DESCRIPTION: ` above
+// 6. Remove this check-list
+// 7. Build, Publish, Pull Request etc.
 //
 
 import * as CodeMirror from 'codemirror'
@@ -113,7 +113,7 @@ export class MyAddon implements Addon.Addon, Options /* if needed */ {
     // add your code here
 
     new FlipFlop() // use FlipFlop to detect if a option is changed
-      .bind(this, "enabled", true)
+      .bind(this, "enabled", true) // <- `true` means `this.enabled` is always a boolean
       .ON(() => {/*  enable MyAddon here, add event listeners,etc. */ })
       .OFF(() => {/* disable MyAddon here, remove event listeners  */ })
   }

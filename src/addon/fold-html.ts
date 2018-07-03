@@ -106,8 +106,8 @@ export var defaultRenderer: RendererFunc = (html: string, pos: Position, cm: cm_
 /********************************************************************************** */
 
 const stubClass = "hmd-fold-html-stub"
-const stubClassOmittable = "hmd-fold-html-stub hmd-fold-html-stub-omittable"
-const stubClassHighlight = "hmd-fold-html-stub hmd-fold-html-stub-highlight"
+const stubClassOmittable = "hmd-fold-html-stub omittable"
+const stubClassHighlight = "hmd-fold-html-stub highlight"
 
 /********************************************************************************** */
 //#region Folder

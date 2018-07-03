@@ -7,9 +7,10 @@
 'use strict'
 
 /** createElement */
-function elt(tagName, attrs) {
+function elt(tagName, attrs, text) {
   var el = document.createElement(tagName)
   if (attrs) for (var attr in attrs) el.setAttribute(attr, attrs[attr])
+  if (text) el.textContent = text
   return el
 }
 

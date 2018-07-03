@@ -99,7 +99,7 @@ export class Test {
     }
   }
 
-  async run(procCb?: TestProgressFn) {
+  prepare() {
     const tasks = this.tasks
     var ans: TestResult = {
       count: tasks.length,
@@ -113,30 +113,40 @@ export class Test {
       }))
     }
 
-    var promises = ans.details.map(
-      (d) => new Promise(finish => {
-        try {
-          const _ta = d.task.fn(d);
+    return ans
+  }
 
-          if (typeof _ta === 'boolean') {
-            d.success = _ta;
-            finish();
-          } else { //_ta is a Promise
-            _ta.then((success) => {
-              d.success = success;
-              finish();
-            }).catch((err) => {
-              d.success = false;
-              d.detail = err;
-              finish();
-            })
-          }
-        } catch (err) {
-          d.success = false;
-          d.detail = err;
-          finish()
-        }
-      }).then(() => {
+  finish(ans: TestResult) {
+
+  }
+
+  /**
+   * run tasks in sequence
+   */
+  async run(procCb?: TestProgressFn) {
+    var ans = this.prepare()
+    var ds = ans.details
+
+    for (let i = 0; i < ds.length; i++) {
+      const d = ds[i]
+      await runTaskAndFill(d).then(() => {
+        d.success ? ans.success++ : ans.fail++;
+        if (procCb) procCb(this, d, ans);
+      })
+    }
+
+    this.finish(ans)
+    return ans
+  }
+
+  /**
+   * run tasks in parallel
+   */
+  async runParallel(procCb?: TestProgressFn) {
+    var ans = this.prepare()
+
+    var promises = ans.details.map(
+      (d) => runTaskAndFill(d).then(() => {
         d.success ? ans.success++ : ans.fail++;
         if (procCb) procCb(this, d, ans);
       })
@@ -144,6 +154,31 @@ export class Test {
 
     await Promise.all(promises)
 
+    this.finish(ans)
     return ans
   }
+}
+
+/**
+ * given a TaskResult whose task is set, but not ran.
+ * run the task and fill the TaskResult fields
+ *
+ * @param d
+ */
+export async function runTaskAndFill(d: TaskResult) {
+  try {
+    const _ta = d.task.fn(d);
+
+    if (typeof _ta === 'boolean') {
+      d.success = _ta;
+    } else { //_ta is a Promise
+      d.success = await _ta
+    }
+
+  } catch (err) {
+    d.success = false;
+    d.detail = err;
+  }
+
+  return d;
 }

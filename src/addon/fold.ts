@@ -336,15 +336,16 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
     super(cm)
 
     cm.on("changes", (cm, changes) => {
-      var lineMin = cm.lastLine(), lineMax = cm.firstLine();
+      var lineMin = cm.lastLine();
+      var lineMax = lineMin;
       var changedMarkers: TextMarkerEx[] = []
 
       for (const change of changes) {
-        let a = change.from.line, b = change.to.line;
-        if (a > b) [a, b] = [b, a];
-        b += change.text.length
-        if (a < lineMin) lineMin = a;
-        if (b > lineMax) lineMax = b;
+        let since = change.from.line;
+        let inserted = change.text.length - (change.to.line + 1 - change.from.line);
+
+        if (since < lineMin) lineMin = since;
+        if (inserted > 0) lineMax += inserted;
 
         let markers = cm.findMarks(change.from, change.to) as TextMarkerEx[]
         for (const marker of markers) {
