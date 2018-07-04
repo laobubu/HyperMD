@@ -1,6 +1,6 @@
 {
   "name": "hypermd",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
   "main": "./everything.js",
   "types": "./everything.d.ts",
@@ -14,6 +14,7 @@
     "dev": "node dev/dev.js",
     "watch_js": "tsc -w --sourceMap --sourceRoot /src",
     "watch_css": "node dev/build-css.js -w",
+    "pretest": "node test/tools/prepare",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@types/codemirror": "^0.0.56",
     "@types/glob": "^5.0.35",
+    "@types/mermaid": "^8.0.0",
     "codemirror": "^5.37.0",
     "express": "^4.16.3",
     "glob": "^7.1.2",
@@ -44,9 +46,11 @@
   },
   "optionalDependencies": {
     "emojione": "^3.1.6",
+    "flowchart.js": "^1.11.2",
     "katex": "^0.10.0-alpha",
     "marked": "^0.4.0",
     "mathjax": "^2.7.0",
+    "mermaid": "^8.0.0-rc.8",
     "turndown": "^4.0.1",
     "turndown-plugin-gfm": "^1.0.1",
     "twemoji": "^11.0.0"

@@ -321,14 +321,16 @@ CodeMirror.defineMode("hypermd", function (cmCfg, modeCfgUser) {
           let texMode = CodeMirror.getMode(cmCfg, {
             name: "stex",
           })
+          let noTexMode = texMode['name'] !== 'stex';
           ans += enterMode(stream, state, texMode, {
             style: "math",
-            skipFirstToken: false, // current token is a valid beginning of formulas in sTeX
+            skipFirstToken: noTexMode, // if stex mode exists, current token is valid in stex
             fallbackMode: () => createDummyMode(endTag),
             exitChecker: createSimpleInnerModeExitChecker(endTag, {
               style: "formatting formatting-math formatting-math-end math-" + mathLevel
             })
           })
+          if (noTexMode) stream.pos += tmp[0].length
           ans += " formatting formatting-math formatting-math-begin math-" + mathLevel
           return ans
         }

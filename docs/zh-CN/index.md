@@ -99,11 +99,15 @@ var cm = HyperMD.fromTextArea(myTextarea, {
 
 ### 使用 [RequireJS](http://requirejs.org/) 模块加载器
 
+[**🙋 直接看例子**](../examples/basic-requirejs.html)
+
 首先，*hypermd* 在 JavaScript 里用 require 引入 CSS 文件，
 然而 RequireJS 默认不支持 `require("./style.css")` 这种写法。
-因此，**在使用 RequireJS 前，请先载入 [这个补丁](../demo/patch-requirejs.js)！**
+因此，**在使用 RequireJS 前，请先载入 [这个补丁](../../demo/patch-requirejs.js)！**
 
 载入 require.js 并打补丁之后，你大概只需要像这样写就行了（[参考这个文件](../../demo/index.js) ）:
+
+注意其中的 packages 字段，你可以参考 [这个文件的内容](../../demo/requirejs_packages.js)
 
 ```js
 
@@ -117,6 +121,7 @@ requirejs.config({
   // (如果你使用 CDN 遇到问题，删除这段)
   // RequireJS 不会去解析 package.json ，需要手动设置各个模块的入口文件名
   packages: [
+    { name: 'hypermd', main: 'everything.js' },
     { name: 'codemirror', main: 'lib/codemirror.js' },
     { name: 'mathjax', main: 'MathJax.js' },
     { name: 'katex', main: 'dist/katex.min.js' },
@@ -125,6 +130,7 @@ requirejs.config({
     { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
     { name: 'emojione', main: 'lib/js/emojione.min.js' },
     { name: 'twemoji', main: '2/twemoji.amd.js' },
+    // ... 其他第三方资源
   ],
   waitSeconds: 15
 })

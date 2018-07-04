@@ -2,8 +2,10 @@
 
 ## Running Test
 
+0. Run `node tools/prepare`
 1. Start HTTP server on HyperMD project directory.
 2. Open `http://localhost:xxxx/test/`.
+   - Optionally, add `?cases=foo/*,bar/baz` ... to choose test cases to run
 3. Once finished, the title of window will change.
    - If a test task failed, its `detail` will presents on the page.
 
@@ -34,7 +36,3 @@ test.add('Feature4 (Async)', async (out) => { // <- async task function is suppo
   return value == 42;
 })
 ```
-
-## Add to HyperMD test suite
-
-Edit `tests.js`, add `"abc/foobar"` into `caseNames` the array.

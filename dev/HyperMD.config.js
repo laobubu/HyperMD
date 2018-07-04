@@ -13,6 +13,7 @@ exports.components = {
   "addon/click": "Click",
   "addon/paste": "Paste",
   "addon/fold": "Fold",
+  "addon/fold-code": "FoldCode",
   "addon/fold-math": "FoldMath",
   "addon/fold-emoji": "FoldEmoji",
   "addon/fold-html": "FoldHTML",
@@ -44,6 +45,8 @@ exports.globalNames = {
   turndown: "TurndownService",
   emojione: "emojione",
   twemoji: "twemoji",
+  "flowchart.js": "flowchart",
+  mermaid: "mermaid",
 }
 
 exports.externalNames = Object.keys(exports.globalNames)

@@ -63,11 +63,11 @@ export class Test {
 
   }
 
-  add(name: string, fn: TaskFn);
-  add(task: Task);
-  add(test: Test);
+  add(name: string, fn: TaskFn): Test;
+  add(task: Task): Test;
+  add(test: Test): Test;
 
-  add(arg1: string | Task | Test, fn?: TaskFn) {
+  add(arg1: string | Task | Test, fn?: TaskFn): Test {
     if (typeof arg1 !== 'string') {
       if ('tasks' in arg1) {
         // is "Test". Convert it to "Task"
@@ -97,6 +97,8 @@ export class Test {
       // is string (task name)
       this.tasks.push({ name: this.name + NAME_SEPARATOR + arg1, fn })
     }
+
+    return this
   }
 
   prepare() {

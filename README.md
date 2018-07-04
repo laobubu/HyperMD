@@ -28,6 +28,7 @@ You may use both original CodeMirror and HyperMD on the same page.
    - Inline $\LaTeX$ Formula, and multi-line math blocks [^4]
    - Emoji from shortname: `:joy:` => :joy:
    - #hashtag support [^6]
+   - [Flowchart and Diagrams (mermaid)](./docs/examples/mermaid.html)
 2. **Alt+Click** to follow link / footnote [^1]
 3. **Syntax Highlight** for 120+ languages code blocks [^2]
 4. **Hover** to read footnotes
@@ -52,7 +53,9 @@ You may use both original CodeMirror and HyperMD on the same page.
       - <kbd>Ctrl+B</kbd> **bold**
       - <kbd>Ctrl+I</kbd> *emphasis*
       - <kbd>Ctrl+D</kbd> ~~strikethrough~~
-10. **[And More...][doc]**
+10. **And More...**
+    + [Examples][]
+    + [Documentation][doc]
 
 ## Quickstart
 
@@ -151,6 +154,7 @@ Contributions are welcomed. You may:
 [laobubu]: https://laobubu.net/
 [doc]: https://laobubu.net/HyperMD/docs/
 [powerpacks]: https://laobubu.net/HyperMD/#./docs/powerpacks.md
+[examples]: ./docs/examples/index.html
 
 [^1]: Ctrl+Click works too, but will jump to the footnote if exists.
 [^2]: Languages as many as CodeMirror supports.

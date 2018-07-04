@@ -71,11 +71,12 @@ Let's say you are using [parcel-bundler][], simpily run `parcel index.html` and 
 
 ## with [RequireJS](http://requirejs.org/) the module loader
 
-First of all, *hypermd* requires CSS files in JavaScript,
-and RequireJS doesn't support `require("./style.css")`.
+[**🙋 Example Here**](./examples/basic-requirejs.html)
+
+First of all, *hypermd* requires CSS files in JavaScript, and RequireJS doesn't support `require("./style.css")`.
 Thus, **a [patch](../demo/patch-requirejs.js) is REQUIRED before using RequireJS**
 
-Besides, you might find [this demo script](../demo/index.js) helpful.
+As for the `packages` field, [this reference](../demo/requirejs_packages.js) can be helpful.
 
 ```js
 
@@ -89,6 +90,7 @@ requirejs.config({
   // (Remove this section if you occur errors with CDN)
   // RequireJS doesn't read package.json. Let's tell it the entries of modules.
   packages: [
+    { name: 'hypermd', main: 'everything.js' },
     { name: 'codemirror', main: 'lib/codemirror.js' },
     { name: 'mathjax', main: 'MathJax.js' },
     { name: 'katex', main: 'dist/katex.min.js' },
@@ -97,6 +99,7 @@ requirejs.config({
     { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
     { name: 'emojione', main: 'lib/js/emojione.min.js' },
     { name: 'twemoji', main: '2/twemoji.amd.js' },
+    // ... more 3rd parties
   ],
   waitSeconds: 15
 })

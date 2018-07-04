@@ -741,6 +741,10 @@
         @extend .hmd-fold-html-stub;
     }
 
+    .hmd-fold-code-image {
+        text-align: center;
+    }
+
     /// deal with floating elements
 
     pre.HyperMD-header,

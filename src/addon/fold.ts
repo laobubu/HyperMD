@@ -336,17 +336,9 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
     super(cm)
 
     cm.on("changes", (cm, changes) => {
-      var lineMin = cm.lastLine();
-      var lineMax = lineMin;
       var changedMarkers: TextMarkerEx[] = []
 
       for (const change of changes) {
-        let since = change.from.line;
-        let inserted = change.text.length - (change.to.line + 1 - change.from.line);
-
-        if (since < lineMin) lineMin = since;
-        if (inserted > 0) lineMax += inserted;
-
         let markers = cm.findMarks(change.from, change.to) as TextMarkerEx[]
         for (const marker of markers) {
           if (marker._hmd_fold_type) changedMarkers.push(marker)
@@ -357,8 +349,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
         m.clear() // TODO: add "changed" handler for FolderFunc
       }
 
-      this._quickFoldHint.push(lineMin, lineMax);
-      this.startQuickFold();
+      this.startFold();
     })
     cm.on("cursorActivity", (cm) => {
       this.startQuickFold()

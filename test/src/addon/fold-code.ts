@@ -1,17 +1,17 @@
 import { Test } from "hypermd_test/tester";
-import { DummyEditor } from 'hypermd_test/dummy-editor';
+import { cm, init, destory, querySelector } from "hypermd_test/addon/_base";
 import { sleep, assert } from "hypermd_test/utils";
 
-import { breakMark } from "hypermd/addon/fold"
 import { registerRenderer, FoldInfo } from "hypermd/addon/fold-code"
 
-export const test = new Test('FoldCode')
-
-var editor: DummyEditor
-var cm: DummyEditor['cm']
+export const test = new Test('Addon: FoldCode')
 
 var onRemoveTrigged1: boolean, onRemoveTrigged2: boolean
 var foldInfo1: FoldInfo, foldInfo2: FoldInfo
+
+function getRenderedElement(type: string, not_throw_error?: boolean) {
+  return querySelector(`[data-foldcode-test=${type}]`, not_throw_error)
+}
 
 test.add('init', () => {
   /**
@@ -59,9 +59,7 @@ test.add('init', () => {
     suggested: true,
   })
 
-  editor = new DummyEditor()
-  window['cm'] = cm = editor.cm
-
+  init();
   return true
 })
 
@@ -92,7 +90,7 @@ more lines
    * therefore it shall not work
    */
 
-  assert(!findRenderedEl("test1", true), "At this moment test1 shall not work!")
+  assert(!getRenderedElement("test1", true), "At this moment test1 shall not work!")
 
 
   /**
@@ -100,7 +98,7 @@ more lines
    * it shall work even if we didn't active it via hmdFoldCode
    */
 
-  let el = findRenderedEl("test2")
+  let el = getRenderedElement("test2")
   assert(el.textContent === "some code here\nyayaya\nhoho\n")
 
   return true
@@ -118,13 +116,13 @@ test.add('active and deactive renderers via setOption', async () => {
   /**
    * now "test2" shall not work
    */
-  assert(!findRenderedEl("test2", true), "At this moment test2 shall not work!")
+  assert(!getRenderedElement("test2", true), "At this moment test2 shall not work!")
 
 
   /**
    * "test1" is enabled and shall work
    */
-  let el = findRenderedEl("test1")
+  let el = getRenderedElement("test1")
   assert(el.textContent === "code2\nmore lines\n...\n")
   return true
 })
@@ -140,7 +138,7 @@ test.add('info.onRemove', async () => {
 
   await sleep(100)
 
-  assert(!findRenderedEl("test1", true), "test1 shall be removed!")
+  assert(!getRenderedElement("test1", true), "test1 shall be removed!")
   assert(onRemoveTrigged1)
 
   return true
@@ -157,7 +155,7 @@ test.add('info.break', async () => {
   await sleep(100)
 
   assert(foldInfo1)
-  findRenderedEl("test1")
+  getRenderedElement("test1")
 
   /** test info.break() */
 
@@ -165,7 +163,7 @@ test.add('info.break', async () => {
 
   await sleep(100)
 
-  assert(!findRenderedEl("test1", true), "test1 shall be removed!")
+  assert(!getRenderedElement("test1", true), "test1 shall be removed!")
   assert(onRemoveTrigged1)
   assert(cm.getCursor().line === 7, 'cursor shall moved to line 8')
 
@@ -175,17 +173,7 @@ test.add('info.break', async () => {
 //-------------------------------------------------------------------------//
 
 test.add('destory editor', () => {
-  // editor.destory()
-  cm = null
+  destory();
   foldInfo1 = foldInfo2 = null
   return true
 })
-
-
-//-------------------------------------------------------------------------//
-
-function findRenderedEl(type: string, not_throw_error?: boolean): HTMLElement {
-  var ans = editor.el.querySelector(`[data-foldcode-test=${type}]`) as HTMLElement
-  if (!ans && !not_throw_error) throw new Error(`Cant locate Rendered Element for type ${type}`)
-  return ans
-}

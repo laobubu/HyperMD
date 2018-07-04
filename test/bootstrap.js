@@ -57,6 +57,7 @@ function boot_test(modules, loaded, opts) {
 
   return Promise.resolve()
     .then(() => getResource(basepath + "/demo/vendor/require.js"))
+    .then(() => getResource(basepath + "/demo/requirejs_packages.js"))
     .then(() => getResource(basepath + "/demo/patch-requirejs.js"))
     .then(() => configureRequireJS())
     .then(() => invokeCallback())
@@ -71,15 +72,7 @@ function boot_test(modules, loaded, opts) {
       },
 
       // Remove `packages` if you occur errors with CDN
-      packages: [
-        { name: 'codemirror', main: 'lib/codemirror.js' },
-        { name: 'mathjax', main: 'MathJax.js' },
-        { name: 'katex', main: 'dist/katex.min.js' },
-        { name: 'marked', main: 'lib/marked.js' },
-        { name: 'turndown', main: 'lib/turndown.browser.umd.js' },
-        { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
-        { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
-      ],
+      packages: requirejs_packages, // see /demo/requirejs_packages.js
       waitSeconds: 15
     })
   }
@@ -100,7 +93,8 @@ function boot_test(modules, loaded, opts) {
           ul.appendChild(li)
         }
 
-        document.title = "[Error] " + title
+        document.title = "[FAILED] " + title
+        document.body.appendChild(elt("p", { style: "color: red; font-weight: 800;" }, "Some modules are not loaded..."))
         document.body.appendChild(ul)
       }
     )

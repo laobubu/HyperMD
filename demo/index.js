@@ -15,17 +15,9 @@ if (requirejs) requirejs.config({
     "hypermd": demo_page_baseurl + ".",
   },
 
-  // Remove `packages` if you occur errors with CDN
-  packages: [
-    { name: 'codemirror', main: 'lib/codemirror.js' },
-    { name: 'mathjax', main: 'MathJax.js' },
-    { name: 'katex', main: 'dist/katex.min.js' },
-    { name: 'marked', main: 'lib/marked.js' },
-    { name: 'turndown', main: 'lib/turndown.browser.umd.js' },
-    { name: 'turndown-plugin-gfm', main: 'dist/turndown-plugin-gfm.js' },
-    { name: 'emojione', main: 'lib/js/emojione.min.js' },
-    { name: 'twemoji', main: '2/twemoji.amd.js' },
-  ],
+  // Remove this line if you occur errors with CDN
+  packages: requirejs_packages, // see: requirejs_packages.js
+
   waitSeconds: 15
 })
 

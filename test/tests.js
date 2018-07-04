@@ -3,8 +3,10 @@
 // --------------------------------------------------------------
 // Declare all testCases
 var caseNames = [
+  'addon/fold-code',
+  'mode/basic',
   'mode/hashtag',
-  'FoldCode/basic',
+  'powerpack/fold-code-with-flowchart',
 ]
 
 // --------------------------------------------------------------

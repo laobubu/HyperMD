@@ -159,3 +159,19 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
 
 * **Fix**
   * **addon/fold**: folding not work if multi lines inserted
+
+## 0.3.9 2018-7-4
+
+*Now you can insert diagrams into your documentation. And fix a addon/fold bug*
+*终于能插流程图和各种图了。顺便悄悄修复了一个 Fold 相关的bug。*
+
+* **Fix**
+  * **addon/fold**: ...
+  * **mode/hypermd**: process TeX formula when sTeX mode missing
+
+* **Add**
+  * [More examples](https://laobubu.net/HyperMD/docs/examples/index.html)
+  * **addon/fold-code**: turn code blocks into flow charts / playground sandboxes etc.
+  * **powerpack**
+    + fold-code-with-flowchart
+    + fold-code-with-mermaid

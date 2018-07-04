@@ -314,6 +314,21 @@ export class FoldCode implements Addon.Addon {
 
     //-----------------------------
 
+    let $wrapper = document.createElement('div')
+    $wrapper.className = contentClass + type
+    $wrapper.style.minHeight = '1em'
+    $wrapper.appendChild(el)
+
+
+    let lineWidget = info.lineWidget = cm.addLineWidget(to.line, $wrapper, {
+      above: false,
+      coverGutter: false,
+      noHScroll: false,
+      showIfHidden: false,
+    })
+
+    //-----------------------------
+
     let $stub = document.createElement('span')
     $stub.className = stubClass + type
     $stub.textContent = '<CODE>'
@@ -325,25 +340,11 @@ export class FoldCode implements Addon.Addon {
 
     //-----------------------------
 
-    let $wrapper = document.createElement('div')
-    $wrapper.className = contentClass + type
-    $wrapper.appendChild(el)
-
-
-    let lineWidget = info.lineWidget = cm.addLineWidget(to.line, $wrapper, {
-      above: false,
-      coverGutter: false,
-      noHScroll: false,
-      showIfHidden: false,
-    })
-
     let highlightON = () => $stub.className = stubClassHighlight + type
     let highlightOFF = () => $stub.className = stubClass + type
 
     $wrapper.addEventListener("mouseenter", highlightON, false)
     $wrapper.addEventListener("mouseleave", highlightOFF, false)
-
-    //-----------------------------
 
     info.changed = () => {
       lineWidget.changed();
