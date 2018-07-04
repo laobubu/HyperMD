@@ -28,7 +28,7 @@ HyperMD 是一组 [CodeMirror] 插件、模式、主题、编辑器命令（Comm
    - 行内 $\LaTeX$ 公式渲染，同时也支持多行公式块 [^4]
    - Emoji 代码实时转换 `:joy:` => :joy:
    - 支持 #话题标签 [^6]
-   - [流程图 和 图表（基于mermaid）](../examples/mermaid.html)
+   - [流程图 和 图表（基于mermaid）](https://laobubu.net/HyperMD/docs/examples/mermaid.html)
 2. **按着 Alt 点击** 可以打开链接，或者跳到脚注 [^1]
 3. **代码块语法高亮** 支持数百种语言 [^2]
 4. **鼠标悬停** 可以查看脚注内容
@@ -151,7 +151,7 @@ HyperMD 是 [laobubu] 的一个开源项目，欢迎你：
 [turndown-plugin-gfm]: https://github.com/domchristie/turndown-plugin-gfm 为 turndown 添加删除线和表格支持
 [laobubu]:  https://laobubu.net/  HyperMD 的作者
 [doc]: ./index.md
-[examples]: ../examples/index.html
+[examples]: https://laobubu.net/HyperMD/docs/examples/
 
 [^1]: 按着 Ctrl 点击也行
 [^2]: 只要是 CodeMirror 支持的都能用
