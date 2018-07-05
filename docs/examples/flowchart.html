@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>HyperMD + flowchart.js</title>
 
-  <link rel="stylesheet" href="./basic.css">
+  <link rel="stylesheet" href="./assets/basic.css">
 </head>
 
 <body>
@@ -26,7 +26,7 @@
 
 > :warning: **flowchart.js bug**
 >
-> While configuring RequireJS, add `"Raphael": "raphael"` to `paths` option (see [\_common_cfg.js](./_common_cfg.js))
+> While configuring RequireJS, add `"Raphael": "raphael"` to `paths` option (see [\_common_cfg.js](./assets/demo_basic.js))
 > If not, Raphael can't be correctly loaded.
 
 Flowcharts are supported via [flowchart.js](http://flowchart.js.org/)
@@ -61,7 +61,7 @@ para(path2, top)->op1
   <script src="../../demo/vendor/require.js"></script>
   <script src="../../demo/patch-requirejs.js"></script>
   <script src="../../demo/requirejs_packages.js"></script>
-  <script src="./_common_cfg.js"></script>
+  <script src="./assets/demo_basic.js"></script>
 
   <script data-main="scripts/main">
     requirejs([
@@ -70,8 +70,6 @@ para(path2, top)->op1
 
       "hypermd/powerpack/fold-code-with-flowchart",
     ], function (CodeMirror, HyperMD) {
-      document.getElementById('loadingSplash').style.display = 'none' // hide the loading... line
-
       var myTextarea = document.getElementById('myTextarea')
       var editor = HyperMD.fromTextArea(myTextarea, {
         // hmdFoldCode: {
@@ -79,10 +77,7 @@ para(path2, top)->op1
         // }
       })
 
-      editor.setSize(null, "900px") // set height
-
-      // to debug the editor easily. expose it to global
-      window['editor'] = editor
+      demo_loaded(CodeMirror, HyperMD, editor)
     });
   </script>
 </body>

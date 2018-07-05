@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>HyperMD + mermaid</title>
 
-  <link rel="stylesheet" href="./basic.css">
+  <link rel="stylesheet" href="./assets/basic.css">
 </head>
 
 <body>
@@ -74,7 +74,7 @@ sequenceDiagram
   <script src="../../demo/vendor/require.js"></script>
   <script src="../../demo/patch-requirejs.js"></script>
   <script src="../../demo/requirejs_packages.js"></script>
-  <script src="./_common_cfg.js"></script>
+  <script src="./assets/demo_basic.js"></script>
 
   <script data-main="scripts/main">
     requirejs([
@@ -83,8 +83,6 @@ sequenceDiagram
 
       "hypermd/powerpack/fold-code-with-mermaid",
     ], function (CodeMirror, HyperMD) {
-      document.getElementById('loadingSplash').style.display = 'none'
-
       var myTextarea = document.getElementById('myTextarea')
       var editor = HyperMD.fromTextArea(myTextarea, {
         // hmdFoldCode: {
@@ -92,10 +90,7 @@ sequenceDiagram
         // }
       })
 
-      editor.setSize(null, "900px") // set height
-
-      // to debug the editor easily. expose it to global
-      window['editor'] = editor
+      demo_loaded(CodeMirror, HyperMD, editor)
     });
   </script>
 </body>

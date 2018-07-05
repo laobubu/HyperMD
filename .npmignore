@@ -1,11 +1,12 @@
 .gitignore
 .rpt2_cache
 .editorconfig
+.nojekyll
 node_modules/
 demo/
 index.html
 tmp/
-tests/
+test/
 dev/
 !docs/*.md
 docs/

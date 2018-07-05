@@ -6,7 +6,8 @@
 
 [![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd) [![Build Status](https://travis-ci.org/laobubu/HyperMD.svg?branch=master)](https://travis-ci.org/laobubu/HyperMD)
 
-[在线演示](https://laobubu.net/HyperMD/)
+[在线体验](https://laobubu.net/HyperMD/) |
+[功能演示][examples] |
 [English](../../README.md)
 
 ## 选择 HyperMD 的 N 个理由
@@ -26,9 +27,9 @@ HyperMD 是一组 [CodeMirror] 插件、模式、主题、编辑器命令（Comm
      + [x] TODO 列表 (可点击勾选框, 改变状态)
      + YAML Front Matter
    - 行内 $\LaTeX$ 公式渲染，同时也支持多行公式块 [^4]
-   - Emoji 代码实时转换 `:joy:` => :joy:
-   - 支持 #话题标签 [^6]
-   - [流程图 和 图表（基于mermaid）](https://laobubu.net/HyperMD/docs/examples/mermaid.html)
+   - Emoji 代码实时转换 `:joy:` => :joy: [(支持自定义的表情)](https://laobubu.net/HyperMD/docs/examples/custom-emoji.html)
+   - 支持 #话题标签 [^6] ，[查看演示](https://laobubu.net/HyperMD/docs/examples/hashtag.html)
+   - 流程图 和 图表 ([mermaid](https://laobubu.net/HyperMD/docs/examples/mermaid.html) 或者 [flowchart.js](https://laobubu.net/HyperMD/docs/examples/flowchart.html))
 2. **按着 Alt 点击** 可以打开链接，或者跳到脚注 [^1]
 3. **代码块语法高亮** 支持数百种语言 [^2]
 4. **鼠标悬停** 可以查看脚注内容

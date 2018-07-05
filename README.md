@@ -7,6 +7,7 @@
 [![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd) [![Build Status](https://travis-ci.org/laobubu/HyperMD.svg?branch=master)](https://travis-ci.org/laobubu/HyperMD)
 
 [Online Demo](https://laobubu.net/HyperMD/) |
+[Examples][] |
 [中文介绍](./docs/zh-CN/README.md)
 
 ## Why use HyperMD?
@@ -26,9 +27,9 @@ You may use both original CodeMirror and HyperMD on the same page.
      + [x] TODO List (with clickable checkboxes)
      + YAML Front Matter
    - Inline $\LaTeX$ Formula, and multi-line math blocks [^4]
-   - Emoji from shortname: `:joy:` => :joy:
-   - #hashtag support [^6]
-   - [Flowchart and Diagrams (mermaid)](https://laobubu.net/HyperMD/docs/examples/mermaid.html)
+   - Emoji from shortname: `:joy:` => :joy: [(support custom emoji)](https://laobubu.net/HyperMD/docs/examples/custom-emoji.html)
+   - #hashtag support [^6] , see [demo](https://laobubu.net/HyperMD/docs/examples/hashtag.html)
+   - Flowchart and Diagrams ([mermaid](https://laobubu.net/HyperMD/docs/examples/mermaid.html) or [flowchart.js](https://laobubu.net/HyperMD/docs/examples/flowchart.html))
 2. **Alt+Click** to follow link / footnote [^1]
 3. **Syntax Highlight** for 120+ languages code blocks [^2]
 4. **Hover** to read footnotes
