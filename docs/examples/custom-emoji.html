@@ -16,7 +16,7 @@
     <p>
       <i class="loadingIcon"></i>
     </p>
-    <p>Loading modules...</p>
+    <p>Loading modules and EmojiOne...</p>
   </div>
 
   <div class="tools">
@@ -35,6 +35,17 @@ All you need is to load it, before initializing editor.
 > **[EmojiOne](https://www.emojione.com/)** - Open emoji icons
 > This demo uses Emoji icons provided free by [EmojiOne](https://www.emojione.com/) [*(free license)*](https://www.emojione.com/licenses/free)
 > (You may use other alternatives, eg. twemoji from twitter)
+
+## AutoComplete
+
+> This feature is not shipped by HyperMD package yet. You have to download and [load this module](./assets/demo_basic.js) manually.
+
+With [CodeMirror show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint), you may get an autocomplete popup by typing `:`
+or, you can complete an unfinished emoji by pressing `Ctrl+Space`.
+
+**Try it out** :dog
+
+
 
 ## Custom Emoji
 
@@ -68,8 +79,11 @@ That silly effect is not recommended in production, but it's fun, right?
       "codemirror",
       "hypermd",
 
+      "./assets/complete-emoji.js",
+      // "codemirror/addon/hint/show-hint" is already loaded by "./assets/complete-emoji.js"
+
       "hypermd/powerpack/fold-emoji-with-emojione"
-    ], function (CodeMirror, HyperMD) {
+    ], function (CodeMirror, HyperMD, CompleteEmoji) {
       var myTextarea = document.getElementById('myTextarea')
       var editor = HyperMD.fromTextArea(myTextarea, {
         hmdFoldEmoji: {
@@ -77,8 +91,29 @@ That silly effect is not recommended in production, but it's fun, right?
             ':doge:': make_doge,
             ':nyancat:': make_nyancat,
           }
+        },
+
+        // AutoComplete config
+        extraKeys: {
+          "Ctrl-Space": "autocomplete",
+        },
+        hintOptions: {
+          hint: CompleteEmoji.createHintFunc()
         }
       })
+
+      // show AutoComplete when ":" is inputed
+      editor.on("inputRead", function (cm, change) {
+        if (change.text.length === 1 && change.text[0] === ':') editor.showHint()
+      })
+
+      // [demo] display the AutoComplete
+      setTimeout(function () {
+        window.focus()
+        editor.focus()
+        editor.setCursor({ line: 18, ch: 19 })
+        editor.showHint()
+      }, 1000);
 
       demo_loaded(CodeMirror, HyperMD, editor)
     });
@@ -106,7 +141,8 @@ That silly effect is not recommended in production, but it's fun, right?
     }
 
     @keyframes jump {
-      0%, 100% {
+      0%,
+      100% {
         transform: translateY(-20px);
       }
       50% {

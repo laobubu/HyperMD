@@ -4,7 +4,7 @@ var categories = {
   basic: { order: 0, name: "Basic", desc: "Basic examples for HyperMD" },
   mode: { order: 1, name: "Mode", desc: "HyperMD's Markdown mode is advanced" },
   powerpack: { order: 2, name: "PowerPack", desc: "Dance with 3rd Parties" },
-  fun: { order: 5, name: "Misc & Fun", desc: "Some interesting usage" },
+  fun: { order: 0.5, name: "Misc & Fun", desc: "Some interesting usage" },
 }
 
 var tags = {
@@ -30,11 +30,11 @@ var items = [
     desc: "Load HyperMD with RequireJS the module loader",
   },
   {
-    name: "Convert existed CodeMirror editor",
+    name: "Convert existing CodeMirror editor",
     page: "convert-cm",
     cat: ["basic"],
     tags: ["plainenv"],
-    desc: "It's ridiculously easy to turn existed CodeMirror editor into HyperMD"
+    desc: "It's ridiculously easy to turn existing CodeMirror editor into HyperMD"
   },
 
   {
@@ -61,10 +61,10 @@ var items = [
   },
 
   {
-    name: "Custom Emoji",
+    name: "Custom Emoji + Emoji AutoComplete",
     page: "custom-emoji",
     cat: ["fun"],
     tags: [],
-    desc: "Yes, you can define your own emoji, like :doge:",
+    desc: "AutoComplete can work with emojis. And, yes, you can define your own emojis, like :doge:",
   },
 ]

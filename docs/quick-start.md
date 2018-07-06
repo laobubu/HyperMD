@@ -142,7 +142,7 @@ Please read the source code of [this demo](./examples/ai1.html)
 
 
 
-## convert existed CodeMirror markdown editor to HyperMD editor
+## convert existing CodeMirror markdown editor to HyperMD editor
 
 If a markdown editor (based on CodeMirror ≥ 5.37.0) is already initialized and presented on page,
 you can easily turn it into HyperMD markdown editor!
