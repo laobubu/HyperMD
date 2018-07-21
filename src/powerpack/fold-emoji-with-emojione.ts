@@ -11,8 +11,6 @@
 // 使用前请注意阅读 EmojiOne 使用许可
 //
 
-/// <reference path="./typings/_misc.d.ts" />
-
 import * as _emojione_module from 'emojione'
 import { defaultOption, EmojiChecker, EmojiRenderer } from '../addon/fold-emoji'
 

@@ -6,8 +6,6 @@
 // Render tooltip Markdown to HTML, with marked
 //
 
-/// <reference path="./typings/_misc.d.ts" />
-
 import { defaultOption } from "../addon/hover"
 import * as marked from "marked"
 

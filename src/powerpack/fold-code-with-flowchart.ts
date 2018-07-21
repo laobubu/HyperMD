@@ -26,8 +26,6 @@
 // })
 // ```
 
-/// <reference path="./typings/flowchart.d.ts" />
-
 import * as CodeMirror from "codemirror"
 import * as flowchart from "flowchart.js"
 import { registerRenderer, CodeRenderer, getAddon as getFoldCode } from "../addon/fold-code"

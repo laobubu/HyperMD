@@ -1,4 +1,7 @@
 // This file contains short and brief typings
+// As an alternative to optional `@types/***` packages.
+//
+// For HyperMD Development only
 
 //#region twemoji ---------------------------------------------------
 declare module "twemoji" {

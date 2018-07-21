@@ -11,8 +11,6 @@
 // Load `turndown-plugin-gfm` after this module and it will be automatically used while pasting.
 //
 
-/// <reference path="./typings/turndown.d.ts" />
-
 import * as TurndownService from "turndown"
 import { PasteConvertor, suggestedOption, defaultOption } from "../addon/paste"
 

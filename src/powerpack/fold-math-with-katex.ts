@@ -8,8 +8,6 @@
 // :warning: In plain browser env, don't forget to load `katex/dist/katex.min.css`.
 //
 
-/// <reference path="./typings/_misc.d.ts" />
-
 import * as katex from 'katex'
 import { defaultOption, MathRenderer, MathRenderMode } from '../addon/fold-math'
 
