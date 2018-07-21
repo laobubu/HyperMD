@@ -175,3 +175,20 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
   * **powerpack**
     + fold-code-with-flowchart
     + fold-code-with-mermaid
+
+## 0.3.10 2018-7-21
+
+*A project can be stable only if tested by people.*
+*早茶与冰室的甜品真是美滋滋的东西*
+
+* **Fix**
+  * [style] Use another way to hide tokens. Fix #38
+  * [theme] Apply monospace font to formatting tokens and urls
+  * [powerpacks] Remove typing file references. Fix #37
+  * [keymap] Default key for Mac. by @michaelgmcd
+
+* **Add**
+  * **Goods** some interesting and optional modules/patches
+    - **patch-requirejs** Patch RequireJS so that you can import css files directly.
+    - **complete-emoji** Auto complete emoji codes.
+    - [more will be documented here](./docs/goods.md)

@@ -74,7 +74,9 @@ Let's say you are using [parcel-bundler][], simpily run `parcel index.html` and 
 [**🙋 Example Here**](./examples/basic-requirejs.html)
 
 First of all, *hypermd* requires CSS files in JavaScript, and RequireJS doesn't support `require("./style.css")`.
-Thus, **a [patch](../demo/patch-requirejs.js) is REQUIRED before using RequireJS**
+Thus, when RequireJS is loaded, before using it, **load [this patch to make RequireJS support css files](../goods/patch-requirejs.js)**
+
+(This patch can be found in HyperMD package. Its file path is  `goods/patch-requirejs.js` and you can load it via some URL like `https://laobubu.net/HyperMD/goods/patch-requirejs.js` )
 
 As for the `packages` field, [this reference](../demo/requirejs_packages.js) can be helpful.
 

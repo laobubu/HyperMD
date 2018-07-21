@@ -4,6 +4,16 @@
 // Doesn't support old browsers like IE6
 
 (function () {
+  if (typeof requirejs !== 'function') {
+    console.error("[HyperMD RequireJS Patch] Please apply this patch after RequireJS's <script>. Besides, script tags can NOT be async")
+    throw new Error("RequireJS not Found")
+  }
+
+  for (var _ in requirejs.s.contexts._.defined) {
+    console.warn("[HyperMD RequireJS Patch] Please apply this patch BEFORE loading any module.")
+    break
+  }
+
   var old_requirejs_load = requirejs.load
   requirejs.load = function (context, moduleId, url) {
     if (/\.css$/.test(moduleId)) {

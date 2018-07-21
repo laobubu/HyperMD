@@ -1,6 +1,6 @@
 {
   "name": "hypermd",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
   "main": "./everything.js",
   "types": "./everything.d.ts",
@@ -14,7 +14,7 @@
     "dev": "node dev/dev.js",
     "watch_js": "tsc -w --sourceMap --sourceRoot /src",
     "watch_css": "node dev/build-css.js -w",
-    "pretest": "node test/tools/prepare",
+    "pretest": "cd test && tsc && node tools/prepare",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

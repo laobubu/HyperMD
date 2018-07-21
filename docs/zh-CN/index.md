@@ -103,7 +103,9 @@ var cm = HyperMD.fromTextArea(myTextarea, {
 
 首先，*hypermd* 在 JavaScript 里用 require 引入 CSS 文件，
 然而 RequireJS 默认不支持 `require("./style.css")` 这种写法。
-因此，**在使用 RequireJS 前，请先载入 [这个补丁](../../demo/patch-requirejs.js)！**
+因此，**在载入 RequireJS 之后，开始使用它前，请先载入 [一个让 RequireJS 能导入 CSS 的补丁](../../goods/patch-requirejs.js)！**
+
+（这个补丁文件已包含在 HyperMD 包中，文件名是 `goods/patch-requirejs.js` 。你可以通过类似 `https://laobubu.net/HyperMD/goods/patch-requirejs.js` 的地址引用到它 ）
 
 载入 require.js 并打补丁之后，你大概只需要像这样写就行了（[参考这个文件](../../demo/index.js) ）:
 

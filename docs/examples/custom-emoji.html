@@ -38,7 +38,8 @@ All you need is to load it, before initializing editor.
 
 ## AutoComplete
 
-> This feature is not shipped by HyperMD package yet. You have to download and [load this module](./assets/demo_basic.js) manually.
+HyperMD's `hypermd/goods/complete-emoji` provides auto-complete support for emojis.
+Its document can be found here: https://github.com/laobubu/HyperMD/blob/master/docs/goods.md#complete-emoji
 
 With [CodeMirror show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint), you may get an autocomplete popup by typing `:`
 or, you can complete an unfinished emoji by pressing `Ctrl+Space`.
@@ -69,7 +70,7 @@ That silly effect is not recommended in production, but it's fun, right?
 
   <!-- To load HyperMD, see -- basic-requirejs.html -- -->
   <script src="../../demo/vendor/require.js"></script>
-  <script src="../../demo/patch-requirejs.js"></script>
+  <script src="../../goods/patch-requirejs.js"></script>
   <script src="../../demo/requirejs_packages.js"></script>
   <script src="./assets/demo_basic.js"></script>
 
@@ -79,7 +80,7 @@ That silly effect is not recommended in production, but it's fun, right?
       "codemirror",
       "hypermd",
 
-      "./assets/complete-emoji.js",
+      "../../goods/complete-emoji.js",
       // "codemirror/addon/hint/show-hint" is already loaded by "./assets/complete-emoji.js"
 
       "hypermd/powerpack/fold-emoji-with-emojione"
@@ -93,7 +94,7 @@ That silly effect is not recommended in production, but it's fun, right?
           }
         },
 
-        // AutoComplete config
+        // Emoji AutoComplete config
         extraKeys: {
           "Ctrl-Space": "autocomplete",
         },
@@ -111,7 +112,7 @@ That silly effect is not recommended in production, but it's fun, right?
       setTimeout(function () {
         window.focus()
         editor.focus()
-        editor.setCursor({ line: 18, ch: 19 })
+        editor.setCursor({ line: 19, ch: 19 })
         editor.showHint()
       }, 1000);
 

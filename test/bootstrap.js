@@ -58,7 +58,7 @@ function boot_test(modules, loaded, opts) {
   return Promise.resolve()
     .then(() => getResource(basepath + "/demo/vendor/require.js"))
     .then(() => getResource(basepath + "/demo/requirejs_packages.js"))
-    .then(() => getResource(basepath + "/demo/patch-requirejs.js"))
+    .then(() => getResource(basepath + "/goods/patch-requirejs.js"))
     .then(() => configureRequireJS())
     .then(() => invokeCallback())
 
