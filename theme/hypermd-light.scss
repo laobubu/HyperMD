@@ -144,6 +144,19 @@
         vertical-align: middle;
     }
 
+    /// Formatting Tokens, use monospace chars
+    span {
+        &.cm-formatting-em,
+        &.cm-formatting-strong,
+        &.cm-formatting-strikethrough,
+        &.cm-formatting-code,
+        &.cm-formatting-link,
+        &.cm-formatting-image,
+        &.cm-url {
+            @extend %monospace;
+        }
+    }
+
     /// TOC
     span.cm-hmd-toc {
         font-size: $fs * 2;

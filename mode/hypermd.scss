@@ -5,7 +5,10 @@
 
 %hidden-token {
     display: inline;
-    font-size: 0 !important;
+    font-size: 1px !important;
+    letter-spacing: -1ch;
+    font-family: monospace;
+    color: transparent;
 }
 
 .CodeMirror {
