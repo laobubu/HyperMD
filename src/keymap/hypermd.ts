@@ -624,23 +624,24 @@ Object.assign(CodeMirror.commands, {
 })
 
 const defaultKeyMap = CodeMirror.keyMap["default"]
+const modPrefix = defaultKeyMap === CodeMirror.keyMap["macDefault"] ? "Cmd" : "Ctrl"
 export var keyMap: CodeMirror.KeyMap = {
   "Shift-Tab": "hmdShiftTab",
   "Tab": "hmdTab",
   "Enter": "hmdNewlineAndContinue",
   "Shift-Enter": "hmdNewline",
 
-  "Ctrl-B": createStyleToggler(
+  [`${modPrefix}-B`]: createStyleToggler(
     state => state.strong,
     token => / formatting-strong /.test(token.type),
     state => repeatStr(state && state.strong || "*", 2)     // ** or __
   ),
-  "Ctrl-I": createStyleToggler(
+  [`${modPrefix}-I`]: createStyleToggler(
     state => state.em,
     token => / formatting-em /.test(token.type),
     state => (state && state.em || "*")
   ),
-  "Ctrl-D": createStyleToggler(
+  [`${modPrefix}-D`]: createStyleToggler(
     state => state.strikethrough,
     token => / formatting-strikethrough /.test(token.type),
     state => "~~"
