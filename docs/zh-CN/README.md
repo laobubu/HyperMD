@@ -12,7 +12,7 @@
 
 ## 选择 HyperMD 的 N 个理由
 
-HyperMD 是一组 [CodeMirror] 插件、模式、主题、编辑器命令（Commands）和按键绑定（KeyMap）等。
+HyperMD 是一组 [CodeMirror][] 插件、模式、主题、编辑器命令（Commands）和按键绑定（KeyMap）等。
 
 你可以在一个页面上同时使用 HyperMD 和 CodeMirror。
 
@@ -41,7 +41,7 @@ HyperMD 是一组 [CodeMirror] 插件、模式、主题、编辑器命令（Comm
    - 各种主题 [^3]
 7. **上传图片** 只需要复制粘贴，或者把文件拖进来就行了
 8. **Power Pack** 机制，用各种第三方库和服务增强 HyperMD 功能
-   - 例如 [MathJax][], [marked][], KaTeX ...
+   - 例如 [MathJax][], [marked][], [KaTeX][] ...
    - *[详细列表](https://laobubu.net/HyperMD/#./docs/powerpacks.md)*
 9. **KeyMap** 特制的按键绑定 "HyperMD":
     + **表格**
@@ -135,7 +135,7 @@ var editor = HyperMD.fromTextArea(myTextarea)
 
 ## 一起来搞事
 
-HyperMD 是 [laobubu] 的一个开源项目，欢迎你：
+HyperMD 是 [laobubu][] 的一个开源项目，欢迎你：
 
 - [在 GitHub 贡献代码](https://github.com/laobubu/HyperMD/) ，编写你的组件和主题
 - [帮我买杯咖啡](https://laobubu.net/donate.html)
@@ -150,6 +150,7 @@ HyperMD 是 [laobubu] 的一个开源项目，欢迎你：
 [marked]:   https://github.com/chjj/marked/  一个 markdown 解析器和渲染器
 [turndown]: https://github.com/domchristie/turndown 一个 HTML 转 Markdown 的组件
 [turndown-plugin-gfm]: https://github.com/domchristie/turndown-plugin-gfm 为 turndown 添加删除线和表格支持
+[katex]: https://khan.github.io/KaTeX/
 [laobubu]:  https://laobubu.net/  HyperMD 的作者
 [doc]: ./index.md
 [examples]: https://laobubu.net/HyperMD/docs/examples/
