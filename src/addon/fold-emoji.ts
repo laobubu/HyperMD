@@ -5,7 +5,6 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Position } from 'codemirror'
 import { Addon, suggestedEditorConfig } from '../core'
 import { cm_t } from '../core/type'
 import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
@@ -35,8 +34,8 @@ export const EmojiFolder: FolderFunc = (stream, token) => {
   if (!token.type || !/ formatting-emoji/.test(token.type)) return null
 
   const cm = stream.cm
-  const from: Position = { line: stream.lineNo, ch: token.start }
-  const to: Position = { line: stream.lineNo, ch: token.end }
+  const from: CodeMirror.Position = { line: stream.lineNo, ch: token.start }
+  const to: CodeMirror.Position = { line: stream.lineNo, ch: token.end }
 
   var name = token.string // with ":"
   var addon = getAddon(cm)

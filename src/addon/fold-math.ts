@@ -9,7 +9,7 @@
 
 import * as CodeMirror from 'codemirror'
 import { Addon, FlipFlop, tryToRun, suggestedEditorConfig } from '../core'
-import { TextMarker, Position, Token } from 'codemirror'
+import { TextMarker, Position } from 'codemirror'
 import { cm_t } from '../core/type'
 import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 

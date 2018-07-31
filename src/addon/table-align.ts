@@ -6,7 +6,6 @@
 
 import * as CodeMirror from 'codemirror'
 import { Addon, FlipFlop, debounce, updateCursorDisplay, suggestedEditorConfig, normalVisualConfig } from '../core'
-import { LineHandle } from 'codemirror'
 import { cm_t } from '../core/type'
 import { HyperMDState, TableType } from '../mode/hypermd'
 
@@ -111,7 +110,7 @@ export class TableAlign implements Addon.Addon, Options /* if needed */ {
   }, 100)
 
   /** CodeMirror renderLine event handler */
-  private _procLine = (cm: cm_t, line: LineHandle, el: HTMLPreElement) => {
+  private _procLine = (cm: cm_t, line: CodeMirror.LineHandle, el: HTMLPreElement) => {
     if (!el.querySelector('.cm-hmd-table-sep')) return
     const lineSpan = el.firstElementChild
     const lineSpanChildren = Array.prototype.slice.call(lineSpan.childNodes, 0) as Node[]

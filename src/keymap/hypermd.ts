@@ -5,9 +5,9 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Token, Position, cmpPos } from 'codemirror'
+import { Token, cmpPos } from 'codemirror'
 import { cm_t } from '../core/type'
-import { TokenSeeker, repeatStr, expandRange, repeat, suggestedEditorConfig } from '../core';
+import { TokenSeeker, repeatStr, repeat, suggestedEditorConfig } from '../core';
 import { HyperMDState, TableType } from "../mode/hypermd"
 
 /**

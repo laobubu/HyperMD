@@ -7,7 +7,7 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, debounce, TokenSeeker, suggestedEditorConfig, normalVisualConfig } from '../core'
+import { Addon, debounce, TokenSeeker, suggestedEditorConfig, normalVisualConfig } from '../core'
 import { TextMarker, Position, Token } from 'codemirror'
 import { cm_t } from '../core/type'
 import { splitLink } from './read-link'
