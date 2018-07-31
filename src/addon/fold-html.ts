@@ -5,7 +5,6 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Position } from 'codemirror'
 import { Addon, suggestedEditorConfig, visitElements, watchSize } from '../core'
 import { cm_t } from '../core/type'
 import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
@@ -15,7 +14,7 @@ import './read-link'
 /**
  * Before folding HTML, check its security and avoid XSS attack! Returns true if safe.
  */
-export type CheckerFunc = (html: string, pos: Position, cm: cm_t) => boolean
+export type CheckerFunc = (html: string, pos: CodeMirror.Position, cm: cm_t) => boolean
 
 export var defaultChecker: CheckerFunc = (html) => {
   // TODO: read https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet
@@ -34,12 +33,12 @@ export var defaultChecker: CheckerFunc = (html) => {
  *
  * @param html only have one root element
  */
-export type RendererFunc = (html: string, pos: Position, cm: cm_t) => HTMLElement
+export type RendererFunc = (html: string, pos: CodeMirror.Position, cm: cm_t) => HTMLElement
 
 /**
  * Create HTMLElement from HTML string and do special process with HyperMD.ReadLink
  */
-export var defaultRenderer: RendererFunc = (html: string, pos: Position, cm: cm_t): HTMLElement => {
+export var defaultRenderer: RendererFunc = (html: string, pos: CodeMirror.Position, cm: cm_t): HTMLElement => {
   var tagBegin = /^<(\w+)\s*/.exec(html)
   if (!tagBegin) return null
 
@@ -122,8 +121,8 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
   if (!endInfo || !/ hmd-html-end/.test(endInfo.token.type) || / hmd-html-unclosed/.test(endInfo.token.type)) return null
 
   const cm = stream.cm
-  const from: Position = { line: stream.lineNo, ch: token.start }
-  const to: Position = { line: endInfo.lineNo, ch: endInfo.token.end }
+  const from: CodeMirror.Position = { line: stream.lineNo, ch: token.start }
+  const to: CodeMirror.Position = { line: endInfo.lineNo, ch: endInfo.token.end }
 
   const inlineMode: boolean = from.ch != 0 || to.ch < cm.getLine(to.line).length
   // if (!inlineMode) {

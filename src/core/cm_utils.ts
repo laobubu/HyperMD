@@ -6,9 +6,9 @@
  * You shall NOT import this file; please import "core" instead
  */
 
+import { Token, Position } from "codemirror"
 import * as cm_internal from "./cm_internal"
 import { cm_t } from "./type"
-import { Token, Position } from "codemirror"
 
 export { cm_internal }
 
