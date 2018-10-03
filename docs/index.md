@@ -97,6 +97,10 @@ Understand TypeScript and CodeMirror? Want to add new features to HyperMD core? 
 
 (this part is under construction)
 
+## Documentation is unfinished
+
+[Buy me a coffee](https://laobubu.net/donate.html) to encourage me?
+
 -----
 
 [options-for-addons]: ./options-for-addons.md

@@ -6,8 +6,8 @@
 
 [![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd) [![Build Status](https://travis-ci.org/laobubu/HyperMD.svg?branch=master)](https://travis-ci.org/laobubu/HyperMD)
 
-[Online Demo](https://laobubu.net/HyperMD/) |
-[Examples][] |
+[Online Demo](https://laobubu.net/HyperMD/) | [Examples][] | [Documentation][doc]
+
 [中文介绍](./docs/zh-CN/README.md)
 
 ## Why use HyperMD?
@@ -24,41 +24,44 @@ You may use both original CodeMirror and HyperMD on the same page.
    - **Markdown Extension**
      + Simple Table
      + Footnote [^1]
-     + [x] TODO List (with clickable checkboxes)
+     + [x] TODO List *(the box is clickable)*
      + YAML Front Matter
-   - Inline $\LaTeX$ Formula, and multi-line math blocks [^4]
-   - Emoji from shortname: `:joy:` => :joy: [(support custom emoji)](https://laobubu.net/HyperMD/docs/examples/custom-emoji.html)
-   - #hashtag support [^6] , see [demo](https://laobubu.net/HyperMD/docs/examples/hashtag.html)
-   - Flowchart and Diagrams ([mermaid](https://laobubu.net/HyperMD/docs/examples/mermaid.html) or [flowchart.js](https://laobubu.net/HyperMD/docs/examples/flowchart.html))
-2. **Alt+Click** to follow link / footnote [^1]
-3. **Syntax Highlight** for 120+ languages code blocks [^2]
-4. **Hover** to read footnotes
-5. **Copy and Paste**, translate HTML into Markdown [^5]
-6. **Massive CodeMirror Add-ons** can be loaded, including:
-   - VIM/Emacs mode and Configurable keybindings
+     + $\LaTeX$ Formula, inline or block display mode [^4]
+     + Emoji: `:joy:` => :joy: [(also support custom emoji)]  (https://laobubu.net/HyperMD/docs/examples/custom-emoji.html)
+   - **And more**
+     + <span style="color:red">HTML in Markdown</span> -- WYSIWIG MDX is possible
+     + #hashtag support [^6] , see [demo](https://laobubu.net/HyperMD/docs/examples/hashtag.html)
+     + Flowchart and Diagrams ([mermaid](https://laobubu.net/HyperMD/docs/examples/mermaid.html) or   [flowchart.js](https://laobubu.net/HyperMD/docs/examples/flowchart.html))
+2. Better **Markdown-ing Experience**
+   - **Upload Images** and files via clipboard, or drag'n'drop
+   - **Alt+Click** to open link / jump to footnote [^1]
+   - **Hover** to read footnotes
+   - **Copy and Paste**, translate HTML into Markdown [^5]
+   - Easy and ready-to-use **Key-bindings** (aka. KeyMap)
+3. **CodeMirror** benefits
+   - Syntax Highlight for code blocks, supports 120+ languages[^2]. Mode can be loaded on-demand.
+   - Configurable key-bindings
    - Diff and Merge
-   - Fullscreen
    - Themes [^3]
-7. **Upload Images** and files via clipboard, or drag'n'drop
-8. **Power Packs** integrate 3rd-party libs and services on-the-fly
-   - [MathJax][], [marked][], [KaTeX][] and more.
-   - *[Read the list][powerpacks]*
-9. Tailored **KeyMap** "HyperMD":
-    + **Table**
-      - <kbd>Enter</kbd> Create a table with `| column | line |`
-      - <kbd>Enter</kbd> Insert new row, or finish a table (if last row is empty)
-      - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to navigate between cells
-    + **List**
-      - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to indent/unindent current list item
-    + **Formatting** a nearby word (or selected text)
-      - <kbd>Ctrl+B</kbd> **bold**
-      - <kbd>Ctrl+I</kbd> *emphasis*
-      - <kbd>Ctrl+D</kbd> ~~strikethrough~~
-10. **And More...**
-    + [Examples][]
-    + [Documentation][doc]
+   - Almost all of CodeMirror addons!
+4. Extensible and Customizable
+   - Use **PowerPacks** to integrate 3rd-party libs and services on-the-fly
+     - [MathJax][], [marked][], [KaTeX][] and more.
+     - *[Read the list][powerpacks]*
+   - HyperMD functions are highly **modulized**
+5. Tailored **KeyMap** "HyperMD":
+   + **Table**
+     - <kbd>Enter</kbd> Create a table with `| column | line |`
+     - <kbd>Enter</kbd> Insert new row, or finish a table (if last row is empty)
+     - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to navigate between cells
+   + **List**
+     - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to indent/unindent current list item
+   + **Formatting** a nearby word (or selected text)
+     - <kbd>Ctrl+B</kbd> **bold**
+     - <kbd>Ctrl+I</kbd> *emphasis*
+     - <kbd>Ctrl+D</kbd> ~~strikethrough~~
 
-## Quickstart
+## [Quickstart](./docs/quick-start.md)
 
 ```javascript
 // npm install --save hypermd codemirror
@@ -125,12 +128,20 @@ To integrate other third-party libs and services, read [PowerPacks][]
 </table>
 
 
+🌟 **Sponsors**
+
+<table>
+  <tr>
+    <td><a href="http://www.umbst.com/" target="_blank"><img src="http://www.umbst.com/images/logo.svg" height="38" width="38" title="圆伞科技"></a></td>
+  </tr>
+</table>
+
+
 🙏 **Sponsors** _(sorted by date)_
 
 <div class="sponsors">
-  <span>☕Phithon</span>
-  <span>☕c*i</span>
-  <span>☕*Yuan</span>
+  <span>☕Phithon</span> <span>☕c*i</span> <span>☕*Yuan</span> <span>☕*Xiuzhang</span>
+  <span>☕*Junjie</span> <span>🌟圆伞科技</span> <span>☕*Di</span>
 </div>
 
 

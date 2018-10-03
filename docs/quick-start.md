@@ -55,17 +55,53 @@ var cm = HyperMD.fromTextArea(myTextarea, {
 ```
 
 Let's say you are using [parcel-bundler][], simpily run `parcel index.html` and voila!
-
-> **You would need css-loader**
->
-> HyperMD contains code like `require("xxx.css")`. Make sure you have [css-loader](https://github.com/webpack-contrib/css-loader) configured.
-> Some bundlers might have already prepared it for you, like [parcel-bundler][].
+If you are using **webpack**, make sure it's correctly configured(see below).
 
 > ***mode-loader* will be unavaliable**
 >
 > Bundlers use closures, making CodeMirror invisible to global. You may...
 > Expose `CodeMirror` to global and set editor option `hmdModeLoader` to something like `"https://cdn.jsdelivr.net/npm/codemirror/"`.
 > Or load language modes via `require("codemirror/mode/haskell/haskell")` before creating a editor.
+
+
+### Notice for `webpack` users!
+
+HyperMD contains code like `require("xxx.css")` in order to import styles.
+Make sure you have these loader:
+
+` npm install -D  css-loader  style-loader  url-loader `
+
+Then, make sure your webpack config file looks like this:
+
+```js
+// webpack.config.js
+module.exports = {
+
+  /* ... other webpack config ... */
+
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpg|gif|ttf|eot|woff|woff2)$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: { limit: 8192 }
+          }
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [
+          { loader: "style-loader" },
+          { loader: "css-loader" }
+        ]
+      },
+      /* ... your other loader ... */
+    ]
+  }
+}
+```
 
 
 
