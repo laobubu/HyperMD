@@ -10,56 +10,6 @@
 
 [中文介绍](./docs/zh-CN/README.md)
 
-## Why use HyperMD?
-
-HyperMD is a set of [CodeMirror][] add-ons / modes / themes / commands / keymap etc.
-
-You may use both original CodeMirror and HyperMD on the same page.
-
-1. Write, and preview on the fly
-   - **Regular Markdown** blocks and elements
-     + **Strong**, *Emphasis*, ~~Strikethrough~~, `Code`
-     + [Links](https://laobubu.net), Images
-     + Title / Quote / Code Block / List / Horizontal Rule
-   - **Markdown Extension**
-     + Simple Table
-     + Footnote [^1]
-     + [x] TODO List *(the box is clickable)*
-     + YAML Front Matter
-     + $\LaTeX$ Formula, inline or block display mode [^4]
-     + Emoji: `:joy:` => :joy: [(also support custom emoji)]  (https://laobubu.net/HyperMD/docs/examples/custom-emoji.html)
-   - **And more**
-     + <span style="color:red">HTML in Markdown</span> -- WYSIWIG MDX is possible
-     + #hashtag support [^6] , see [demo](https://laobubu.net/HyperMD/docs/examples/hashtag.html)
-     + Flowchart and Diagrams ([mermaid](https://laobubu.net/HyperMD/docs/examples/mermaid.html) or   [flowchart.js](https://laobubu.net/HyperMD/docs/examples/flowchart.html))
-2. Better **Markdown-ing Experience**
-   - **Upload Images** and files via clipboard, or drag'n'drop
-   - **Alt+Click** to open link / jump to footnote [^1]
-   - **Hover** to read footnotes
-   - **Copy and Paste**, translate HTML into Markdown [^5]
-   - Easy and ready-to-use **Key-bindings** (aka. KeyMap)
-3. **CodeMirror** benefits
-   - Syntax Highlight for code blocks, supports 120+ languages[^2]. Mode can be loaded on-demand.
-   - Configurable key-bindings
-   - Diff and Merge
-   - Themes [^3]
-   - Almost all of CodeMirror addons!
-4. Extensible and Customizable
-   - Use **PowerPacks** to integrate 3rd-party libs and services on-the-fly
-     - [MathJax][], [marked][], [KaTeX][] and more.
-     - *[Read the list][powerpacks]*
-   - HyperMD functions are highly **modulized**
-5. Tailored **KeyMap** "HyperMD":
-   + **Table**
-     - <kbd>Enter</kbd> Create a table with `| column | line |`
-     - <kbd>Enter</kbd> Insert new row, or finish a table (if last row is empty)
-     - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to navigate between cells
-   + **List**
-     - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to indent/unindent current list item
-   + **Formatting** a nearby word (or selected text)
-     - <kbd>Ctrl+B</kbd> **bold**
-     - <kbd>Ctrl+I</kbd> *emphasis*
-     - <kbd>Ctrl+D</kbd> ~~strikethrough~~
 
 ## [Quickstart](./docs/quick-start.md)
 
@@ -70,11 +20,70 @@ var myTextarea = document.getElementById('input-area')
 var editor = HyperMD.fromTextArea(myTextarea)
 ```
 
-If you use bundlers, that's all. CSS will be imported via "hypermd" javascript.
+[![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/remix/hello-hypermd)
 
-For [RequireJS][] users and pure HTML lovers, please read [QuickStart Section in Documentation][doc]!
+Also for RequireJS, Parcel, webpack, plain browser env. [Read the Doc](./docs/quick-start.md)
 
-To integrate other third-party libs and services, read [PowerPacks][]
+
+## Why use HyperMD?
+
+HyperMD is a set of [CodeMirror][] add-ons / modes / themes / commands / keymap etc.
+
+You may use both original CodeMirror and HyperMD on the same page.
+
+### 🌈 Write, and preview on the fly
+
+- **Regular Markdown** blocks and elements
+  + **Strong**, *Emphasis*, ~~Strikethrough~~, `Code`
+  + [Links](https://laobubu.net), Images
+  + Title / Quote / Code Block / List / Horizontal Rule
+- **Markdown Extension**
+  + Simple Table
+  + Footnote [^1]
+  + [x] TODO List *(the box is clickable)*
+  + YAML Front Matter
+  + $\LaTeX$ Formula, inline or block display mode [^4]
+  + Emoji: `:joy:` => :joy: [(also support custom emoji)](https://laobubu.net/HyperMD/docs/examples/custom-emoji.html)
+- **And more**
+  + <span style="color:red">HTML in Markdown</span> -- WYSIWIG MDX is possible
+  + #hashtag support [^6] , see [demo](https://laobubu.net/HyperMD/docs/examples/hashtag.html)
+  + Flowchart and Diagrams ([mermaid](https://laobubu.net/HyperMD/docs/examples/mermaid.html) or   [flowchart.js](https://laobubu.net/HyperMD/docs/examples/flowchart.html))
+
+### 💪 Better **Markdown-ing Experience**
+
+- **Upload Images** and files via clipboard, or drag'n'drop
+- **Alt+Click** to open link / jump to footnote [^1]
+- **Hover** to read footnotes
+- **Copy and Paste**, translate HTML into Markdown [^5]
+- Easy and ready-to-use **Key-bindings** (aka. KeyMap)
+
+### 🎁 **CodeMirror** benefits
+
+- Syntax Highlight for code blocks, supports 120+ languages[^2]. Mode can be loaded on-demand.
+- Configurable key-bindings
+- Diff and Merge
+- Themes [^3]
+- Almost all of CodeMirror addons!
+
+### 🔨 Extensible and Customizable
+
+- Use **PowerPacks** to integrate 3rd-party libs and services on-the-fly
+  - [MathJax][], [marked][], [KaTeX][] and more.
+  - *[Read the list][powerpacks]*
+- HyperMD functions are highly **modulized**
+
+### 🎹 Tailored **KeyMap** "HyperMD":
+
++ **Table**
+  - <kbd>Enter</kbd> Create a table with `| column | line |`
+  - <kbd>Enter</kbd> Insert new row, or finish a table (if last row is empty)
+  - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to navigate between cells
++ **List**
+  - <kbd>Tab</kbd> or <kbd>Shift-Tab</kbd> to indent/unindent current list item
++ **Formatting** a nearby word (or selected text)
+  - <kbd>Ctrl+B</kbd> **bold**
+  - <kbd>Ctrl+I</kbd> *emphasis*
+  - <kbd>Ctrl+D</kbd> ~~strikethrough~~
 
 ## Special Thanks
 
