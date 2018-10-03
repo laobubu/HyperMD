@@ -192,3 +192,14 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
     - **patch-requirejs** Patch RequireJS so that you can import css files directly.
     - **complete-emoji** Auto complete emoji codes.
     - [more will be documented here](./docs/goods.md)
+
+## 0.3.11
+
+* **Add**
+  - `requestRange` of `addon/fold` now accept 2 or 4 arguments
+    - You may optionally provide a range. If caret is inside it, HyperMD will unfold your marker.
+    - *Application*: `fold-link` reveal the URL when user edits the link text. This is useful!
+  - Separate `fold-image` and `fold-link` from the `fold` core addon
+
+* **Fix**
+  - Clean some code about TokenSeeker

@@ -121,9 +121,7 @@ export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression:
   }
 
   var marker: TextMarker = cm.markText(p1, p2, {
-    className: "hmd-fold-math",
     replacedWith: span,
-    clearOnEnter: true
   })
 
   span.addEventListener("click", () => breakMark(cm, marker, tokenLength), false)

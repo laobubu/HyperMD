@@ -151,7 +151,6 @@ export class FoldEmoji implements Addon.Addon, Options {
 
     var marker = cm.markText(from, to, {
       replacedWith: el,
-      clearOnEnter: true
     })
 
     el.addEventListener("click", breakMark.bind(this, cm, marker, 1), false)

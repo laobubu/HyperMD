@@ -8,13 +8,19 @@
 
 import * as CodeMirror from 'codemirror'
 import { Addon, FlipFlop, debounce, TokenSeeker, suggestedEditorConfig, normalVisualConfig } from '../core'
-import { TextMarker, Position, Token } from 'codemirror'
+import { Position, Token } from 'codemirror'
 import { cm_t } from '../core/type'
-import { splitLink } from './read-link'
+import { rangesIntersect, cmpPos } from '../core/cm_utils';
 
 const DEBUG = false
 
-export interface TextMarkerEx extends CodeMirror.TextMarker {
+const FlagArray = typeof Uint8Array === 'undefined' ? (Array as typeof Uint8Array) : Uint8Array;
+
+export interface HmdTextMarker extends CodeMirror.TextMarker {
+  /** @internal when caret in this range, break this marker */
+  _hmd_crange?: [Position, Position]
+
+  /** @internal the folder type of current marker */
   _hmd_fold_type?: string
 }
 
@@ -33,7 +39,7 @@ export interface TextMarkerEx extends CodeMirror.TextMarker {
  * @param token current checking token. a shortcut to `stream.lineTokens[stream.i_token]`
  * @returns a TextMarker if folded.
  */
-export type FolderFunc = (stream: FoldStream, token: CodeMirror.Token) => CodeMirror.TextMarker;
+export type FolderFunc = (stream: FoldStream, token: CodeMirror.Token) => HmdTextMarker;
 
 /** FolderFunc may use FoldStream to lookup for tokens */
 export interface FoldStream {
@@ -50,7 +56,7 @@ export interface FoldStream {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param maySpanLines by default the searching will not span lines
    */
-  findNext(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean, since?: Position): { lineNo: number, token: Token, i_token: number }
+  findNext(condition: TokenSeeker.ConditionType, maySpanLines?: boolean, since?: Position): TokenSeeker.ResultType
 
   /**
    * In current line, find next Token that matches the condition SINCE the token with given index
@@ -59,7 +65,7 @@ export interface FoldStream {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param i_token_since default: i_token+1 (the next of current token)
    */
-  findNext(condition: RegExp | ((token: Token) => boolean), i_token_since: number): { lineNo: number, token: Token, i_token: number }
+  findNext(condition: TokenSeeker.ConditionType, i_token_since: number): TokenSeeker.ResultType
 
   /**
    * Before creating a TextMarker, check if the range is good to use.
@@ -67,6 +73,16 @@ export interface FoldStream {
    * Do NOT create TextMarker unless this returns `RequestRangeResult.OK`
    */
   requestRange(from: Position, to: Position): RequestRangeResult
+
+  /**
+   * Before creating a TextMarker, check if the range is good to use.
+   *
+   * Do NOT create TextMarker unless this returns `RequestRangeResult.OK`
+   *
+   * @param cfrom if cfrom <= caret <= cto, the TextMarker will be removed.
+   * @param cto   if cfrom <= caret <= cto, the TextMarker will be removed.
+   */
+  requestRange(from: Position, to: Position, cfrom: Position, cto: Position): RequestRangeResult
 }
 
 export enum RequestRangeResult {
@@ -105,135 +121,10 @@ export function registerFolder(name: string, folder: FolderFunc, suggested: bool
 //#endregion
 
 /********************************************************************************** */
-//#region builtinFolder
-
-export const ImageFolder: FolderFunc = function (stream, token) {
-  const cm = stream.cm
-  const imgRE = /\bimage-marker\b/
-  const urlRE = /\bformatting-link-string\b/   // matches the parentheses
-  if (imgRE.test(token.type) && token.string === "!") {
-    var lineNo = stream.lineNo
-
-    // find the begin and end of url part
-    var url_begin = stream.findNext(urlRE)
-    var url_end = stream.findNext(urlRE, url_begin.i_token + 1)
-
-    let from: Position = { line: lineNo, ch: token.start }
-    let to: Position = { line: lineNo, ch: url_end.token.end }
-    let rngReq = stream.requestRange(from, to)
-
-    if (rngReq === RequestRangeResult.OK) {
-      var url: string
-      var title: string
-
-      { // extract the URL
-        let rawurl = cm.getRange(    // get the URL or footnote name in the parentheses
-          { line: lineNo, ch: url_begin.token.start + 1 },
-          { line: lineNo, ch: url_end.token.start }
-        )
-        if (url_end.token.string === "]") {
-          let tmp = cm.hmdReadLink(rawurl, lineNo)
-          if (!tmp) return null // Yup! bad URL?!
-          rawurl = tmp.content
-        }
-        url = splitLink(rawurl).url
-        url = cm.hmdResolveURL(url)
-      }
-
-      { // extract the title
-        title = cm.getRange(
-          { line: lineNo, ch: from.ch + 2 },
-          { line: lineNo, ch: url_begin.token.start - 1 }
-        )
-      }
-
-      var img = document.createElement("img")
-      var marker = cm.markText(
-        from, to,
-        {
-          collapsed: true,
-          replacedWith: img,
-        }
-      )
-
-      img.addEventListener('load', () => {
-        img.classList.remove("hmd-image-loading")
-        marker.changed()
-      }, false)
-      img.addEventListener('error', () => {
-        img.classList.remove("hmd-image-loading")
-        img.classList.add("hmd-image-error")
-        marker.changed()
-      }, false)
-      img.addEventListener('click', () => breakMark(cm, marker), false)
-
-      img.className = "hmd-image hmd-image-loading"
-      img.src = url
-      img.title = title
-      return marker
-    } else {
-      if (DEBUG) {
-        console.log("[image]FAILED TO REQUEST RANGE: ", rngReq)
-      }
-    }
-  }
-
-  return null
-}
-
-export const LinkFolder: FolderFunc = function (stream, token) {
-  const cm = stream.cm
-  const urlRE = /\bformatting-link-string\b/   // matches the parentheses
-  const endTest = (token: Token) => (urlRE.test(token.type) && token.string === ")")
-
-  if (
-    token.string === "(" && urlRE.test(token.type) && // is URL left parentheses
-    (stream.i_token === 0 || !/\bimage/.test(stream.lineTokens[stream.i_token - 1].type)) // not a image URL
-  ) {
-    var lineNo = stream.lineNo
-
-    var url_end = stream.findNext(endTest)
-
-    let from: Position = { line: lineNo, ch: token.start }
-    let to: Position = { line: lineNo, ch: url_end.token.end }
-    let rngReq = stream.requestRange(from, to)
-
-    if (rngReq === RequestRangeResult.OK) {
-      var text = cm.getRange(from, to)
-      var { url, title } = splitLink(text.substr(1, text.length - 2))
-
-      var img = document.createElement("span")
-      img.setAttribute("class", "hmd-link-icon")
-      img.setAttribute("title", url + "\n" + title)
-      img.setAttribute("data-url", url)
-
-      var marker = cm.markText(
-        from, to,
-        {
-          collapsed: true,
-          replacedWith: img,
-        }
-      )
-
-      img.addEventListener('click', () => breakMark(cm, marker), false)
-      return marker
-    } else {
-      if (DEBUG) {
-        console.log("[link]FAILED TO REQUEST RANGE: ", rngReq)
-      }
-    }
-  }
-
-  return null
-}
-
-//#endregion
-
-/********************************************************************************** */
 //#region Utils
 
 /** break a TextMarker, move cursor to where marker is */
-export function breakMark(cm: cm_t, marker: TextMarker, chOffset?: number) {
+export function breakMark(cm: cm_t, marker: HmdTextMarker, chOffset?: number) {
   cm.operation(function () {
     var pos = marker.find().from
     pos = { line: pos.line, ch: pos.ch + ~~chOffset }
@@ -318,7 +209,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
   private _enabled: Record<string, boolean> = {}
 
   /** Folder's output goes here */
-  public folded: Record<string, TextMarkerEx[]> = {};
+  public folded: Record<string, HmdTextMarker[]> = {};
 
   /** enable/disable one kind of folder, in current editor */
   setStatus(type: string, enabled: boolean) {
@@ -336,10 +227,10 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
     super(cm)
 
     cm.on("changes", (cm, changes) => {
-      var changedMarkers: TextMarkerEx[] = []
+      var changedMarkers: HmdTextMarker[] = []
 
       for (const change of changes) {
-        let markers = cm.findMarks(change.from, change.to) as TextMarkerEx[]
+        let markers = cm.findMarks(change.from, change.to) as HmdTextMarker[]
         for (const marker of markers) {
           if (marker._hmd_fold_type) changedMarkers.push(marker)
         }
@@ -352,6 +243,62 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
       this.startFold();
     })
     cm.on("cursorActivity", (cm) => {
+      if (DEBUG) console.time('CA')
+
+      let lineStuff: {
+        [lineNo: string]: {
+          lineNo: number, ch: number[],
+          markers: [HmdTextMarker, number, number][] // two numbers are: char_from char_to
+        }
+      } = {}
+
+      function addPosition(pos: CodeMirror.Position) {
+        const lineNo = pos.line
+        if (!(lineNo in lineStuff)) {
+          let lh = cm.getLineHandle(pos.line)
+          let ms = lh.markedSpans || []
+          let markers = [] as [HmdTextMarker, number, number][]
+          for (let i = 0; i < ms.length; i++) {
+            let marker = ms[i].marker as HmdTextMarker
+            if ('_hmd_crange' in marker) {
+              let from = marker._hmd_crange[0].line < lineNo ? 0 : marker._hmd_crange[0].ch
+              let to = marker._hmd_crange[1].line > lineNo ? lh.text.length : marker._hmd_crange[1].ch
+              markers.push([marker, from, to])
+            }
+          }
+          lineStuff[lineNo] = {
+            lineNo, ch: [pos.ch],
+            markers,
+          }
+        } else {
+          lineStuff[lineNo].ch.push(pos.ch)
+        }
+      }
+
+      cm.listSelections().forEach(selection => {
+        addPosition(selection.anchor)
+        addPosition(selection.head)
+      })
+
+      for (let tmp_id in lineStuff) {
+        let lineData = lineStuff[tmp_id]
+        if (!lineData.markers.length) continue
+
+        for (let i = 0; i < lineData.ch.length; i++) {
+          const ch = lineData.ch[i]
+          for (let j = 0; j < lineData.markers.length; j++) {
+            let [marker, from, to] = lineData.markers[j]
+            if (from <= ch && ch <= to) {
+              marker.clear()
+              lineData.markers.splice(j, 1)
+              j--
+            }
+          }
+        }
+      }
+
+      if (DEBUG) console.timeEnd('CA')
+
       this.startQuickFold()
     })
   }
@@ -365,19 +312,31 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
    *
    * NOTE: this function is always called after `_quickFoldHint` reset by `startFoldImmediately`
    */
-  requestRange(from: Position, to: Position): RequestRangeResult {
-    const cm = this.cm, cmpPos = CodeMirror.cmpPos
-    var cursorPos = cm.getCursor()
+  requestRange(from: Position, to: Position, cfrom?: Position, cto?: Position): RequestRangeResult {
+    if (!cto) cto = to
+    if (!cfrom) cfrom = from
+
+    const cm = this.cm
+
     var markers = cm.findMarks(from, to)
+    if (markers.length !== 0) return RequestRangeResult.HAS_MARKERS
 
-    var ans: RequestRangeResult = RequestRangeResult.OK
+    this._quickFoldHint.push(from.line)
 
-    if (markers.length !== 0) ans = RequestRangeResult.HAS_MARKERS
-    else if (cmpPos(cursorPos, from) >= 0 && cmpPos(cursorPos, to) <= 0) ans = RequestRangeResult.CURSOR_INSIDE
+    const crange = this._lastCRange = [cfrom, cto]
+    const selections = cm.listSelections()
+    for (let i = 0; i < selections.length; i++) {
+      let { anchor: left, head: right } = selections[i]
+      if (cmpPos(left, right) > 0) [left, right] = [right, left]
 
-    if (ans !== RequestRangeResult.OK) this._quickFoldHint.push(from.line)
+      if (rangesIntersect(crange, [left, right])) {
+        return RequestRangeResult.CURSOR_INSIDE
+      }
+    }
 
-    return ans
+    this._quickFoldHint.push(cfrom.line)
+
+    return RequestRangeResult.OK
   }
 
 
@@ -403,12 +362,17 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
     this._quickFoldHint = []
     this.setPos(fromLine, 0, true)
 
+    if (DEBUG) {
+      console.log("start fold! ", fromLine, toLine)
+    }
+
     cm.operation(() => cm.eachLine(fromLine, toLine, line => {
       var lineNo = line.lineNo()
       if (lineNo < this.lineNo) return // skip current line...
       else if (lineNo > this.lineNo) this.setPos(lineNo, 0) // hmmm... maybe last one is empty line
 
-      var charMarked: boolean[] = new Array(line.text.length)
+      // all the not-foldable chars are marked
+      var charMarked = new FlagArray(line.text.length)
       {
         // populate charMarked array.
         // @see CodeMirror's findMarksAt
@@ -418,7 +382,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
             let span = lineMarkers[i]
             let spanFrom = span.from == null ? 0 : span.from
             let spanTo = span.to == null ? charMarked.length : span.to
-            for (let j = spanFrom; j < spanTo; j++) charMarked[j] = true
+            for (let j = spanFrom; j < spanTo; j++) charMarked[j] = 1
           }
         }
       }
@@ -428,7 +392,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
       while (this.i_token < tokens.length) {
         var token = tokens[this.i_token]
         var type: string
-        var marker: TextMarkerEx = null
+        var marker: HmdTextMarker = null
 
         var tokenFoldable: boolean = true
         {
@@ -441,7 +405,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
         }
 
         if (tokenFoldable) {
-          // try built-in folders
+          // try all enabled folders in registry
           for (type in folderRegistry) {
             if (!this._enabled[type]) continue
             if (marker = folderRegistry[type](this, token)) break
@@ -455,6 +419,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
           var { from, to } = marker.find();
           (this.folded[type] || (this.folded[type] = [])).push(marker)
           marker._hmd_fold_type = type;
+          marker._hmd_crange = this._lastCRange;
           marker.on('clear', (from, to) => {
             var markers = this.folded[type]
             var idx: number
@@ -466,11 +431,25 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
             console.log("[FOLD] New marker ", type, from, to, marker)
           }
 
-          if (to.line !== lineNo) {
-            this.setPos(to.line, to.ch)
-            return // nothing left in this line
+          // now let's update the pointer position
+
+          if (from.line > lineNo || from.ch > token.start) {
+            // there are some not-marked chars after current token, before the new marker
+            // first, advance the pointer
+            this.i_token++
+            // then mark the hidden chars as "marked"
+            let fromCh = from.line === lineNo ? from.ch : charMarked.length
+            let toCh = to.line === lineNo ? to.ch : charMarked.length
+            for (let i = fromCh; i < toCh; i++) charMarked[i] = 1
           } else {
-            this.setPos(to.ch) // i_token will be updated by this.setPos()
+            // classical situation
+            // new marker starts since current token
+            if (to.line !== lineNo) {
+              this.setPos(to.line, to.ch)
+              return // nothing left in this line
+            } else {
+              this.setPos(to.ch) // i_token will be updated by this.setPos()
+            }
           }
         }
       }
@@ -479,6 +458,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 
   /** stores every affected lineNo */
   private _quickFoldHint: number[] = []
+  private _lastCRange: [Position, Position]
 
   /**
    * Start a quick fold: only process recent `requestRange`-failed ranges
@@ -530,10 +510,3 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 /** ADDON GETTER (Singleton Pattern): a editor can have only one Fold instance */
 export const getAddon = Addon.Getter("Fold", Fold)
 declare global { namespace HyperMD { interface HelperCollection { Fold?: Fold } } }
-
-/********************************************************************************** */
-
-// register default folders
-
-registerFolder("image", ImageFolder, true)
-registerFolder("link", LinkFolder, true)

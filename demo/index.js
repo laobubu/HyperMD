@@ -51,6 +51,8 @@ require([
   'hypermd/addon/hide-token',
   'hypermd/addon/cursor-debounce',
   'hypermd/addon/fold',
+  'hypermd/addon/fold-link',
+  'hypermd/addon/fold-image',
   'hypermd/addon/fold-math',
   'hypermd/addon/fold-html',
   'hypermd/addon/fold-emoji',

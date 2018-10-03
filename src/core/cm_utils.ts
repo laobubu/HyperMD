@@ -8,16 +8,11 @@
 
 import * as cm_internal from "./cm_internal"
 import { cm_t } from "./type"
-import { Token, Position } from "codemirror"
+import { Token, Position, cmpPos } from "codemirror"
 
 export { cm_internal }
 
-
-export type TokenSeekResult = {
-  lineNo: number,
-  token: Token,
-  i_token: number
-};
+type TokenSeekResult = TokenSeeker.ResultType
 
 /**
  * Useful tool to seek for tokens
@@ -45,7 +40,7 @@ export class TokenSeeker {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param maySpanLines by default the searching will not span lines
    */
-  findNext(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean, since?: Position): TokenSeekResult
+  findNext(condition: TokenSeeker.ConditionType, maySpanLines?: boolean, since?: Position): TokenSeekResult
 
   /**
    * In current line, find next Token that matches the condition SINCE the token with given index
@@ -55,10 +50,10 @@ export class TokenSeeker {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param i_token_since default: i_token+1 (the next of current token)
    */
-  findNext(condition: RegExp | ((token: Token) => boolean), i_token_since: number): TokenSeekResult
+  findNext(condition: TokenSeeker.ConditionType, i_token_since: number): TokenSeekResult
 
 
-  findNext(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number, since?: Position): TokenSeekResult {
+  findNext(condition: TokenSeeker.ConditionType, varg?: boolean | number, since?: Position): TokenSeekResult {
     var lineNo = this.lineNo
     var tokens = this.lineTokens
     var token: Token = null
@@ -85,8 +80,8 @@ export class TokenSeeker {
     }
 
     for (; i_token < tokens.length; i_token++) {
-      var token_tmp = tokens[i_token]
-      if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+      let token_tmp = tokens[i_token]
+      if ((typeof condition === "function") ? condition(token_tmp, tokens, i_token) : condition.test(token_tmp.type)) {
         token = token_tmp
         break
       }
@@ -107,8 +102,8 @@ export class TokenSeeker {
         }
 
         for (; i_token < tokens.length; i_token++) {
-          var token_tmp = tokens[i_token]
-          if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+          let token_tmp = tokens[i_token]
+          if ((typeof condition === "function") ? condition(token_tmp, tokens, i_token) : condition.test(token_tmp.type)) {
             token = token_tmp
             return true // stop `eachLine`
           }
@@ -127,7 +122,7 @@ export class TokenSeeker {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param maySpanLines by default the searching will not span lines
    */
-  findPrev(condition: RegExp | ((token: Token) => boolean), maySpanLines?: boolean, since?: Position): TokenSeekResult
+  findPrev(condition: TokenSeeker.ConditionType, maySpanLines?: boolean, since?: Position): TokenSeekResult
 
   /**
    * In current line, reversely find next Token that matches the condition SINCE the token with given index
@@ -137,10 +132,10 @@ export class TokenSeeker {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param i_token_since default: i_token-1 (the prev of current token)
    */
-  findPrev(condition: RegExp | ((token: Token) => boolean), i_token_since: number): TokenSeekResult
+  findPrev(condition: TokenSeeker.ConditionType, i_token_since: number): TokenSeekResult
 
 
-  findPrev(condition: RegExp | ((token: Token) => boolean), varg?: boolean | number, since?: Position): TokenSeekResult {
+  findPrev(condition: TokenSeeker.ConditionType, varg?: boolean | number, since?: Position): TokenSeekResult {
     var lineNo = this.lineNo
     var tokens = this.lineTokens
     var token: Token = null
@@ -170,7 +165,7 @@ export class TokenSeeker {
 
     for (; i_token >= 0; i_token--) {
       var token_tmp = tokens[i_token]
-      if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+      if ((typeof condition === "function") ? condition(token_tmp, tokens, i_token) : condition.test(token_tmp.type)) {
         token = token_tmp
         break
       }
@@ -200,7 +195,7 @@ export class TokenSeeker {
 
         for (; i_token >= 0; i_token--) {
           var token_tmp = tokens[i_token]
-          if ((typeof condition === "function") ? condition(token_tmp) : condition.test(token_tmp.type)) {
+          if ((typeof condition === "function") ? condition(token_tmp, tokens, i_token) : condition.test(token_tmp.type)) {
             token = token_tmp
             break // FOUND token !
           }
@@ -214,9 +209,9 @@ export class TokenSeeker {
   /**
    * return a range in which every token has the same style, or meet same condition
    */
-  expandRange(style: string | RegExp | ((token: Token) => boolean), maySpanLines?: boolean): { from: TokenSeekResult, to: TokenSeekResult } {
+  expandRange(style: string | TokenSeeker.ConditionType, maySpanLines?: boolean): { from: TokenSeekResult, to: TokenSeekResult } {
     const cm = this.cm
-    var isStyled: (token: Token) => boolean
+    var isStyled: TokenSeeker.ConditionFunction
 
     if (typeof style === "function") {
       isStyled = style
@@ -238,7 +233,7 @@ export class TokenSeeker {
       if (i >= tokens.length) i = tokens.length - 1
       for (; i >= 0; i--) {
         let token = tokens[i]
-        if (!isStyled(token)) {
+        if (!isStyled(token, tokens, i)) {
           foundUnstyled = true
           break
         } else {
@@ -258,7 +253,7 @@ export class TokenSeeker {
       if (i < 0) i = 0
       for (; i < tokens.length; i++) {
         let token = tokens[i]
-        if (!isStyled(token)) {
+        if (!isStyled(token, tokens, i)) {
           foundUnstyled = true
           break
         } else {
@@ -324,6 +319,16 @@ export class TokenSeeker {
     var t = this.lineTokens[idx]
     return t && t.type || ""
   }
+}
+
+export namespace TokenSeeker {
+  export type ConditionFunction = (token: Token, lineTokens: Token[], token_index: number) => boolean;
+  export type ConditionType = RegExp | ConditionFunction;
+  export type ResultType = {
+    lineNo: number,
+    token: Token,
+    i_token: number
+  };
 }
 
 /**
@@ -419,4 +424,13 @@ export function updateCursorDisplay(cm: cm_t, skipCacheCleaning?: boolean) {
   setTimeout(function () {
     cm.display.input.showSelection(cm.display.input.prepareSelection())
   }, 60) // wait for css style
+}
+
+export { cmpPos }
+
+export function rangesIntersect(range1: [Position, Position], range2: [Position, Position]): boolean {
+  const [from1, to1] = range1
+  const [from2, to2] = range2
+
+  return !(cmpPos(to1, from2) < 0 || cmpPos(from1, to2) > 0)
 }
