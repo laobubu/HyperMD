@@ -1,6 +1,6 @@
 import { cm_t } from "./type"
 import { Token, Position, cmpPos } from "codemirror"
-import { HyperMDState } from "../mode/hypermd";
+import { HyperMDState, LinkType } from "../mode/hypermd";
 import { makeSymbol } from "./utils";
 
 export interface Span {
@@ -35,14 +35,9 @@ const enum SpanAction {
  */
 class LineSpanExtractor {
   constructor(public cm: cm_t) {
-    cm.on("changes", (cm, changes) => {
-      let line = changes[0].from.line
-      for (let i = 1; i < changes.length; i++) {
-        let line2 = changes[i].from.line
-        if (line2 < line) line = line2
-      }
-
-      this.caches.splice(line)
+    cm.on("change", (cm, change) => {
+      let line = change.from.line
+      if (this.caches.length > line) this.caches.splice(line)
     })
   }
 
@@ -71,8 +66,11 @@ class LineSpanExtractor {
         : prevState.code ? SpanAction.LEAVING_THIS_TYPE : SpanAction.NOTHING),
 
       // linkText
-      link: (state.linkText ? SpanAction.IS_THIS_TYPE
-        : prevState.linkText ? SpanAction.LEAVING_THIS_TYPE : SpanAction.NOTHING),
+      link:
+        (state.linkText ?
+          (state.hmdLinkType === LinkType.NORMAL || state.hmdLinkType === LinkType.BARELINK2 ? SpanAction.IS_THIS_TYPE : SpanAction.NOTHING) :
+          (prevState.linkText ? SpanAction.LEAVING_THIS_TYPE : SpanAction.NOTHING)
+        ),
 
       // task checkbox
       task: (styles.indexOf(' formatting-task ') !== -1)

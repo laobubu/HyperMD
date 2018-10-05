@@ -13,7 +13,7 @@ import { cm_t } from '../core/type'
 import { OrderedRange, orderedRange, rangesIntersect } from '../core/cm_utils';
 import { getLineSpanExtractor, Span } from '../core/line-spans';
 
-const DEBUG = true
+const DEBUG = false
 
 //#region Internal Function...
 
@@ -131,6 +131,7 @@ export class HideToken implements Addon.Addon, Options {
   }
 
   renderLineHandler = (cm: cm_t, line: CodeMirror.LineHandle, el: HTMLPreElement) => {
+    // TODO: if we procLine now, we can only get the outdated lineView, lineViewMeasure and lineViewMap. Calling procLine will be wasteful!
     const changed = this.procLine(line, el)
     if (DEBUG) console.log("renderLine return " + changed)
   }
@@ -156,6 +157,8 @@ export class HideToken implements Addon.Addon, Options {
     if (!lv || lv.hidden || !lv.measure) return false
     if (!pre) pre = lv.text
     if (!pre) return false
+
+    if (DEBUG) if (!pre.isSameNode(lv.text)) console.warn("procLine got different node... " + lineNo)
 
     const mapInfo = cm_internal.mapFromLineView(lv, line, lineNo)
     const map = mapInfo.map
@@ -273,6 +276,8 @@ export class HideToken implements Addon.Addon, Options {
   private _rangesInLine: Record<number, OrderedRange[]> = {}
 
   updateImmediately() {
+    this.update.stop()
+
     const cm = this.cm
     const selections = cm.listSelections()
     const caretAtLines: Record<number, boolean> = {}

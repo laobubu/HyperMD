@@ -32,8 +32,15 @@ export interface HmdTextMarker extends CodeMirror.TextMarker {
  * 2. Use `stream.findNext` to find the end of the text to be folded (eg. ")" or "]" of link/URL, for images)
  * 3. Compose a range `{from, to}`
  *    - `from` is always `{ line: stream.lineNo, ch: token.start }`
- * 4. Check if `stream.requestRange(from, to)` returns `RequestRangeResult.OK`
- *    - if not ok, return `null` immediately.
+ * 4. Check if `stream.requestRange(from, to[, cfrom, cto])` returns `RequestRangeResult.OK`
+ *    - if not ok, you shall return `null` immediately.
+ *    - the optional `cfrom` and `cto` compose a range, let's call it "crange".
+ *      - If user's caret moves into that "crange", your marker will break automatically.
+ *      - If "crange" is not provided, it will be the same as `[from, to]`
+ *      - Note that "crange" can be bigger / smaller than the marker's range,
+ *        as long as they have intersection.
+ *      - In some cases, to prevent auto-breaking, please use `cfrom = from` and `cto = from`
+ *        (and, yes, "crange" can be a zero-width range)
  * 5. Use `stream.cm.markText(from, to, options)` to fold text, and return the marker
  *
  * @param token current checking token. a shortcut to `stream.lineTokens[stream.i_token]`
@@ -323,11 +330,14 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 
     this._quickFoldHint.push(from.line)
 
-    const crange = this._lastCRange = [cfrom, cto]
+    // store "crange" for the coming marker
+    this._lastCRange = [cfrom, cto]
+
     const selections = cm.listSelections()
     for (let i = 0; i < selections.length; i++) {
       let oselection = orderedRange(selections[i])
-      if (rangesIntersect(crange, oselection)) {
+      // note that "crange" can be bigger or smaller than marked-text range.
+      if (rangesIntersect(this._lastCRange, oselection) || rangesIntersect([from, to], oselection)) {
         return RequestRangeResult.CURSOR_INSIDE
       }
     }

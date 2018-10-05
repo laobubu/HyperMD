@@ -23,7 +23,7 @@ export const ImageFolder: FolderFunc = function (stream, token) {
 
     let from: Position = { line: lineNo, ch: token.start }
     let to: Position = { line: lineNo, ch: url_end.token.end }
-    let rngReq = stream.requestRange(from, to)
+    let rngReq = stream.requestRange(from, to, from, from)
 
     if (rngReq === RequestRangeResult.OK) {
       var url: string

@@ -39,7 +39,7 @@ export const LinkFolder: FolderFunc = function (stream, token) {
   const link_to: Position = href_to
 
   // and check if the range is OK
-  const rngReq = stream.requestRange(href_from, href_to, link_from, link_to)
+  const rngReq = stream.requestRange(href_from, href_to, link_from, href_from)
   if (rngReq !== RequestRangeResult.OK) return null
 
   // everything is OK! make the widget
