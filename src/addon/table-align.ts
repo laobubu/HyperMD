@@ -194,7 +194,7 @@ export class TableAlign implements Addon.Addon, Options /* if needed */ {
       const rulePrefix = `pre.HyperMD-table-row.HyperMD-table_${tableID} .hmd-table-column-`
       for (let columnIdx = 0; columnIdx < columnWidths.length; columnIdx++) {
         const width = columnWidths[columnIdx]
-        rules.push(`${rulePrefix}${columnIdx} { min-width: ${width}px }`)
+        rules.push(`${rulePrefix}${columnIdx} { min-width: ${width + .5}px }`)
       }
     }
     return rules.join("\n")

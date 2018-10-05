@@ -38,7 +38,8 @@ Documentation will get online <https://laobubu.net/HyperMD/docs/> someday, if so
 
 Note: This feature could be **dangerous**. If you want to use this, enable it manually via *editor option*
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/QH2-TGUlwu4?rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+You can put HTML directly into your Markdown (without the code block fence).
+DON'T PUT `iframe` INTO YOUR Markdown! Once DOM changes (which is often), the iframes will reload!
 
 
 ### Project Structure
@@ -200,6 +201,12 @@ Note: This feature could be **dangerous**. If you want to use this, enable it ma
     - You may optionally provide a range. If caret is inside it, HyperMD will unfold your marker.
     - *Application*: `fold-link` reveal the URL when user edits the link text. This is useful!
   - Separate `fold-image` and `fold-link` from the `fold` core addon
+  - Add `LineSpanExtractor` into core
+  - Rewritten `addon/hide-token`
+    1. When editing a nested span (eg. [**Bold Link**](https://laobubu.net)), all related token (`[` `]` and `**`) will be displayed
+    2. Based on LineSpanExtractor-parsed data. Faster and smarter.
+    3. Don't hide tokens if they are affected by user selection.
 
 * **Fix**
   - Clean some code about TokenSeeker
+  - **addon/table-align** unstable width in Chrome

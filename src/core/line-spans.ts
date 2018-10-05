@@ -96,29 +96,6 @@ class LineSpanExtractor {
     let ans: Span[] = []
     let unclosed: Partial<Record<SpanType, Span>> = {}
 
-    if (tokens.length > 0) {
-      // init the "unclosed spans"
-      const token = tokens[0]
-      const types = this.getTokenTypes(token)
-
-      for (let type in types) {
-        if (types[type] & SpanAction.IS_THIS_TYPE) {
-          const span = {
-            type,
-            begin: token.start,
-            end: lineLength,
-            head: token,
-            head_i: 0,
-            tail: tokens[tokens.length - 1],
-            tail_i: tokens.length - 1,
-            text: lineText.slice(token.start),
-          }
-          ans.push(span)
-          unclosed[type] = span
-        }
-      }
-    }
-
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
       const types = this.getTokenTypes(token, tokens[i - 1])
