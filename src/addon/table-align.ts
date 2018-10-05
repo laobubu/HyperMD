@@ -5,7 +5,7 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, debounce, updateCursorDisplay, suggestedEditorConfig, normalVisualConfig } from '../core'
+import { Addon, FlipFlop, debounce, suggestedEditorConfig, normalVisualConfig } from '../core'
 import { LineHandle } from 'codemirror'
 import { cm_t } from '../core/type'
 import { HyperMDState, TableType } from '../mode/hypermd'
@@ -107,7 +107,7 @@ export class TableAlign implements Addon.Addon, Options /* if needed */ {
     if (css === this._lastCSS) return
 
     this.styleEl.textContent = this._lastCSS = css
-    setTimeout(() => updateCursorDisplay(cm), 50)
+    cm.refresh()
   }, 100)
 
   /** CodeMirror renderLine event handler */

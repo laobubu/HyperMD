@@ -10,7 +10,7 @@ import * as CodeMirror from 'codemirror'
 import { Addon, FlipFlop, debounce, TokenSeeker, suggestedEditorConfig, normalVisualConfig } from '../core'
 import { Position, Token } from 'codemirror'
 import { cm_t } from '../core/type'
-import { rangesIntersect, cmpPos } from '../core/cm_utils';
+import { rangesIntersect, orderedRange } from '../core/cm_utils';
 
 const DEBUG = false
 
@@ -326,10 +326,8 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
     const crange = this._lastCRange = [cfrom, cto]
     const selections = cm.listSelections()
     for (let i = 0; i < selections.length; i++) {
-      let { anchor: left, head: right } = selections[i]
-      if (cmpPos(left, right) > 0) [left, right] = [right, left]
-
-      if (rangesIntersect(crange, [left, right])) {
+      let oselection = orderedRange(selections[i])
+      if (rangesIntersect(crange, oselection)) {
         return RequestRangeResult.CURSOR_INSIDE
       }
     }

@@ -228,6 +228,8 @@ declare module "codemirror" {
     hidden?: boolean
     text: HTMLPreElement
     measure?: {
+      heights?: number[]
+
       cache?: object
       map?: (number | Text | HTMLSpanElement)[]   // HTMLSpanElement is for folded stuff like <span class="CodeMirror-widget" role="presentation" cm-ignore-events="true">
 

@@ -611,6 +611,7 @@
         }
 
         span.cm-hmd-table-sep {
+            @extend %monospace;
             width: $table-sep-width;
             text-align: center;
             box-sizing: content-box;

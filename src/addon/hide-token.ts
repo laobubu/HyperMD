@@ -7,11 +7,33 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, cm_internal, updateCursorDisplay, debounce, suggestedEditorConfig, normalVisualConfig } from '../core'
+import { Addon, FlipFlop, cm_internal, debounce, suggestedEditorConfig, normalVisualConfig } from '../core'
 
 import { cm_t } from '../core/type'
+import { OrderedRange, orderedRange, rangesIntersect } from '../core/cm_utils';
+import { getLineSpanExtractor, Span } from '../core/line-spans';
 
-const DEBUG = false
+const DEBUG = true
+
+//#region Internal Function...
+
+/** check if has the class and remove it */
+function rmClass(el: HTMLElement, className: string): boolean {
+  let c = ' ' + el.className + ' ', cnp = ' ' + className + ' '
+  if (c.indexOf(cnp) === -1) return false
+  el.className = c.replace(cnp, '').trim()
+  return true
+}
+
+/** check if NOT has the class and add it */
+function addClass(el: HTMLElement, className: string): boolean {
+  let c = ' ' + el.className + ' ', cnp = ' ' + className + ' '
+  if (c.indexOf(cnp) !== -1) return false
+  el.className = (el.className + ' ' + className)
+  return true
+}
+
+//#endregion
 
 /********************************************************************************** */
 //#region Addon Options
@@ -82,7 +104,7 @@ CodeMirror.defineOption("hmdHideToken", defaultOption, function (cm: cm_t, newVa
 //#region Addon Class
 
 const hideClassName = "hmd-hidden-token"
-const lineDeactiveClassName = "hmd-inactive-line"
+const lineInactiveClassName = "hmd-inactive-line"
 
 export class HideToken implements Addon.Addon, Options {
   tokenTypes: string[];
@@ -108,222 +130,9 @@ export class HideToken implements Addon.Addon, Options {
     ).bind(this, "enabled", true)
   }
 
-  /** a map storing shown tokens' beginning ch */
-  shownTokensStart: { [line: number]: number[] } = {}
-
   renderLineHandler = (cm: cm_t, line: CodeMirror.LineHandle, el: HTMLPreElement) => {
-    this.procLine(line, el)
-  }
-
-  /**
-   * fetch cursor position and re-calculate shownTokensStart
-   */
-  calcShownTokenStart(): { [line: number]: number[] } {
-    const cm = this.cm
-    const cpos = cm.getCursor()
-    const tokenTypes = this.tokenTypes
-    const formattingRE = new RegExp(`\\sformatting-(${tokenTypes.join("|")})\\s`)
-    let ans = {}
-
-    let lineTokens = cm.getLineTokens(cpos.line)
-    let i_cursor = -1
-    let fstack: [CodeMirror.Token, string][] = []
-    let currentType = null
-
-    let tokens_to_show: CodeMirror.Token[] = []
-
-    if (DEBUG) console.log("-----------calcShownTokenStart")
-
-    // construct fstack until we find current char's position
-    // i <- current token index
-    for (var i = 0; i < lineTokens.length; i++) {
-      const token = lineTokens[i]
-
-      if (i_cursor === -1 && (token.end > cpos.ch || i === lineTokens.length - 1)) {
-        i_cursor = i // token of cursor, is found!
-        if (DEBUG) console.log("--------TOKEN OF CURSOR FOUND AT ", i_cursor, token)
-      }
-
-      let mat = token.type && token.type.match(formattingRE)
-      if (mat) { // current token is a formatting-* token
-        const type = mat[1] // type without "formatting-"
-
-        if (type !== currentType) {
-          // change the `fstack` (push or pop)
-          // and, if token on cursor is found, stop searching
-
-          const fstack_top = fstack[fstack.length - 1]
-
-          if (fstack_top && fstack_top[1] === type) {
-            fstack.pop()
-
-            if (i_cursor !== -1 || token.end === cpos.ch) {
-              tokens_to_show.push(fstack_top[0], token)
-              break
-            }
-          } else {
-            fstack.push([token, type])
-
-            if (i_cursor !== -1) {
-              // token on cursor, is a beginning formatting token
-              tokens_to_show.push(token)
-
-              const testRE = new RegExp(`\\sformatting-${type}\\s`)
-
-              if (DEBUG) console.log("-> cursor token already found. ", token, testRE)
-
-              for (i += 1; i < lineTokens.length; i++) {
-                const token2 = lineTokens[i]
-                if (token2.type && testRE.test(token2.type)) {
-                  // found the ending formatting token
-                  tokens_to_show.push(token2)
-                  if (DEBUG) console.log(token2, token2.type)
-                  break
-                }
-              }
-
-              break
-            }
-          }
-
-          if (DEBUG) console.log(fstack.map(x => `${x[0].start} ${x[1]}`))
-
-          currentType = type
-        }
-      } else {
-        if (i_cursor !== -1) { // token on cursor, is found
-
-          if (fstack.length > 0) {
-            // token on cursor, is wrapped by a formatting token
-
-            const [token_1, type] = fstack.pop()
-            const testRE = new RegExp(`\\sformatting-${type}\\s`)
-
-            if (DEBUG) console.log("cursor is wrapped by ", type, token_1, "...")
-
-            tokens_to_show.push(token_1)
-
-            for (i += 1; i < lineTokens.length; i++) {
-              const token2 = lineTokens[i]
-              if (token2.type && testRE.test(token2.type)) {
-                // found the ending formatting token
-                tokens_to_show.push(token2)
-                if (DEBUG) console.log("to ", token2, token2.type)
-
-                break
-              }
-            }
-          } else {
-            // token on cursor, is not styled
-          }
-
-          break
-        }
-
-        currentType = null
-      }
-
-      if (i_cursor !== -1 && fstack.length === 0) break // cursor is not wrapped by formatting-*
-    }
-
-    let ans_of_line = ans[cpos.line] = []
-    for (const it of tokens_to_show) {
-      ans_of_line.push(it.start)
-    }
-
-    if (i >= lineTokens.length - 1) {
-      for (const stack_it of fstack) {
-        let pos = stack_it[0].start
-        if (ans_of_line.indexOf(pos) === -1) ans_of_line.push(pos)
-      }
-    }
-
-    return ans
-  }
-
-  /**
-   * hide/show <span>s in one line
-   * @see this.shownTokensStart
-   * @returns apperance changed since which char. -1 means nothing changed.
-   */
-  procLine(line: CodeMirror.LineHandle, pre?: HTMLPreElement): number {
-    if (!line) return -1
-
-    const cm = this.cm
-    const lineNo = line.lineNo()
-    const lv = cm_internal.findViewForLine(cm, lineNo)
-    if (!lv || lv.hidden || !lv.measure) return -1
-    const mapInfo = cm_internal.mapFromLineView(lv, line, lineNo)
-
-    const map = mapInfo.map
-    const nodeCount = map.length / 3
-
-    const startChs = (lineNo in this.shownTokensStart) ? this.shownTokensStart[lineNo].slice().sort((a, b) => (a - b)) : null
-
-    let ans = -1
-
-    for (let idx = 0, i = 0; idx < nodeCount; idx++ , i += 3) {
-      const start = map[i] as number
-      const end = map[i + 1] as number
-      const text = map[i + 2] as Text
-      const span = text.parentElement
-      if (text.nodeType !== Node.TEXT_NODE || !span || !/^span$/i.test(span.nodeName)) continue
-
-      const spanClass = span.className
-      for (const type of this.tokenTypes) {
-        if (type === 'link' && /(?:^|\s)(?:cm-hmd-footref|cm-hmd-footnote|cm-hmd-barelink)(?:\s|$)/.test(spanClass)) {
-          // ignore footnote names, footrefs, barelinks
-          continue
-        }
-        if (spanClass.indexOf("cm-formatting-" + type + " ") === -1) continue
-
-        // found one! decide next action, hide or show?
-
-        let toHide = true
-
-        if (startChs && startChs.length > 0) {
-          while (startChs[0] < start) startChs.shift() // remove passed chars
-          toHide = (startChs[0] !== start) // hide if not hit
-        }
-
-        // hide or show token
-
-        if (toHide) {
-          if (spanClass.indexOf(hideClassName) === -1) {
-            span.className += " " + hideClassName
-            if (ans === -1) ans = start
-          }
-        } else {
-          if (spanClass.indexOf(hideClassName) !== -1) {
-            span.className = spanClass.replace(hideClassName, "")
-            if (ans === -1) ans = start
-          }
-        }
-
-        break
-      }
-    }
-
-    if (this.line && (pre = pre || lv.text)) {
-      const preClass = pre.className
-      const preIsActive = preClass.indexOf(lineDeactiveClassName) === -1
-      const preShouldActive = startChs !== null
-
-      if (preIsActive != preShouldActive) {
-        if (DEBUG) console.log("[hide-token] <pre>" + lineNo, preClass, "should ", preIsActive ? "deactive" : "active")
-
-        if (preShouldActive) {
-          pre.className = preClass.replace(lineDeactiveClassName, "")
-        } else {
-          pre.className = preClass + " " + lineDeactiveClassName
-        }
-
-        ans = 0
-      }
-    }
-
-    if (ans !== -1 && lv.measure.cache) lv.measure.cache = {} // clean cache
-    return ans
+    const changed = this.procLine(line, el)
+    if (DEBUG) console.log("renderLine return " + changed)
   }
 
   cursorActivityHandler = (doc: CodeMirror.Doc) => {
@@ -332,37 +141,188 @@ export class HideToken implements Addon.Addon, Options {
 
   update = debounce(() => this.updateImmediately(), 100)
 
+  /**
+   * hide/show <span>s in one line, based on `this._rangesInLine`
+   * @returns line changed or not
+   */
+  procLine(line: CodeMirror.LineHandle | number, pre?: HTMLPreElement): boolean {
+    const cm = this.cm
+    const lineNo = typeof line === 'number' ? line : line.lineNo()
+    if (typeof line === 'number') line = cm.getLineHandle(line)
+
+    const rangesInLine = this._rangesInLine[lineNo] || []
+
+    const lv = cm_internal.findViewForLine(cm, lineNo)
+    if (!lv || lv.hidden || !lv.measure) return false
+    if (!pre) pre = lv.text
+    if (!pre) return false
+
+    const mapInfo = cm_internal.mapFromLineView(lv, line, lineNo)
+    const map = mapInfo.map
+    const nodeCount = map.length / 3
+
+    let changed = false
+
+    // change line status
+
+    if (rangesInLine.length === 0) { // inactiveLine
+      if (addClass(pre, lineInactiveClassName)) changed = true
+    } else { // activeLine
+      if (rmClass(pre, lineInactiveClassName)) changed = true
+    }
+
+    // show or hide tokens
+
+    /**
+     * @returns if there are Span Nodes changed
+     */
+    function changeVisibilityForSpan(span: Span, shallHideTokens: boolean, iNodeHint?: number): boolean {
+      let changed: boolean = false
+
+      iNodeHint = iNodeHint || 0
+
+      // iterate the map
+      for (let i = iNodeHint; i < nodeCount; i++) {
+        const begin = map[i * 3] as number, end = map[i * 3 + 1] as number
+        const domNode = map[i * 3 + 2] as (Text | HTMLSpanElement)
+
+        if (begin === span.head.start) {
+          // find the leading token!
+
+          if (/formatting-/.test(span.head.type) && domNode.nodeType === Node.TEXT_NODE) {
+            // if (DEBUG) console.log("DOMNODE", shallHideTokens, domNode, begin, span)
+
+            // good. this token can be changed
+            const domParent = domNode.parentElement as HTMLSpanElement
+            if (shallHideTokens ? addClass(domParent, hideClassName) : rmClass(domParent, hideClassName)) {
+              // if (DEBUG) console.log("HEAD DOM CHANGED")
+              changed = true
+            }
+          }
+
+          //FIXME: if leading formatting token is separated into two, the latter will not be hidden/shown!
+
+          // search for the tailing token
+          if (span.tail && /formatting-/.test(span.tail.type)) {
+            for (let j = i + 1; j < nodeCount; j++) {
+              const begin = map[j * 3] as number, end = map[j * 3 + 1] as number
+              const domNode = map[j * 3 + 2] as (Text | HTMLSpanElement)
+
+              if (begin == span.tail.start) {
+                // if (DEBUG) console.log("TAIL DOM CHANGED", domNode)
+                if (domNode.nodeType === Node.TEXT_NODE) {
+                  // good. this token can be changed
+                  const domParent = domNode.parentElement as HTMLSpanElement
+                  if (shallHideTokens ? addClass(domParent, hideClassName) : rmClass(domParent, hideClassName)) {
+                    changed = true
+                  }
+                }
+              }
+
+              if (begin >= span.tail.end) break
+            }
+          }
+        }
+
+        // whoops, next time we can start searching since here
+        // return the hint value
+        if (begin >= span.begin) break
+      }
+
+      return changed
+    }
+
+    const spans = getLineSpanExtractor(cm).extract(lineNo)
+    let iNodeHint = 0
+    for (let iSpan = 0; iSpan < spans.length; iSpan++) {
+      const span = spans[iSpan]
+      if (this.tokenTypes.indexOf(span.type) === -1) continue // not-interested span type
+
+      /* TODO: Use AST, instead of crafted Position */
+      const spanRange: OrderedRange = [{ line: lineNo, ch: span.begin }, { line: lineNo, ch: span.end }]
+      /* TODO: If use AST, compute `spanBeginCharInCurrentLine` in another way */
+      const spanBeginCharInCurrentLine: number = span.begin
+
+      while (iNodeHint < nodeCount && map[iNodeHint * 3 + 1] < spanBeginCharInCurrentLine) iNodeHint++
+
+      let shallHideTokens = true
+
+      for (let iLineRange = 0; iLineRange < rangesInLine.length; iLineRange++) {
+        const userRange = rangesInLine[iLineRange]
+        if (rangesIntersect(spanRange, userRange)) {
+          shallHideTokens = false
+          break
+        }
+      }
+
+      if (changeVisibilityForSpan(span, shallHideTokens, iNodeHint)) changed = true
+    }
+
+    // finally clean the cache (if needed) and report the result
+
+    if (changed) {
+      // clean CodeMirror measure cache
+      delete lv.measure.heights
+      lv.measure.cache = {}
+    }
+
+    return changed
+  }
+
+  /** Current user's selections, in each line */
+  private _rangesInLine: Record<number, OrderedRange[]> = {}
+
   updateImmediately() {
     const cm = this.cm
-    const cpos = cm.getCursor()
+    const selections = cm.listSelections()
+    const caretAtLines: Record<number, boolean> = {}
 
-    const sts_old = this.shownTokensStart
-    const sts_new = this.shownTokensStart = (this.enabled ? this.calcShownTokenStart() : {})
+    var activedLines: Record<number, OrderedRange[]> = {}
+    var lastActivedLines = this._rangesInLine
 
-    let cpos_line_changed = false
+    // update this._activedLines and caretAtLines
+    for (const selection of selections) {
+      let oRange = orderedRange(selection)
+      let line0 = oRange[0].line, line1 = oRange[1].line
+      caretAtLines[line0] = caretAtLines[line1] = true
 
-    // find the numbers of changed line
-    let changed_lines: number[] = []
-    for (const line_str in sts_old) changed_lines.push(~~line_str)
-    for (const line_str in sts_new) changed_lines.push(~~line_str)
-    changed_lines.sort((a, b) => (a - b)) // NOTE: numbers could be duplicated
+      for (let line = line0; line <= line1; line++) {
+        if (!activedLines[line]) activedLines[line] = [oRange]
+        else activedLines[line].push(oRange)
+      }
+    }
+
+    this._rangesInLine = activedLines
+
+    if (DEBUG) console.log("======= OP START " + Object.keys(activedLines))
 
     cm.operation(() => {
-      // process every line, skipping duplicated numbers
-      let lastLine = -1
-      for (const line of changed_lines) {
-        if (line === lastLine) continue // duplicated
-        lastLine = line
-        const procAns = this.procLine(cm.getLineHandle(line))
-        if (procAns !== -1 && cpos.line === line) cpos_line_changed = true
+      // adding "inactive" class
+      for (const line in lastActivedLines) {
+        if (activedLines[line]) continue // line is still active. do nothing
+        this.procLine(~~line) // or, try adding "inactive" class to the <pre>s
+      }
+
+      let caretLineChanged = false
+
+      // process active lines
+      for (const line in activedLines) {
+        let lineChanged = this.procLine(~~line)
+        if (lineChanged && caretAtLines[line]) caretLineChanged = true
       }
 
       // refresh cursor position if needed
-      if (cpos_line_changed) {
-        updateCursorDisplay(cm, true)
-        if (cm.hmd.TableAlign && cm.hmd.TableAlign.enabled) cm.hmd.TableAlign.updateStyle()
+      if (caretLineChanged) {
+        if (DEBUG) console.log("caretLineChanged")
+        cm.refresh()
+
+        // legacy unstable way to update display and caret position:
+        // updateCursorDisplay(cm, true)
+        // if (cm.hmd.TableAlign && cm.hmd.TableAlign.enabled) cm.hmd.TableAlign.updateStyle()
       }
     })
+
+    if (DEBUG) console.log("======= OP END ")
   }
 }
 

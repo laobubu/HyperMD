@@ -231,3 +231,8 @@ export function watchSize(el: HTMLElement, onChange: (newWidth: number, newHeigh
     stop,
   }
 }
+
+export function makeSymbol(name: string): symbol | string {
+  if (typeof Symbol === 'function') return Symbol(name)
+  return "_\n" + name + "\n_" + Math.floor(Math.random() * 0xFFFF).toString(16)
+}

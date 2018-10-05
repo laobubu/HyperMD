@@ -404,31 +404,29 @@ export function expandRange(cm: cm_t, pos: CodeMirror.Position, style: string | 
   return { from, to }
 }
 
-/**
- * clean line measure caches (if needed)
- * and re-position cursor
- *
- * partially extracted from codemirror.js : function updateSelection(cm)
- *
- * @param {cm_t} cm
- * @param {boolean} skipCacheCleaning
- */
-export function updateCursorDisplay(cm: cm_t, skipCacheCleaning?: boolean) {
-  if (!skipCacheCleaning) {
-    var lvs = cm.display.view as any[] // LineView s
-    for (var lineView of lvs) {
-      if (lineView.measure) lineView.measure.cache = {}
-    }
-  }
-
-  setTimeout(function () {
-    cm.display.input.showSelection(cm.display.input.prepareSelection())
-  }, 60) // wait for css style
-}
-
 export { cmpPos }
 
-export function rangesIntersect(range1: [Position, Position], range2: [Position, Position]): boolean {
+export type RangeLike = { anchor: Position; head: Position; }
+export type OrderedRange = [Position, Position]
+
+/**
+ * Get ordered range from `CodeMirror.Range`-like object or `[Position, Position]`
+ *
+ * In an ordered range, The first `Position` must NOT be after the second.
+ */
+export function orderedRange(range: [Position, Position] | RangeLike): OrderedRange {
+  if ('anchor' in range) range = [range.head, range.anchor]
+  if (cmpPos(range[0], range[1]) > 0) return [range[1], range[0]]
+  else return [range[0], range[1]]
+}
+
+/**
+ * Check if two range has intersection.
+ *
+ * @param range1 ordered range 1  (start <= end)
+ * @param range2 ordered range 2  (start <= end)
+ */
+export function rangesIntersect(range1: OrderedRange, range2: OrderedRange): boolean {
   const [from1, to1] = range1
   const [from2, to2] = range2
 
