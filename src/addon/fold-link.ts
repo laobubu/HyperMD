@@ -7,6 +7,7 @@
 import { FolderFunc, registerFolder, RequestRangeResult, breakMark } from "./fold";
 import { Position } from "codemirror";
 import { splitLink } from "./read-link";
+import { getLineSpanExtractor, Span } from "../core/line-spans";
 
 const DEBUG = false
 
@@ -16,26 +17,29 @@ export const LinkFolder: FolderFunc = function (stream, token) {
   // a valid beginning must be ...
   if (!(
     token.string === '[' &&   // the leading [
-    token.state.linkText &&   // (double check)
+    token.state.linkText &&   // (double check) is link text
+    !token.state.linkTitle &&   // (double check) not image's title
     !/\bimage\b/.test(token.type)  // and is not a image mark
   )) return null
 
-  // first, find the left parentheses of URL (aka. href)
-  var url_begin = stream.findNext((token, tokens, idx) => {
-    if (token.string !== '(' || !token.state.linkHref) return false
-    if (idx > 0 && /\bimage\b/.test(tokens[idx - 1].type)) return false
-    return true
-  }, /* maySpanLines = */ true)
-  if (!url_begin) return null
+  let spanExtractor = getLineSpanExtractor(cm)
+  let tmpSpans: Span[]
 
-  // then, find the right parentheses of URL (aka. href)
-  var url_end = stream.findNext(token => !token.state.linkHref, url_begin.i_token)
-  if (!url_end || url_end.token.string !== ')') return null
+  // first, find the link text span
 
-  // now we get keypoints
-  const href_from: Position = { line: url_begin.lineNo, ch: url_begin.token.start }
-  const href_to: Position = { line: url_end.lineNo, ch: url_end.token.end }
-  const link_from: Position = { line: stream.lineNo, ch: token.start }
+  let linkTextSpan = spanExtractor.findSpanWithTypeAt({ line: stream.lineNo, ch: token.start }, "linkText")
+  if (!linkTextSpan) return null
+
+  // then find the link href span
+
+  let linkHrefSpan = spanExtractor.findSpanWithTypeAt({ line: stream.lineNo, ch: linkTextSpan.end + 1 }, "linkHref")
+  if (!linkHrefSpan) return null
+
+  // now compose the ranges
+
+  const href_from: Position = { line: stream.lineNo, ch: linkHrefSpan.begin }
+  const href_to: Position = { line: stream.lineNo, ch: linkHrefSpan.end }
+  const link_from: Position = { line: stream.lineNo, ch: linkTextSpan.begin }
   const link_to: Position = href_to
 
   // and check if the range is OK

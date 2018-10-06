@@ -1,6 +1,6 @@
 import { cm_t } from "./type"
 import { Token, Position, cmpPos } from "codemirror"
-import { HyperMDState, LinkType } from "../mode/hypermd";
+import { HyperMDState, LinkType, HashtagType } from "../mode/hypermd";
 import { makeSymbol } from "./utils";
 
 export interface Span {
@@ -17,7 +17,7 @@ export interface Span {
   end: number
 }
 
-type SpanType = "em" | "strong" | "strikethrough" | "code" | "link" | "task"
+type SpanType = "em" | "strong" | "strikethrough" | "code" | "linkText" | "linkHref" | "task" | "hashtag"
 
 const enum SpanAction {
   NOTHING = 0,
@@ -66,16 +66,27 @@ class LineSpanExtractor {
         : prevState.code ? SpanAction.LEAVING_THIS_TYPE : SpanAction.NOTHING),
 
       // linkText
-      link:
+      linkText:
         (state.linkText ?
           (state.hmdLinkType === LinkType.NORMAL || state.hmdLinkType === LinkType.BARELINK2 ? SpanAction.IS_THIS_TYPE : SpanAction.NOTHING) :
           (prevState.linkText ? SpanAction.LEAVING_THIS_TYPE : SpanAction.NOTHING)
+        ),
+
+      // linkHref
+      linkHref:
+        ((state.linkHref && !state.linkText) ?
+          SpanAction.IS_THIS_TYPE :
+          (!state.linkHref && !state.linkText && prevState.linkHref && !prevState.linkText) ? SpanAction.LEAVING_THIS_TYPE : SpanAction.NOTHING
         ),
 
       // task checkbox
       task: (styles.indexOf(' formatting-task ') !== -1)
         ? (SpanAction.IS_THIS_TYPE | SpanAction.LEAVING_THIS_TYPE)
         : (SpanAction.NOTHING),
+
+      // hashtag
+      hashtag: (state.hmdHashtag ? SpanAction.IS_THIS_TYPE :
+        prevState.hmdHashtag ? SpanAction.LEAVING_THIS_TYPE : SpanAction.NOTHING),
     }
     return ans
   }
@@ -146,6 +157,18 @@ class LineSpanExtractor {
     }
 
     return ans
+  }
+
+  findSpanWithTypeAt(pos: Position, type: SpanType) {
+    let spans = this.extract(pos.line)
+    let ch = pos.ch
+    for (let i = 0; i < spans.length; i++) {
+      let span = spans[i]
+      if (span.begin > ch) break
+      if (ch >= span.begin && span.end >= ch && span.type === type) return span
+    }
+
+    return null
   }
 }
 

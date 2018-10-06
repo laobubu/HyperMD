@@ -6,8 +6,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd) [![Build Status](https://travis-ci.org/laobubu/HyperMD.svg?branch=master)](https://travis-ci.org/laobubu/HyperMD)
 
-[在线体验](https://laobubu.net/HyperMD/) | [功能演示][examples] |
-[开发文档][doc]
+[在线体验](https://laobubu.net/HyperMD/) | [功能演示][examples] | [开发文档][doc]
 
 [English](../../README.md)
 
