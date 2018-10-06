@@ -186,9 +186,10 @@ export class InsertFile implements Addon.Addon, Options /* if needed */ {
    * @param {DataTransfer} data
    * @returns {boolean} data is accepted or not
    */
-  doInsert(data: DataTransfer): boolean {
+  doInsert(data: DataTransfer, isClipboard?: boolean): boolean {
     const cm = this.cm
 
+    if (isClipboard && data.types && data.types.some(type => type.slice(0, 5) === 'text/')) return false
     if (!data || !data.files || 0 === data.files.length) return false
     const files = data.files
 
@@ -247,7 +248,7 @@ export class InsertFile implements Addon.Addon, Options /* if needed */ {
   }
 
   private pasteHandle = (cm: cm_t, ev: ClipboardEvent) => {
-    if (!this.doInsert(ev.clipboardData || window['clipboardData'])) return
+    if (!this.doInsert(ev.clipboardData || window['clipboardData'], true)) return
     ev.preventDefault()
   }
 
@@ -256,7 +257,7 @@ export class InsertFile implements Addon.Addon, Options /* if needed */ {
     cm.operation(function () {
       var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }, "window")
       cm.setCursor(pos)
-      result = self.doInsert(ev.dataTransfer)
+      result = self.doInsert(ev.dataTransfer, false)
     })
     if (!result) return
     ev.preventDefault()

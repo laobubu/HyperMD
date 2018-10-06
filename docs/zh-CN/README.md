@@ -6,59 +6,13 @@
 
 [![NPM version](https://img.shields.io/npm/v/hypermd.svg?style=flat-square)](https://npmjs.org/package/hypermd) [![Build Status](https://travis-ci.org/laobubu/HyperMD.svg?branch=master)](https://travis-ci.org/laobubu/HyperMD)
 
-[在线体验](https://laobubu.net/HyperMD/) |
-[功能演示][examples] |
+[在线体验](https://laobubu.net/HyperMD/) | [功能演示][examples] |
+[开发文档][doc]
+
 [English](../../README.md)
 
-## 选择 HyperMD 的 N 个理由
 
-HyperMD 是一组 [CodeMirror][] 插件、模式、主题、编辑器命令（Commands）和按键绑定（KeyMap）等。
-
-你可以在一个页面上同时使用 HyperMD 和 CodeMirror。
-
-1. Markdown 写作和预览，一个框就够了
-   - **各种常规 Markdown 元素**
-     + **粗体字**、*斜体字*、~~删除线~~、`Code`
-     + [链接](https://laobubu.net)、图片
-     + 标题 / 引用块 / 代码块 / 列表 / 水平分割线
-   - **扩展的 Markdown 语法**
-     + 简单表格
-     + 脚注 [^1]
-     + [x] TODO 列表 (可点击勾选框, 改变状态)
-     + YAML Front Matter
-   - 行内 $\LaTeX$ 公式渲染，同时也支持多行公式块 [^4]
-   - Emoji 代码实时转换 `:joy:` => :joy: [(支持自定义的表情)](https://laobubu.net/HyperMD/docs/examples/custom-emoji.html)
-   - 支持 #话题标签 [^6] ，[查看演示](https://laobubu.net/HyperMD/docs/examples/hashtag.html)
-   - 流程图 和 图表 ([mermaid](https://laobubu.net/HyperMD/docs/examples/mermaid.html) 或者 [flowchart.js](https://laobubu.net/HyperMD/docs/examples/flowchart.html))
-2. **按着 Alt 点击** 可以打开链接，或者跳到脚注 [^1]
-3. **代码块语法高亮** 支持数百种语言 [^2]
-4. **鼠标悬停** 可以查看脚注内容
-5. **复制粘贴** 自动转换网页内容为 Markdown [^5]
-6. **可复用大量 CodeMirror 插件**，包括
-   - VIM/Emacs 模式、自定义按键绑定
-   - Diff and Merge
-   - 全屏
-   - 各种主题 [^3]
-7. **上传图片** 只需要复制粘贴，或者把文件拖进来就行了
-8. **Power Pack** 机制，用各种第三方库和服务增强 HyperMD 功能
-   - 例如 [MathJax][], [marked][], [KaTeX][] ...
-   - *[详细列表](https://laobubu.net/HyperMD/#./docs/powerpacks.md)*
-9. **KeyMap** 特制的按键绑定 "HyperMD":
-    + **表格**
-      - <kbd>回车</kbd> 使用 `| column | line |` 创建表格
-      - <kbd>回车</kbd> 插入一行或者结束表格（如果最后一行的格子都是空的）
-      - <kbd>Tab</kbd> 和 <kbd>Shift-Tab</kbd> 在表格间切换
-    + **列表**
-      - <kbd>Tab</kbd> 和 <kbd>Shift-Tab</kbd> 改变当前列表项的缩进
-    + **格式化** 光标旁边的单词（或者选中的文字）
-      - <kbd>Ctrl+B</kbd> **加粗**
-      - <kbd>Ctrl+I</kbd> *斜体*
-      - <kbd>Ctrl+D</kbd> ~~删除线~~
-10. **还有更多...**
-    + [功能演示][examples]
-    + [文档][doc]
-
-## 快速开始
+## [快速开始](./quick-start.md)
 
 ```javascript
 // npm install --save hypermd codemirror
@@ -67,9 +21,69 @@ var myTextarea = document.getElementById('input-area')
 var editor = HyperMD.fromTextArea(myTextarea)
 ```
 
-如果你使用打包器开发网站，只需要这几行就OK了。CSS 样式会在 "hypermd" 模块中自动引入。
+[![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/remix/hello-hypermd)
 
-如果你是 [RequireJS][] 用户，或者纯粹 HTML 标签爱好者，请参考 [文档中的"快速开始"部分][doc]!
+适用于 RequireJS, Parcel, webpack, 或者用各种HTML标签来引入库的纯粹的环境。 [参考文档](./quick-start.md)
+
+## 选择 HyperMD 的 N 个理由
+
+HyperMD 是一组 [CodeMirror][] 插件、模式、主题、编辑器命令（Commands）和按键绑定（KeyMap）等。
+
+你可以在一个页面上同时使用 HyperMD 和 CodeMirror。
+
+### 🌈 写作与预览，只需一个框
+
+- **各种常规 Markdown 元素**
+  + **粗体字**、*斜体字*、~~删除线~~、`Code`
+  + [链接](https://laobubu.net)、图片
+  + 标题 / 引用块 / 代码块 / 列表 / 水平分割线
+- **扩展的 Markdown 语法**
+  + 简单表格
+  + 脚注 [^1]
+  + [x] TODO 列表 (可点击勾选框, 改变状态)
+  + YAML Front Matter
+  - $\LaTeX$ 公式，同时支持行内块与多行公式 [^4]
+  - Emoji `:joy:` => :joy: [(支持自定义的表情)](https://laobubu.net/HyperMD/docs/examples/custom-emoji.html)
+- **以及一些特殊玩法**，例如……
+  + <span style="color:red">在 Markdown 里嵌入 HTML 标签</span> -- WYSIWIG MDX 了解一下
+  + 支持 #话题标签 [^6] ，[查看演示](https://laobubu.net/HyperMD/docs/examples/hashtag.html)
+  + 流程图 和 图表 ([mermaid](https://laobubu.net/HyperMD/docs/examples/mermaid.html) 或者 [flowchart.js](https://laobubu.net/HyperMD/docs/examples/flowchart.html))
+
+### 💪 更好的 **Markdown 写作体验**
+
+- 复制粘贴，或者拖拽文件，即可 **上传图片** 和文件
+- **按着 Alt 点击** 可以打开链接，或者跳到脚注 [^1]
+- **鼠标悬停** 可以查看脚注内容
+- **复制粘贴** 自动转换网页内容为 Markdown [^5]
+- 好用的 **按键绑定** (也叫做 KeyMap)
+
+### 🎁 **CodeMirror** 的好处，这里都有份
+
+- **代码块语法高亮** 支持数百种语言 [^2]。高亮规则可按需动态载入。
+- 灵活可配置的按键绑定与 CodeMirror API
+- Diff and Merge
+- 各种主题 [^3]
+- **绝大多数 CodeMirror 插件** 都可在 HyperMD 里使用
+
+### 🔨 可扩展，可配置
+
+- **Power Pack** 机制，用各种第三方库和服务增强 HyperMD 功能
+   - 例如 [MathJax][], [marked][], [KaTeX][] ...
+   - *[详细列表](https://laobubu.net/HyperMD/#./docs/powerpacks.md)*
+- HyperMD 本身也是很模块化的。
+
+### 🎹 特制的按键绑定(**KeyMap**) "HyperMD":
+
++ **表格**
+  - <kbd>回车</kbd> 使用 `| column | line |` 创建表格
+  - <kbd>回车</kbd> 插入一行或者结束表格（如果最后一行的格子都是空的）
+  - <kbd>Tab</kbd> 和 <kbd>Shift-Tab</kbd> 在表格间切换
++ **列表**
+  - <kbd>Tab</kbd> 和 <kbd>Shift-Tab</kbd> 改变当前列表项的缩进
++ **格式化** 光标旁边的单词（或者选中的文字）
+  - <kbd>Ctrl+B</kbd> **加粗**
+  - <kbd>Ctrl+I</kbd> *斜体*
+  - <kbd>Ctrl+D</kbd> ~~删除线~~
 
 
 ## 特别感谢
@@ -124,12 +138,20 @@ var editor = HyperMD.fromTextArea(myTextarea)
 </table>
 
 
+🌟 **Sponsors**
+
+<table>
+  <tr>
+    <td><a href="http://www.umbst.com/" target="_blank"><img src="http://www.umbst.com/images/logo.svg" height="38" width="38" title="圆伞科技"></a></td>
+  </tr>
+</table>
+
+
 🙏 **Sponsors** _(按日期排序)_
 
 <div class="sponsors">
-  <span>☕Phithon</span>
-  <span>☕c*i</span>
-  <span>☕*Yuan</span>
+  <span>☕Phithon</span> <span>☕c*i</span> <span>☕*Yuan</span> <span>☕*Xiuzhang</span>
+  <span>☕*Junjie</span> <span>🌟圆伞科技</span> <span>☕*Di</span>
 </div>
 
 
