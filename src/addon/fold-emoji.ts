@@ -6,7 +6,8 @@
 
 import * as CodeMirror from 'codemirror'
 import { Position } from 'codemirror'
-import { Addon, suggestedEditorConfig } from '../core'
+import * as Addon from '../core/addon'
+import { suggestedEditorConfig } from '../core/defaults'
 import { cm_t } from '../core/type'
 import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 

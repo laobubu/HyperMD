@@ -1,9 +1,5 @@
 /**
- * Utils for HyperMD addons
- *
- * @internal Part of HyperMD core.
- *
- * You shall NOT import this file; please import "core" instead
+ * Utils and Basic Types/Functions for HyperMD addons
  */
 
 import { cm_t } from "./type"

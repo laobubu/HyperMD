@@ -9,9 +9,11 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
 
+import * as Addon from '../core/addon'
 import { cm_t } from '../core/type'
+import * as hmdDefaults from '../core/defaults';
+import FlipFlop from '../core/FlipFlop';
 
 /********************************************************************************** */
 // Some parameter LGTM
@@ -49,7 +51,7 @@ declare global {
   }
 }
 
-suggestedEditorConfig.hmdCursorDebounce = suggestedOption
+hmdDefaults.suggestedEditorConfig.hmdCursorDebounce = suggestedOption
 
 CodeMirror.defineOption("hmdCursorDebounce", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
 

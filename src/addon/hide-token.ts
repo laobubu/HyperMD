@@ -7,11 +7,15 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, cm_internal, debounce, suggestedEditorConfig, normalVisualConfig } from '../core'
 
+import * as Addon from '../core/addon'
 import { cm_t } from '../core/type'
-import { OrderedRange, orderedRange, rangesIntersect } from '../core/cm_utils';
-import { getLineSpanExtractor, Span } from '../core/line-spans';
+import * as hmdDefaults from '../core/defaults';
+import FlipFlop from '../core/FlipFlop';
+
+import { debounce } from '../core/utils';
+import { OrderedRange, orderedRange, rangesIntersect, cm_internal } from '../core/cm_utils';
+import { getLineSpanExtractor, Span } from '../core/LineSpanExtractor';
 
 const DEBUG = false
 
@@ -75,8 +79,8 @@ declare global {
   }
 }
 
-suggestedEditorConfig.hmdHideToken = suggestedOption
-normalVisualConfig.hmdHideToken = false
+hmdDefaults.suggestedEditorConfig.hmdHideToken = suggestedOption
+hmdDefaults.normalVisualConfig.hmdHideToken = false
 
 CodeMirror.defineOption("hmdHideToken", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
 

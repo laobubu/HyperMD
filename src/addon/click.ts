@@ -7,11 +7,15 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, expandRange, suggestedEditorConfig } from '../core'
 
+import * as Addon from '../core/addon'
 import { cm_t } from '../core/type'
+import * as hmdDefaults from '../core/defaults';
+import FlipFlop from '../core/FlipFlop';
+
 import { splitLink } from './read-link'
 import { HyperMDState } from '../mode/hypermd';
+import { expandRange } from '../core/cm_utils';
 
 /********************************************************************************** */
 //#region CLICK HANDLER
@@ -174,7 +178,7 @@ declare global {
   }
 }
 
-suggestedEditorConfig.hmdClick = suggestedOption
+hmdDefaults.suggestedEditorConfig.hmdClick = suggestedOption
 
 CodeMirror.defineOption("hmdClick", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
 

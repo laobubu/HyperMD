@@ -22,7 +22,8 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, suggestedEditorConfig } from '../core'
+import * as Addon from '../core/addon'
+import { suggestedEditorConfig } from '../core/defaults'
 import { cm_t } from '../core/type'
 
 import { FolderFunc, registerFolder, getAddon as getFoldAddon, FoldStream, RequestRangeResult, breakMark } from './fold'

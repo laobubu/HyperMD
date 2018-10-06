@@ -1,13 +1,10 @@
 /**
  * Ready-to-use functions that powers up your Markdown editor
- *
- * @internal Part of HyperMD core.
- *
- * You shall NOT import this file; please import "core" instead
  */
 
 import * as CodeMirror from "codemirror"
 import { cm_t } from "./type"
+import { suggestedEditorConfig, normalVisualConfig } from "./defaults";
 
 import 'codemirror/addon/fold/foldcode'
 import 'codemirror/addon/fold/foldgutter'
@@ -21,38 +18,6 @@ import '../theme/hypermd-light.css'
 
 // if (HyperMD_Mark in editor), the editor was a HyperMD mode at least once
 const HyperMD_Mark = '__hypermd__'
-
-/**
- * The default configuration that used by `HyperMD.fromTextArea`
- *
- * Addons may update this object freely!
- */
-export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
-  lineNumbers: true,
-  lineWrapping: true,
-  theme: "hypermd-light",
-  mode: "text/x-hypermd",
-  tabSize: 4, // CommonMark specifies tab as 4 spaces
-
-  autoCloseBrackets: true,
-  foldGutter: true,
-  gutters: [
-    "CodeMirror-linenumbers",
-    "CodeMirror-foldgutter",
-    "HyperMD-goback"  // (addon: click) 'back' button for footnotes
-  ],
-}
-
-/**
- * Editor Options that disable HyperMD WYSIWYG visual effects.
- * These option will be applied when user invoke `switchToNormal`.
- *
- * Addons about visual effects, shall update this object!
- */
-export var normalVisualConfig: CodeMirror.EditorConfiguration = {
-  theme: "default",
-  /* eg. hmdFold: false, */
-}
 
 /**
  * Initialize an editor from a <textarea>

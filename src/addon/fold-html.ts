@@ -6,7 +6,10 @@
 
 import * as CodeMirror from 'codemirror'
 import { Position } from 'codemirror'
-import { Addon, suggestedEditorConfig, visitElements, watchSize } from '../core'
+import * as Addon from '../core/addon'
+import { suggestedEditorConfig } from '../core/defaults'
+import { visitElements } from '../core/utils'
+import watchSize from '../core/watch-size';
 import { cm_t } from '../core/type'
 import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 import './read-link'
