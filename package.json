@@ -1,10 +1,11 @@
 {
   "name": "hypermd",
   "version": "0.3.11",
-  "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
+  "description": "Real WYSIWYG Markdown editor, breaks the wall between writing and preview.",
   "main": "./everything.js",
   "types": "./everything.d.ts",
   "scripts": {
+    "prepare": "npm run build",
     "build": "node dev/build-all.js",
     "prebuild_js": "node dev/pre-build.js",
     "build_js": "tsc && rollup -c",

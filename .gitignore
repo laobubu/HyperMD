@@ -33,3 +33,6 @@ docs/powerpacks.md
 
 # Auto Generated Files. See dev/pre-build.js
 src/everything.ts
+
+# Auto Generated pbe.manifest.json
+pbe.manifest.json

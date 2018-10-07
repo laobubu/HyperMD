@@ -62,3 +62,22 @@ ${core_pairs.map((it, index) => `  "${it.name}": _CORE_${index}`).join(",\n")}
 `
 
 fs.writeFileSync("./src/everything.ts", ai1_code)
+
+//--------------------------------------------------------------
+// Export symbol manifest for plain browser env
+
+!function () {
+  let manifest = {
+    "//$1": "Auto generated manifest",
+    version: 1,
+    path: {
+      "hypermd": "HyperMD",
+    },
+  }
+
+  for (const mod in config.globalNames) manifest.path[mod] = config.globalNames[mod]
+  for (const path in config.components) manifest.path["hypermd/" + path.slice(2)] = "HyperMD." + config.components[path];
+  for (const path in config.coreComponents) manifest.path["hypermd/" + path.slice(2)] = "HyperMD.Core." + config.coreComponents[path];
+
+  fs.writeFileSync("pbe.manifest.json", JSON.stringify(manifest, null, 2))
+}();
