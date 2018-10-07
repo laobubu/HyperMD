@@ -1,9 +1,6 @@
-// PATCH require.js so that we can require("./anything.css")
-// tested with RequireJS 2.3
-//
-// Doesn't support old browsers like IE6
-
 (function () {
+  const requirejs = window['requirejs'] as any
+
   if (typeof requirejs !== 'function') {
     console.error("[HyperMD RequireJS Patch] Please apply this patch after RequireJS's <script>. Besides, script tags can NOT be async")
     throw new Error("RequireJS not Found")

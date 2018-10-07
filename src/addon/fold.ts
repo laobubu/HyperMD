@@ -7,7 +7,11 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, debounce, TokenSeeker, suggestedEditorConfig, normalVisualConfig } from '../core'
+import * as Addon from '../core/addon'
+import { suggestedEditorConfig, normalVisualConfig } from '../core/defaults'
+import { debounce } from '../core/utils'
+import { TokenSeeker } from '../core/TokenSeeker'
+
 import { Position, Token } from 'codemirror'
 import { cm_t } from '../core/type'
 import { rangesIntersect, orderedRange } from '../core/cm_utils';

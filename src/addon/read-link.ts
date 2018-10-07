@@ -5,7 +5,10 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, debounce, suggestedEditorConfig } from '../core'
+import * as Addon from '../core/addon'
+import { suggestedEditorConfig } from '../core/defaults'
+import { debounce } from '../core/utils'
+
 import { cm_t } from '../core/type'
 
 

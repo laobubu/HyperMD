@@ -5,7 +5,11 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, debounce, suggestedEditorConfig, normalVisualConfig } from '../core'
+import * as Addon from '../core/addon'
+import * as hmdDefaults from '../core/defaults'
+import FlipFlop from '../core/FlipFlop'
+import { debounce } from '../core/utils'
+
 import { LineHandle } from 'codemirror'
 import { cm_t } from '../core/type'
 import { HyperMDState, TableType } from '../mode/hypermd'
@@ -42,8 +46,8 @@ declare global {
   }
 }
 
-suggestedEditorConfig.hmdTableAlign = suggestedOption
-normalVisualConfig.hmdTableAlign = false
+hmdDefaults.suggestedEditorConfig.hmdTableAlign = suggestedOption
+hmdDefaults.normalVisualConfig.hmdTableAlign = false
 
 CodeMirror.defineOption("hmdTableAlign", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
   const enabled = !!newVal

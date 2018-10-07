@@ -13,31 +13,11 @@ import { cm_t } from '../core/type'
 import * as hmdDefaults from '../core/defaults';
 import FlipFlop from '../core/FlipFlop';
 
-import { debounce } from '../core/utils';
+import { debounce, rmClass, addClass } from '../core/utils';
 import { OrderedRange, orderedRange, rangesIntersect, cm_internal } from '../core/cm_utils';
 import { getLineSpanExtractor, Span } from '../core/LineSpanExtractor';
 
 const DEBUG = false
-
-//#region Internal Function...
-
-/** check if has the class and remove it */
-function rmClass(el: HTMLElement, className: string): boolean {
-  let c = ' ' + el.className + ' ', cnp = ' ' + className + ' '
-  if (c.indexOf(cnp) === -1) return false
-  el.className = c.replace(cnp, '').trim()
-  return true
-}
-
-/** check if NOT has the class and add it */
-function addClass(el: HTMLElement, className: string): boolean {
-  let c = ' ' + el.className + ' ', cnp = ' ' + className + ' '
-  if (c.indexOf(cnp) !== -1) return false
-  el.className = (el.className + ' ' + className)
-  return true
-}
-
-//#endregion
 
 /********************************************************************************** */
 //#region Addon Options

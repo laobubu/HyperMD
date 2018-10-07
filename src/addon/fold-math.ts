@@ -8,7 +8,11 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, tryToRun, suggestedEditorConfig } from '../core'
+import * as Addon from '../core/addon'
+import { suggestedEditorConfig } from '../core/defaults'
+import { tryToRun } from '../core/utils'
+import FlipFlop from '../core/FlipFlop'
+
 import { TextMarker, Position, Token } from 'codemirror'
 import { cm_t } from '../core/type'
 import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'

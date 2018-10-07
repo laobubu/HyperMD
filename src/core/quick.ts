@@ -5,6 +5,7 @@
 import * as CodeMirror from "codemirror"
 import { cm_t } from "./type"
 import { suggestedEditorConfig, normalVisualConfig } from "./defaults";
+import "./polyfill" // for Object.assign
 
 import 'codemirror/addon/fold/foldcode'
 import 'codemirror/addon/fold/foldgutter'

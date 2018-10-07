@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "amd",
+    "moduleResolution": "classic",
     "target": "es5",
     "lib": [
       "es5",

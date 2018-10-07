@@ -1,43 +1,50 @@
 const path = require('path')
+const fs = require('fs')
 
 /**
- * Components that will be bundled into ai1.js (all in one bundle)
- * For each component, you may specific a global name and expose it to global like `HyperMD.FooBar`
+ * Components (except core/*) that will be imported when a user imports HyperMD like this:
+ *
+ * `import * as HyperMD from "hypermd"`
+ *
+ * For each component, you may specific a global name,
+ * which will be the only approach to access the module in plain browser env.
+ * For example, global name `FooBar` will make your module accessible via `HyperMD.FooBar`
+ *
+ * The path of each component is relative to the `src` dir.
+ *
+ * You shall not define `./core/*` here -- unless it is necessary
+ *
+ * @type {{ [path: string]: string }}
  */
 exports.components = {
-  "mode/hypermd": "Mode",
-  // "addon/skeleton": "Skeleton",
-  "addon/insert-file": "InsertFile",
-  "addon/read-link": "ReadLink",
-  "addon/hover": "Hover",
-  "addon/click": "Click",
-  "addon/paste": "Paste",
-  "addon/fold": "Fold",
-  "addon/fold-image": "FoldImage",
-  "addon/fold-link": "FoldLink",
-  "addon/fold-code": "FoldCode",
-  "addon/fold-math": "FoldMath",
-  "addon/fold-emoji": "FoldEmoji",
-  "addon/fold-html": "FoldHTML",
-  "addon/table-align": "TableAlign",
-  "addon/mode-loader": "ModeLoader",
-  "addon/hide-token": "HideToken",
-  "addon/cursor-debounce": "CursorDebounce",
-  "keymap/hypermd": "KeyMap",
+  // "./addon/skeleton": "Skeleton",  // <- example
+  "./addon/insert-file": "InsertFile",
+  "./addon/read-link": "ReadLink",
+  "./addon/hover": "Hover",
+  "./addon/click": "Click",
+  "./addon/paste": "Paste",
+  "./addon/fold": "Fold",
+  "./addon/fold-image": "FoldImage",
+  "./addon/fold-link": "FoldLink",
+  "./addon/fold-code": "FoldCode",
+  "./addon/fold-math": "FoldMath",
+  "./addon/fold-emoji": "FoldEmoji",
+  "./addon/fold-html": "FoldHTML",
+  "./addon/table-align": "TableAlign",
+  "./addon/mode-loader": "ModeLoader",
+  "./addon/hide-token": "HideToken",
+  "./addon/cursor-debounce": "CursorDebounce",
+
+  "./mode/hypermd": "Mode",
+  "./keymap/hypermd": "KeyMap",
+
+  "./common": "__common__",
 };
 
 /**
- * These files are also parts of HyperMD, but not included in all-in-one bundle.
+ * third-party libraries in plain browser env
  *
- * Support minimatch pattern syntax
- */
-exports.dummyComponents = [
-  "addon/skeleton",
-  "powerpack/*",
-];
-
-/**
- * If not using mode loader, try to get 3rd party libraries via these global names
+ * @type {{ [modulePath: string]: string }}
  */
 exports.globalNames = {
   codemirror: "CodeMirror",
@@ -51,32 +58,9 @@ exports.globalNames = {
   mermaid: "mermaid",
 }
 
-exports.externalNames = Object.keys(exports.globalNames)
-
 /**
- * Use RollUp Bundler to make these file(s)
+ * Common Banner Comment
  */
-exports.bundleFiles = [
-  {
-    entry: "src/everything.ts",
-    output: "ai1.js",
-    name: "HyperMD",
-    uglify: true,
-    banner: [
-      "//-----------------------------------------------//",
-      "// !! This file is for Plain Browser Env ONLY !! //",
-      "// !! Not Work With Bundlers                  !! //",
-      "//-----------------------------------------------//",
-    ].join("\n"),
-  },
-  {
-    // not necessary but maybe you just want the core utils?
-    entry: "src/core.ts",
-    output: "core.js",
-    name: "HyperMD",
-  },
-]
-
 exports.banner = `
 /*!
  * HyperMD, copyright (c) by laobubu
@@ -84,42 +68,34 @@ exports.banner = `
  *
  * Break the Wall between writing and preview, in a Markdown Editor.
  *
- * HyperMD makes Markdown editor on web WYSIWYG, based on CodeMirror
+ * HyperMD turns your Markdown CodeMirror editor into WYSIWYG mode!
  *
- * Homepage: http://laobubu.net/HyperMD/
+ * Homepage: https://laobubu.net/HyperMD/
  * Issues: https://github.com/laobubu/HyperMD/issues
  */
-`.trim()
+`.trimLeft()
 
 /**
- * Get modules' object name in plain browser env
- *
- * @example
- *     // two arguments:
- *     getGlobalName("codemirror", "src/addon/foobar") // => "CodeMirror"
- *     getGlobalName("./fold", "src/addon/foobar") // => "HyperMD.Fold", see `components`
- *     getGlobalName("../core", "src/addon/foobar") // => "HyperMD"
- *
- *     // one argument:
- *     getGlobalName("codemirror")   // => null
- *     getGlobalName("addon/fold")   // => "HyperMD.Fold"
- * @param {string} moduleID
- * @param {string} [currentFile] if is set, and `moduleID` is relative path, will try to resolve `moduleID`
- * @returns {string}
+ * Full of side-effects
  */
-exports.getGlobalName = function getGlobalName(moduleID, currentFile) {
-  if (!moduleID) return moduleID
-  if (currentFile && moduleID.charAt(0) !== ".") return exports.globalNames[moduleID] || null
+exports.ambientComponents = [
+  "./core/polyfill",
+]
 
-  // get clean module name
-  var cleanModuleID = moduleID
-  if (currentFile) cleanModuleID = path.normalize(path.join(path.dirname(currentFile), moduleID)).replace(/\\/g, '/').replace(/^\.\//, '')
+/**
+ * Core Components. in plain browser env, they are provided as `HyperMD.Core.xxx`
+ */
+var coreComponents = exports.coreComponents = {}
 
-  var ans = exports.components[cleanModuleID]
+fs.readdirSync(__dirname + "/../src/core").forEach(name => {
+  if (!/^\w.+\.ts$/.test(name)) return
+  name = name.slice(0, -3)
+  let relPath = './core/' + name
+  if (exports.ambientComponents.includes(relPath)) return
+  if (relPath in exports.components) return
 
-  if (ans) return "HyperMD." + ans
-  if (/^core(\/.+)?$/.test(cleanModuleID)) return "HyperMD"
-  if ("everything" === cleanModuleID) return "HyperMD"
+  // turn "name-like-this" into "nameLikeThis", underscores are kept intact
+  let camelName = name.replace(/-(\w)/g, (_, ch) => ch.toUpperCase())
 
-  return null
-}
+  coreComponents[relPath] = camelName
+});

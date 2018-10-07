@@ -7,7 +7,7 @@
 import { FolderFunc, registerFolder, RequestRangeResult, breakMark } from "./fold";
 import { Position } from "codemirror";
 import { splitLink } from "./read-link";
-import { getLineSpanExtractor, Span } from "../core/line-spans";
+import { getLineSpanExtractor, Span } from "../core/LineSpanExtractor";
 
 const DEBUG = false
 

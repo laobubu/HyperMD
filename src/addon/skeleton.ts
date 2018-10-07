@@ -22,7 +22,10 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
+import * as Addon from '../core/addon'
+import * as hmdDefaults from '../core/defaults'
+import FlipFlop from '../core/FlipFlop'
+
 import { cm_t } from '../core/type'
 
 
@@ -82,7 +85,7 @@ declare global {
   }
 }
 
-suggestedEditorConfig.hmdMyAddon = suggestedOption
+hmdDefaults.suggestedEditorConfig.hmdMyAddon = suggestedOption
 
 CodeMirror.defineOption("hmdMyAddon", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
 

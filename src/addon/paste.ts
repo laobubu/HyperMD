@@ -5,7 +5,9 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
+import * as Addon from '../core/addon'
+import { suggestedEditorConfig } from '../core/defaults'
+import FlipFlop from '../core/FlipFlop'
 import { cm_t } from '../core/type'
 
 /********************************************************************************** */

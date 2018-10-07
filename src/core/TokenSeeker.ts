@@ -1,5 +1,6 @@
 import { cm_t } from "./type"
 import { Token, Position } from "codemirror"
+import "./polyfill" // for Object.assign
 
 type TokenSeekResult = TokenSeeker.ResultType
 
@@ -11,9 +12,8 @@ type TokenSeekResult = TokenSeeker.ResultType
  *     var ans = seeker.findNext(/fomratting-em/)
  *
  */
-export default class TokenSeeker {
+export class TokenSeeker {
   constructor(public cm: cm_t) {
-
   }
 
   line: CodeMirror.LineHandle
@@ -214,7 +214,7 @@ export default class TokenSeeker {
       i_token: this.i_token,
       token: this.lineTokens[this.i_token]
     }
-    var to: TokenSeekResult = Object.assign({}, from) as TokenSeekResult
+    var to: TokenSeekResult = { ...from }
 
     // find left
     var foundUnstyled = false, tokens = this.lineTokens, i = this.i_token

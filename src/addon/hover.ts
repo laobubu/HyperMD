@@ -5,7 +5,11 @@
 //
 
 import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, expandRange, suggestedEditorConfig } from '../core'
+import * as Addon from '../core/addon'
+import { suggestedEditorConfig } from '../core/defaults'
+import FlipFlop from '../core/FlipFlop'
+import { expandRange } from '../core/cm_utils'
+
 import './read-link'
 
 import { cm_t } from '../core/type'

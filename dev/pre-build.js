@@ -2,9 +2,18 @@
 
 const path = require('path')
 const fs = require('fs')
+const utils = require('./utils')
 const config = require('./HyperMD.config.js')
 
 process.chdir(path.join(__dirname, ".."))
+
+//--------------------------------------------------------------
+// Update src/common.ts and update the version string
+
+utils.processTextFile("./src/common.ts", (text) => {
+  const packageJSON = JSON.parse(fs.readFileSync("package.json"))
+  return text.replace(/(const version = )\S+/, (p, prefix) => prefix + JSON.stringify(packageJSON.version))
+})
 
 //--------------------------------------------------------------
 // Update src/everything.ts, export all components in all-in-one bundle
@@ -12,14 +21,24 @@ process.chdir(path.join(__dirname, ".."))
 var ai1_imports = []
 var ai1_exports = []
 
+for (const path of config.ambientComponents) {
+  ai1_imports.push(`import "${path}"`)
+}
+
 for (const id in config.components) {
   const export_as = config.components[id]
   if (export_as) {
     ai1_exports.push(export_as)
-    ai1_imports.push(`import * as ${export_as} from "./${id}"`)
+    ai1_imports.push(`import * as ${export_as} from "${id}"`)
   } else {
-    ai1_imports.push(`import "./${id}"`)
+    ai1_imports.push(`import "${id}"`)
   }
+}
+
+var core_pairs = []
+for (const path in config.coreComponents) {
+  const name = config.coreComponents[path]
+  core_pairs.push({ path, name })
 }
 
 var ai1_code = `// Import&Export all HyperMD components except PowerPacks
@@ -30,11 +49,16 @@ var ai1_code = `// Import&Export all HyperMD components except PowerPacks
 // @see dev/HyperMD.config.js
 //
 
-export * from "./core"
+export * from "./common"
 
 ${ai1_imports.join("\n")}
 
 ${ai1_exports.length ? ("export {\n" + ai1_exports.map(x => `  ${x},\n`).join("") + "}") : ("// No more exports")}
+
+${core_pairs.map((it, index) => `import * as _CORE_${index} from "${it.path}"`).join("\n")}
+export const Core = {
+${core_pairs.map((it, index) => `  "${it.name}": _CORE_${index}`).join(",\n")}
+};
 `
 
 fs.writeFileSync("./src/everything.ts", ai1_code)

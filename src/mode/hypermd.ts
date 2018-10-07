@@ -5,6 +5,8 @@
 //
 
 import * as CodeMirror from "codemirror"
+import "../core/polyfill" // for Object.assign
+
 import "codemirror/mode/markdown/markdown"
 
 import "./hypermd.css"

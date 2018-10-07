@@ -7,8 +7,11 @@
 import * as CodeMirror from 'codemirror'
 import { Token, Position, cmpPos } from 'codemirror'
 import { cm_t } from '../core/type'
-import { TokenSeeker, repeatStr, expandRange, repeat, suggestedEditorConfig } from '../core';
 import { HyperMDState, TableType } from "../mode/hypermd"
+import { repeatStr, repeat } from '../core/utils';
+import { TokenSeeker } from '../core/TokenSeeker';
+import { suggestedEditorConfig } from '../core/defaults';
+import "../core/polyfill" // for Object.assign
 
 /**
   Some codes in this files are from CodeMirror's source code.

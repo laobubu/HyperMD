@@ -1,9 +1,5 @@
 /**
- * Provides some universal utils
- *
- * @internal Part of HyperMD core.
- *
- * You shall NOT import this file; please import "core" instead
+ * Provides some universal utils for plain js and DOM
  */
 
 import * as CodeMirror from "codemirror"
@@ -66,8 +62,6 @@ export function debounce(fn: Function, delay: number): { (): void; stop(): void 
  * using CodeMirror's (although they're legacy API)
  */
 
-export const addClass = CodeMirror.addClass
-export const rmClass = CodeMirror.rmClass
 export const contains = CodeMirror.contains
 
 /**
@@ -100,6 +94,40 @@ export function visitElements(seeds: ArrayLike<HTMLElement>, handler: (el: HTMLE
       handler(el)
       if (el.children && el.children.length > 0) queue.push(el.children as any as ArrayLike<HTMLElement>)
     }
+  }
+}
+
+/**
+ * check if has the class and remove it
+ * @returns element className changed or not
+ */
+export function rmClass(el: HTMLElement, className: string): boolean {
+  if (el.classList) {
+    if (!el.classList.contains(className)) return false
+    el.classList.remove(className)
+    return true
+  } else {
+    let c = ' ' + el.className + ' ', cnp = ' ' + className + ' '
+    if (c.indexOf(cnp) === -1) return false
+    el.className = c.replace(cnp, '').trim()
+    return true
+  }
+}
+
+/**
+ * check if NOT has the class and add it
+ * @returns element className changed or not
+ */
+export function addClass(el: HTMLElement, className: string): boolean {
+  if (el.classList) {
+    if (el.classList.contains(className)) return false
+    el.classList.add(className)
+    return true
+  } else {
+    let c = ' ' + el.className + ' ', cnp = ' ' + className + ' '
+    if (c.indexOf(cnp) !== -1) return false
+    el.className = (el.className + ' ' + className)
+    return true
   }
 }
 
