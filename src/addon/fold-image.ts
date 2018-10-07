@@ -54,6 +54,7 @@ export const ImageFolder: FolderFunc = function (stream, token) {
       var marker = cm.markText(
         from, to,
         {
+          clearOnEnter: true,
           collapsed: true,
           replacedWith: img,
         }
