@@ -25,12 +25,8 @@ const HyperMD_Mark = '__hypermd__'
  * Calling `CodeMirror.fromTextArea` with recommended HyperMD options
  *
  * @see CodeMirror.fromTextArea
- *
- * @param {HTMLTextAreaElement} textArea
- * @param {object} [config]
- * @returns {cm_t}
  */
-export function fromTextArea(textArea: HTMLTextAreaElement, config?: object): cm_t {
+export function fromTextArea(textArea: HTMLTextAreaElement, config?: CodeMirror.EditorConfiguration): cm_t {
   var final_config = { ...suggestedEditorConfig, ...config }
 
   var cm = CodeMirror.fromTextArea(textArea, final_config)

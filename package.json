@@ -1,6 +1,6 @@
 {
   "name": "hypermd",
-  "version": "0.3.11",
+  "version": "0.4.0",
   "description": "Real WYSIWYG Markdown editor, breaks the wall between writing and preview.",
   "main": "./everything.js",
   "types": "./everything.d.ts",
@@ -8,10 +8,12 @@
     "prepare": "npm run build",
     "build": "node dev/build-all.js",
     "prebuild_js": "node dev/pre-build.js",
-    "build_js": "tsc && rollup -c",
+    "build_js": "npm run build_bundle && npm run build_umd",
+    "build_bundle": "rollup -c",
+    "build_umd": "tsc && hmd-transpile --map -o . everything.js common.js addon/*.js core/*.js goods/*.js keymap/*.js mode/*.js powerpack/*.js",
     "postbuild_js": "node dev/post-build.js",
     "build_css": "node dev/build-css.js",
-    "build_doc": "cd dev/docgen && tsc && node ../tmp/index.js",
+    "build_doc": "cd dev/docgen && ts-node index.ts",
     "dev": "node dev/dev.js",
     "watch_js": "tsc -w --sourceMap --sourceRoot /src",
     "watch_css": "node dev/build-css.js -w",
@@ -26,11 +28,8 @@
   "homepage": "https://laobubu.net/HyperMD/",
   "author": "laobubu <laobubu@gmail.com> (http://laobubu.net)",
   "license": "MIT",
-  "dependencies": {
-    "@types/codemirror": "^0.0.56"
-  },
   "devDependencies": {
-    "@types/glob": "^5.0.35",
+    "@hypermd/build-tools": "https://github.com/HyperMD/build-tools.git",
     "@types/mermaid": "^8.0.0",
     "codemirror": "^5.37.0",
     "express": "^4.16.3",
@@ -48,6 +47,7 @@
     "codemirror": "^5.37.0"
   },
   "optionalDependencies": {
+    "@types/codemirror": "^0.0.56",
     "emojione": "^3.1.6",
     "flowchart.js": "^1.11.2",
     "katex": "^0.10.0-alpha",

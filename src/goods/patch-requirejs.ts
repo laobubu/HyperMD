@@ -1,3 +1,5 @@
+/** @hypermd not module */
+
 (function () {
   const requirejs = window['requirejs'] as any
 

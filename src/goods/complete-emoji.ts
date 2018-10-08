@@ -1,4 +1,4 @@
-/** @export as CompleteEmoji */
+/** @hypermd as CompleteEmoji */
 
 import * as CodeMirror from "codemirror"
 import * as FoldEmoji from "../addon/fold-emoji"

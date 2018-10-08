@@ -27,7 +27,7 @@ require([
   ///////////////////////////////////////
 
   'codemirror/lib/codemirror',
-  'hypermd/core',
+  'hypermd/common',
 
   ///////////////////////////////////////
   /// CodeMirror                      ///

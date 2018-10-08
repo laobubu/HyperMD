@@ -12,7 +12,8 @@ const fs = require('fs')
  *
  * The path of each component is relative to the `src` dir.
  *
- * You shall not define `./core/*` here -- unless it is necessary
+ * - Don't define `./core/*` here -- unless it needs a good name
+ * - Don't define `./goods/*` or `./powerpack/*` -- they shall be bundled into ai1.js
  *
  * @type {{ [path: string]: string }}
  */
