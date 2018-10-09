@@ -2,7 +2,7 @@ import buble from 'rollup-plugin-buble'
 import typescript from 'rollup-plugin-typescript2'
 import { uglify } from 'rollup-plugin-uglify'
 
-const { banner } = require(__dirname + '/dev/HyperMD.config')
+const { banner } = require(__dirname + '/scripts/HyperMD.config')
 
 // Build all-in-one bundle for Plain Browser Env!
 

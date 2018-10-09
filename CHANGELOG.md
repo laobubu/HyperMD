@@ -211,3 +211,8 @@ DON'T PUT `iframe` INTO YOUR Markdown! Once DOM changes (which is often), the if
   - Clean some code about TokenSeeker
   - **addon/table-align**: unstable width in Chrome
   - **addon/insert-file**: if clipboard only has one image which is copied from a webpage, this shall be handled by **addon/paste**
+
+## 0.4.0
+
+* **Structure**
+  - `dev` is now renamed to `scripts`

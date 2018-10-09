@@ -13,7 +13,7 @@ cache/
 *.js
 !demo/**/*.js
 !docs/**/*.js
-!dev/**/*.js
+!scripts/**/*.js
 !test/**/*.js
 !rollup.config.js
 
@@ -27,11 +27,11 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 
-# Auto Generated Docs. See dev/docgen/index.ts
+# Auto Generated Docs. See scripts/docgen/index.ts
 docs/options-for-addons.md
 docs/powerpacks.md
 
-# Auto Generated Files. See dev/pre-build.js
+# Auto Generated Files. See scripts/pre-build.js
 src/everything.ts
 
 # Auto Generated pbe.manifest.json
