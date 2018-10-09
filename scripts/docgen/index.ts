@@ -7,7 +7,7 @@ import { basePath } from "./base"
 
 Promise.all([
   execMaker("options-for-addons.md", "./make_options_for_addons"),
-  execMaker("powerpacks.md", "./make_powerpacks"),
+  // execMaker("powerpacks.md", "./make_powerpacks"),    // <- removed from HyperMD main repo
 ])
 
 //-------------------------------------------------------------

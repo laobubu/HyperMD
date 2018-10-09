@@ -21,6 +21,8 @@ import { Link } from './read-link'
 /** convert footnote text into HTML. Note that `markdown` may be empty and you may return `null` to supress the tooltip */
 export type Convertor = (footnote: string, markdown: string) => string
 
+declare var marked: any
+
 var markdownToHTML: (text: string) => string =
   (typeof marked === 'function') ? marked : (text: string) => {
     text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/  /g, ' &nbsp;')

@@ -31,11 +31,8 @@
   "license": "MIT",
   "devDependencies": {
     "@hypermd/build-tools": "https://github.com/HyperMD/build-tools.git",
-    "@types/mermaid": "^8.0.0",
     "codemirror": "^5.37.0",
-    "express": "^4.16.3",
     "glob": "^7.1.2",
-    "minimatch": "^3.0.4",
     "rollup": "^0.66.4",
     "rollup-plugin-buble": "^0.19.2",
     "rollup-plugin-typescript2": "^0.17.1",
@@ -47,15 +44,6 @@
     "codemirror": "^5.37.0"
   },
   "optionalDependencies": {
-    "@types/codemirror": "^0.0.56",
-    "emojione": "^3.1.6",
-    "flowchart.js": "^1.11.2",
-    "katex": "^0.10.0-alpha",
-    "marked": "^0.4.0",
-    "mathjax": "^2.7.0",
-    "mermaid": "^8.0.0-rc.8",
-    "turndown": "^4.0.1",
-    "turndown-plugin-gfm": "^1.0.1",
-    "twemoji": "^11.0.0"
+    "@types/codemirror": "^0.0.56"
   }
 }

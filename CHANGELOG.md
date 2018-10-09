@@ -216,3 +216,4 @@ DON'T PUT `iframe` INTO YOUR Markdown! Once DOM changes (which is often), the if
 
 * **Structure**
   - `dev` is now renamed to `scripts`
+  - removed all PowerPacks from this repo -- [they are here now](https://github.com/laobubu/HyperMD/wiki/HyperMD-Addons)
