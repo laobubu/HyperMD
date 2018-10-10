@@ -1,0 +1,37 @@
+$fs: 12pt !default;
+$font-normal: sans-serif !default;
+$font-monospace: monospace !default;
+
+$editor-background: #FFF !default;
+$editor-color: #000 !default;
+
+$line-height: 1.5 !default;   // must be a number
+$line-margin: 10px !default;
+$line-padding: 5px !default;
+
+$header-hash-width: 0px !default; // NOTE: Must be smaller than $line-padding
+
+$footnote-padding: 40px !default;
+
+$quote-indent-image: url('./base/32px_quote.gif') !default;
+$quode-indent-width: 20px !default;
+$quote-margin-left: 2px !default;
+
+$list-margin-left: 10px !default;  // margin-left of each list line
+$list-margin-top: .3em !default;   // margin-top  of a list's first line
+$list-bullet-width: 30px !default; // for each level of indent / bullet
+$list-checkbox-image: url('./base/checkbox.png') !default;
+
+$table-border-style: 1px solid #999 !default;
+$table-row1-height: 8px !default;
+$table-sep-width: 15px !default;
+$table-sep-image: url('./base/1px_999999.gif') !default;
+$table-row-1-image: url('./base/1px_999999.gif') !default;
+
+$codeblock-border: 1px solid #CCC !default;
+$codeblock-padding: 5px !default;
+
+$hashtag-fontsize: 0.84em !default;
+$hashtag-padding-x: 6px !default;
+$hashtag-padding-y: 0.1em !default;
+$hashtag-radius: 8px !default;

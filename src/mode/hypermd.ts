@@ -163,7 +163,7 @@ function resetTable(state: HyperMDState) {
 const listInQuoteRE = /^\s+((\d+[).]|[-*+])\s+)?/;
 
 const defaultTokenTypeOverrides = {
-  hr: "line-HyperMD-hr line-background-HyperMD-hr-bg hr",
+  hr: "line-HyperMD-hr hr",
   // HyperMD needs to know the level of header/indent. using tokenTypeOverrides is not enough
   // header: "line-HyperMD-header header",
   // quote: "line-HyperMD-quote quote",

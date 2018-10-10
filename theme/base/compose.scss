@@ -1,0 +1,696 @@
+@import "./defaults.scss";
+
+%monospace {
+    font-family: $font-monospace;
+}
+
+.cm-s-#{$theme-name} {
+    line-height: $line-height;
+    font-size: $fs;
+    background: $editor-background;
+    color: $editor-color;
+
+    font-family: $font-normal;
+    -webkit-font-smoothing: antialiased;
+
+    //------------------------------------------------------------------
+
+    /// Fold-HTML
+
+    .CodeMirror-linewidget, .hmd-fold-html { @extend %html-widget; }
+
+    @extend %editor;
+
+    /// Formatting Tokens, use monospace chars
+    span {
+        &.cm-formatting-em,
+        &.cm-formatting-strong,
+        &.cm-formatting-strikethrough,
+        &.cm-formatting-code,
+        &.cm-formatting-link,
+        &.cm-formatting-image,
+        &.cm-url {
+            @extend %monospace;
+        }
+    }
+
+    /// TOC
+    span.cm-hmd-toc { @extend %toc-markup; }
+
+    /// OrgMode
+    span.cm-hmd-orgmode-markup {
+        @extend %monospace;
+        @extend %orgmode-markup;
+    }
+
+    /// Front Matter
+    span.cm-hmd-frontmatter {
+        @extend %monospace;
+        @extend %frontmatter;
+    }
+
+    /// Headers
+
+    pre.HyperMD-header {
+        @extend %header;
+
+        // see https://github.com/laobubu/HyperMD/issues/25
+        line-height: $line-height !important;
+        font-family: inherit !important;
+        padding-left: $line-padding !important;
+        margin-left: 0 !important;
+        border-left: 0 !important;
+        padding-bottom: .25em;
+        span.cm-formatting-header {
+            margin-left: - $header-hash-width !important;
+            @if ($header-hash-width > 0) {
+                display: inline-block;
+                text-align: right;
+                vertical-align: baseline;
+                width: $header-hash-width;
+            }
+            @extend %header-hash !optional;
+        }
+
+        &.hmd-inactive-line{
+            span.cm-formatting-header {
+                @if ($header-hash-width > 0) {
+                    margin-left: 0 !important;
+                }
+            }
+        }
+
+        &.HyperMD-header-1 { @extend %h1 !optional; }
+        &.HyperMD-header-2 { @extend %h2 !optional; }
+        &.HyperMD-header-3 { @extend %h3 !optional; }
+        &.HyperMD-header-4 { @extend %h4 !optional; }
+        &.HyperMD-header-5 { @extend %h5 !optional; }
+        &.HyperMD-header-6 { @extend %h6 !optional; }
+    }
+
+    pre.HyperMD-header-line {
+        opacity: 0.7;
+        line-height: $line-height !important;
+        font-size: $font-normal !important;
+    }
+
+    /// Horizontal Rule
+
+    pre.HyperMD-hr {
+        @extend %hr-text;
+
+        &:before {
+            position: absolute;
+            left: $line-padding;
+            right: $line-padding;
+            top: 0;
+            bottom: 0;
+            @extend %hr-image;
+        }
+
+        &.hmd-inactive-line{
+            @extend %hr-text-hidden;
+            &:before {
+                @extend %hr-image-opaque;
+            }
+        }
+    }
+
+    /// blockquote
+
+    pre.HyperMD-quote
+    {
+        &:before {
+            content: " ";
+            position: absolute;
+            left: $quote-margin-left + $line-padding;
+            top: 0;
+            height: 100%;
+            background-image: $quote-indent-image;
+            background-position: 0 0;
+            background-repeat: repeat;
+            background-size: $quode-indent-width 1px;
+        }
+    }
+    @for $i from 1 through 9 {
+        pre.HyperMD-quote-#{$i} {
+            $padding-left: $quote-margin-left + ($quode-indent-width) * ($i);
+            padding-left: $line-padding + $padding-left;
+
+            &:before {
+                width: $quode-indent-width * $i;
+            }
+
+            &.HyperMD-footnote {
+                padding-left: $line-padding + $padding-left + $footnote-padding;
+            }
+
+            span.cm-formatting-quote{
+                transform: translateZ(0); // avoid getting covered by pre:before
+                width: $quode-indent-width;
+                @extend %quote-indent-gt;
+                @for $j from 1 through $i {
+                    &.cm-formatting-quote-#{$j} {
+                        float: left;
+                        margin-left: - $quode-indent-width * ($i - $j + 1);
+                    }
+                }
+            }
+        }
+    }
+
+    span.cm-hmd-indent-in-quote {
+        // spaces after ">" before non-space char, show them as monospaced
+        @extend %monospace;
+    }
+
+    /// list
+
+    pre.HyperMD-list-line {
+        padding-top: $list-margin-top;
+        min-height: #{$line-height}em;
+
+        span.cm-formatting-list,
+        span.cm-hmd-list-indent {
+            text-align: right;
+            white-space: pre;
+            width: $list-bullet-width;
+            float: left;
+        }
+
+        span.cm-hmd-list-indent {
+            margin-left: - $list-bullet-width - $list-bullet-width;
+            box-sizing: border-box;
+            overflow: hidden;
+            @extend %list-indent-space;
+        }
+
+        &.HyperMD-list-line-nobullet {
+            padding-top: initial;
+            span.cm-hmd-list-indent {
+                margin-left: - $list-bullet-width;
+            }
+        }
+    }
+
+    @for $i from 1 through 9 {
+        $indent_i: $list-bullet-width * $i + $list-margin-left;
+
+        pre.HyperMD-list-line-#{$i} {
+            padding-left: $line-padding + $indent_i;
+        }
+    }
+
+    span.cm-formatting-list
+    {
+        margin-left: - $list-bullet-width;
+        font-family: 'HyperMD-Bullets';
+        color: #666;
+        &.cm-list-2 {
+            text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
+            color: #fff;
+        }
+    }
+
+    span.cm-formatting-task // task list checkbox
+    {
+        @extend %monospace;
+        white-space: pre;
+        display: inline-block;
+        height: 1em;
+        line-height: 1em;
+        min-width: 1em;
+        text-align: center;
+        vertical-align: middle;
+        background-repeat: no-repeat;
+        background-position: center 0;
+        cursor: pointer;
+
+        &.cm-property { // checked
+            background-position-y: -1em;
+        }
+
+        @extend %list-checkbox-text;
+        &.hmd-hidden-token {
+            @extend %list-checkbox-text-hidden;
+        }
+
+        background-image: $list-checkbox-image;
+        background-size: 1em;
+    }
+
+    /// footnote for link and image
+    // note: footnote can be inside a blockquote
+    pre.HyperMD-footnote {
+        font-size: $fs * 0.85;
+        padding-left: $line-padding + $footnote-padding;
+
+        > span > span:first-child {
+            margin-left: - $footnote-padding;
+        }
+
+        span.cm-hmd-footnote{
+            color: #666;
+            cursor: text;
+            text-decoration: none;
+        }
+    }
+
+    /// code block
+
+    // pre.hmd-codeblock-start,
+    // pre.hmd-codeblock-end
+    // {
+
+    // }
+    pre.HyperMD-codeblock {
+        @extend %monospace;
+        line-height: 1.2;
+        color: #922;
+
+        // &.hmd-codeblock-indent {
+        span.cm-inline-code {
+            display: inherit;
+            background-color: inherit;
+            border: inherit;
+            padding: inherit;
+            font-size: inherit;
+        }
+    }
+
+    // note: this is a background style
+    div.HyperMD-codeblock-bg {
+        left: $line-padding - $codeblock-padding;
+        right: $line-padding - $codeblock-padding;
+        background-color: #FAFAFA;
+        border-left: $codeblock-border;
+        border-right: $codeblock-border;
+    }
+
+    div.HyperMD-codeblock-begin-bg {
+        border-top: $codeblock-border;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    div.HyperMD-codeblock-end-bg {
+        border-bottom: $codeblock-border;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+
+    div.HyperMD-codeblock-begin-bg,
+    div.HyperMD-codeblock-end-bg {
+        background-color: #F3F3F3;
+    }
+
+
+    /// link
+
+    .cm-formatting-link + .cm-formatting-link-string,
+    .cm-formatting-link + .cm-formatting-link-string + .cm-url,
+    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string,
+    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link,
+    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link + .cm-formatting-link-string
+    {
+        display: inline-block;
+        font-size: .85em;
+        vertical-align: text-top;
+    }
+
+    // change cursor for links if modifier keys pressed
+    &.HyperMD-with-alt,
+    &.HyperMD-with-ctrl {
+        span.cm-url,
+        span.cm-link,
+        .cm-link + .CodeMirror-widget,
+        span.cm-hashtag,
+        {
+            cursor: pointer;
+        }
+    }
+
+    span.hmd-link-icon {
+        background: url('./base/link.png') no-repeat center center;
+        width: 20px;
+        height: 16px;
+        display: inline-block;
+        vertical-align: middle;
+        opacity: .4;
+        &:hover {
+            opacity: 1
+        }
+        &:after {
+            content: "" //remove default stuff
+        }
+    }
+
+    /// image
+
+    img.hmd-image {
+        vertical-align: middle;
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        &.hmd-image-loading,
+        &.hmd-image-error {
+            min-width: 24px;
+            min-height: 24px;
+            background: #eeeeee url('./base/spin.gif') no-repeat center center;
+        }
+        &.hmd-image-error {
+            background-image: url('./base/image-error.png');
+        }
+    }
+
+    /// math blocks
+
+    span.hmd-fold-math-placeholder {
+      // when math is not fully rendered. a placeholder with raw Tex expression is presented
+      @extend .cm-math;
+    }
+
+    span.cm-math-2 { font-size: 1.1 * $fs }
+
+    /// other Markdown stuff
+
+    span.cm-hmd-escape-backslash { color: #CAA; }
+    span.cm-hmd-escape-char { color: #666 }
+    span.cm-hmd-footref {
+        display: inline-block;
+        font-size: .7em;
+        vertical-align: text-top;
+        background-color: rgba(#eee, .7);
+        color: #999;
+        margin-top: -.2em;
+    }
+
+    span.cm-inline-code {
+        @extend %monospace;
+        color: #922;
+        font-size: 90%;
+
+        &:not(.cm-formatting):not(.cm-hmd-indented-code) {
+            background-color: rgba(#eee, .5);
+            border-radius: 4px;
+            vertical-align: baseline;
+            border: #ccc solid 1px;
+            padding: 1px .4em;
+        }
+
+        &.hmd-hidden-token {
+            font-size: 0;
+        }
+    }
+
+    /// hyperMD stuff
+
+    /// hashtag
+
+    span.cm-hashtag {
+        background-color: #999;
+        background-color: rgba(#000, 0.3);
+        color: #FFF;
+        font-size: $hashtag-fontsize;
+        display: inline-block;
+        vertical-align: middle;
+        padding-top: $hashtag-padding-y;
+        padding-bottom: $hashtag-padding-y;
+
+        &.cm-hashtag-begin {
+            padding-left: $hashtag-padding-x;
+            border-radius: $hashtag-radius 0 0 $hashtag-radius;
+        }
+
+        &.cm-hashtag-end {
+            padding-right: $hashtag-padding-x;
+            border-radius: 0 $hashtag-radius $hashtag-radius 0;
+        }
+
+        &.cm-hmd-escape-backslash {
+            color: #FCC;
+        }
+    }
+
+    span.cm-formatting-hashtag {
+        @extend %monospace;
+        color: #EEE;
+    }
+
+    /// hypermd/addon/insert-file
+
+    .hmd-file-uploading {
+        outline: 2px dashed #CCC;
+        outline-offset: -2px;
+        animation: hmd-file-uploading-ani 1.5s linear infinite;
+    }
+
+    @keyframes hmd-file-uploading-ani {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 0.7; }
+    }
+
+    .hmd-file-uploaded {
+        outline: 2px solid #6C3;
+        outline-offset: -2px;
+    }
+
+    /// hypermd/addon/click
+
+    .HyperMD-goback {
+        width: 1px;
+    }
+    div.HyperMD-goback-button {
+        padding-right: 15px; // not less than .CodeMirror-gutters padding-right
+        border-radius: 0 10px 10px 0;
+        display: inline-block;
+        text-align: center;
+        background-color: lighten(#4078c0, 20%);
+        color: #f7f7f7;
+        cursor: pointer;
+        &:hover {
+            color: transparent;
+            text-align: left;
+            &:before {
+                position: absolute;
+                padding-left: 5px;
+                content: "Back";
+                color: #f7f7f7;
+            }
+        }
+    }
+
+    /// hpyermd table
+
+    pre.HyperMD-table-row {
+        > span {
+            display: inline-block;
+            border-top: $table-border-style;
+            margin-right: 30px + $line-margin * 2; // leave space for hscroller
+        }
+
+        &.HyperMD-table-row-0,
+        &.HyperMD-table-row-1,
+        &.HyperMD-table-row-2 {
+            > span {
+                border-top: 0;
+            }
+        }
+
+        span.cm-hmd-table-sep {
+            @extend %monospace;
+            width: $table-sep-width;
+            text-align: center;
+            box-sizing: content-box;
+            font-weight: normal;
+
+            &.cm-hmd-table-sep-dummy {
+                width: 1em;
+            }
+
+            &:before {
+                content: '|';
+                color: transparent;
+                top: 0;
+                height: 100%;
+                position: absolute;
+                // border-left: $table-border-style;
+                background: #{$table-sep-image} repeat-y center 0px;
+                pointer-events: none;
+            }
+        }
+
+        &.HyperMD-table-row-0 {
+            // title row
+            font-weight: 600;
+            span.cm-strong {
+                font-weight: 800;
+            }
+        }
+
+        .hmd-table-column-content {
+            // do NOT delete padding, otherwise measuring will be inaccurate!
+            // something about layout Grid and Block Formatting Contexts
+            padding: ($table-row1-height / 2) 1px;
+        }
+
+        &.HyperMD-table-row-1 {
+            // :----: | :-----: | dash line
+            line-height: $table-row1-height;
+
+            > span { border-bottom: 0 }
+            .hmd-table-column-content { padding: 1px }
+        }
+
+        &.HyperMD-table-row-0 {
+            > span { border-bottom: 0 }
+            span.hmd-table-column-content { padding-bottom: 1px }
+        }
+
+        &.HyperMD-table-row-2 {
+            span.hmd-table-column-content { padding-top: 1px }
+        }
+    }
+
+    /// hypermd/addon/hover
+
+    &.CodeMirror div.HyperMD-hover {
+        > .HyperMD-hover-content {
+            background-color: #000;
+            background-color: rgba(#000, .7);
+            border: 0;
+            color: #fff;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 95%;
+            min-width: 200px;
+            a {
+                color: inherit
+            }
+            p {
+                margin: .2em 0;
+            }
+            code {
+                @extend %monospace;
+                display: inline-block;
+                font-size: .87em;
+                border: 1px solid #999;
+                border-radius: 2px;
+                padding: 0px 4px;
+            }
+        }
+        > .HyperMD-hover-indicator {
+            content: " ";
+            display:block;
+            width: 0px;
+            margin-bottom: -5px;
+            border: 5px solid transparent;
+            border-top-color: #000;
+            border-top-color: rgba(#000, .7);
+        }
+    }
+
+    /// fold-html
+
+    .hmd-fold-html-stub {
+        @extend %monospace;
+        display: inline-block;
+        font-size: 67%;
+        color: #999;
+        vertical-align: middle;
+        border: 1px solid #999;
+        padding: 0 .2em;
+        border-radius: 5px;
+        margin: 0 .5em;
+        background: #FAFAFA;
+        cursor: pointer;
+
+        &.omittable {
+            display: none;
+        }
+
+        &:hover,
+        &.highlight {
+            // for non-inline HTML stub. Remind user where the stub is.
+            color: #FFF;
+            border-color: #C30;
+            background: #F40;
+        }
+    }
+
+    .hmd-fold-html {
+        position: relative;
+        border: 1px solid #FFF;
+
+        &:hover {
+            border: 1px dashed #999;
+
+            .hmd-fold-html-stub.omittable {
+                display: block;
+                right: 0;
+                bottom: 100%;
+                margin: 0;
+                position: absolute;
+                z-index: 100;
+            }
+        }
+    }
+
+    /// fold-code
+
+    .hmd-fold-code-stub {
+        @extend .hmd-fold-html-stub;
+    }
+
+    .hmd-fold-code-image {
+        text-align: center;
+    }
+
+    /// deal with floating elements
+
+    pre.HyperMD-header,
+    pre.HyperMD-footnote,
+    pre.HyperMD-codeblock,
+    pre.HyperMD-hr
+    {
+        clear: left;
+    }
+
+    /// hide-token
+
+    pre.hmd-inactive-line {
+        // background: aqua;  // just for debug
+
+        &.HyperMD-table-row-1 {  // table line |:--------:|:-------:|
+            color: transparent;
+            text-shadow: none;
+        }
+
+        &.HyperMD-table-row-1 > span {
+            background: #{$table-row-1-image} repeat-x 0px center;
+        }
+
+        &.HyperMD-table-row {
+            span.cm-hmd-table-sep {
+                color: transparent;
+                &.cm-hmd-table-sep-dummy:before {
+                    display: none;
+                }
+            }
+        }
+
+        span.cm-formatting-quote {
+            color: transparent;
+        }
+
+        span.cm-hmd-escape-backslash,
+        span.cm-formatting-header {
+            font-size: 0 !important;
+            display: inline;
+        }
+
+        span.cm-hmd-list-indent {
+            border-right: 0;
+        }
+    }
+}
