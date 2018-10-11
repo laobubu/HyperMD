@@ -259,14 +259,12 @@
         @extend %footnote-line !optional;
         padding-left: $line-padding + $footnote-hanging-indent;
 
-        > span > span:first-child {
-            margin-left: - $footnote-hanging-indent;
-        }
-
         .cm-hmd-footnote {
-            @extend %footnote-name !optional;
+            margin-left: - $footnote-hanging-indent;
             cursor: text;
             text-decoration: none;
+
+            @extend %footnote-name !optional;
         }
     }
 

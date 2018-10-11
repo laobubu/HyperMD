@@ -201,7 +201,7 @@ $codeblock-end-background: #F3F3F3;
 
 /// Image
 
-img.hmd-image {
+%editor img.hmd-image {
     &.hmd-image-loading,
     &.hmd-image-error {
         min-width: 24px;
