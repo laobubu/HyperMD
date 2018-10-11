@@ -11,7 +11,7 @@ requirejs.config({
 
   // Remove this, if you are using HyperMD outside "HyperMD" online demo site
   paths: {
-    "hypermd": location.href.substr(0, location.href.indexOf('docs/examples/')) + ".",
+    "hypermd": location.href.substr(0, location.href.indexOf('/docs/examples/')),
     "Raphael": "raphael", // flowchart.js bug
   },
 

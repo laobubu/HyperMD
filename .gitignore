@@ -9,6 +9,7 @@ cache/
 !src/**/*.d.ts
 
 *.js.map
+*.css.map
 
 *.js
 !demo/**/*.js

@@ -11,36 +11,30 @@ $header-hash-width: 40px;
 /// CodeMirror Basic Colors
 %editor {
     .cm-header, .cm-strong { font-weight: 600; }
-    span.cm-quote { color: #666; }
-    span.cm-meta { color: #FF1717; }
-    span.cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }
-    span.cm-atom { color: #219; }
-    span.cm-number { color: #164; }
-    span.cm-def { color: #00f; }
-    span.cm-variable { color: black; }
-    span.cm-variable-2 { color: #0000C0; }
-    span.cm-variable-3 { color: #0000C0; }
-    span.cm-property { color: black; }
-    span.cm-operator { color: black; }
-    span.cm-comment { color: #4F9F5F; }
-    span.cm-string { color: #2A00FF; }
-    span.cm-string-2 { color: #f50; }
-    span.cm-qualifier { color: #555; }
-    span.cm-builtin { color: #30a; }
-    span.cm-bracket { color: #cc7; }
-    span.cm-tag { color: #170; }
-    span.cm-attribute { color: #00c; }
-    span.cm-url { color: #4af }
-    span.cm-link {
-        color: #4078c0;
-        text-decoration: none;
-        &:hover {
-            text-decoration: underline
-        }
-    }
-    span.cm-error { color: #f00; }
-    span.cm-math { font-family: $font-monospace; font-style: italic; background: rgba(#ffe,.4); }
-    span.cm-formatting-math { color: #CAA; font-weight: inherit; }
+    .cm-quote { color: #666; }
+    .cm-meta { color: #FF1717; }
+    .cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }
+    .cm-atom { color: #219; }
+    .cm-number { color: #164; }
+    .cm-def { color: #00f; }
+    .cm-variable { color: black; }
+    .cm-variable-2 { color: #0000C0; }
+    .cm-variable-3 { color: #0000C0; }
+    .cm-property { color: black; }
+    .cm-operator { color: black; }
+    .cm-comment { color: #4F9F5F; }
+    .cm-string { color: #2A00FF; }
+    .cm-string-2 { color: #f50; }
+    .cm-qualifier { color: #555; }
+    .cm-builtin { color: #30a; }
+    .cm-bracket { color: #cc7; }
+    .cm-tag { color: #170; }
+    .cm-attribute { color: #00c; }
+    .cm-url { color: #4af }
+    .cm-link { color: #4078c0; }
+    .cm-error { color: #f00; }
+    .cm-math { font-family: $font-monospace; font-style: italic; background: rgba(#ffe,.4); }
+    .cm-formatting-math { color: #CAA; font-weight: inherit; }
 
     .CodeMirror-activeline-background { background: #e8f2ff; }
     .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
@@ -95,13 +89,13 @@ $header-hash-width: 40px;
 }
 
 /// Header
-%header {}
-%h1 { font-weight: 600; font-size: $fs * 2 }
-%h2 { font-weight: 600; font-size: $fs * 1.5 }
-%h3 { font-size: $fs * 1.2 }
+%header-line { }
+%h1-line { font-weight: 600; font-size: $fs * 2 }
+%h2-line { font-weight: 600; font-size: $fs * 1.5 }
+%h3-line { font-size: $fs * 1.2 }
 %header-hash { font-size: 0.7em; opacity: 0.7; }
 
-%h1, %h2 { // add a line below the header
+%h1-line, %h2-line { // add a line below the header
     &:after {
         display: block;
         content: ' ';
@@ -112,18 +106,26 @@ $header-hash-width: 40px;
 }
 
 /// Horizontal Rule
-// The line is just a image.
-// By default, it shall be translucent to allow Markdown "-----" display clearly.
-%hr-text { color: #999; font-family: $font-monospace; }
-%hr-image { opacity: 0.6; background: url('./base/1px_999999.gif') repeat-x 0px center; }
-%hr-text-hidden { color: transparent; }
+// the Markdown line "-----"
+%hr-line { color: #999; font-family: $font-monospace; }
+%hr-line-hidden { color: transparent; }
+
+// The visual Horizontal Rule is just a image.
+// By default, %hr-image shall be translucent so that we can display Markdown line "-----" clearly.
+%hr-image { opacity: 0.3; background: url('./base/1px_999999.gif') repeat-x 0px center; }
 %hr-image-opaque { opacity: 1; }
 
 /// BlockQuote
+%quote-line { }
+
 // HyperMD supports strip style decoration only
-$quote-indent-image: url('./base/32px_quote.gif'); // strip decoration
+$quote-indent-image: url('./base/quote-strip.png'); // strip decoration
 $quode-indent-width: 20px; // width of the strip image, for each level of blockquote
 %quote-indent-gt { } // the style of ">"
+%quote-indent-gt-hidden { color: transparent; }
+
+/// List
+%list-line { }
 
 /// List Checkbox
 $list-checkbox-image: url('./base/checkbox.png'); // image aspect ratio must be 2:1
@@ -131,13 +133,85 @@ $list-checkbox-image: url('./base/checkbox.png'); // image aspect ratio must be 
 %list-checkbox-text-hidden { color: transparent; }
 
 /// List Bullet and indentation space
-%list-indent-space { // they are spaces! shrink them as much as you can!
+%list-indent-space { // spaces before item text or bullet! shrink them as much as you can!
     border-right: 1px dashed #CCC; // add a border
     white-space: pre;
     font-size: .5em; // decrease font-size to make it compact
     line-height: 200%;
 }
+@font-face {
+    font-family: 'HyperMD-Bullets';
+    src: url('./base/hypermd.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+%list-bullet { // "-" or "1.", "2." <span>
+    font-family: 'HyperMD-Bullets';
+    color: #666;
+    &.cm-list-2 {
+        text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
+        color: #fff;
+    }
+}
 
+/// Footnote
+$footnote-hanging-indent: 40px;
+%footnote-line { font-size: $fs * 0.85; }
+%footnote-name { color: #666; }  // [foot-note]:
+
+/// CodeBlock
+$codeblock-background: #FAFAFA; // background is set via variable!!!!
+%codeblock-line {
+    line-height: 1.2;
+    color: #922;
+}
+
+$codeblock-begin-background: #F3F3F3;
+%codeblock-begin-line {}
+
+$codeblock-end-background: #F3F3F3;
+%codeblock-end-line {}
+
+/// Link
+%link-text {
+    // color is pre-defined above. search for "cm-link"
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline
+    }
+}
+%link-href {
+    font-size: .85em;
+    vertical-align: text-top;
+}
+%link-icon {
+    background: url('./base/link.png') no-repeat center center;
+    width: 20px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+    opacity: .4;
+    &:hover {
+        opacity: 1
+    }
+    &:after {
+        content: "" //remove default stuff
+    }
+}
+
+/// Image
+
+img.hmd-image {
+    &.hmd-image-loading,
+    &.hmd-image-error {
+        min-width: 24px;
+        min-height: 24px;
+        background: #eeeeee url('./base/spin.gif') no-repeat center center;
+    }
+    &.hmd-image-error {
+        background-image: url('./base/image-error.png');
+    }
+}
 
 /// [TOC] markup
 %toc-markup { font-size: $fs * 2; color: #999; }
@@ -148,13 +222,6 @@ $list-checkbox-image: url('./base/checkbox.png'); // image aspect ratio must be 
 /// YAML FrontMatter
 %frontmatter { }
 
-/// List
-@font-face {
-    font-family: 'HyperMD-Bullets';
-    src: url('./base/hypermd.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-}
 
 /// Finally
 @import './base/compose';

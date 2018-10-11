@@ -11,14 +11,14 @@ $line-padding: 5px !default;
 
 $header-hash-width: 0px !default; // NOTE: Must be smaller than $line-padding
 
-$footnote-padding: 40px !default;
+$footnote-hanging-indent: 40px !default;
 
 $quote-indent-image: url('./base/32px_quote.gif') !default;
 $quode-indent-width: 20px !default;
 $quote-margin-left: 2px !default;
 
 $list-margin-left: 10px !default;  // margin-left of each list line
-$list-margin-top: .3em !default;   // margin-top  of a list's first line
+$list-margin-top: .3em !default;   // margin-top  of each list **item**
 $list-bullet-width: 30px !default; // for each level of indent / bullet
 $list-checkbox-image: url('./base/checkbox.png') !default;
 
@@ -28,6 +28,10 @@ $table-sep-width: 15px !default;
 $table-sep-image: url('./base/1px_999999.gif') !default;
 $table-row-1-image: url('./base/1px_999999.gif') !default;
 
+$codeblock-background: #FAFAFA !default;
+$codeblock-begin-background: #F3F3F3 !default;
+$codeblock-end-background: #F3F3F3 !default;
+$codeblock-border-radius: 4px !default;
 $codeblock-border: 1px solid #CCC !default;
 $codeblock-padding: 5px !default;
 

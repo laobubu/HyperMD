@@ -1,7 +1,13 @@
 @import "./defaults.scss";
 
+@if ($header-hash-width > $line-padding) { @error '$header-hash-width can NOT be greater than $line-padding'; }
+
 %monospace {
     font-family: $font-monospace;
+}
+
+%transparent-default {
+    color: transparent;
 }
 
 .cm-s-#{$theme-name} {
@@ -17,9 +23,9 @@
 
     /// Fold-HTML
 
-    .CodeMirror-linewidget, .hmd-fold-html { @extend %html-widget; }
+    .CodeMirror-linewidget, .hmd-fold-html { @extend %html-widget !optional; }
 
-    @extend %editor;
+    @extend %editor !optional;
 
     /// Formatting Tokens, use monospace chars
     span {
@@ -35,24 +41,27 @@
     }
 
     /// TOC
-    span.cm-hmd-toc { @extend %toc-markup; }
+    .cm-hmd-toc {
+        @extend %monospace;
+        @extend %toc-markup !optional;
+    }
 
     /// OrgMode
-    span.cm-hmd-orgmode-markup {
+    .cm-hmd-orgmode-markup {
         @extend %monospace;
-        @extend %orgmode-markup;
+        @extend %orgmode-markup !optional;
     }
 
     /// Front Matter
-    span.cm-hmd-frontmatter {
+    .cm-hmd-frontmatter {
         @extend %monospace;
-        @extend %frontmatter;
+        @extend %frontmatter !optional;
     }
 
     /// Headers
 
     pre.HyperMD-header {
-        @extend %header;
+        @extend %header-line !optional;
 
         // see https://github.com/laobubu/HyperMD/issues/25
         line-height: $line-height !important;
@@ -61,7 +70,7 @@
         margin-left: 0 !important;
         border-left: 0 !important;
         padding-bottom: .25em;
-        span.cm-formatting-header {
+        .cm-formatting-header {
             margin-left: - $header-hash-width !important;
             @if ($header-hash-width > 0) {
                 display: inline-block;
@@ -73,19 +82,19 @@
         }
 
         &.hmd-inactive-line{
-            span.cm-formatting-header {
+            .cm-formatting-header {
                 @if ($header-hash-width > 0) {
                     margin-left: 0 !important;
                 }
             }
         }
 
-        &.HyperMD-header-1 { @extend %h1 !optional; }
-        &.HyperMD-header-2 { @extend %h2 !optional; }
-        &.HyperMD-header-3 { @extend %h3 !optional; }
-        &.HyperMD-header-4 { @extend %h4 !optional; }
-        &.HyperMD-header-5 { @extend %h5 !optional; }
-        &.HyperMD-header-6 { @extend %h6 !optional; }
+        &.HyperMD-header-1 { @extend %h1-line !optional; }
+        &.HyperMD-header-2 { @extend %h2-line !optional; }
+        &.HyperMD-header-3 { @extend %h3-line !optional; }
+        &.HyperMD-header-4 { @extend %h4-line !optional; }
+        &.HyperMD-header-5 { @extend %h5-line !optional; }
+        &.HyperMD-header-6 { @extend %h6-line !optional; }
     }
 
     pre.HyperMD-header-line {
@@ -97,9 +106,10 @@
     /// Horizontal Rule
 
     pre.HyperMD-hr {
-        @extend %hr-text;
+        @extend %hr-line;
 
         &:before {
+            content: ' ';
             position: absolute;
             left: $line-padding;
             right: $line-padding;
@@ -109,7 +119,7 @@
         }
 
         &.hmd-inactive-line{
-            @extend %hr-text-hidden;
+            @extend %transparent-default, %hr-line-hidden !optional;
             &:before {
                 @extend %hr-image-opaque;
             }
@@ -120,6 +130,7 @@
 
     pre.HyperMD-quote
     {
+        @extend %quote-line !optional;
         &:before {
             content: " ";
             position: absolute;
@@ -130,6 +141,19 @@
             background-position: 0 0;
             background-repeat: repeat;
             background-size: $quode-indent-width 1px;
+        }
+
+        .cm-formatting-quote {
+            float: left;
+            transform: translateZ(0); // avoid getting covered by pre:before
+            width: $quode-indent-width;
+            @extend %quote-indent-gt !optional;
+        }
+
+        &.hmd-inactive-line {
+            .cm-formatting-quote {
+                @extend %transparent-default, %quote-indent-gt-hidden !optional;
+            }
         }
     }
     @for $i from 1 through 9 {
@@ -142,24 +166,18 @@
             }
 
             &.HyperMD-footnote {
-                padding-left: $line-padding + $padding-left + $footnote-padding;
+                padding-left: $line-padding + $padding-left + $footnote-hanging-indent;
             }
 
-            span.cm-formatting-quote{
-                transform: translateZ(0); // avoid getting covered by pre:before
-                width: $quode-indent-width;
-                @extend %quote-indent-gt;
-                @for $j from 1 through $i {
-                    &.cm-formatting-quote-#{$j} {
-                        float: left;
-                        margin-left: - $quode-indent-width * ($i - $j + 1);
-                    }
+            @for $j from 1 through $i {
+                .cm-formatting-quote.cm-formatting-quote-#{$j} {
+                    margin-left: - $quode-indent-width * ($i - $j + 1);
                 }
             }
         }
     }
 
-    span.cm-hmd-indent-in-quote {
+    .cm-hmd-indent-in-quote {
         // spaces after ">" before non-space char, show them as monospaced
         @extend %monospace;
     }
@@ -169,16 +187,17 @@
     pre.HyperMD-list-line {
         padding-top: $list-margin-top;
         min-height: #{$line-height}em;
+        @extend %list-line !optional;
 
-        span.cm-formatting-list,
-        span.cm-hmd-list-indent {
+        .cm-formatting-list,
+        .cm-hmd-list-indent {
             text-align: right;
             white-space: pre;
             width: $list-bullet-width;
             float: left;
         }
 
-        span.cm-hmd-list-indent {
+        .cm-hmd-list-indent {
             margin-left: - $list-bullet-width - $list-bullet-width;
             box-sizing: border-box;
             overflow: hidden;
@@ -187,7 +206,7 @@
 
         &.HyperMD-list-line-nobullet {
             padding-top: initial;
-            span.cm-hmd-list-indent {
+            .cm-hmd-list-indent {
                 margin-left: - $list-bullet-width;
             }
         }
@@ -201,18 +220,13 @@
         }
     }
 
-    span.cm-formatting-list
+    .cm-formatting-list
     {
+        @extend %list-bullet !optional;
         margin-left: - $list-bullet-width;
-        font-family: 'HyperMD-Bullets';
-        color: #666;
-        &.cm-list-2 {
-            text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
-            color: #fff;
-        }
     }
 
-    span.cm-formatting-task // task list checkbox
+    .cm-formatting-task // task list checkbox
     {
         @extend %monospace;
         white-space: pre;
@@ -242,15 +256,15 @@
     /// footnote for link and image
     // note: footnote can be inside a blockquote
     pre.HyperMD-footnote {
-        font-size: $fs * 0.85;
-        padding-left: $line-padding + $footnote-padding;
+        @extend %footnote-line !optional;
+        padding-left: $line-padding + $footnote-hanging-indent;
 
         > span > span:first-child {
-            margin-left: - $footnote-padding;
+            margin-left: - $footnote-hanging-indent;
         }
 
-        span.cm-hmd-footnote{
-            color: #666;
+        .cm-hmd-footnote {
+            @extend %footnote-name !optional;
             cursor: text;
             text-decoration: none;
         }
@@ -265,11 +279,10 @@
     // }
     pre.HyperMD-codeblock {
         @extend %monospace;
-        line-height: 1.2;
-        color: #922;
+        @extend %codeblock-line !optional;
 
         // &.hmd-codeblock-indent {
-        span.cm-inline-code {
+        .cm-inline-code {
             display: inherit;
             background-color: inherit;
             border: inherit;
@@ -282,30 +295,41 @@
     div.HyperMD-codeblock-bg {
         left: $line-padding - $codeblock-padding;
         right: $line-padding - $codeblock-padding;
-        background-color: #FAFAFA;
+        background: $codeblock-background;
         border-left: $codeblock-border;
         border-right: $codeblock-border;
     }
 
+    pre.HyperMD-codeblock-begin {
+        @extend %codeblock-begin-line !optional;
+    }
+
+    // note: this is a background style
     div.HyperMD-codeblock-begin-bg {
+        background: $codeblock-begin-background;
         border-top: $codeblock-border;
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
+        border-top-left-radius: $codeblock-border-radius;
+        border-top-right-radius: $codeblock-border-radius;
     }
 
+    pre.HyperMD-codeblock-end {
+        @extend %codeblock-end-line !optional;
+    }
+
+    // note: this is a background style
     div.HyperMD-codeblock-end-bg {
+        background: $codeblock-end-background;
         border-bottom: $codeblock-border;
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
-    }
-
-    div.HyperMD-codeblock-begin-bg,
-    div.HyperMD-codeblock-end-bg {
-        background-color: #F3F3F3;
+        border-bottom-left-radius: $codeblock-border-radius;
+        border-bottom-right-radius: $codeblock-border-radius;
     }
 
 
     /// link
+
+    .cm-link {
+        @extend %link-text !optional;
+    }
 
     .cm-formatting-link + .cm-formatting-link-string,
     .cm-formatting-link + .cm-formatting-link-string + .cm-url,
@@ -313,9 +337,7 @@
     .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link,
     .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link + .cm-formatting-link-string
     {
-        display: inline-block;
-        font-size: .85em;
-        vertical-align: text-top;
+        @extend %link-href !optional;
     }
 
     // change cursor for links if modifier keys pressed
@@ -331,18 +353,7 @@
     }
 
     span.hmd-link-icon {
-        background: url('./base/link.png') no-repeat center center;
-        width: 20px;
-        height: 16px;
-        display: inline-block;
-        vertical-align: middle;
-        opacity: .4;
-        &:hover {
-            opacity: 1
-        }
-        &:after {
-            content: "" //remove default stuff
-        }
+        @extend %link-icon !optional;
     }
 
     /// image
@@ -352,15 +363,9 @@
         width: auto;
         max-width: 100%;
         height: auto;
-        &.hmd-image-loading,
-        &.hmd-image-error {
-            min-width: 24px;
-            min-height: 24px;
-            background: #eeeeee url('./base/spin.gif') no-repeat center center;
-        }
-        &.hmd-image-error {
-            background-image: url('./base/image-error.png');
-        }
+
+        &.hmd-image-loading {}
+        &.hmd-image-error {}
     }
 
     /// math blocks
@@ -677,10 +682,6 @@
                     display: none;
                 }
             }
-        }
-
-        span.cm-formatting-quote {
-            color: transparent;
         }
 
         span.cm-hmd-escape-backslash,
