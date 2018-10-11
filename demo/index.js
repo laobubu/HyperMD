@@ -1,19 +1,17 @@
 var is_running_demo = /\.github\.|laobubu\.net/.test(location.hostname)
 
-var demo_page_baseurl = window.location.href.replace(/[\?\#].*$/, '').replace(/\/[^\/]+$/, '/')
+var demo_page_baseurl = location.href.replace(/[\?\#].*$/, '').replace(/\/[^\/]+$/, '/')
 var demo_page_lib_baseurl = is_running_demo ? "https://cdn.jsdelivr.net/npm/" : (demo_page_baseurl + "node_modules/")
 var demo_filename = "README.md"
+if (!is_running_demo) requirejs.config({ paths: { hypermd: demo_page_baseurl } })
 
-if (requirejs) requirejs.config({
+//------------------------------------------------------------------
+// Below is what you really need
+
+requirejs.config({
   // baseUrl: "node_modules/",                   // using local version
   // baseUrl: "https://cdn.jsdelivr.net/npm/",   // or use CDN
   baseUrl: demo_page_lib_baseurl,
-
-  paths: {
-    // HyperMD is not from node_modules nor CDN:
-    // "hypermd": "./",
-    "hypermd": demo_page_baseurl + ".",
-  },
 
   // Remove this line if you occur errors with CDN
   packages: requirejs_packages, // see: requirejs_packages.js
@@ -70,18 +68,18 @@ require([
   /// PowerPack with third-party libraries  ///
   /////////////////////////////////////////////
 
-  'hypermd/powerpack/fold-emoji-with-emojione',
-  // 'hypermd/powerpack/fold-emoji-with-twemoji',
+  // 'hypermd/powerpack/fold-emoji-with-emojione',
+  // // 'hypermd/powerpack/fold-emoji-with-twemoji',
 
-  'hypermd/powerpack/insert-file-with-smms',
+  // 'hypermd/powerpack/insert-file-with-smms',
 
-  'hypermd/powerpack/hover-with-marked',
+  // 'hypermd/powerpack/hover-with-marked',
 
-  'hypermd/powerpack/fold-math-with-katex',
-  // 'hypermd/powerpack/fold-math-with-mathjax',
+  // 'hypermd/powerpack/fold-math-with-katex',
+  // // 'hypermd/powerpack/fold-math-with-mathjax',
 
-  'hypermd/powerpack/paste-with-turndown',
-  'turndown-plugin-gfm',
+  // 'hypermd/powerpack/paste-with-turndown',
+  // 'turndown-plugin-gfm',
 
 ], function (CodeMirror, HyperMD) {
   'use strict';

@@ -259,8 +259,11 @@
         @extend %footnote-line !optional;
         padding-left: $line-padding + $footnote-hanging-indent;
 
-        .cm-hmd-footnote {
+        > span > span:first-child {
             margin-left: - $footnote-hanging-indent;
+        }
+
+        .cm-hmd-footnote {
             cursor: text;
             text-decoration: none;
 
