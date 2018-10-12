@@ -1,0 +1,29 @@
+body {
+  margin: 0;
+}
+
+#app,
+.full-fill,
+.editor-area>.CodeMirror {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+#app {
+  display: flex;
+  flex-flow: column;
+}
+
+.panel {
+    padding: 5px 10px;
+    background: #FAFAFA;
+    border-bottom: 1px solid #EEE;
+}
+
+.editor-area {
+  flex-grow: 1;
+  position: relative;
+}

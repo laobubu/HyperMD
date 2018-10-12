@@ -6,14 +6,68 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>HyperMD Playground (for DEBUG)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div id="editor">
-    <textarea id="my-textarea"></textarea>
+  <div id="app">
+    <div class="panel">
+      <label v-for="(value, key) in windows" :key="key"><input type="checkbox" v-model="windows[key]">{{ key }}</label>
+      <button onClick="refreshCSS()">Refresh CSS</button>
+    </div>
+
+    <div class="editor-area">
+      <textarea id="my-textarea"></textarea>
+    </div>
+
+    <float-win v-model="windows.hello" title="Wow Such Page">
+      Best Wishes
+    </float-win>
+
+    <float-win v-model="windows.options" title="Editor Options" v-if="options">
+      <fieldset>
+        <legend>Click</legend>
+        <option-input :dist="options.hmdClick" member="enabled"></option-input>
+      </fieldset>
+
+      <fieldset>
+        <legend>Hover</legend>
+        <option-input :dist="options.hmdHover" member="enabled"></option-input>
+      </fieldset>
+
+      <fieldset>
+        <legend>InsertFile</legend>
+        <option-input :dist="options.hmdInsertFile" member="byPaste"></option-input>
+        <option-input :dist="options.hmdInsertFile" member="byDrop"></option-input>
+      </fieldset>
+
+      <fieldset>
+        <legend>ReadLink</legend>
+        <option-input :dist="options.hmdReadLink" member="baseURI"></option-input>
+      </fieldset>
+
+      <fieldset>
+        <legend>TableAlign</legend>
+        <option-input :dist="options.hmdTableAlign" member="enabled"></option-input>
+      </fieldset>
+
+      <fieldset>
+        <legend>HideToken</legend>
+        <option-input :dist="options.hmdHideToken" member="enabled"></option-input>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fold</legend>
+        <option-input :dist="options.hmdFold" member="image"></option-input>
+        <option-input :dist="options.hmdFold" member="link"></option-input>
+        <option-input :dist="options.hmdFold" member="math"></option-input>
+        <option-input :dist="options.hmdFold" member="html"></option-input>
+        <option-input :dist="options.hmdFold" member="emoji"></option-input>
+      </fieldset>
+    </float-win>
   </div>
 
-  <script src="/demo/vendor/require.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/requirejs/require.js"></script>
   <script src="/goods/patch-requirejs.js"></script>
   <script src="./utils.js"></script>
   <script src="./main.js" data-main></script>

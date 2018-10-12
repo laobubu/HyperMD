@@ -8,7 +8,7 @@
     "prepare": "npm run build",
     "build": "hmd-run npm:build-*",
     "prebuild-js": "node scripts/pre-build.js",
-    "build-js": "hmd-run npm:buildjs-*",
+    "build-js": "hmd-run npm:buildjs-* --color",
     "buildjs-bundle": "rollup -c",
     "buildjs-umd": "tsc && hmd-transpile --map -o . everything.js common.js addon/*.js core/*.js goods/*.js keymap/*.js mode/*.js powerpack/*.js",
     "postbuild-js": "node scripts/post-build.js",
@@ -41,7 +41,8 @@
     "rollup-plugin-typescript2": "^0.17.1",
     "rollup-plugin-uglify": "^6.0.0",
     "sass": "^1.14.1",
-    "typescript": "^3.1.1"
+    "typescript": "^3.1.1",
+    "vue": "^2.5.17"
   },
   "peerDependencies": {
     "codemirror": "^5.37.0"

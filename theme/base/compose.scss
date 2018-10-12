@@ -21,6 +21,10 @@
 
     //------------------------------------------------------------------
 
+    pre.CodeMirror-line {
+        min-height: #{$line-height}em;
+    }
+
     /// Fold-HTML
 
     .CodeMirror-linewidget, .hmd-fold-html { @extend %html-widget !optional; }
@@ -186,7 +190,6 @@
 
     pre.HyperMD-list-line {
         padding-top: $list-margin-top;
-        min-height: #{$line-height}em;
         @extend %list-line !optional;
 
         .cm-formatting-list,

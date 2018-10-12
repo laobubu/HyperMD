@@ -1,0 +1,53 @@
+.float-win {
+    position: absolute;
+    position: fixed;
+    z-index: 100;
+    background: #EEE;
+    background-image: linear-gradient(to bottom, #FFF, #EEE);
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 3px 7px rgba(0,0,0,0.3);
+    max-width: 70%;
+}
+
+.float-win-hidden {
+    display: none;
+}
+
+.float-win [win-close] {
+    position: absolute;
+    right: 0;
+    height: 100%;
+    top: 0;
+    color: #FFF;
+    border: 0;
+    background-color: #C43;
+    background-image: linear-gradient(to bottom, #C43, #A32);
+    border-left: 1px solid #CCC;
+    cursor: pointer;
+    font-size: 80%;
+    width: 30px;
+}
+
+.float-win [win-title] {
+    position: relative;
+    background: #579;
+    font-size: .87em;
+    background-image: linear-gradient(to bottom, #68A, #579);
+    color: #EEE;
+    padding: 5px 15px;
+    padding-right: 50px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: move;
+}
+
+.float-win [win-content] {
+    max-height: 80vh;
+    overflow: auto;
+    padding: 10px 20px;
+}

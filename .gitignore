@@ -21,6 +21,7 @@ cache/
 *.css
 !demo/**/*.css
 !docs/**/*.css
+!test/**/*.css
 
 npm-debug.log*
 yarn-debug.log*
