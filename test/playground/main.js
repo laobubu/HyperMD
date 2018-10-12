@@ -16,6 +16,9 @@ requirejs.config({
   ]
 })
 
+var themeCSSLink = elt("link", { rel: 'stylesheet', href: '/theme/' + args.theme + '.css' })
+document.body.appendChild(themeCSSLink)
+
 var dependencies = [
   'hypermd',
   'vue',
@@ -66,7 +69,9 @@ require(dependencies, function (hypermd_0, vue_0) {
       set_theme(ev) {
         let theme = ev.target.value
         this.args.theme = theme
-        editor.setOption('theme', theme)
+        themeCSSLink.addEventListener("load", apply2, false)
+        themeCSSLink.href = '/theme/' + args.theme + '.css'
+        function apply2() { editor.setOption('theme', theme); themeCSSLink.removeEventListener("load", apply2, false) }
       },
       refresh_page() {
         location.reload()

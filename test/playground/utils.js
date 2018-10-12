@@ -45,3 +45,14 @@ function refreshCSS() {
 function deepClone(o) {
   return JSON.parse(JSON.stringify(o))
 }
+
+function elt(tag, attrs, content) {
+  var el = document.createElement(tag)
+  if (attrs) for (var attr in attrs) {
+    let val = attrs[attr]
+    el.setAttribute(attr, "" + val);
+  }
+  if (typeof content === 'string') el.textContent = content;
+  else if (content && content.length > 0) [].slice.call(content).forEach(child => el.appendChild(child));
+  return el;
+}
