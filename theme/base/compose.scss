@@ -285,6 +285,9 @@
         @extend %monospace;
         @extend %codeblock-line !optional;
 
+        min-height: #{$codeblock-line-height}em;
+        line-height: $codeblock-line-height;
+
         // &.hmd-codeblock-indent {
         .cm-inline-code {
             display: inherit;

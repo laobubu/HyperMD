@@ -11,11 +11,14 @@
 /** @type {FloatWin_Class} */  var FloatWin = null
 
 /** All args can be overwritten via location.search */
+var defaultArgs = {
+  theme: "hypermd-light",
+  file: "/README.md",
+  plugins: "hypermd-katex=index.js;katex=dist/katex.min.js",
+}
+
 var args = (function () {
-  var ans = {
-    theme: "hypermd-light",
-    file: "/README.md",
-  }
+  var ans = { ...defaultArgs }
 
   let s = location.search, e = /[?&]([-\w]+)(?:=([^&]*))?/g, t
   while (t = e.exec(s)) {
@@ -32,10 +35,11 @@ function refreshCSS() {
   let links = document.querySelectorAll('link')
   for (let link of links) {
     if (link.rel !== 'stylesheet') continue
-    if (!/^(\/|\.\.\/)/.test(link.href)) continue
+    if (/^https?:|node_modules/.test(link.href)) continue
     link.href += "?r=" + Math.random()
   }
-  console.log("refreshed")
+  editor.refresh()
+  console.log("refreshed css")
 }
 
 function deepClone(o) {

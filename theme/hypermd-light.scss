@@ -160,11 +160,9 @@ $footnote-hanging-indent: 40px;
 %footnote-name { color: #666; }  // [foot-note]:
 
 /// CodeBlock
+$codeblock-line-height: 1.1;
 $codeblock-background: #FAFAFA; // background is set via variable!!!!
-%codeblock-line {
-    line-height: 1.2;
-    color: #922;
-}
+%codeblock-line { color: #922; }
 
 $codeblock-begin-background: #F3F3F3;
 %codeblock-begin-line {}

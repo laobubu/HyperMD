@@ -12,6 +12,7 @@
 <body>
   <div id="app">
     <div class="panel">
+      <label><input :value="args.theme" @keypress.enter="set_theme" @blur="set_theme" title="Theme (press Enter to apply)"></label>
       <label v-for="(value, key) in windows" :key="key"><input type="checkbox" v-model="windows[key]">{{ key }}</label>
       <button onClick="refreshCSS()">Refresh CSS</button>
     </div>
@@ -20,8 +21,10 @@
       <textarea id="my-textarea"></textarea>
     </div>
 
-    <float-win v-model="windows.hello" title="Wow Such Page">
-      Best Wishes
+    <float-win v-model="windows.plugins" title="External Plugins">
+      <p><small>Input the plugins, related packages and their entry filename:</small></p>
+      <textarea v-model="plugins_lined" spellcheck="false" @blur="args.plugins=plugins_lined.trim().replace(/\s+/g,';')" cols="50" rows="10" style="font-family:monospace"></textarea>
+      <p><button @click="refresh_page">Reload and Load Plugins</button></p>
     </float-win>
 
     <float-win v-model="windows.options" title="Editor Options" v-if="options">
@@ -58,11 +61,12 @@
 
       <fieldset>
         <legend>Fold</legend>
-        <option-input :dist="options.hmdFold" member="image"></option-input>
-        <option-input :dist="options.hmdFold" member="link"></option-input>
-        <option-input :dist="options.hmdFold" member="math"></option-input>
-        <option-input :dist="options.hmdFold" member="html"></option-input>
-        <option-input :dist="options.hmdFold" member="emoji"></option-input>
+        <option-input v-for="(_, key) in HyperMD.Fold.folderRegistry" :key="key" :dist="options.hmdFold" :member="key"></option-input>
+      </fieldset>
+
+      <fieldset>
+        <legend>FoldCode</legend>
+        <option-input v-for="(_, key) in HyperMD.FoldCode.rendererRegistry" :key="key" :dist="options.hmdFoldCode" :member="key"></option-input>
       </fieldset>
     </float-win>
   </div>

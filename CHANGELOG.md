@@ -216,4 +216,8 @@ DON'T PUT `iframe` INTO YOUR Markdown! Once DOM changes (which is often), the if
 
 * **Structure**
   - `dev` is now renamed to `scripts`
-  - removed all PowerPacks from this repo -- [they are here now](https://github.com/laobubu/HyperMD/wiki/HyperMD-Addons)
+  - removed all PowerPacks from this repo -- [they are here now](https://github.com/laobubu/HyperMD/wiki/HyperMD-Plugins)
+
+* **Add**
+  - Throw an Error when using `ai1.js` with module loader. -- please use `everything.js` or load modules on demand.
+  - PlayGround for HyperMD (js or theme) dev -- `npm run dev` and it will open.
