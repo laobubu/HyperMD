@@ -420,7 +420,13 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
           // try all enabled folders in registry
           for (type in folderRegistry) {
             if (!this._enabled[type]) continue
-            if (marker = folderRegistry[type](this, token)) break
+            try {
+              marker = folderRegistry[type](this, token)
+              if (marker) break
+            } catch (err) {
+              console.error(`[HyperMD] Folder ${type} faild to render object at (ch ${token.start}, line ${lineNo})`)
+              console.error(err)
+            }
           }
         }
 

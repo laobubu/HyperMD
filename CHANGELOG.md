@@ -221,3 +221,4 @@ DON'T PUT `iframe` INTO YOUR Markdown! Once DOM changes (which is often), the if
 * **Add**
   - Throw an Error when using `ai1.js` with module loader. -- please use `everything.js` or load modules on demand.
   - PlayGround for HyperMD (js or theme) dev -- `npm run dev` and it will open.
+  - Add Error capturing for `addon/fold` and `addon/fold-code`

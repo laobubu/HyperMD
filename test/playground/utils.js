@@ -10,7 +10,7 @@
 /** @type {Vue_Module} */     var Vue = null
 /** @type {FloatWin_Class} */  var FloatWin = null
 
-/** All args can be overwritten via location.search */
+/** All args can be overwritten via location.hash */
 var defaultArgs = {
   theme: "hypermd-light",
   file: "/README.md",
@@ -20,7 +20,7 @@ var defaultArgs = {
 var args = (function () {
   var ans = { ...defaultArgs }
 
-  let s = location.search, e = /[?&]([-\w]+)(?:=([^&]*))?/g, t
+  let s = location.hash, e = /#([-\w]+)(?:=([^#]*))?/g, t
   while (t = e.exec(s)) {
     let name = t[1], value = t[2]
     if (value) ans[name] = decodeURIComponent(value)
@@ -55,4 +55,25 @@ function elt(tag, attrs, content) {
   if (typeof content === 'string') el.textContent = content;
   else if (content && content.length > 0) [].slice.call(content).forEach(child => el.appendChild(child));
   return el;
+}
+
+function displayRequireJSError(err) {
+  var errBox = document.getElementById('requirejs-error')
+  var txtBox = errBox.querySelector('textarea')
+  var reloadBtn = errBox.querySelector('button')
+  var preBox = errBox.querySelector('pre')
+
+  errBox.style.display = 'block'
+
+  txtBox.value = args.plugins.replace(/;/g, '\n')
+  preBox.textContent = err.toString() + "\n\n\n" + JSON.stringify(err, null, 2)
+
+  reloadBtn.onclick = function () {
+    var newPart = txtBox.value.trim().replace(/[\r\n]+/g, ';')
+    var newHash = location.hash.replace(/#plugins=[^#]*/, 'plugins=' + encodeURIComponent(newPart))
+    location.hash = newHash
+    location.reload()
+  }
+
+  console.error(err)
 }

@@ -25,15 +25,15 @@ var dependencies = [
 
   'playground/component/vue-float-win',
   'playground/component/option-input',
+  'playground/component/option-fieldset',
 ]
 
 for (let k of args.plugins.trim().split(";")) {
   let mat = k.trim().split(/\s*=\s*/, 2)
   let [name, main] = mat
+  if (!main) main = 'index.js'
   console.log("Plugin: found " + name + " with main-entry: " + main)
-  if (main) {
-    requirejs.config({ packages: [{ name, main }] })
-  }
+  requirejs.config({ packages: [{ name, main }] })
   dependencies.push(name)
 }
 
@@ -59,11 +59,11 @@ require(dependencies, function (hypermd_0, vue_0) {
         for (var name in args) {
           if (args[name] !== defaultArgs[name]) parts.push(name + '=' + encodeURIComponent(args[name]))
         }
-        return '?' + parts.join('&')
+        return '#' + parts.join('#')
       }
     },
     watch: {
-      url(newURL) { history.replaceState(null, null, newURL) },
+      url(newURL) { location.href = newURL },
     },
     methods: {
       set_theme(ev) {
@@ -97,4 +97,4 @@ require(dependencies, function (hypermd_0, vue_0) {
     el: "#app",
   })
   window.$vm = $vm
-})
+}, displayRequireJSError)

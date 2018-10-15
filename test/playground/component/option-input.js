@@ -1,7 +1,7 @@
 (function (factory) {
   if (typeof exports === 'object' && typeof module !== 'undefined') { module.exports = factory(require('vue')) }
   else if (typeof define === 'function' && define.amd) define(['vue'], factory)
-})(function (Vue, FloatWin) {
+})(function (Vue) {
   'use strict'
 
   Vue.component("option-input", {

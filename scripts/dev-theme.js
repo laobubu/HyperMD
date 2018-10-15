@@ -50,7 +50,7 @@ if (!themeNames.length) {
 
 let httpServerProc = (action === 'watch' && !noOpen) && utils.node_bin_run('hmd-hs', [
   '-d', '..',
-  '-o', 'test/playground/?theme=' + themeNames[0].replace(/\.\w+$/, ''),
+  '-o', 'test/playground/#theme=' + themeNames[0].replace(/\.\w+$/, ''),
 ])
 
 Promise.all(themeNames.map(name => startWork(name)))

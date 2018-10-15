@@ -3,6 +3,7 @@ body {
 }
 
 #app,
+#requirejs-error,
 .full-fill,
 .editor-area>.CodeMirror {
   position: absolute;
@@ -10,6 +11,18 @@ body {
   right: 0;
   top: 0;
   bottom: 0;
+}
+
+#requirejs-error {
+    background: #FCC;
+    overflow: auto;
+    z-index: 1000;
+    padding: 20px;
+}
+
+#requirejs-error button {
+    padding: 5px 10px;
+    border: 2px solid #000;
 }
 
 #app {
@@ -44,4 +57,43 @@ body {
 .editor-area {
   flex-grow: 1;
   position: relative;
+}
+
+.option-fieldset {
+    position: relative;
+}
+
+.option-fieldset-help-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-color: #39A;
+    color: #FFF;
+    text-decoration: none;
+    border-radius: 100%;
+    text-align: center;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.option-fieldset-help-icon:hover {
+    background-color: #4AE;
+    transform: scale(1.1);
+}
+
+.option-fieldset-help {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    background: #FFE;
+    color: #663;
+    font-size: .87em;
+    padding: 2px 4px;
+    z-index: 1;
+    display: none;
+}
+
+.option-fieldset legend:hover + .option-fieldset-help {
+    display: block;
 }

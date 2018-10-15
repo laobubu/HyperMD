@@ -31,10 +31,13 @@ import { FolderFunc, registerFolder, getAddon as getFoldAddon, FoldStream, Reque
 
 //#region CodeRenderer ------------------------------------------------------------
 
+/** @deprecated FoldInfo is an alias of FoldHandle */
+export type FoldInfo = FoldHandle
+
 /**
- * FoldInfo is the bridge between your rendered element and HyperMD editor.
+ * FoldHandle is the bridge between your rendered element and HyperMD editor.
  */
-export interface FoldInfo {
+export interface FoldHandle {
   /** the languange name after leading triple-backtick in Markdown */
   readonly lang: string
 
@@ -52,21 +55,21 @@ export interface FoldInfo {
   readonly changed: () => void
 
   /** called when this element is removed */
-  onRemove?: (info: FoldInfo) => void
+  onRemove?: (handle: FoldHandle) => void
 
   /** (not implemented) */
-  onUpdate?: (newCode: string, info: FoldInfo) => void
+  onUpdate?: (newCode: string, handle: FoldHandle) => void
 }
 
 /**
  * A CodeRenderer turns code into flow chart / playground sandbox etc,
  * returning the rendered HTML element.
  *
- * 1. the CodeRenderer can set `info.onRemove` and `info.onUpdate` callbacks
- * 2. if rendered element's dimension is changed, you must call `info.changed()`
- * 3. do NOT use destructuring assignment with `info` !!!
+ * 1. you may change the value of `handle.onRemove` and `handle.onUpdate`
+ * 2. if rendered element's dimension is changed, you must call `handle.changed()`
+ * 3. values in `handle` may change at any time! Do NOT use destructuring assignment to read data from `handle` !!!
  */
-export type CodeRenderer = (code: string, info: FoldInfo) => HTMLElement;
+export type CodeRenderer = (code: string, handle: FoldHandle) => HTMLElement;
 
 //#endregion
 
@@ -90,9 +93,6 @@ export var rendererRegistry: Record<string, RegistryItem> = {}
 /**
  * Add a CodeRenderer to the System CodeRenderer Registry
  *
- * @param lang
- * @param folder
- * @param suggested enable this folder in suggestedEditorConfig
  * @param force if a folder with same name is already exists, overwrite it. (dangerous)
  */
 export function registerRenderer(info: RegistryItem, force?: boolean) {
@@ -214,7 +214,7 @@ CodeMirror.defineOption("hmdFoldCode", defaultOption, function (cm: cm_t, newVal
 /********************************************************************************** */
 //#region Addon Class
 
-type FoldInfo_Master = { -readonly [P in keyof FoldInfo]: FoldInfo[P] }
+type FoldHandle_Full = { -readonly [P in keyof FoldHandle]: FoldHandle[P] }
 
 export class FoldCode implements Addon.Addon {
   /**
@@ -224,7 +224,7 @@ export class FoldCode implements Addon.Addon {
   private _enabled: Record<string, boolean> = {}
 
   /** renderers' output goes here */
-  public folded: Record<string, FoldInfo_Master[]> = {};
+  public folded: Record<string, FoldHandle_Full[]> = {};
 
   /** enable/disable one kind of renderer, in current editor */
   setStatus(type: string, enabled: boolean) {
@@ -242,8 +242,8 @@ export class FoldCode implements Addon.Addon {
   clear(type: string) {
     var folded = this.folded[type]
     if (!folded || !folded.length) return
-    var info: FoldInfo_Master
-    while (info = folded.pop()) info.marker.clear()
+    var handle: FoldHandle_Full
+    while (handle = folded.pop()) handle.marker.clear()
   }
 
   constructor(public cm: cm_t) {
@@ -297,7 +297,7 @@ export class FoldCode implements Addon.Addon {
     // now we can call renderer
 
     let code = cm.getRange({ line: from.line + 1, ch: 0 }, { line: to.line, ch: 0 })
-    let info: FoldInfo_Master = {
+    let handle: FoldHandle_Full = {
       editor: cm,
       lang,
       marker: null,
@@ -307,9 +307,17 @@ export class FoldCode implements Addon.Addon {
       changed: undefined_function,
     }
 
-    let el = info.el = renderer(code, info);
+    let el: HTMLElement = null
+
+    try {
+      el = handle.el = renderer(code, handle)
+    } catch (err) {
+      console.error(`[HyperMD] FoldCode faild to render ${lang} at line ${from.line}`)
+      console.error(err)
+    }
+
     if (!el) {
-      info.marker.clear();
+      if (handle.marker) handle.marker.clear();
       return null;
     }
 
@@ -321,7 +329,7 @@ export class FoldCode implements Addon.Addon {
     $wrapper.appendChild(el)
 
 
-    let lineWidget = info.lineWidget = cm.addLineWidget(to.line, $wrapper, {
+    let lineWidget = handle.lineWidget = cm.addLineWidget(to.line, $wrapper, {
       above: false,
       coverGutter: false,
       noHScroll: false,
@@ -334,7 +342,7 @@ export class FoldCode implements Addon.Addon {
     $stub.className = stubClass + type
     $stub.textContent = '<CODE>'
 
-    let marker = info.marker = cm.markText(from, to, {
+    let marker = handle.marker = cm.markText(from, to, {
       replacedWith: $stub,
     })
 
@@ -346,26 +354,26 @@ export class FoldCode implements Addon.Addon {
     $wrapper.addEventListener("mouseenter", highlightON, false)
     $wrapper.addEventListener("mouseleave", highlightOFF, false)
 
-    info.changed = () => {
+    handle.changed = () => {
       lineWidget.changed();
     }
 
-    info.break = () => {
+    handle.break = () => {
       breakMark(cm, marker)
     }
 
-    $stub.addEventListener('click', info.break, false)
+    $stub.addEventListener('click', handle.break, false)
 
     marker.on("clear", () => {
       var markers = this.folded[type]
       var idx: number
-      if (markers && (idx = markers.indexOf(info)) !== -1) markers.splice(idx, 1);
-      if (typeof info.onRemove === 'function') info.onRemove(info);
+      if (markers && (idx = markers.indexOf(handle)) !== -1) markers.splice(idx, 1);
+      if (typeof handle.onRemove === 'function') handle.onRemove(handle);
       lineWidget.clear();
     })
 
-    if (!(type in this.folded)) this.folded[type] = [info];
-    else this.folded[type].push(info);
+    if (!(type in this.folded)) this.folded[type] = [handle];
+    else this.folded[type].push(handle);
 
     return marker;
   }
