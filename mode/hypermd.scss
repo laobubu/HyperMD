@@ -6,9 +6,9 @@
 %hidden-token {
     display: inline;
     font-size: 1px !important;
-    letter-spacing: -1ch;
-    font-family: monospace;
-    color: transparent;
+    letter-spacing: -1ch !important;
+    font-family: monospace !important;
+    color: transparent !important;
 }
 
 .CodeMirror {
@@ -29,7 +29,7 @@
     }
 
     /* tooltip for addon/hover */
-    div.HyperMD-hover > .HyperMD-hover-content {
+    .HyperMD-hover > .HyperMD-hover-content {
         background-color: #fff;
         color: #000;
         border: 1px solid #000;
@@ -87,5 +87,11 @@
     img.hmd-emoji {
         height: 1.2em;
         vertical-align: middle;
+    }
+
+    /* addon/fold-html and addon/fold-code */
+    .hmd-fold-html,
+    .hmd-fold-code {
+        position: relative;
     }
 }

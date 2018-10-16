@@ -12,15 +12,15 @@
 
 /** All args can be overwritten via location.hash */
 var defaultArgs = {
-  theme: "hypermd-light",
   file: "/README.md",
   plugins: "hypermd-katex=index.js;katex=dist/katex.min.js",
 }
 
+/** @type {Record<string, string>} */
 var args = (function () {
   var ans = { ...defaultArgs }
 
-  let s = location.hash, e = /#([-\w]+)(?:=([^#]*))?/g, t
+  let s = location.hash, e = /#([^#=]+)(?:=([^#]*))/g, t
   while (t = e.exec(s)) {
     let name = t[1], value = t[2]
     if (value) ans[name] = decodeURIComponent(value)
@@ -35,7 +35,7 @@ function refreshCSS() {
   let links = document.querySelectorAll('link')
   for (let link of links) {
     if (link.rel !== 'stylesheet') continue
-    if (/^https?:|node_modules/.test(link.href)) continue
+    if (/^https:|node_modules/.test(link.href)) continue
     link.href += "?r=" + Math.random()
   }
   editor.refresh()
@@ -70,7 +70,7 @@ function displayRequireJSError(err) {
 
   reloadBtn.onclick = function () {
     var newPart = txtBox.value.trim().replace(/[\r\n]+/g, ';')
-    var newHash = location.hash.replace(/#plugins=[^#]*/, 'plugins=' + encodeURIComponent(newPart))
+    var newHash = location.hash.replace(/#plugins=[^#]*/, '#plugins=' + encodeURIComponent(newPart))
     location.hash = newHash
     location.reload()
   }

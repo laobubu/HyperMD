@@ -8,7 +8,7 @@ import * as CodeMirror from 'codemirror'
 import { Position } from 'codemirror'
 import * as Addon from '../core/addon'
 import { suggestedEditorConfig } from '../core/defaults'
-import { visitElements } from '../core/utils'
+import { visitElements, elt, addClass, rmClass } from '../core/utils'
 import watchSize from '../core/watch-size';
 import { cm_t } from '../core/type'
 import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
@@ -109,8 +109,8 @@ export var defaultRenderer: RendererFunc = (html: string, pos: Position, cm: cm_
 /********************************************************************************** */
 
 const stubClass = "hmd-fold-html-stub"
-const stubClassOmittable = "hmd-fold-html-stub omittable"
-const stubClassHighlight = "hmd-fold-html-stub highlight"
+const stubClassOmittable = "omittable"
+const stubClassHighlight = "highlight"
 
 /********************************************************************************** */
 //#region Folder
@@ -182,7 +182,7 @@ export const defaultOption: Options = {
   checker: defaultChecker,
   renderer: defaultRenderer,
   stubText: "<HTML>",
-  isolatedTagName: /^(?:div|pre|form|table|iframe|ul|ol|input|textarea|p|summary|a)$/i,
+  isolatedTagName: /^(?:div|pre|form|table|iframe|ul|ol|input|textarea|p|summary|a|button)$/i,
 }
 
 export const suggestedOption: Partial<Options> = {
@@ -254,40 +254,50 @@ export class FoldHTML implements Addon.Addon, Options {
   renderAndInsert(html: string, from: CodeMirror.Position, to: CodeMirror.Position, inlineMode?: boolean): CodeMirror.TextMarker {
     const cm = this.cm
 
-    var stub = this.makeStub()
     var el = this.renderer(html, from, cm)
-    var breakFn = () => breakMark(cm, marker)
-
     if (!el) return null
 
+    var breakFn = () => breakMark(cm, marker)
+    var stub = this.makeStub()
     stub.addEventListener("click", breakFn, false)
+
     if (!el.tagName.match(this.isolatedTagName || /^$/)) el.addEventListener("click", breakFn, false)
+
+    let highlightON = () => addClass(stub, stubClassHighlight)
+    let highlightOFF = () => rmClass(stub, stubClassHighlight)
 
     var replacedWith: HTMLElement
     var marker: CodeMirror.TextMarker
 
-    if (inlineMode) {
-      /** put HTML inline */
-      let span = document.createElement("span")
-      span.setAttribute("class", "hmd-fold-html")
-      span.setAttribute("style", "display: inline-block")
-      span.appendChild(stub)
-      span.appendChild(el)
+    if (inlineMode) { // put HTML inline
+      addClass(el, "hmd-fold-html-content")
+      addClass(el, "hmd-fold-html-inline-content")
+      addClass(stub, stubClassOmittable) // first assume the element is not floatting
+      replacedWith = elt("span", { "class": "hmd-fold-html" }, [stub, el])
 
-      replacedWith = span
+      let wasFloatting = false
 
       /** If element size changed, we notify CodeMirror */
-      var watcher = watchSize(el, (w, h) => {
+      let watcher = watchSize(el, (w, h) => {
         const computedStyle = getComputedStyle(el)
         const getStyle = (name) => computedStyle.getPropertyValue(name)
 
-        var floating =
+        var floatting =
           w < 10 || h < 10 ||
           !/^relative|static$/i.test(getStyle('position')) ||
           !/^none$/i.test(getStyle('float'))
 
-        if (!floating) stub.className = stubClassOmittable
-        else stub.className = stubClass
+        if (wasFloatting !== floatting) {
+          if (floatting) {
+            rmClass(stub, stubClassOmittable)
+            el.addEventListener("mouseenter", highlightON, false)
+            el.addEventListener("mouseleave", highlightOFF, false)
+          } else {
+            addClass(stub, stubClassOmittable)
+            el.removeEventListener("mouseenter", highlightON, false)
+            el.removeEventListener("mouseleave", highlightOFF, false)
+          }
+        }
 
         marker.changed()
       })
@@ -304,18 +314,18 @@ export class FoldHTML implements Addon.Addon, Options {
       /** use lineWidget to insert element */
       replacedWith = stub
 
-      let lineWidget = cm.addLineWidget(to.line, el, {
+      addClass(el, "hmd-fold-html-block-content")
+      let elWrapper = elt("div", { "class": "hmd-fold-html-block-content-outside" }, [el])
+
+      let lineWidget = cm.addLineWidget(to.line, elWrapper, {
         above: false,
         coverGutter: false,
         noHScroll: false,
         showIfHidden: false,
       })
 
-      let highlightON = () => stub.className = stubClassHighlight
-      let highlightOFF = () => stub.className = stubClass
-
-      el.addEventListener("mouseenter", highlightON, false)
-      el.addEventListener("mouseleave", highlightOFF, false)
+      elWrapper.addEventListener("mouseenter", highlightON, false)
+      elWrapper.addEventListener("mouseleave", highlightOFF, false)
 
       var watcher = watchSize(el, () => lineWidget.changed())
       watcher.check()
@@ -325,8 +335,8 @@ export class FoldHTML implements Addon.Addon, Options {
         marker.on("clear", () => {
           watcher.stop()
           lineWidget.clear()
-          el.removeEventListener("mouseenter", highlightON, false)
-          el.removeEventListener("mouseleave", highlightOFF, false)
+          elWrapper.removeEventListener("mouseenter", highlightON, false)
+          elWrapper.removeEventListener("mouseleave", highlightOFF, false)
         })
       }, 0)
     }

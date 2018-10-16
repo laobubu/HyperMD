@@ -18,7 +18,6 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
   gutters: [
     "CodeMirror-linenumbers",
     "CodeMirror-foldgutter",
-    "HyperMD-goback"  // (addon: click) 'back' button for footnotes
   ],
 }
 

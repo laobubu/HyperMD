@@ -20,7 +20,7 @@
 
   <div id="app">
     <div class="panel">
-      <label><input :value="args.theme" @keypress.enter="set_theme" @blur="set_theme" title="Theme (press Enter to apply)"></label>
+      <label><input v-if="options" :value="options.theme" @keypress.enter="set_theme" @blur="set_theme" title="Theme (press Enter to apply)"></label>
       <label v-for="(value, key) in windows" :key="key"><input type="checkbox" v-model="windows[key]">{{ key }}</label>
       <button onClick="refreshCSS()">Refresh CSS</button>
     </div>
@@ -31,84 +31,95 @@
 
     <float-win v-model="windows.plugins" title="External Plugins">
       <p><small>Input the plugins, related packages and their entry filename:</small></p>
-      <textarea v-model="plugins_lined" spellcheck="false" @blur="args.plugins=plugins_lined.trim().replace(/\s+/g,';')"
-        cols="50" rows="10" style="font-family:monospace"></textarea>
-      <p><button @click="refresh_page">Reload and Load Plugins</button></p>
+      <textarea v-model="plugins_lined" spellcheck="false" cols="50" rows="10" style="font-family:monospace"></textarea>
+      <p><button @click="load_plugins">Reload and Load Plugins</button></p>
     </float-win>
 
     <float-win v-model="windows.options" title="Editor Options" v-if="options">
-      <option-fieldset :dist="options.hmdClick" title="Click">
-        <template slot="help-info">
-          Ctrl+Click or Alt+Click to open links.
-        </template>
-        <template slot-scope="{dist}">
-          <option-input :dist="dist" member="enabled"></option-input>
-        </template>
-      </option-fieldset>
+      <div style="columns: 2;">
+        <option-fieldset :dist="options.mode" title="('hypermd' mode)">
+          <template slot="help-info">
+            "hypermd" mode for CodeMirror
+          </template>
+          <template slot-scope="{dist}">
+            <option-input :dist="dist" member="hashtag"></option-input>
+          </template>
+        </option-fieldset>
 
-      <option-fieldset :dist="options.hmdHover" title="Hover">
-        <template slot="help-info">
-          Hover to read footnotes.
-        </template>
-        <template slot-scope="{dist}">
-          <option-input :dist="dist" member="enabled"></option-input>
-        </template>
-      </option-fieldset>
+        <option-fieldset :dist="options.hmdClick" title="Click">
+          <template slot="help-info">
+            Ctrl+Click or Alt+Click to open links.
+          </template>
+          <template slot-scope="{dist}">
+            <option-input :dist="dist" member="enabled"></option-input>
+          </template>
+        </option-fieldset>
 
-      <option-fieldset :dist="options.hmdInsertFile" title="InsertFile">
-        <template slot="help-info">
-          InsertFile via clipboard or Drag'n'Drop. -- Provided by HyperMD.InsertFile
-        </template>
-        <template slot-scope="{dist}">
-          <option-input :dist="dist" member="byPaste"></option-input>
-          <option-input :dist="dist" member="byDrop"></option-input>
-        </template>
-      </option-fieldset>
+        <option-fieldset :dist="options.hmdHover" title="Hover">
+          <template slot="help-info">
+            Hover to read footnotes.
+          </template>
+          <template slot-scope="{dist}">
+            <option-input :dist="dist" member="enabled"></option-input>
+          </template>
+        </option-fieldset>
 
-      <option-fieldset :dist="options.hmdReadLink" title="ReadLink">
-        <template slot="help-info">
-          Read document structure and meta info.
-        </template>
-        <template slot-scope="{dist}">
-          <option-input :dist="dist" member="baseURI"></option-input>
-        </template>
-      </option-fieldset>
+        <option-fieldset :dist="options.hmdInsertFile" title="InsertFile">
+          <template slot="help-info">
+            InsertFile via clipboard or Drag'n'Drop. -- Provided by HyperMD.InsertFile
+          </template>
+          <template slot-scope="{dist}">
+            <option-input :dist="dist" member="byPaste"></option-input>
+            <option-input :dist="dist" member="byDrop"></option-input>
+          </template>
+        </option-fieldset>
 
-      <option-fieldset :dist="options.hmdTableAlign" title="TableAlign">
-        <template slot="help-info">
-          Align table columns.
-        </template>
-        <template slot-scope="{dist}">
-          <option-input :dist="dist" member="enabled"></option-input>
-        </template>
-      </option-fieldset>
+        <option-fieldset :dist="options.hmdReadLink" title="ReadLink">
+          <template slot="help-info">
+            Read document structure and meta info.
+          </template>
+          <template slot-scope="{dist}">
+            <option-input :dist="dist" member="baseURI"></option-input>
+          </template>
+        </option-fieldset>
 
-      <option-fieldset :dist="options.hmdHideToken" title="HideToken">
-        <template slot="help-info">
-          Hide disturbing formatting tokens.
-        </template>
-        <template slot-scope="{dist}">
-          <option-input :dist="dist" member="enabled"></option-input>
-        </template>
-      </option-fieldset>
+        <option-fieldset :dist="options.hmdTableAlign" title="TableAlign">
+          <template slot="help-info">
+            Align table columns.
+          </template>
+          <template slot-scope="{dist}">
+            <option-input :dist="dist" member="enabled"></option-input>
+          </template>
+        </option-fieldset>
 
-      <option-fieldset :dist="options.hmdFold" title="Fold" doc-url="">
-        <template slot="help-info">
-          Turn Markdown markups into real images / markers and more. Can be powered by plugins.
-        </template>
-        <template slot-scope="{dist}">
-          <option-input v-for="(_, key) in HyperMD.Fold.folderRegistry" :key="key" :dist="dist" :member="key"></option-input>
-        </template>
-      </option-fieldset>
+        <option-fieldset :dist="options.hmdHideToken" title="HideToken">
+          <template slot="help-info">
+            Hide disturbing formatting tokens like stars in <strong><span style="color:red">**</span>Bold<span style="color:red">**</span></strong>
+          </template>
+          <template slot-scope="{dist}">
+            <option-input :dist="dist" member="enabled"></option-input>
+          </template>
+        </option-fieldset>
 
-      <option-fieldset :dist="options.hmdFoldCode" title="FoldCode">
-        <template slot="help-info">
-          Turn code blocks into diagrams, charts and more. Usually is powered by plugins.
-        </template>
-        <template slot-scope="{dist}">
-          <option-input v-for="(_, key) in HyperMD.FoldCode.rendererRegistry" :key="key" :dist="dist" :member="key"></option-input>
-        </template>
-      </option-fieldset>
+        <option-fieldset :dist="options.hmdFold" title="Fold" doc-url="">
+          <template slot="help-info">
+            Turn Markdown markups into real images / markers and more. Can be powered by plugins.
+          </template>
+          <template slot-scope="{dist}">
+            <option-input v-for="(_, key) in HyperMD.Fold.folderRegistry" :key="key" :dist="dist" :member="key"></option-input>
+          </template>
+        </option-fieldset>
+
+        <option-fieldset :dist="options.hmdFoldCode" title="FoldCode">
+          <template slot="help-info">
+            Turn code blocks into diagrams, charts and more. Usually is powered by plugins.
+          </template>
+          <template slot-scope="{dist}">
+            <option-input v-for="(_, key) in HyperMD.FoldCode.rendererRegistry" :key="key" :dist="dist" :member="key"></option-input>
+          </template>
+        </option-fieldset>
+
+      </div>
     </float-win>
   </div>
 

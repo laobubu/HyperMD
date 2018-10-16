@@ -10,9 +10,12 @@
       value() { return this.dist[this.member] },
       valueType() { return typeof this.value },
     },
+    methods: {
+      onChange2(ev) { this.dist[this.member] = ev.target.value },
+    },
     template: `
     <label v-if="valueType === 'boolean'"><input v-model="dist[member]" type="checkbox">{{ member }}</label>
-    <label v-else-if="valueType === 'string'">{{ member }} <input v-model="dist[member]"></label>
+    <label v-else-if="valueType === 'string'">{{ member }} <input :value="dist[member]" @change="onChange2"></label>
     <code v-else>{{ value }}</code>
     `
   })

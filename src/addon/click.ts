@@ -92,11 +92,12 @@ export const defaultClickHandler: ClickHandler = (info, cm) => {
  * @param anchor when user click the back button, jumps to here
  */
 const makeBackButton = (function () {
+  const gutterID = "HyperMD-goback"
   var bookmark: { find(): CodeMirror.Position; clear() } = null
 
   function updateBookmark(cm: cm_t, pos: CodeMirror.Position) {
     if (bookmark) {
-      cm.clearGutter("HyperMD-goback")
+      cm.clearGutter(gutterID)
       bookmark.clear()
     }
     bookmark = cm.setBookmark(pos) as any
@@ -106,14 +107,15 @@ const makeBackButton = (function () {
    * Make a button, bind event handlers, but not insert the button
    */
   function makeButton(cm: cm_t) {
-    var hasBackButton = cm.options.gutters.indexOf("HyperMD-goback") != -1
-    if (!hasBackButton) return null
+    var oldGutters = cm.options.gutters || []
+    if (oldGutters.length === 0) return null
+    if (oldGutters.indexOf(gutterID) === -1) cm.setOption("gutters", [...oldGutters, gutterID])
 
     var backButton = document.createElement("div")
     backButton.className = "HyperMD-goback-button"
     backButton.addEventListener("click", function () {
       cm.setCursor(bookmark.find())
-      cm.clearGutter("HyperMD-goback")
+      cm.clearGutter(gutterID)
       bookmark.clear()
       bookmark = null
     })
@@ -123,6 +125,7 @@ const makeBackButton = (function () {
     _tmp1 = _tmp1.offsetLeft + _tmp1.offsetWidth
     backButton.style.width = _tmp1 + "px"
     backButton.style.marginLeft = -_tmp1 + "px"
+    backButton.textContent = "Back"
 
     return backButton
   }
@@ -131,9 +134,9 @@ const makeBackButton = (function () {
     var backButton = makeButton(cm)
     if (!backButton) return
 
-    backButton.innerHTML = (anchor.line + 1) + ""
+    backButton.setAttribute("data-back-line", (anchor.line + 1) + "")
     updateBookmark(cm, anchor)
-    cm.setGutterMarker(line, "HyperMD-goback", backButton)
+    cm.setGutterMarker(line, gutterID, backButton)
   }
 })();
 

@@ -25,11 +25,23 @@
         min-height: #{$line-height}em;
     }
 
-    /// Fold-HTML
-
-    .CodeMirror-linewidget, .hmd-fold-html { @extend %html-widget !optional; }
-
     @extend %editor !optional;
+
+    .CodeMirror-gutters {
+        background: $gutter-background;
+        border-right: $line-margin solid $editor-background;
+        padding-right: 5px;
+    }
+    .CodeMirror-line {
+        padding: 0 $line-padding;
+    }
+    .CodeMirror-code {
+        padding-right: $line-margin;
+    }
+    .CodeMirror-foldmarker {
+        display: inline-block;
+        vertical-align: middle;
+    }
 
     /// Formatting Tokens, use monospace chars
     span {
@@ -75,20 +87,23 @@
         border-left: 0 !important;
         padding-bottom: .25em;
         .cm-formatting-header {
-            margin-left: - $header-hash-width !important;
-            @if ($header-hash-width > 0) {
-                display: inline-block;
-                text-align: right;
-                vertical-align: baseline;
-                width: $header-hash-width;
-            }
             @extend %header-hash !optional;
+            &:first-child {
+                margin-left: - $header-hash-width !important;
+                @if ($header-hash-width > 0) {
+                    display: inline-block;
+                    text-align: right;
+                    vertical-align: baseline;
+                    width: $header-hash-width;
+                }
+            }
         }
 
         &.hmd-inactive-line{
-            .cm-formatting-header {
+            .cm-formatting-header:first-child {
                 @if ($header-hash-width > 0) {
                     margin-left: 0 !important;
+                    display: inline;
                 }
             }
         }
@@ -382,32 +397,18 @@
       @extend .cm-math;
     }
 
-    span.cm-math-2 { font-size: 1.1 * $fs }
-
     /// other Markdown stuff
 
-    span.cm-hmd-escape-backslash { color: #CAA; }
-    span.cm-hmd-escape-char { color: #666 }
-    span.cm-hmd-footref {
-        display: inline-block;
-        font-size: .7em;
-        vertical-align: text-top;
-        background-color: rgba(#eee, .7);
-        color: #999;
-        margin-top: -.2em;
+    .cm-hmd-footref {
+        @extend %footref !optional;
     }
 
-    span.cm-inline-code {
+    .cm-inline-code {
         @extend %monospace;
-        color: #922;
-        font-size: 90%;
+        @extend %inline-code !optional;
 
         &:not(.cm-formatting):not(.cm-hmd-indented-code) {
-            background-color: rgba(#eee, .5);
-            border-radius: 4px;
-            vertical-align: baseline;
-            border: #ccc solid 1px;
-            padding: 1px .4em;
+            @extend %inline-code-content !optional;
         }
 
         &.hmd-hidden-token {
@@ -417,68 +418,18 @@
 
     /// hyperMD stuff
 
-    /// hashtag
-
-    span.cm-hashtag {
-        background-color: #999;
-        background-color: rgba(#000, 0.3);
-        color: #FFF;
-        font-size: $hashtag-fontsize;
-        display: inline-block;
-        vertical-align: middle;
-        padding-top: $hashtag-padding-y;
-        padding-bottom: $hashtag-padding-y;
-
-        &.cm-hashtag-begin {
-            padding-left: $hashtag-padding-x;
-            border-radius: $hashtag-radius 0 0 $hashtag-radius;
-        }
-
-        &.cm-hashtag-end {
-            padding-right: $hashtag-padding-x;
-            border-radius: 0 $hashtag-radius $hashtag-radius 0;
-        }
-
-        &.cm-hmd-escape-backslash {
-            color: #FCC;
-        }
-    }
-
-    span.cm-formatting-hashtag {
-        @extend %monospace;
-        color: #EEE;
-    }
-
-    /// hypermd/addon/insert-file
-
-    .hmd-file-uploading {
-        outline: 2px dashed #CCC;
-        outline-offset: -2px;
-        animation: hmd-file-uploading-ani 1.5s linear infinite;
-    }
-
-    @keyframes hmd-file-uploading-ani {
-        0%, 100% { opacity: 0.4; }
-        50% { opacity: 0.7; }
-    }
-
-    .hmd-file-uploaded {
-        outline: 2px solid #6C3;
-        outline-offset: -2px;
-    }
-
     /// hypermd/addon/click
 
     .HyperMD-goback {
-        width: 1px;
+        width: 0px;
     }
     div.HyperMD-goback-button {
         padding-right: 15px; // not less than .CodeMirror-gutters padding-right
         border-radius: 0 10px 10px 0;
         display: inline-block;
         text-align: center;
-        background-color: lighten(#4078c0, 20%);
-        color: #f7f7f7;
+        background-color: $gutter-button-background;
+        color: $gutter-button-color;
         cursor: pointer;
         &:hover {
             color: transparent;
@@ -486,8 +437,8 @@
             &:before {
                 position: absolute;
                 padding-left: 5px;
-                content: "Back";
-                color: #f7f7f7;
+                content: attr(data-back-line);
+                color: $gutter-button-color;
             }
         }
     }
@@ -532,14 +483,6 @@
             }
         }
 
-        &.HyperMD-table-row-0 {
-            // title row
-            font-weight: 600;
-            span.cm-strong {
-                font-weight: 800;
-            }
-        }
-
         .hmd-table-column-content {
             // do NOT delete padding, otherwise measuring will be inaccurate!
             // something about layout Grid and Block Formatting Contexts
@@ -549,6 +492,7 @@
         &.HyperMD-table-row-1 {
             // :----: | :-----: | dash line
             line-height: $table-row1-height;
+            min-height: $table-row1-height;
 
             > span { border-bottom: 0 }
             .hmd-table-column-content { padding: 1px }
@@ -566,86 +510,27 @@
 
     /// hypermd/addon/hover
 
-    &.CodeMirror div.HyperMD-hover {
-        > .HyperMD-hover-content {
-            background-color: #000;
-            background-color: rgba(#000, .7);
-            border: 0;
-            color: #fff;
-            border-radius: 5px;
-            padding: 5px 10px;
-            font-size: 95%;
-            min-width: 200px;
-            a {
-                color: inherit
-            }
-            p {
-                margin: .2em 0;
-            }
-            code {
-                @extend %monospace;
-                display: inline-block;
-                font-size: .87em;
-                border: 1px solid #999;
-                border-radius: 2px;
-                padding: 0px 4px;
-            }
-        }
-        > .HyperMD-hover-indicator {
-            content: " ";
-            display:block;
-            width: 0px;
-            margin-bottom: -5px;
-            border: 5px solid transparent;
-            border-top-color: #000;
-            border-top-color: rgba(#000, .7);
-        }
-    }
-
     /// fold-html
 
     .hmd-fold-html-stub {
-        @extend %monospace;
-        display: inline-block;
-        font-size: 67%;
-        color: #999;
-        vertical-align: middle;
-        border: 1px solid #999;
-        padding: 0 .2em;
-        border-radius: 5px;
-        margin: 0 .5em;
-        background: #FAFAFA;
-        cursor: pointer;
-
         &.omittable {
-            display: none;
         }
 
         &:hover,
         &.highlight {
             // for non-inline HTML stub. Remind user where the stub is.
-            color: #FFF;
-            border-color: #C30;
-            background: #F40;
         }
     }
 
     .hmd-fold-html {
+        @extend %fold-html-container !optional;
         position: relative;
-        border: 1px solid #FFF;
+    }
 
-        &:hover {
-            border: 1px dashed #999;
-
-            .hmd-fold-html-stub.omittable {
-                display: block;
-                right: 0;
-                bottom: 100%;
-                margin: 0;
-                position: absolute;
-                z-index: 100;
-            }
-        }
+    .hmd-fold-html-block-content-outside {
+        @extend %fold-html-container !optional;
+        margin-left: $line-padding;
+        margin-right: $line-padding;
     }
 
     /// fold-code
@@ -654,7 +539,13 @@
         @extend .hmd-fold-html-stub;
     }
 
-    .hmd-fold-code-image {
+    .hmd-fold-code-content {
+        margin-left: $line-padding;
+        margin-right: $line-padding;
+        overflow-x: auto;
+    }
+
+    .hmd-fold-code-image { // for legacy reason only.
         text-align: center;
     }
 

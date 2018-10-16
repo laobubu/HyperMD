@@ -25,8 +25,8 @@ $list-checkbox-image: url('./base/checkbox.png') !default;
 $table-border-style: 1px solid #999 !default;
 $table-row1-height: 8px !default;
 $table-sep-width: 15px !default;
-$table-sep-image: url('./base/1px_999999.gif') !default;
-$table-row-1-image: url('./base/1px_999999.gif') !default;
+$table-sep-image: url('./base/1px_999999.gif') !default;  // vertical border image
+$table-row-1-image: url('./base/1px_999999.gif') !default;  // the horizontal line below the title row
 
 $codeblock-line-height: 1.1 !default;  // a number
 $codeblock-background: #FAFAFA !default;
@@ -36,7 +36,8 @@ $codeblock-border-radius: 4px !default;
 $codeblock-border: 1px solid #CCC !default;
 $codeblock-padding: 5px !default;
 
-$hashtag-fontsize: 0.84em !default;
-$hashtag-padding-x: 6px !default;
-$hashtag-padding-y: 0.1em !default;
-$hashtag-radius: 8px !default;
+// for buttons in gutter. eg. a "Back" button on the left of a footnote line.
+
+$gutter-background: #f7f7f7 !default;
+$gutter-button-color: #f7f7f7 !default;
+$gutter-button-background: lighten(#4078c0, 20%) !default;

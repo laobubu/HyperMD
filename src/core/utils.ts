@@ -138,3 +138,18 @@ export function makeSymbol(name: string): symbol | string {
   if (typeof Symbol === 'function') return Symbol(name)
   return "_\n" + name + "\n_" + Math.floor(Math.random() * 0xFFFF).toString(16)
 }
+
+/** Create element */
+export function elt<TagName extends keyof HTMLElementTagNameMap>(tag: TagName, attrs?: Record<string, string | true>, content?: string | NodeList | Node[]): HTMLElementTagNameMap[TagName];
+export function elt(tag: string, attrs?: Record<string, string | true>, content?: string | NodeList | Node[]): HTMLElement;
+
+export function elt(tag: string, attrs?: Record<string, string | true>, content?: string | NodeList | Node[]) {
+  var el = document.createElement(tag)
+  if (attrs) for (var attr in attrs) {
+    let val = attrs[attr]
+    el.setAttribute(attr, "" + val);
+  }
+  if (typeof content === 'string') el.textContent = content;
+  else if (content && content.length > 0) [].slice.call(content).forEach(child => el.appendChild(child));
+  return el;
+}

@@ -1,14 +1,30 @@
 @import './base/defaults';
 
-$theme-name: 'hypermd-light';
+$theme-name: 'hypermd-dark';
+
+// variables for this theme
+
+$dark__bgc: #2b3e50;
+$dark__fgc: #f8f8f2;
+$dark__bgc-0: lighten($dark__bgc, 5);
+$dark__bgc-1: lighten($dark__bgc, 10);
+$dark__bgc-2: lighten($dark__bgc, 15);
+$dark__bgc-3: lighten($dark__bgc, 20);
+$dark__fgc-0: darken($dark__fgc, 5);
+$dark__fgc-1: darken($dark__fgc, 10);
+$dark__fgc-2: darken($dark__fgc, 15);
+$dark__fgc-3: darken($dark__fgc, 20);
+
+// well....
 
 $font-normal: -apple-system, BlinkMacSystemFont, "Open Sans", "Helvetica Neue", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";;
 $font-monospace: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 
-/// gutter buttons
-// eg. a "Back" button on the left of a footnote line.
-$gutter-button-color: #f7f7f7;
-$gutter-button-background: lighten(#4078c0, 20%);
+$editor-background: $dark__bgc;
+$editor-color: $dark__fgc-0;
+
+$gutter-background: $dark__bgc;
+$gutter-button-background: $dark__bgc-3;
 
 $line-padding: 45px;
 $header-hash-width: 40px;
@@ -16,44 +32,48 @@ $header-hash-width: 40px;
 /// CodeMirror Basic Colors
 %editor {
     // HyperMD appendix
-    .cm-inline-code, .cm-math { color: #922; }
+    .cm-inline-code, .cm-math { color: #ff6541; }
     .cm-header, .cm-strong { font-weight: 600; }
 
     // CodeMirror standard styles
-    .cm-quote { color: #666; }
-    .cm-meta { color: #FF1717; }
-    .cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }
-    .cm-atom { color: #219; }
-    .cm-number { color: #164; }
-    .cm-def { color: #00f; }
-    .cm-variable { color: black; }
-    .cm-variable-2 { color: #0000C0; }
-    .cm-variable-3 { color: #0000C0; }
-    .cm-property { color: black; }
-    .cm-operator { color: black; }
-    .cm-comment { color: #4F9F5F; }
-    .cm-string { color: #2A00FF; }
-    .cm-string-2 { color: #f50; }
-    .cm-qualifier { color: #555; }
-    .cm-builtin { color: #30a; }
-    .cm-bracket { color: #cc7; }
-    .cm-tag { color: #170; }
-    .cm-attribute { color: #00c; }
-    .cm-url { color: #4af }
-    .cm-link { color: #4078c0; }
-    .cm-error { color: #f00; }
+    .CodeMirror-gutters { color: #2b3e50; }
+    .CodeMirror-cursor { border-left: solid thin #E6C845; }
+    .CodeMirror-linenumber { color: $dark__bgc-3; }
+    .CodeMirror-selected { background: #243443; }
+    .CodeMirror-line::selection,  .CodeMirror-line > span::selection,  .CodeMirror-line > span > span::selection { background: #243443; }
+    .CodeMirror-line::-moz-selection,  .CodeMirror-line > span::-moz-selection,  .CodeMirror-line > span > span::-moz-selection { background: #243443; }
+    .cm-comment { color: #5c98cd; }
+    .cm-string,  .cm-string-2 { color: #E6DB74; }
+    .cm-number { color: #ca94ff; }
+    .cm-variable { color: #f8f8f2; }
+    .cm-variable-2 { color: #f8f8f2; }
+    .cm-def { color: #72C05D; }
+    .cm-operator { color: #66D9EF; }
+    .cm-keyword { color: #ff6541; }
+    .cm-atom { color: #bd93f9; }
+    .cm-meta { color: #f8f8f2; }
+    .cm-tag { color: #ff6541; }
+    .cm-attribute { color: #66D9EF; }
+    .cm-qualifier { color: #72C05D; }
+    .cm-property { color: #f8f8f2; }
+    .cm-builtin { color: #72C05D; }
+    .cm-variable-3,  .cm-type { color: #ffb86c; }
 
-    .CodeMirror-activeline-background { background: #e8f2ff; }
-    .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
+    .cm-url { color: #5c98cd }
+    .cm-link { color: #66D9EF; }
 
-    .CodeMirror-linenumber { color: #ccc; }
+    .CodeMirror-activeline-background { background: #243443; }
+    .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }
 }
 
 //////////////////////////////////////////////////////////////////
 /// Lines
 
 /// Header
-%header-line { }
+%header-line {
+    color: $dark__fgc;
+    .cm-link { color: rgb(172, 241, 255); }
+}
 %h1-line { font-weight: 600; font-size: $fs * 2 }
 %h2-line { font-weight: 600; font-size: $fs * 1.5 }
 %h3-line { font-size: $fs * 1.2 }
@@ -65,7 +85,7 @@ $header-hash-width: 40px;
         content: ' ';
         margin-top: 2px;
         height: 1px;
-        background: #eee;
+        background: #556;
     }
 }
 
@@ -98,7 +118,7 @@ $list-checkbox-image: url('./base/checkbox.png'); // image aspect ratio must be 
 
 /// List Bullet and indentation space
 %list-indent-space { // spaces before item text or bullet! shrink them as much as you can!
-    border-right: 1px dashed #CCC; // add a border
+    border-right: 1px dashed #789; // add a border
     white-space: pre;
     font-size: .5em; // decrease font-size to make it compact
     line-height: 200%;
@@ -125,13 +145,14 @@ $footnote-hanging-indent: 40px;
 
 /// CodeBlock
 $codeblock-line-height: 1.1;
-$codeblock-background: #FAFAFA; // background is set via variable!!!!
-%codeblock-line { color: #922; }
+$codeblock-border: 1px solid $dark__bgc-1;
+$codeblock-background: $dark__bgc-0; // background is set via variable!!!!
+%codeblock-line { color: #ff6541; }
 
-$codeblock-begin-background: #F3F3F3;
+$codeblock-begin-background: $dark__bgc-1;
 %codeblock-begin-line {}
 
-$codeblock-end-background: #F3F3F3;
+$codeblock-end-background: $dark__bgc-1;
 %codeblock-end-line {}
 
 /// Table
@@ -227,17 +248,16 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
 
 /// [inline] inline code (both content and backticks)
 %inline-code {
-    color: #922;
     font-size: 90%;
 }
 
 /// [inline] inline code (content only)
 %inline-code-content {
     padding: 1px .4em;
-    border: #ccc solid 1px;
+    border: $dark__bgc-3 solid 1px;
     border-radius: 4px;
     vertical-align: baseline;
-    background-color: rgba(#eee, .5);
+    background-color: $dark__bgc-0;
 }
 
 /// [inline] hashtag
@@ -376,12 +396,11 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
         font-family: $font-monospace;
         font-size: 90%;
         line-height: 1em;
-        background-color: #fafbfc;
-        border: solid 1px #c6cbd1;
-        border-bottom-color: rgb(198, 203, 209);
-        border-bottom-color: #959da5;
+        background-color: $dark__bgc-3;
+        border: solid 1px $dark__bgc-0;
+        border-bottom-color: $dark__bgc-1;
         border-radius: 3px;
-        box-shadow: inset 0 -1px 0 #959da5;
+        box-shadow: inset 0 -1px 0 $dark__bgc-1;
         vertical-align: baseline;
     }
 

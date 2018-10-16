@@ -14,15 +14,15 @@ body {
 }
 
 #requirejs-error {
-    background: #FCC;
-    overflow: auto;
-    z-index: 1000;
-    padding: 20px;
+  background: #FCC;
+  overflow: auto;
+  z-index: 1000;
+  padding: 20px;
 }
 
 #requirejs-error button {
-    padding: 5px 10px;
-    border: 2px solid #000;
+  padding: 5px 10px;
+  border: 2px solid #000;
 }
 
 #app {
@@ -31,27 +31,27 @@ body {
 }
 
 .panel {
-    background: #FAFAFA;
-    border-bottom: 1px solid #EEE;
-    display: flex;
+  background: #FAFAFA;
+  border-bottom: 1px solid #EEE;
+  display: flex;
 }
 
-.panel > * {
-    border-left: 0;
-    border-right: 1px solid #CCC;
-    padding: 3px 5px;
+.panel>* {
+  border-left: 0;
+  border-right: 1px solid #CCC;
+  padding: 3px 5px;
 }
 
-.panel > button {
-    cursor: pointer;
-    border-bottom: 2px solid #999;
-    border-top: 0;
-    background: #EEE;
+.panel>button {
+  cursor: pointer;
+  border-bottom: 2px solid #999;
+  border-top: 0;
+  background: #EEE;
 }
 
-.panel > button:hover,
-.panel > button:focus {
-    background: #FAFAFA;
+.panel>button:hover,
+.panel>button:focus {
+  background: #FAFAFA;
 }
 
 .editor-area {
@@ -60,40 +60,40 @@ body {
 }
 
 .option-fieldset {
-    position: relative;
+  position: relative;
+  break-inside: avoid;
 }
 
 .option-fieldset-help-icon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    background-color: #39A;
-    color: #FFF;
-    text-decoration: none;
-    border-radius: 100%;
-    text-align: center;
-    font-size: 12px;
-    vertical-align: middle;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: #39A;
+  color: #FFF;
+  text-decoration: none;
+  border-radius: 100%;
+  text-align: center;
+  font-size: 12px;
+  vertical-align: middle;
 }
 
 .option-fieldset-help-icon:hover {
-    background-color: #4AE;
-    transform: scale(1.1);
+  background-color: #4AE;
+  transform: scale(1.1);
 }
 
 .option-fieldset-help {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    background: #FFE;
-    color: #663;
-    font-size: .87em;
-    padding: 2px 4px;
-    z-index: 1;
-    display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: #FFE;
+  color: #663;
+  font-size: .87em;
+  padding: 2px 4px;
+  z-index: 1;
+  display: none;
 }
 
 .option-fieldset legend:hover + .option-fieldset-help {
-    display: block;
+  display: block;
 }
