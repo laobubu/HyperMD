@@ -6,6 +6,9 @@ $theme-name: 'hypermd-dark';
 
 $dark__bgc: #2b3e50;
 $dark__fgc: #f8f8f2;
+$dark__bgc-d1: darken($dark__bgc, 5);
+$dark__bgc-d2: darken($dark__bgc, 10);
+$dark__bgc-d3: darken($dark__bgc, 15);
 $dark__bgc-0: lighten($dark__bgc, 5);
 $dark__bgc-1: lighten($dark__bgc, 10);
 $dark__bgc-2: lighten($dark__bgc, 15);
@@ -40,8 +43,8 @@ $header-hash-width: 40px;
     .CodeMirror-cursor { border-left: solid thin #E6C845; }
     .CodeMirror-linenumber { color: $dark__bgc-3; }
     .CodeMirror-selected { background: #243443; }
-    .CodeMirror-line::selection,  .CodeMirror-line > span::selection,  .CodeMirror-line > span > span::selection { background: #243443; }
-    .CodeMirror-line::-moz-selection,  .CodeMirror-line > span::-moz-selection,  .CodeMirror-line > span > span::-moz-selection { background: #243443; }
+    .CodeMirror-line::selection,  .CodeMirror-line > span::selection,  .CodeMirror-line > span > span::selection { background: darken(#243443, 20); }
+    .CodeMirror-line::-moz-selection,  .CodeMirror-line > span::-moz-selection,  .CodeMirror-line > span > span::-moz-selection { background: darken(#243443, 20); }
     .cm-comment { color: #5c98cd; }
     .cm-string,  .cm-string-2 { color: #E6DB74; }
     .cm-number { color: #ca94ff; }
@@ -64,6 +67,9 @@ $header-hash-width: 40px;
 
     .CodeMirror-activeline-background { background: #243443; }
     .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }
+
+    .cm-em { color: #FFF; }
+    .cm-strong { color: #E6DB74; }
 }
 
 //////////////////////////////////////////////////////////////////
@@ -112,9 +118,9 @@ $quode-indent-width: 20px; // width of the strip image, for each level of blockq
 %list-line { }
 
 /// List Checkbox
-$list-checkbox-image: url('./base/checkbox.png'); // image aspect ratio must be 2:1
-%list-checkbox-text { color: rgba(#000, .5); }
-%list-checkbox-text-hidden { color: transparent; }
+$list-checkbox-image: none; // image aspect ratio must be 2:1
+%list-checkbox-text { color: #F40; }
+%list-checkbox-text-hidden { color: transparent; background-image: url('./base/checkbox_white.png'); }
 
 /// List Bullet and indentation space
 %list-indent-space { // spaces before item text or bullet! shrink them as much as you can!
@@ -131,7 +137,7 @@ $list-checkbox-image: url('./base/checkbox.png'); // image aspect ratio must be 
 }
 %list-bullet { // "-" or "1.", "2." <span>
     font-family: 'HyperMD-Bullets';
-    color: #666;
+    color: #999;
     &.cm-list-2 {
         text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
         color: #fff;
@@ -141,7 +147,7 @@ $list-checkbox-image: url('./base/checkbox.png'); // image aspect ratio must be 
 /// Footnote
 $footnote-hanging-indent: 40px;
 %footnote-line { font-size: $fs * 0.85; }
-%footnote-name { color: #666; }  // [foot-note]:
+%footnote-name { color: #AAA; }  // [foot-note]:
 
 /// CodeBlock
 $codeblock-line-height: 1.1;
@@ -200,7 +206,7 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
 
 /// [marker icon] folded link href
 %link-icon {
-    background: url('./base/link.png') no-repeat center center;
+    background: url('./base/link_white.png') no-repeat center center;
     width: 20px;
     height: 16px;
     display: inline-block;
@@ -225,7 +231,7 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
 
 /// [inline] Math Formula (text)
 %editor {
-    .cm-math { font-family: $font-monospace; font-style: italic; background: rgba(#ffe,.4); }
+    .cm-math { font-family: $font-monospace; font-style: italic; background: rgba(#000,.25); }
     .cm-formatting-math { color: #CAA; font-weight: inherit; }
     .cm-math-2 { font-size: 1.1 * $fs }
 }
@@ -233,7 +239,7 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
 /// [inline] escaped chars and their leading backslash
 %editor {
     span.cm-hmd-escape-backslash { color: #CAA; }
-    .cm-hmd-escape-char { color: #666 }
+    .cm-hmd-escape-char { color: $dark__fgc-2; }
 }
 
 /// [inline] footnote references like [^this]
@@ -241,8 +247,8 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
     display: inline-block;
     font-size: .7em;
     vertical-align: text-top;
-    background-color: rgba(#eee, .7);
-    color: #999;
+    background-color: rgba(#FFF, 0.1);
+    color: #CCC;
     margin-top: -.2em;
 }
 
@@ -386,7 +392,7 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
         border-collapse: collapse;
         td, th {
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #999;
         }
     }
 
@@ -396,11 +402,11 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
         font-family: $font-monospace;
         font-size: 90%;
         line-height: 1em;
-        background-color: $dark__bgc-3;
-        border: solid 1px $dark__bgc-0;
-        border-bottom-color: $dark__bgc-1;
+        background-color: $dark__bgc-2;
+        border: solid 1px $dark__bgc-d2;
+        border-bottom-color: $dark__bgc-d1;
         border-radius: 3px;
-        box-shadow: inset 0 -1px 0 $dark__bgc-1;
+        box-shadow: inset 0 -1px 0 $dark__bgc-d1;
         vertical-align: baseline;
     }
 

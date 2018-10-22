@@ -24,6 +24,9 @@ var dependencies = [
   'hypermd',
   'vue',
 
+  'codemirror/mode/yaml/yaml',
+  'codemirror/mode/stex/stex',
+
   'playground/component/vue-float-win',
   'playground/component/option-input',
   'playground/component/option-fieldset',

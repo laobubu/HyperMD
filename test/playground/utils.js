@@ -12,7 +12,7 @@
 
 /** All args can be overwritten via location.hash */
 var defaultArgs = {
-  file: "/README.md",
+  file: "./test.md",
   plugins: "hypermd-katex=index.js;katex=dist/katex.min.js",
 }
 
