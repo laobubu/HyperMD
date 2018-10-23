@@ -111,6 +111,7 @@ export var defaultRenderer: RendererFunc = (html: string, pos: Position, cm: cm_
 const stubClass = "hmd-fold-html-stub"
 const stubClassOmittable = "omittable"
 const stubClassHighlight = "highlight"
+const elWrapperHighlight = "highlight"
 
 /********************************************************************************** */
 //#region Folder
@@ -324,8 +325,14 @@ export class FoldHTML implements Addon.Addon, Options {
         showIfHidden: false,
       })
 
+      let highlightON_El = () => addClass(elWrapper, elWrapperHighlight)
+      let highlightOFF_El = () => rmClass(elWrapper, elWrapperHighlight)
+
       elWrapper.addEventListener("mouseenter", highlightON, false)
       elWrapper.addEventListener("mouseleave", highlightOFF, false)
+
+      stub.addEventListener("mouseenter", highlightON_El, false)
+      stub.addEventListener("mouseleave", highlightOFF_El, false)
 
       var watcher = watchSize(el, () => lineWidget.changed())
       watcher.check()
@@ -337,6 +344,8 @@ export class FoldHTML implements Addon.Addon, Options {
           lineWidget.clear()
           elWrapper.removeEventListener("mouseenter", highlightON, false)
           elWrapper.removeEventListener("mouseleave", highlightOFF, false)
+          stub.removeEventListener("mouseenter", highlightON_El, false)
+          stub.removeEventListener("mouseleave", highlightOFF_El, false)
         })
       }, 0)
     }

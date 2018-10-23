@@ -319,19 +319,14 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
     .hmd-fold-html-stub {
         @extend %monospace;
         display: inline-block;
-        font-size: 67%;
+        font-size: 87%;
         color: #999;
         vertical-align: middle;
-        border: 1px solid #999;
-        padding: 0 .2em;
+        border: 1.5px solid #999;
+        padding: 0 5px;
         border-radius: 5px;
-        margin: 0 .5em;
         background: #FAFAFA;
         cursor: pointer;
-
-        &.omittable {
-            display: none;
-        }
 
         &:hover,
         &.highlight {
@@ -340,24 +335,27 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
             border-color: #C30;
             background: #F40;
         }
-    }
 
-    .hmd-fold-html {
-        &:hover {
-            .hmd-fold-html-inline-content {
-                outline: 1px dashed #999;
-            }
-
-            .hmd-fold-html-stub.omittable {
-                display: block;
-                right: 0;
-                bottom: 100%;
-                margin: 0;
-                position: absolute;
-                z-index: 100;
-            }
+        // hide omittable stub
+        &.omittable {
+            display: none;
         }
     }
+
+    // and un-hide the stub when cursor is hovering on `span.hmd-fold-html`
+    .hmd-fold-html:hover .hmd-fold-html-stub.omittable {
+        display: block;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        position: absolute;
+        z-index: 100;
+    }
+}
+
+/// fold-html -- highlighting rendered element, when cursor is hovering on the stub
+%fold-html-content-highlight {
+    outline: 2px dashed #999;
 }
 
 /// fold-html -- see doc

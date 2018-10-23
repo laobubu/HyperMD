@@ -48,10 +48,7 @@ if (!themeNames.length) {
 
 /** start compile */
 
-let httpServerProc = (action === 'watch' && !noOpen) && utils.node_bin_run('hmd-hs', [
-  '-d', '..',
-  '-o', 'test/playground/#theme=' + themeNames[0].replace(/\.\w+$/, ''),
-])
+let httpServerProc = null
 
 Promise.all(themeNames.map(name => startWork(name)))
   .catch(err => {
@@ -63,6 +60,15 @@ Promise.all(themeNames.map(name => startWork(name)))
   .then(() => {
     process.exit(0)
   })
+
+if (action === 'watch' && !noOpen) {
+  setTimeout(() => {
+    httpServerProc = utils.node_bin_run('hmd-hs', [
+      '-d', '..',
+      '-o', 'test/playground/#hmdFold.html=true#theme=' + themeNames[0].replace(/\.\w+$/, ''),
+    ])
+  }, 500);
+}
 
 function startWork(themeName) {
   let scssFile = ''

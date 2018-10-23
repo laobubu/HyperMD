@@ -9,6 +9,7 @@ $dark__fgc: #f8f8f2;
 $dark__bgc-d1: darken($dark__bgc, 5);
 $dark__bgc-d2: darken($dark__bgc, 10);
 $dark__bgc-d3: darken($dark__bgc, 15);
+$dark__bgc-d4: darken($dark__bgc, 20);
 $dark__bgc-0: lighten($dark__bgc, 5);
 $dark__bgc-1: lighten($dark__bgc, 10);
 $dark__bgc-2: lighten($dark__bgc, 15);
@@ -43,8 +44,8 @@ $header-hash-width: 40px;
     .CodeMirror-cursor { border-left: solid thin #E6C845; }
     .CodeMirror-linenumber { color: $dark__bgc-3; }
     .CodeMirror-selected { background: #243443; }
-    .CodeMirror-line::selection,  .CodeMirror-line > span::selection,  .CodeMirror-line > span > span::selection { background: darken(#243443, 20); }
-    .CodeMirror-line::-moz-selection,  .CodeMirror-line > span::-moz-selection,  .CodeMirror-line > span > span::-moz-selection { background: darken(#243443, 20); }
+    .CodeMirror-line::selection,  .CodeMirror-line > span::selection,  .CodeMirror-line > span > span::selection { background: $dark__bgc-d4; }
+    .CodeMirror-line::-moz-selection,  .CodeMirror-line > span::-moz-selection,  .CodeMirror-line > span > span::-moz-selection { background: $dark__bgc-d4; }
     .cm-comment { color: #5c98cd; }
     .cm-string,  .cm-string-2 { color: #E6DB74; }
     .cm-number { color: #ca94ff; }
@@ -231,7 +232,7 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
 
 /// [inline] Math Formula (text)
 %editor {
-    .cm-math { font-family: $font-monospace; font-style: italic; background: rgba(#000,.25); }
+    .cm-math { font-family: $font-monospace; font-style: italic; background: rgba(#FFF,.03); }
     .cm-formatting-math { color: #CAA; font-weight: inherit; }
     .cm-math-2 { font-size: 1.1 * $fs }
 }
@@ -345,19 +346,14 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
     .hmd-fold-html-stub {
         @extend %monospace;
         display: inline-block;
-        font-size: 67%;
-        color: #999;
+        font-size: 87%;
+        color: $dark__fgc-2;
         vertical-align: middle;
-        border: 1px solid #999;
-        padding: 0 .2em;
+        border: 2px solid $dark__bgc-2;
+        padding: 0 5px;
         border-radius: 5px;
-        margin: 0 .5em;
-        background: #FAFAFA;
+        background: $dark__bgc-d2;
         cursor: pointer;
-
-        &.omittable {
-            display: none;
-        }
 
         &:hover,
         &.highlight {
@@ -366,24 +362,27 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
             border-color: #C30;
             background: #F40;
         }
-    }
 
-    .hmd-fold-html {
-        &:hover {
-            .hmd-fold-html-inline-content {
-                outline: 1px dashed #999;
-            }
-
-            .hmd-fold-html-stub.omittable {
-                display: block;
-                right: 0;
-                bottom: 100%;
-                margin: 0;
-                position: absolute;
-                z-index: 100;
-            }
+        // hide omittable stub
+        &.omittable {
+            display: none;
         }
     }
+
+    // and un-hide the stub when cursor is hovering on `span.hmd-fold-html`
+    .hmd-fold-html:hover .hmd-fold-html-stub.omittable {
+        display: block;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        position: absolute;
+        z-index: 100;
+    }
+}
+
+/// fold-html -- highlighting rendered element, when cursor is hovering on the stub
+%fold-html-content-highlight {
+    outline: 2px dashed #999;
 }
 
 /// fold-html -- see doc

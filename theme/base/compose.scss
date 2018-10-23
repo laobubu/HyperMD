@@ -119,7 +119,7 @@
     pre.HyperMD-header-line {
         opacity: 0.7;
         line-height: $line-height !important;
-        font-size: $font-normal !important;
+        font-size: $fs !important;
     }
 
     /// Horizontal Rule
@@ -525,12 +525,23 @@
     .hmd-fold-html {
         @extend %fold-html-container !optional;
         position: relative;
+
+    }
+
+    table.hmd-fold-html-inline-content {
+        display: inline-table;
+        vertical-align: bottom;
     }
 
     .hmd-fold-html-block-content-outside {
         @extend %fold-html-container !optional;
         margin-left: $line-padding;
         margin-right: $line-padding;
+    }
+
+    .hmd-fold-html:hover .hmd-fold-html-inline-content,
+    .hmd-fold-html-block-content-outside.highlight > * {
+        @extend %fold-html-content-highlight !optional;
     }
 
     /// fold-code
