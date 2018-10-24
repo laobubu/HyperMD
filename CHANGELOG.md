@@ -194,7 +194,10 @@ DON'T PUT `iframe` INTO YOUR Markdown! Once DOM changes (which is often), the if
     - **complete-emoji** Auto complete emoji codes.
     - [more will be documented here](./docs/goods.md)
 
-## 0.3.11
+## 0.3.11 2018-10-7
+
+*The last version of 0.3.x. User experience is improved a lot. Since 0.4.x, PowerPacks will be provided as separated NPM packages. See you soon.*
+*秋招真是奇妙的事情。不知道收假后哪家公司会先开奖。从 0.4.x 版本开始把 PowerPacks 拆分出去，不然每次默认 NPM 安装都会带来一堆全家桶。啊对了还有烦人的毕设要做。*
 
 * **Add**
   - `requestRange` of `addon/fold` now accept 2 or 4 arguments
