@@ -125,5 +125,5 @@ export class MyAddon implements Addon.Addon, Options /* if needed */ {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one MyAddon instance */
-export const getAddon = Addon.Getter("MyAddon", MyAddon, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("MyAddon", MyAddon, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { MyAddon?: MyAddon } } }

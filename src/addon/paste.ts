@@ -104,5 +104,5 @@ export class Paste implements Addon.Addon, Options /* if needed */ {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one Paste instance */
-export const getAddon = Addon.Getter("Paste", Paste, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("Paste", Paste, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { Paste?: Paste } } }

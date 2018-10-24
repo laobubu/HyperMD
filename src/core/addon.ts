@@ -13,8 +13,8 @@ export abstract class Addon {
   constructor(cm: cm_t) { }
 }
 
-/** make a Singleton getter */
-export function Getter<T extends Addon>(
+/** make a Singleton getter function */
+export function makeGetter<T extends Addon>(
   name: string,
   ClassCtor: { new(cm: cm_t): T; },
   defaultOption?: object
@@ -32,3 +32,9 @@ export function Getter<T extends Addon>(
     return cm.hmd[name]
   }
 }
+
+/**
+ * make a Singleton getter function
+ * @deprecated -- use `makeGetter` instead
+ */
+export const Getter = makeGetter;

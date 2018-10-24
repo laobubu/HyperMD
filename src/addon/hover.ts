@@ -218,5 +218,5 @@ export class Hover implements Addon.Addon, Options /* if needed */ {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one Hover instance */
-export const getAddon = Addon.Getter("Hover", Hover, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("Hover", Hover, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { Hover?: Hover } } }

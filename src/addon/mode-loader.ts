@@ -189,5 +189,5 @@ export class ModeLoader implements Addon.Addon, Options {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one ModeLoader instance */
-export const getAddon = Addon.Getter("ModeLoader", ModeLoader, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("ModeLoader", ModeLoader, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { ModeLoader?: ModeLoader } } }

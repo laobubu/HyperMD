@@ -110,5 +110,5 @@ export class CursorDebounce implements Addon.Addon, Options /* if needed */ {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one CursorDebounce instance */
-export const getAddon = Addon.Getter("CursorDebounce", CursorDebounce, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("CursorDebounce", CursorDebounce, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { CursorDebounce?: CursorDebounce } } }

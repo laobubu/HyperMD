@@ -389,5 +389,5 @@ const stubClassHighlight = "hmd-fold-code-stub highlight hmd-fold-code-" // + re
 const undefined_function = () => { }
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one FoldCode instance */
-export const getAddon = Addon.Getter("FoldCode", FoldCode, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("FoldCode", FoldCode, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { FoldCode?: FoldCode } } }

@@ -269,5 +269,5 @@ export class InsertFile implements Addon.Addon, Options /* if needed */ {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one InsertFile instance */
-export const getAddon = Addon.Getter("InsertFile", InsertFile, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("InsertFile", InsertFile, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { InsertFile?: InsertFile } } }

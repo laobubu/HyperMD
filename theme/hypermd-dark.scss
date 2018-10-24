@@ -269,18 +269,20 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
 
 /// [inline] hashtag
 %editor {
-    $hashtag-fontsize: 0.84em;
+    $hashtag-fontsize: 0.9em;
     $hashtag-padding-x: 6px;
     $hashtag-padding-y: 0.1em;
     $hashtag-radius: 8px;
 
     .cm-hashtag {
-        background-color: #999;
+        background-color: $dark__bgc-d2;
         background-color: rgba(#000, 0.3);
         color: #FFF;
         font-size: $hashtag-fontsize;
         padding-top: $hashtag-padding-y;
         padding-bottom: $hashtag-padding-y;
+        display: inline-block;
+        vertical-align: middle;
 
         &.cm-hashtag-begin {
             padding-left: $hashtag-padding-x;
@@ -300,7 +302,7 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
     // the leading (and optional tailing) "#"
     .cm-formatting-hashtag {
         @extend %monospace;
-        color: #EEE;
+        color: $dark__fgc-3;
     }
 }
 

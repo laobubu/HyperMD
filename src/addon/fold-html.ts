@@ -369,5 +369,5 @@ export class FoldHTML implements Addon.Addon, Options {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one FoldHTML instance */
-export const getAddon = Addon.Getter("FoldHTML", FoldHTML, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("FoldHTML", FoldHTML, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { FoldHTML?: FoldHTML } } }

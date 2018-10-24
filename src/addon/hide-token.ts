@@ -318,5 +318,5 @@ export class HideToken implements Addon.Addon, Options {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one HideToken instance */
-export const getAddon = Addon.Getter("HideToken", HideToken, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("HideToken", HideToken, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { HideToken?: HideToken } } }

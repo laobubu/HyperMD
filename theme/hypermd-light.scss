@@ -242,7 +242,7 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
 
 /// [inline] hashtag
 %editor {
-    $hashtag-fontsize: 0.84em;
+    $hashtag-fontsize: 0.9em;
     $hashtag-padding-x: 6px;
     $hashtag-padding-y: 0.1em;
     $hashtag-radius: 8px;
@@ -254,6 +254,8 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
         font-size: $hashtag-fontsize;
         padding-top: $hashtag-padding-y;
         padding-bottom: $hashtag-padding-y;
+        display: inline-block;
+        vertical-align: middle;
 
         &.cm-hashtag-begin {
             padding-left: $hashtag-padding-x;

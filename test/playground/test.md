@@ -22,7 +22,7 @@ commenta **vimque rapidae in** et al. :joy: :smile:
 
 Placet Cyparissus forma [bare-link][] ed [simul][laobubu] potentia[^1].
 
-Gaudia mille animas quae maxima, litora, grave, ezyaw.
+Gaudia mille animas #quae maxima, #litora and mary# , grave, ezyaw.
 
 -----
 
@@ -111,7 +111,7 @@ invito Ide aut flammaque mala? Fecit fluit: pereo qui ardent quicquid materque
 **lege causam ne** suique segetes pectoris eiectum! Pariente quondam tamen non
 venere tela adsuetaque ut gramina collo.
 
- <table>
+<table>
   <tr>
     <th>Firstname</th>
     <th>Lastname</th>

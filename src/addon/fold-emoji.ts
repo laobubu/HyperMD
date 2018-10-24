@@ -168,7 +168,7 @@ export class FoldEmoji implements Addon.Addon, Options {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one FoldEmoji instance */
-export const getAddon = Addon.Getter("FoldEmoji", FoldEmoji, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("FoldEmoji", FoldEmoji, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { FoldEmoji?: FoldEmoji } } }
 
 /********************************************************************************** */

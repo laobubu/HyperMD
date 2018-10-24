@@ -208,5 +208,5 @@ export class TableAlign implements Addon.Addon, Options /* if needed */ {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one TableAlign instance */
-export const getAddon = Addon.Getter("TableAlign", TableAlign, defaultOption)
+export const getAddon = Addon.makeGetter("TableAlign", TableAlign, defaultOption)
 declare global { namespace HyperMD { interface HelperCollection { TableAlign?: TableAlign } } }

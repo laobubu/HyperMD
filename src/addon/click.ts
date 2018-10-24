@@ -400,5 +400,5 @@ export class Click implements Addon.Addon, Options {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one Click instance */
-export const getAddon = Addon.Getter("Click", Click, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("Click", Click, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { Click?: Click } } }

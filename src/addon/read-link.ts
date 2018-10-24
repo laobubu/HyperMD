@@ -244,5 +244,5 @@ export class ReadLink implements Addon.Addon, Options {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one ReadLink instance */
-export const getAddon = Addon.Getter("ReadLink", ReadLink, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("ReadLink", ReadLink, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { ReadLink?: ReadLink } } }

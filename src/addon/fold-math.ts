@@ -295,5 +295,5 @@ export class FoldMath implements Addon.Addon, Options {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one FoldMath instance */
-export const getAddon = Addon.Getter("FoldMath", FoldMath, defaultOption /** if has options */)
+export const getAddon = Addon.makeGetter("FoldMath", FoldMath, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { FoldMath?: FoldMath } } }
