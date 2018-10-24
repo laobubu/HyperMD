@@ -241,6 +241,8 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
       var changedMarkers: HmdTextMarker[] = []
 
       for (const change of changes) {
+        let lineNo = change.from.line
+        this._quickFoldHint.push(lineNo)
         let markers = cm.findMarks(change.from, change.to) as HmdTextMarker[]
         for (const marker of markers) {
           if (marker._hmd_fold_type) changedMarkers.push(marker)

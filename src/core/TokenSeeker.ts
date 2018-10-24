@@ -274,6 +274,14 @@ export class TokenSeeker {
     if (ch === void 0) { ch = line as number; line = this.line }
     else if (typeof line === 'number') line = this.cm.getLineHandle(line);
 
+    if (!line) {
+      this.line = null
+      this.lineNo = -1
+      this.lineTokens = []
+      this.i_token = 0
+      return
+    }
+
     const sameLine = line === this.line;
     var i_token = 0
 
