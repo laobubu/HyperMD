@@ -179,6 +179,8 @@ declare module "codemirror" {
 
     startOperation(): void;
     endOperation(): void;
+
+    setSize(width?: any, height?: any): void;
   }
 
   interface TextMarker {

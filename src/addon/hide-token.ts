@@ -14,8 +14,9 @@ import * as hmdDefaults from '../core/defaults';
 import FlipFlop from '../core/FlipFlop';
 
 import { debounce, rmClass, addClass } from '../core/utils';
-import { OrderedRange, orderedRange, rangesIntersect, cm_internal } from '../core/cm_utils';
+import { OrderedRange, orderedRange, rangesIntersect } from '../core/cm_utils';
 import { getLineSpanExtractor, Span } from '../core/LineSpanExtractor';
+import { mapFromLineView, findViewForLine } from '../core/cm_internal';
 
 const DEBUG = false
 
@@ -115,36 +116,38 @@ export class HideToken implements Addon.Addon, Options {
   }
 
   renderLineHandler = (cm: cm_t, line: CodeMirror.LineHandle, el: HTMLPreElement) => {
-    // TODO: if we procLine now, we can only get the outdated lineView, lineViewMeasure and lineViewMap. Calling procLine will be wasteful!
-    const changed = this.procLine(line, el)
-    if (DEBUG) console.log("renderLine return " + changed)
+    // the line is just re-rendered but not applied to real DOM
+    //
+    // if we invoke procLine now, we can only get
+    // the outdated lineView, lineViewMeasure and lineViewMap.
+    //
+    // `this.update()` is debounced and async and should be able to solve this silly problem
+    this.update()
   }
 
   cursorActivityHandler = (doc: CodeMirror.Doc) => {
     this.update()
   }
 
-  update = debounce(() => this.updateImmediately(), 100)
+  update = debounce(() => this.updateImmediately(), 50)
 
   /**
    * hide/show <span>s in one line, based on `this._rangesInLine`
    * @returns line changed or not
    */
-  procLine(line: CodeMirror.LineHandle | number, pre?: HTMLPreElement): boolean {
+  procLine(line: CodeMirror.LineHandle | number): boolean {
     const cm = this.cm
     const lineNo = typeof line === 'number' ? line : line.lineNo()
     if (typeof line === 'number') line = cm.getLineHandle(line)
 
     const rangesInLine = this._rangesInLine[lineNo] || []
 
-    const lv = cm_internal.findViewForLine(cm, lineNo)
+    const lv = findViewForLine(cm, lineNo)
     if (!lv || lv.hidden || !lv.measure) return false
-    if (!pre) pre = lv.text
+    const pre = lv.text
     if (!pre) return false
 
-    if (DEBUG) if (!pre.isSameNode(lv.text)) console.warn("procLine got different node... " + lineNo)
-
-    const mapInfo = cm_internal.mapFromLineView(lv, line, lineNo)
+    const mapInfo = mapFromLineView(lv, line, lineNo)
     const map = mapInfo.map
     const nodeCount = map.length / 3
 
@@ -286,24 +289,39 @@ export class HideToken implements Addon.Addon, Options {
     if (DEBUG) console.log("======= OP START " + Object.keys(activedLines))
 
     cm.operation(() => {
+      let processedLineNos: number[] = []
+
       // adding "inactive" class
       for (const line in lastActivedLines) {
         if (activedLines[line]) continue // line is still active. do nothing
-        this.procLine(~~line) // or, try adding "inactive" class to the <pre>s
+
+        // or, try adding "inactive" class to the <pre>s
+
+        const lineNo = ~~line
+        this.procLine(lineNo)
+        processedLineNos.push(lineNo)
       }
 
       let caretLineChanged = false
 
       // process active lines
       for (const line in activedLines) {
-        let lineChanged = this.procLine(~~line)
+        const lineNo = ~~line
+        const lineChanged = this.procLine(lineNo)
         if (lineChanged && caretAtLines[line]) caretLineChanged = true
+        processedLineNos.push(lineNo)
+      }
+
+      // process lines in viewport
+      const viewport = cm.getViewport()
+      for (let lineNo = viewport.from; lineNo < viewport.to; lineNo++) {
+        if (processedLineNos.indexOf(lineNo) === -1) this.procLine(lineNo)
       }
 
       // refresh cursor position if needed
       if (caretLineChanged) {
         if (DEBUG) console.log("caretLineChanged")
-        cm.refresh()
+        cm.setSize()
 
         // legacy unstable way to update display and caret position:
         // updateCursorDisplay(cm, true)

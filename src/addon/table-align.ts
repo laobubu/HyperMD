@@ -111,7 +111,7 @@ export class TableAlign implements Addon.Addon, Options /* if needed */ {
     if (css === this._lastCSS) return
 
     this.styleEl.textContent = this._lastCSS = css
-    cm.refresh()
+    cm.setSize()
   }, 100)
 
   /** CodeMirror renderLine event handler */

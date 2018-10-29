@@ -4,41 +4,6 @@
 
 import { cm_t } from "./type"
 import { Token, Position, cmpPos } from "codemirror"
-import * as cm_internal from "./cm_internal"
-
-export { cm_internal }
-
-/**
- * CodeMirror's `getLineTokens` might merge adjacent chars with same styles,
- * but this one won't.
- *
- * This one will consume more memory.
- *
- * @param {CodeMirror.LineHandle} line
- * @returns {string[]} every char's style
- */
-export function getEveryCharToken(line: CodeMirror.LineHandle): string[] {
-  var ans = new Array(line.text.length)
-  var ss = line.styles
-  var i = 0
-
-  if (ss) {
-    // CodeMirror already parsed this line. Use cache
-    for (let j = 1; j < ss.length; j += 2) {
-      let i_to = ss[j], s = ss[j + 1]
-      while (i < i_to) ans[i++] = s
-    }
-  } else {
-    // Emmm... slow method
-    let cm = line.parent.cm || line.parent.parent.cm || line.parent.parent.parent.cm
-    let ss = cm.getLineTokens(line.lineNo())
-    for (let j = 0; j < ss.length; j++) {
-      let i_to = ss[j].end, s = ss[j].type
-      while (i < i_to) ans[i++] = s
-    }
-  }
-  return ans
-}
 
 /**
  * return a range in which every char has the given style (aka. token type).
