@@ -352,6 +352,7 @@ export class FoldHTML implements Addon.Addon, Options {
 
     marker = cm.markText(from, to, {
       replacedWith,
+      clearOnEnter: true,
     })
 
     return marker

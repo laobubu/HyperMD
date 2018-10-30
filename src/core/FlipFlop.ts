@@ -48,7 +48,10 @@ export default class FlipFlop<T=boolean> {
    * Bind to a object's property with `Object.defineProperty`
    * so that you may set state with `obj.enable = true`
    */
-  bind<U>(obj: U, key: keyof U, toBool?: boolean) {
+  bind<U>(obj: U, key: keyof U, toBool?: boolean);
+  bind<U>(obj: any, key: any, toBool?: boolean): never;
+
+  bind<U>(obj: U, key: string | number | symbol, toBool?: boolean) {
     Object.defineProperty(obj, key, {
       get: () => this.state,
       set: (v) => this.set(v, toBool),

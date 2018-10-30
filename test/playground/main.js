@@ -12,7 +12,7 @@ requirejs.config({
   packages: [
     { name: "hypermd", main: "everything.js" },
     { name: "codemirror", main: "lib/codemirror.js" },
-    { name: "vue", main: "dist/vue.js" },
+    { name: "vue", main: "dist/vue.min.js" },
   ]
 })
 
@@ -23,9 +23,6 @@ document.body.appendChild(themeCSSLink)
 var dependencies = [
   'hypermd',
   'vue',
-
-  'codemirror/mode/yaml/yaml',
-  'codemirror/mode/stex/stex',
 
   'playground/component/vue-float-win',
   'playground/component/option-input',

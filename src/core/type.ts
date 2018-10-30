@@ -215,6 +215,10 @@ declare module "codemirror" {
 
   interface LineHandle {
     styles?: (string | number)[]
+    styleClasses?: {
+      textClass?: string,
+      bgClass?: string,
+    }
     parent: any
 
     lineNo(): number

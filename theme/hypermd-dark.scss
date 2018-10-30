@@ -8,8 +8,6 @@ $dark__bgc: #2b3e50;
 $dark__fgc: #f8f8f2;
 $dark__bgc-d1: darken($dark__bgc, 5);
 $dark__bgc-d2: darken($dark__bgc, 10);
-$dark__bgc-d3: darken($dark__bgc, 15);
-$dark__bgc-d4: darken($dark__bgc, 20);
 $dark__bgc-0: lighten($dark__bgc, 5);
 $dark__bgc-1: lighten($dark__bgc, 10);
 $dark__bgc-2: lighten($dark__bgc, 15);
@@ -18,6 +16,8 @@ $dark__fgc-0: darken($dark__fgc, 5);
 $dark__fgc-1: darken($dark__fgc, 10);
 $dark__fgc-2: darken($dark__fgc, 15);
 $dark__fgc-3: darken($dark__fgc, 20);
+
+$dark__selection_bgc: $dark__bgc-d2;
 
 // well....
 
@@ -43,9 +43,9 @@ $header-hash-width: 40px;
     .CodeMirror-gutters { color: #2b3e50; }
     .CodeMirror-cursor { border-left: solid thin #E6C845; }
     .CodeMirror-linenumber { color: $dark__bgc-3; }
-    .CodeMirror-selected { background: #243443; }
-    .CodeMirror-line::selection,  .CodeMirror-line > span::selection,  .CodeMirror-line > span > span::selection { background: $dark__bgc-d4; }
-    .CodeMirror-line::-moz-selection,  .CodeMirror-line > span::-moz-selection,  .CodeMirror-line > span > span::-moz-selection { background: $dark__bgc-d4; }
+    .CodeMirror-selected { background: $dark__selection_bgc; }
+    .CodeMirror-line::selection,  .CodeMirror-line > span::selection,  .CodeMirror-line > span > span::selection { background: $dark__selection_bgc; }
+    .CodeMirror-line::-moz-selection,  .CodeMirror-line > span::-moz-selection,  .CodeMirror-line > span > span::-moz-selection { background: $dark__selection_bgc; }
     .cm-comment { color: #5c98cd; }
     .cm-string,  .cm-string-2 { color: #E6DB74; }
     .cm-number { color: #ca94ff; }
@@ -354,7 +354,7 @@ $table-row-1-image: url('./base/1px_999999.gif');  // the horizontal line below 
         border: 2px solid $dark__bgc-2;
         padding: 0 5px;
         border-radius: 5px;
-        background: $dark__bgc-d2;
+        background: $dark__bgc-d1;
         cursor: pointer;
 
         &:hover,

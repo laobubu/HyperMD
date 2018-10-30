@@ -116,13 +116,8 @@ export class HideToken implements Addon.Addon, Options {
   }
 
   renderLineHandler = (cm: cm_t, line: CodeMirror.LineHandle, el: HTMLPreElement) => {
-    // the line is just re-rendered but not applied to real DOM
-    //
-    // if we invoke procLine now, we can only get
-    // the outdated lineView, lineViewMeasure and lineViewMap.
-    //
-    // `this.update()` is debounced and async and should be able to solve this silly problem
-    this.update()
+    // somehow this works. DO NOT CHANGE!
+    if (null === this.procLine(line)) this.update()
   }
 
   cursorActivityHandler = (doc: CodeMirror.Doc) => {
@@ -133,7 +128,7 @@ export class HideToken implements Addon.Addon, Options {
 
   /**
    * hide/show <span>s in one line, based on `this._rangesInLine`
-   * @returns line changed or not
+   * @returns line changed or not, or `null` if failed to find the line
    */
   procLine(line: CodeMirror.LineHandle | number): boolean {
     const cm = this.cm
@@ -143,9 +138,9 @@ export class HideToken implements Addon.Addon, Options {
     const rangesInLine = this._rangesInLine[lineNo] || []
 
     const lv = findViewForLine(cm, lineNo)
-    if (!lv || lv.hidden || !lv.measure) return false
+    if (!lv || lv.hidden || !lv.measure) return null
     const pre = lv.text
-    if (!pre) return false
+    if (!pre) return null
 
     const mapInfo = mapFromLineView(lv, line, lineNo)
     const map = mapInfo.map

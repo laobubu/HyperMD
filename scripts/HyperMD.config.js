@@ -19,6 +19,7 @@ const fs = require('fs')
  */
 exports.components = {
   // "./addon/skeleton": "Skeleton",  // <- example
+  "./addon/doc-info": "DocInfo",
   "./addon/insert-file": "InsertFile",
   "./addon/read-link": "ReadLink",
   "./addon/hover": "Hover",

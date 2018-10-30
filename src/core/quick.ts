@@ -7,6 +7,9 @@ import { cm_t } from "./type"
 import { suggestedEditorConfig, normalVisualConfig } from "./defaults";
 import "./polyfill" // for Object.assign
 
+import 'codemirror/mode/yaml/yaml'
+import 'codemirror/mode/stex/stex'
+
 import 'codemirror/addon/fold/foldcode'
 import 'codemirror/addon/fold/foldgutter'
 import 'codemirror/addon/fold/markdown-fold'

@@ -39,8 +39,8 @@ export interface HmdTextMarker extends CodeMirror.TextMarker {
  * 4. Check if `stream.requestRange(from, to[, cfrom, cto])` returns `RequestRangeResult.OK`
  *    - if not ok, you shall return `null` immediately.
  *    - the optional `cfrom` and `cto` compose a range, let's call it "crange".
- *      - If user's caret moves into that "crange", your marker will break automatically.
- *      - If "crange" is not provided, it will be the same as `[from, to]`
+ *      - If "crange" is provided, and user's caret moves into that "crange",
+ *        your marker will break automatically.
  *      - Note that "crange" can be bigger / smaller than the marker's range,
  *        as long as they have intersection.
  *      - In some cases, to prevent auto-breaking, please use `cfrom = from` and `cto = from`
@@ -82,17 +82,13 @@ export interface FoldStream {
    * Before creating a TextMarker, check if the range is good to use.
    *
    * Do NOT create TextMarker unless this returns `RequestRangeResult.OK`
+   *
+   * ***Notice about `cfrom` and `cto`***
+   *
+   * If `cfrom` and `cto` are provided, and cfrom <= caret_position <= cto,
+   * HyperMD will remove the TextMarker.
    */
   requestRange(from: Position, to: Position): RequestRangeResult
-
-  /**
-   * Before creating a TextMarker, check if the range is good to use.
-   *
-   * Do NOT create TextMarker unless this returns `RequestRangeResult.OK`
-   *
-   * @param cfrom if cfrom <= caret <= cto, the TextMarker will be removed.
-   * @param cto   if cfrom <= caret <= cto, the TextMarker will be removed.
-   */
   requestRange(from: Position, to: Position, cfrom: Position, cto: Position): RequestRangeResult
 }
 
@@ -258,6 +254,10 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
     cm.on("cursorActivity", (cm) => {
       if (DEBUG) console.time('CA')
 
+      // check the carets' position and clear markers on-demand.
+      //
+      // example: when caret is inside a link text, unfold the link href icon
+
       let lineStuff: {
         [lineNo: string]: {
           lineNo: number, ch: number[],
@@ -326,9 +326,6 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
    * NOTE: this function is always called after `_quickFoldHint` reset by `startFoldImmediately`
    */
   requestRange(from: Position, to: Position, cfrom?: Position, cto?: Position): RequestRangeResult {
-    if (!cto) cto = to
-    if (!cfrom) cfrom = from
-
     const cm = this.cm
 
     var markers = cm.findMarks(from, to)
@@ -337,18 +334,22 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
     this._quickFoldHint.push(from.line)
 
     // store "crange" for the coming marker
-    this._lastCRange = [cfrom, cto]
+    const hasCRange = cfrom && cto
+    this._lastCRange = hasCRange ? [cfrom, cto] : null
 
     const selections = cm.listSelections()
     for (let i = 0; i < selections.length; i++) {
       let oselection = orderedRange(selections[i])
       // note that "crange" can be bigger or smaller than marked-text range.
-      if (rangesIntersect(this._lastCRange, oselection) || rangesIntersect([from, to], oselection)) {
+      if (
+        (hasCRange && rangesIntersect(this._lastCRange, oselection)) ||
+        rangesIntersect([from, to], oselection)
+      ) {
         return RequestRangeResult.CURSOR_INSIDE
       }
     }
 
-    this._quickFoldHint.push(cfrom.line)
+    this._quickFoldHint.push(hasCRange ? cfrom.line : from.line)
 
     return RequestRangeResult.OK
   }
@@ -439,7 +440,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
           var { from, to } = marker.find();
           (this.folded[type] || (this.folded[type] = [])).push(marker)
           marker._hmd_fold_type = type;
-          marker._hmd_crange = this._lastCRange;
+          if (this._lastCRange) marker._hmd_crange = this._lastCRange;
           marker.on('clear', (from, to) => {
             var markers = this.folded[type]
             var idx: number

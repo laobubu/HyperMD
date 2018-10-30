@@ -57,7 +57,7 @@ export function debounce(fn: Function, delay: number): { (): void; stop(): void 
 }
 
 /**
- * addClass / removeClass etc.
+ * Check if a element is inside another.
  *
  * using CodeMirror's (although they're legacy API)
  */
@@ -79,6 +79,27 @@ export function repeatStr(item: string, count: number): string {
   var ans = ""
   while (count-- > 0) ans += item
   return ans
+}
+
+/**
+ * Simplified `_.isEqual`
+ */
+export function isEqual(obj1: any, obj2: any): boolean {
+  if (obj1 === obj2) return true
+  if (!obj1 || !obj2 || typeof obj1 !== typeof obj2) return false
+
+  if (typeof obj1 === 'object') {
+    for (let k in obj1) {
+      if (!isEqual(obj2[k], obj1[k])) return false
+    }
+    for (let k in obj2) {
+      if (!(k in obj1)) return false
+    }
+    return true
+  } else {
+    // primitive comparasion failed before
+    return false
+  }
 }
 
 /**

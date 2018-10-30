@@ -344,6 +344,7 @@ export class FoldCode implements Addon.Addon {
 
     let marker = handle.marker = cm.markText(from, to, {
       replacedWith: $stub,
+      clearOnEnter: true,
     })
 
     //-----------------------------

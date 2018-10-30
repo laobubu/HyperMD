@@ -125,6 +125,7 @@ export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression:
   }
 
   var marker: TextMarker = cm.markText(p1, p2, {
+    clearOnEnter: true,
     replacedWith: span,
   })
 
