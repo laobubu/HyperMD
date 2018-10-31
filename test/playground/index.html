@@ -35,6 +35,27 @@
       <p><button @click="load_plugins">Reload and Load Plugins</button></p>
     </float-win>
 
+    <float-win v-model="windows.docInfo" title="DocInfo">
+      <div>
+        <small>
+          Click the checkbox to show/hide details.
+          <a href="">What is DocInfo?</a>
+        </small>
+      </div>
+      <div v-for="nodes, type in docInfo" :key="type" class="s-accordion">
+        <input :id=" 'docInfo-'+type" type="checkbox">
+        <label :for="'docInfo-'+type">{{ type }}</label>
+        <ol start="0" class="s-accordion-content">
+          <li v-for="node in nodes" :key="node.lineNo" class="s-accordion">
+            <input :id=" 'docInfo-'+type+node.lineNo" type="checkbox">
+            <b style="cursor:pointer; color: #009" @click="goto_line(node.lineNo)">L{{ node.lineNo }} ::</b>
+            <label :for="'docInfo-'+type+node.lineNo">{{ node.text | partial_str }}</label>
+            <pre class="s-accordion-content">{{ node }}</pre>
+          </li>
+        </ol>
+      </div>
+    </float-win>
+
     <float-win v-model="windows.options" title="Editor Options" v-if="options">
       <div style="columns: 2;">
         <option-fieldset :dist="options.mode" title="('hypermd' mode)">

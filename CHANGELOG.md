@@ -225,3 +225,8 @@ DON'T PUT `iframe` INTO YOUR Markdown! Once DOM changes (which is often), the if
   - Throw an Error when using `ai1.js` with module loader. -- please use `everything.js` or load modules on demand.
   - PlayGround for HyperMD (js or theme) dev -- `npm run dev` and it will open.
   - Add Error capturing for `addon/fold` and `addon/fold-code`
+  - Dark theme `hypermd-dark` and a easy way to make themes.
+  - **addon/doc-info**: extract Markdown doc infos like headers, footnotes etc.
+
+* **Fix**
+  - **addon/fold-html**: do not render `<template>`s

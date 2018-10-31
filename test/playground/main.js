@@ -47,9 +47,13 @@ require(dependencies, function (hypermd_0, vue_0) {
         windows: {
           options: false,
           plugins: false,
+          docInfo: false,
         },
         originalOptions: {},
         options: null, // defined later
+
+        docInfo: {
+        },
 
         file: args.file,
         plugins: args.plugins,
@@ -94,6 +98,13 @@ require(dependencies, function (hypermd_0, vue_0) {
         location.hash = newURL
       },
     },
+    filters: {
+      partial_str(str) {
+        str = str + ""
+        if (str.length <= 32) return str
+        return str.slice(0, 32) + "..."
+      },
+    },
     methods: {
       set_theme(ev) {
         var theme = ev.target.value, self = this
@@ -108,6 +119,11 @@ require(dependencies, function (hypermd_0, vue_0) {
         location.hash = this.url
         location.reload()
       },
+      goto_line(lineNo) {
+        const anchor = { line: lineNo, ch: 0 }
+        editor.setCursor(anchor)
+        editor.setSelection(anchor, { line: lineNo, ch: editor.getLine(lineNo).length })
+      },
     },
     mounted() {
       editor = HyperMD.fromTextArea(document.getElementById('my-textarea'), {
@@ -118,6 +134,11 @@ require(dependencies, function (hypermd_0, vue_0) {
         },
       })
       editor.setSize(null, '100%')
+
+      editor.on("docInfoChange", (type, nodes) => {
+        Vue.set(this.docInfo, type, nodes)
+      })
+      editor.hmdGetDocInfo()  // start watching DocInfo...
 
       const updateOriginalOptions = (name, value) => {
         if (name in this.originalOptions) return

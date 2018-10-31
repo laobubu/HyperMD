@@ -119,9 +119,9 @@ $quode-indent-width: 20px; // width of the strip image, for each level of blockq
 %list-line { }
 
 /// List Checkbox
-$list-checkbox-image: none; // image aspect ratio must be 2:1
+$list-checkbox-image: url('./base/checkbox_white.png'); // image aspect ratio must be 2:1
 %list-checkbox-text { color: #F40; }
-%list-checkbox-text-hidden { color: transparent; background-image: url('./base/checkbox_white.png'); }
+%list-checkbox-text-hidden { color: transparent; }
 
 /// List Bullet and indentation space
 %list-indent-space { // spaces before item text or bullet! shrink them as much as you can!

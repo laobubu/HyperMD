@@ -256,6 +256,7 @@
         vertical-align: middle;
         background-repeat: no-repeat;
         background-position: center 0;
+        background-size: 1em;
         cursor: pointer;
 
         &.cm-property { // checked
@@ -264,11 +265,9 @@
 
         @extend %list-checkbox-text;
         &.hmd-hidden-token {
+            background-image: $list-checkbox-image;
             @extend %list-checkbox-text-hidden;
         }
-
-        background-image: $list-checkbox-image;
-        background-size: 1em;
     }
 
     /// footnote for link and image

@@ -47,6 +47,8 @@ export var defaultRenderer: RendererFunc = (html: string, pos: Position, cm: cm_
   if (!tagBegin) return null
 
   var tagName = tagBegin[1]
+  if (tagName.toLowerCase() === 'template') return null
+
   var ans = document.createElement(tagName)
 
   var propRE = /([\w\:\-]+)(?:\s*=\s*((['"]).*?\3|\S+))?\s*/g

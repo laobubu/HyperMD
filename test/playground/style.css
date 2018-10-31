@@ -97,3 +97,11 @@ body {
 .option-fieldset legend:hover + .option-fieldset-help {
   display: block;
 }
+
+.s-accordion > input ~ .s-accordion-content {
+  display: none;
+}
+
+.s-accordion > input:checked ~ .s-accordion-content {
+  display: block;
+}
