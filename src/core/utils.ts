@@ -29,10 +29,9 @@ export function tryToRun(fn: () => boolean, times?: number, onFailed?: Function)
 /**
  * make a debounced function
  *
- * @param {Function} fn
  * @param {number} delay in ms
  */
-export function debounce(fn: Function, delay: number): { (): void; stop(): void } {
+export function debounce<T extends Function>(fn: T, delay: number): { (): void; stop(): void; immediate: T; _fn: T } {
   var deferTask = null
   var notClearBefore = 0
   var run = function () { fn(); deferTask = 0; }
@@ -52,6 +51,13 @@ export function debounce(fn: Function, delay: number): { (): void; stop(): void 
     clearTimeout(deferTask)
     deferTask = 0
   }
+
+  ans.immediate = function (...args) {
+    ans.stop()
+    return fn(...args)
+  }
+
+  ans._fn = fn
 
   return ans
 }
@@ -82,22 +88,26 @@ export function repeatStr(item: string, count: number): string {
 }
 
 /**
- * Simplified `_.isEqual`
+ * Simplified `_.isEqual`, with a recursive comparison strategy.
+ *
+ * Only for simple and small objects / arrays. Circular references will crash this function!
  */
 export function isEqual(obj1: any, obj2: any): boolean {
-  if (obj1 === obj2) return true
-  if (!obj1 || !obj2 || typeof obj1 !== typeof obj2) return false
+  if (obj1 === obj2) return true  // null===null, primitive===primitive, same_obj===same_obj
 
   if (typeof obj1 === 'object') {
+    if (!obj1 || !obj2) return false  // one of them can't be null
+
+    const hasOwnProperty = Object.prototype.hasOwnProperty
     for (let k in obj1) {
-      if (!isEqual(obj2[k], obj1[k])) return false
+      if (hasOwnProperty.call(obj1, k) && !isEqual(obj2[k], obj1[k])) return false
     }
     for (let k in obj2) {
-      if (!(k in obj1)) return false
+      if (hasOwnProperty.call(obj2, k) && !hasOwnProperty.call(obj1, k)) return false
     }
     return true
   } else {
-    // primitive comparasion failed before
+    // primitive comparison failed before
     return false
   }
 }

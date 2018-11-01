@@ -83,14 +83,10 @@ export class DocInfo implements Addon.Addon, DocInfoLike {
 
   constructor(public cm: cm_t) {
     cm.on('changes', this.reanalyze)
-    this.reanalyzeImmediately(true)
+    this.reanalyze.immediate(true)
   }
 
-
-  reanalyze = debounce(() => this.reanalyzeImmediately(), 50)
-  reanalyzeImmediately = (supressEvent?: boolean) => {
-    this.reanalyze.stop() // clear defered invoking
-
+  reanalyze = debounce((supressEvent?: boolean) => {
     var out: DocInfoLike = {
       footnotes: [],
       headers: [],
@@ -101,7 +97,11 @@ export class DocInfo implements Addon.Addon, DocInfoLike {
     var mat: RegExpMatchArray
     const tokenSeeker = new TokenSeeker(this.cm)
 
+    var skipLineCount = 0
+
     this.cm.eachLine(line => {
+      if (skipLineCount) { skipLineCount--; return }
+
       const lineNo = line.lineNo(), lineText = line.text
       const tokens = this.cm.getLineTokens(lineNo)
 
@@ -155,6 +155,7 @@ export class DocInfo implements Addon.Addon, DocInfoLike {
                 { line: lineNo, ch: token.end },
                 { line: endLineNo, ch: r.token.start }
               )
+              skipLineCount += endLineNo - lineNo
               out.mathBlocks.push(isMathBlock = { lineNo, endLineNo, text })
             }
           }
@@ -164,7 +165,7 @@ export class DocInfo implements Addon.Addon, DocInfoLike {
 
     if (supressEvent) Object.assign(this, out)
     else this._diffAndApply(out)
-  }
+  }, 50)
 
   private _diffAndApply(data: DocInfoLike) {
     for (let k in data) {

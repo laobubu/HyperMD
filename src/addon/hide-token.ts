@@ -124,8 +124,6 @@ export class HideToken implements Addon.Addon, Options {
     this.update()
   }
 
-  update = debounce(() => this.updateImmediately(), 50)
-
   /**
    * hide/show <span>s in one line, based on `this._rangesInLine`
    * @returns line changed or not, or `null` if failed to find the line
@@ -257,9 +255,7 @@ export class HideToken implements Addon.Addon, Options {
   /** Current user's selections, in each line */
   private _rangesInLine: Record<number, OrderedRange[]> = {}
 
-  updateImmediately() {
-    this.update.stop()
-
+  update = debounce(() => {
     const cm = this.cm
     const selections = cm.listSelections()
     const caretAtLines: Record<number, boolean> = {}
@@ -325,7 +321,7 @@ export class HideToken implements Addon.Addon, Options {
     })
 
     if (DEBUG) console.log("======= OP END ")
-  }
+  }, 50)
 }
 
 //#endregion

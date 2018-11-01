@@ -360,15 +360,10 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 
   /**
    * Fold everything! (This is a debounced, and `this`-binded version)
-   */
-  startFold = debounce(this.startFoldImmediately.bind(this), 100)
-
-  /**
-   * Fold everything!
    *
    * @param toLine last line to fold. Inclusive
    */
-  startFoldImmediately(fromLine?: number, toLine?: number) {
+  startFold = debounce((fromLine?: number, toLine?: number) => {
     const cm = this.cm
 
     fromLine = fromLine || cm.firstLine()
@@ -475,7 +470,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
         }
       }
     }))
-  }
+  }, 100)
 
   /** stores every affected lineNo */
   private _quickFoldHint: number[] = []
@@ -494,8 +489,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
       if (to < lineNo) to = lineNo
     }
 
-    this.startFold.stop()
-    this.startFoldImmediately(from, to)
+    this.startFold.immediate(from, to)
   }
 
   /**
