@@ -6,7 +6,7 @@
 
 import { FolderFunc, registerFolder, RequestRangeResult, breakMark } from "./fold";
 import { Position } from "codemirror";
-import { splitLink } from "./read-link";
+import { splitLink } from "../core/utils";
 
 const DEBUG = false
 
@@ -35,9 +35,9 @@ export const ImageFolder: FolderFunc = function (stream, token) {
           { line: lineNo, ch: url_end.token.start }
         )
         if (url_end.token.string === "]") {
-          let tmp = cm.hmdReadLink(rawurl, lineNo)
+          let tmp = cm.hmdReadFootnote(rawurl, lineNo)
           if (!tmp) return null // Yup! bad URL?!
-          rawurl = tmp.content
+          rawurl = tmp.text
         }
         url = splitLink(rawurl).url
         url = cm.hmdResolveURL(url)

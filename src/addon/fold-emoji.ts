@@ -11,7 +11,7 @@ import { suggestedEditorConfig } from '../core/defaults'
 import { cm_t } from '../core/type'
 import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 
-/********************************************************************************** */
+//-------------------------------------------------------
 
 export type EmojiRenderer = (text: string) => HTMLElement;
 export type EmojiChecker = (text: string) => boolean;
@@ -25,7 +25,7 @@ export const defaultRenderer: EmojiRenderer = (text) => {
   return el
 }
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Folder
 /**
  * Detect if a token is emoji and fold it
@@ -55,7 +55,7 @@ export const EmojiFolder: FolderFunc = (stream, token) => {
 
 registerFolder("emoji", EmojiFolder, true)
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -127,7 +127,7 @@ CodeMirror.defineOption("hmdFoldEmoji", defaultOption, function (cm: cm_t, newVa
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class FoldEmoji implements Addon.Addon, Options {
@@ -172,7 +172,7 @@ export class FoldEmoji implements Addon.Addon, Options {
 export const getAddon = Addon.makeGetter("FoldEmoji", FoldEmoji, defaultOption /** if has options */)
 declare global { namespace HyperMD { interface HelperCollection { FoldEmoji?: FoldEmoji } } }
 
-/********************************************************************************** */
+//-------------------------------------------------------
 
 //#region initialize compact emoji dict
 (function (dest: typeof defaultDict) {

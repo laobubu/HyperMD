@@ -15,7 +15,7 @@ import { cm_t } from '../core/type'
 import { HyperMDState, TableType } from '../mode/hypermd'
 
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -68,7 +68,7 @@ CodeMirror.defineOption("hmdTableAlign", defaultOption, function (cm: cm_t, newV
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class TableAlign implements Addon.Addon, Options /* if needed */ {

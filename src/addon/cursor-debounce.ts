@@ -15,12 +15,12 @@ import { cm_t } from '../core/type'
 import * as hmdDefaults from '../core/defaults';
 import FlipFlop from '../core/FlipFlop';
 
-/********************************************************************************** */
+//-------------------------------------------------------
 // Some parameter LGTM
 
 const silenceDuration = 100, distance = 5
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -71,7 +71,7 @@ CodeMirror.defineOption("hmdCursorDebounce", defaultOption, function (cm: cm_t, 
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class CursorDebounce implements Addon.Addon, Options /* if needed */ {

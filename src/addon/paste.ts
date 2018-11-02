@@ -10,11 +10,11 @@ import { suggestedEditorConfig } from '../core/defaults'
 import FlipFlop from '../core/FlipFlop'
 import { cm_t } from '../core/type'
 
-/********************************************************************************** */
+//-------------------------------------------------------
 
 export type PasteConvertor = (html: string) => string | void
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -73,7 +73,7 @@ CodeMirror.defineOption("hmdPaste", defaultOption, function (cm: cm_t, newVal: O
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class Paste implements Addon.Addon, Options /* if needed */ {

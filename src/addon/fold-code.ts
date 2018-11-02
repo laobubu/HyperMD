@@ -150,7 +150,7 @@ registerFolder("code", CodeFolder, true)
 //#endregion
 
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export type Options = Record<string, boolean>
@@ -211,7 +211,7 @@ CodeMirror.defineOption("hmdFoldCode", defaultOption, function (cm: cm_t, newVal
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 type FoldHandle_Full = { -readonly [P in keyof FoldHandle]: FoldHandle[P] }

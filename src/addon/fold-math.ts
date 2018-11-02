@@ -19,7 +19,7 @@ import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fol
 
 const DEBUG = false
 
-/********************************************************************************** */
+//-------------------------------------------------------
 /// MATH ENGINE DECLARATION
 /// You may implement a MathRenderer to use other engine, eg. MathJax or KaTex
 
@@ -37,7 +37,7 @@ export declare abstract class MathRenderer {
   isReady(): boolean
 }
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Exports
 
 /**
@@ -162,7 +162,7 @@ export function insertMathMark(cm: cm_t, p1: Position, p2: Position, expression:
 
 registerFolder("math", MathFolder, true)
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Default Renderer
 
 export class DumbRenderer implements MathRenderer {
@@ -198,7 +198,7 @@ export class DumbRenderer implements MathRenderer {
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -268,7 +268,7 @@ CodeMirror.defineOption("hmdFoldMath", defaultOption, function (cm: cm_t, newVal
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class FoldMath implements Addon.Addon, Options {

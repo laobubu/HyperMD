@@ -7,39 +7,14 @@
 import * as CodeMirror from 'codemirror'
 import * as Addon from '../core/addon'
 import { suggestedEditorConfig } from '../core/defaults'
-import { debounce } from '../core/utils'
+import { resolveURI, splitLink } from '../core/utils'
+import { getAddon as getDocInfo, Footnote } from "./doc-info"
 
 import { cm_t } from '../core/type'
 
+export { Footnote }
 
-/********************************************************************************** */
-
-export interface Link {
-  line: number
-  content: string
-}
-export type CacheDB = { [lowerTrimmedKey: string]: Link[] }
-
-/**
- * Normalize a (potentially-with-title) URL string
- *
- * @param content eg. `http://laobubu.net/page "The Page"` or just a URL
- */
-export function splitLink(content: string) {
-  // remove title part (if exists)
-  content = content.trim()
-  var url = content, title = ""
-  var mat = content.match(/^(\S+)\s+("(?:[^"\\]+|\\.)+"|[^"\s].*)/)
-  if (mat) {
-    url = mat[1]
-    title = mat[2]
-    if (title.charAt(0) === '"') title = title.substr(1, title.length - 2).replace(/\\"/g, '"')
-  }
-
-  return { url, title }
-}
-
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region CodeMirror Extension
 // add methods to all CodeMirror editors
 
@@ -48,13 +23,25 @@ export const Extensions = {
   /**
    * Try to find a footnote and return its lineNo, content.
    *
-   * NOTE: You will need `hmdSplitLink` and `hmdResolveURL` if you want to get a URL
+   * @see hmdReadFootnoteLink -- if you want a URL instead of full footnote line
    *
    * @param footNoteName without square brackets, case-insensive
    * @param line since which line
    */
-  hmdReadLink(this: cm_t, footNoteName: string, line?: number) {
-    return getAddon(this).read(footNoteName, line)
+  hmdReadFootnote(this: cm_t, footNoteName: string, line?: number) {
+    return getAddon(this).readFootnote(footNoteName, line)
+  },
+
+  /**
+   * Try to find a footnote, and resolve the relative URL.
+   *
+   * @see hmdReadFootnote -- if you just want the plain footnote line
+   *
+   * @param footNoteName without square brackets, case-insensive
+   * @param line since which line
+   */
+  hmdReadLink(footNoteName: string, line?: number | boolean, resolve?: boolean): { url: string, title: string } {
+    return getAddon(this).readLink(footNoteName, line as number, resolve)
   },
 
   /**
@@ -65,12 +52,18 @@ export const Extensions = {
   hmdResolveURL(this: cm_t, url: string, baseURI?: string) {
     return getAddon(this).resolve(url, baseURI)
   },
-
-  hmdSplitLink: splitLink,
 }
 
 export type ExtensionsType = typeof Extensions
-declare global { namespace HyperMD { interface Editor extends ExtensionsType { } } }
+declare global {
+  namespace HyperMD {
+    interface Editor {
+      hmdReadLink(footNoteName: string, resolve?: boolean): { url: string, title: string }
+      hmdReadLink(footNoteName: string, line?: number, resolve?: boolean): { url: string, title: string }
+    }
+    interface Editor extends ExtensionsType { }
+  }
+}
 
 for (var name in Extensions) {
   CodeMirror.defineExtension(name, Extensions[name])
@@ -78,7 +71,7 @@ for (var name in Extensions) {
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -134,19 +127,15 @@ CodeMirror.defineOption("hmdReadLink", defaultOption, function (cm: cm_t, newVal
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class ReadLink implements Addon.Addon, Options {
   baseURI: string
 
-  cache: CacheDB = {}
-
   constructor(
     public cm: cm_t
   ) {
-    cm.on("changes", debounce(() => this.rescan(), 500))
-    this.rescan()
   }
 
   /**
@@ -159,85 +148,39 @@ export class ReadLink implements Addon.Addon, Options {
    * @param footNoteName case-insensive name, without "[" or "]"
    * @param line         current line. if not set, the first definition will be returned
    */
-  read(footNoteName: string, line?: number): (Link | void) {
-    var defs = this.cache[footNoteName.trim().toLowerCase()] || []
-    var def: Link
+  readFootnote(footNoteName: string, line?: number) {
+    var defs = getDocInfo(this.cm).footnoteDict[footNoteName.trim().toLowerCase()]
+    if (!defs || !defs.length) return null
 
-    if (typeof line !== "number") line = 1e9
-    for (var i = 0; i < defs.length; i++) {
-      def = defs[i]
-      if (def.line > line) break
-    }
-
-    return def
-  }
-
-  /**
-   * Scan content and rebuild the cache
-   */
-  rescan() {
-    const cm = this.cm
-    var cache: CacheDB = (this.cache = {})
-    cm.eachLine((line) => {
-      var txt = line.text, mat = /^(?:>\s+)*>?\s{0,3}\[([^\]]+)\]:\s*(.+)$/.exec(txt)
-      if (mat) {
-        var key = mat[1].trim().toLowerCase(), content = mat[2]
-        if (!cache[key]) cache[key] = []
-        cache[key].push({
-          line: line.lineNo(),
-          content: content,
-        })
+    if (typeof line === "number") {
+      for (var i = 0; i < defs.length; i++) {
+        if (defs[i].lineNo > line) return defs[i] // found first footnote after current line
       }
-    })
+      return defs[0]
+    }
+
+    return defs[defs.length - 1]
   }
 
   /**
-   * Check if URL is relative URL, and add baseURI if needed
+   * get a url defined via footnote
    *
-   * @example
-   *
-   *     resolve("<email address>") // => "mailto:xxxxxxx"
-   *     resolve("../world.png") // => (depends on your editor configuration)
-   *     resolve("../world.png", "http://laobubu.net/xxx/foo/") // => "http://laobubu.net/xxx/world.png"
-   *     resolve("../world.png", "http://laobubu.net/xxx/foo") // => "http://laobubu.net/xxx/world.png"
-   *     resolve("/world.png", "http://laobubu.net/xxx/foo/") // => "http://laobubu.net/world.png"
+   * @param footNoteName case-insensive name, without "[" or "]"
+   * @param line         current line. if not set, the first definition will be returned
    */
+  readLink(footNoteName: string, resolve?: boolean): { url: string, title: string }
+  readLink(footNoteName: string, line?: number, resolve?: boolean): { url: string, title: string }
+  readLink(footNoteName: string, line?: number | boolean, resolve?: boolean): { url: string, title: string } {
+    let ln = this.readFootnote(footNoteName, typeof line === 'number' ? line : undefined)
+    if (!ln) return null
+
+    let ans = splitLink(ln.text)
+    if (resolve) ans.url = this.resolve(ans.url)
+    return ans
+  }
+
   resolve(uri: string, baseURI?: string) {
-    const emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
-    const hostExtract = /^(?:[\w-]+\:\/*|\/\/)[^\/]+/
-    const levelupRE = /\/[^\/]+(?:\/+\.?)*$/
-
-    if (!uri) return uri
-    if (emailRE.test(uri)) return "mailto:" + uri
-
-    var tmp: RegExpMatchArray
-    var host = ""
-
-    baseURI = baseURI || this.baseURI
-
-    // not configured, or is already URI with scheme
-    if (!baseURI || hostExtract.test(uri)) return uri
-
-    // try to extract scheme+host like http://laobubu.net without tailing slash
-    if (tmp = baseURI.match(hostExtract)) {
-      host = tmp[0];
-      baseURI = baseURI.slice(host.length)
-    }
-
-    while (tmp = uri.match(/^(\.{1,2})([\/\\]+)/)) {
-      uri = uri.slice(tmp[0].length)
-      if (tmp[1] == "..") baseURI = baseURI.replace(levelupRE, "")
-    }
-
-    if (uri.charAt(0) === '/' && host) {
-      uri = host + uri
-    } else {
-      if (!/\/$/.test(baseURI)) baseURI += "/"
-      uri = host + baseURI + uri
-    }
-
-    return uri
+    return resolveURI(uri, baseURI || this.baseURI)
   }
 }
 

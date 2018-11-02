@@ -29,7 +29,7 @@ import FlipFlop from '../core/FlipFlop'
 import { cm_t } from '../core/type'
 
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region CodeMirror Extension
 // add methods to all CodeMirror editors
 
@@ -49,7 +49,7 @@ for (var name in Extensions) {
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -105,7 +105,7 @@ CodeMirror.defineOption("hmdMyAddon", defaultOption, function (cm: cm_t, newVal:
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class MyAddon implements Addon.Addon, Options /* if needed */ {

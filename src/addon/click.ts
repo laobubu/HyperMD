@@ -13,11 +13,11 @@ import { cm_t } from '../core/type'
 import * as hmdDefaults from '../core/defaults';
 import FlipFlop from '../core/FlipFlop';
 
-import { splitLink } from './read-link'
 import { HyperMDState } from '../mode/hypermd';
 import { expandRange } from '../core/cm_utils';
+import { splitLink } from '../core/utils';
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region CLICK HANDLER
 
 export type TargetType = "image" | "link" | "footref" | "url" | "todo" | "hashtag"
@@ -46,7 +46,7 @@ export interface ClickInfo {
 export type ClickHandler = (info: ClickInfo, cm: cm_t) => (false | void)
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region defaultClickHandler
 
 export const defaultClickHandler: ClickHandler = (info, cm) => {
@@ -75,10 +75,10 @@ export const defaultClickHandler: ClickHandler = (info, cm) => {
   if (type === 'footref' && (info.ctrlKey || info.altKey)) {
     // Jump to FootNote
     const footnote_name = text.slice(1, -1)
-    const footnote = cm.hmdReadLink(footnote_name, pos.line)
+    const footnote = cm.hmdReadFootnote(footnote_name, pos.line)
     if (footnote) {
-      makeBackButton(cm, footnote.line, pos)
-      cm.setCursor({ line: footnote.line, ch: 0 })
+      makeBackButton(cm, footnote.lineNo, pos)
+      cm.setCursor({ line: footnote.lineNo, ch: 0 })
     }
   }
 }
@@ -142,7 +142,7 @@ const makeBackButton = (function () {
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -203,7 +203,7 @@ CodeMirror.defineOption("hmdClick", defaultOption, function (cm: cm_t, newVal: O
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class Click implements Addon.Addon, Options {
@@ -357,10 +357,7 @@ export class Click implements Addon.Addon, Options {
 
         let t2 = cm.hmdReadLink(mat[1], pos.line)
         if (!t2) url = null
-        else {
-          // remove title part (if exists)
-          url = splitLink(t2.content).url
-        }
+        else url = t2.url
 
       } else if (
         (mat = text.match(/^\<(.+)\>$/)) ||    // <http://laobubu.net>

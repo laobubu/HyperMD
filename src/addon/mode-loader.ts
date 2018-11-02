@@ -16,7 +16,7 @@ declare global { const requirejs: (modules: string[], factory: Function) => any 
 /** user may provider an async CodeMirror mode loader function */
 export type LoaderFunc = (mode: string, successCb: Function, errorCb: Function) => void
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -80,7 +80,7 @@ CodeMirror.defineOption("hmdModeLoader", defaultOption, function (cm: cm_t, newV
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class ModeLoader implements Addon.Addon, Options {

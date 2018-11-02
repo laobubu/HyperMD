@@ -11,7 +11,7 @@ import FlipFlop from '../core/FlipFlop'
 import { cm_t } from '../core/type'
 
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Exported Types and Utils
 
 export interface HandlerAction {
@@ -86,7 +86,7 @@ export function ajaxUpload(
 //#endregion
 
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -160,7 +160,7 @@ CodeMirror.defineOption("hmdInsertFile", defaultOption, function (cm: cm_t, newV
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class InsertFile implements Addon.Addon, Options /* if needed */ {

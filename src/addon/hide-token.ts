@@ -20,7 +20,7 @@ import { mapFromLineView, findViewForLine } from '../core/cm_internal';
 
 const DEBUG = false
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -85,7 +85,7 @@ CodeMirror.defineOption("hmdHideToken", defaultOption, function (cm: cm_t, newVa
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 const hideClassName = "hmd-hidden-token"

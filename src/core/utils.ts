@@ -184,3 +184,71 @@ export function elt(tag: string, attrs?: Record<string, string | true>, content?
   else if (content && content.length > 0) [].slice.call(content).forEach(child => el.appendChild(child));
   return el;
 }
+
+/**
+ * Normalize a (potentially-with-title) URL string
+ *
+ * @param content eg. `http://laobubu.net/page "The Page"` or just a URL
+ */
+export function splitLink(content: string) {
+  // remove title part (if exists)
+  content = content.trim()
+  var url = content, title = ""
+  var mat = content.match(/^(\S+)\s+("(?:[^"\\]+|\\.)+"|[^"\s].*)/)
+  if (mat) {
+    url = mat[1]
+    title = mat[2]
+    if (title.charAt(0) === '"') title = title.substr(1, title.length - 2).replace(/\\"/g, '"')
+  }
+
+  return { url, title }
+}
+
+/**
+ * Check if URL is relative URL, and add baseURI if needed
+ *
+ * @example
+ *
+ *     resolve("laobubu<at>gmail.com") // => "mailto:laobubu<at>gmail.com"
+ *     resolve("../world.png") // => "../world.png"
+ *     resolve("../world.png", "http://laobubu.net/xxx/foo/") // => "http://laobubu.net/xxx/world.png"
+ *     resolve("../world.png", "http://laobubu.net/xxx/foo") // => "http://laobubu.net/xxx/world.png"
+ *     resolve("/world.png", "http://laobubu.net/xxx/foo/") // => "http://laobubu.net/world.png"
+ */
+export function resolveURI(uri: string, baseURI?: string) {
+  const emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
+  const hostExtract = /^(?:[\w-]+\:\/*|\/\/)[^\/]+/
+  const levelupRE = /\/[^\/]+(?:\/+\.?)*$/
+
+  if (!uri) return uri
+  if (emailRE.test(uri)) return "mailto:" + uri
+
+  var tmp: RegExpMatchArray
+  var host = ""
+
+  baseURI = baseURI || ""
+
+  // not configured, or is already URI with scheme
+  if (!baseURI || hostExtract.test(uri)) return uri
+
+  // try to extract scheme+host like http://laobubu.net without tailing slash
+  if (tmp = baseURI.match(hostExtract)) {
+    host = tmp[0];
+    baseURI = baseURI.slice(host.length)
+  }
+
+  while (tmp = uri.match(/^(\.{1,2})([\/\\]+)/)) {
+    uri = uri.slice(tmp[0].length)
+    if (tmp[1] == "..") baseURI = baseURI.replace(levelupRE, "")
+  }
+
+  if (uri.charAt(0) === '/' && host) {
+    uri = host + uri
+  } else {
+    if (!/\/$/.test(baseURI)) baseURI += "/"
+    uri = host + baseURI + uri
+  }
+
+  return uri
+}

@@ -28,7 +28,7 @@ export interface HmdTextMarker extends CodeMirror.TextMarker {
   _hmd_fold_type?: string
 }
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region FolderFunc & FoldStream declaration
 
 /**
@@ -102,7 +102,7 @@ export enum RequestRangeResult {
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region FolderFunc Registry
 
 export var folderRegistry: Record<string, FolderFunc> = {}
@@ -127,7 +127,7 @@ export function registerFolder(name: string, folder: FolderFunc, suggested: bool
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Utils
 
 /** break a TextMarker, move cursor to where marker is */
@@ -143,7 +143,7 @@ export function breakMark(cm: cm_t, marker: HmdTextMarker, chOffset?: number) {
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export type Options = Record<string, boolean>
@@ -205,7 +205,7 @@ CodeMirror.defineOption("hmdFold", defaultOption, function (cm: cm_t, newVal: Op
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {

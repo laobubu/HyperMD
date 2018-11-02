@@ -13,10 +13,10 @@ import { expandRange } from '../core/cm_utils'
 import './read-link'
 
 import { cm_t } from '../core/type'
-import { Link } from './read-link'
+import { Footnote } from './read-link';
 
 
-/********************************************************************************** */
+//-------------------------------------------------------
 
 /** convert footnote text into HTML. Note that `markdown` may be empty and you may return `null` to supress the tooltip */
 export type Convertor = (footnote: string, markdown: string) => string
@@ -35,7 +35,7 @@ export function defaultConvertor(footnote: string, text: string): string {
   return markdownToHTML(text)
 }
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -108,7 +108,7 @@ CodeMirror.defineOption("hmdHover", defaultOption, function (cm: cm_t, newVal: O
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class Hover implements Addon.Addon, Options /* if needed */ {
@@ -167,18 +167,18 @@ export class Hover implements Addon.Addon, Options /* if needed */ {
 
     var pos = cm.coordsChar({ left: ev.clientX, top: ev.clientY }, "window")
     let footnoteName = null
-    var footnote: Link = null
+    var footnote: Footnote = null
 
     const hover_type = mat[1] // hmd-barelink|hmd-link-url-s
     var range = expandRange(cm, pos, hover_type)
     if (range) {
       footnoteName = cm.getRange(range.from, range.to)
       footnoteName = footnoteName.slice(1, -1)
-      if (footnoteName) footnote = cm.hmdReadLink(footnoteName, pos.line) || null
+      if (footnoteName) footnote = cm.hmdReadFootnote(footnoteName, pos.line) || null
     }
 
     var convertor = this.convertor || defaultConvertor
-    var html = convertor(footnoteName, footnote && footnote.content || null)
+    var html = convertor(footnoteName, footnote && footnote.text || null)
 
     if (!html) {
       this.hideInfo()

@@ -49,7 +49,7 @@ export interface DocInfoLike {
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region CodeMirror Extension
 // add methods to all CodeMirror editors
 
@@ -69,7 +69,7 @@ for (var name in Extensions) {
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 const isFootnoteBegin: TokenSeeker.ConditionFunction = (token) => token.string === '[' && /\bhmd-footnote\b/.test(token.type)
@@ -80,6 +80,9 @@ export class DocInfo implements Addon.Addon, DocInfoLike {
   todos: TodoItem[] = []
   footnotes: Footnote[] = []
   mathBlocks: MathBlock[] = []
+
+  /** footnotes, in dict mode. All keys are lowerCase */
+  footnoteDict: Record<string, Footnote[]> = {}
 
   constructor(public cm: cm_t) {
     cm.on('changes', this.reanalyze)
@@ -172,6 +175,15 @@ export class DocInfo implements Addon.Addon, DocInfoLike {
       if (!isEqual(data[k], this[k])) {
         CodeMirror.signal(this.cm, "docInfoChange", k, data[k])
         this[k] = data[k]
+
+        if (k === 'footnotes') {
+          let footnoteDict: this['footnoteDict'] = this.footnoteDict = {}
+          for (let node of data[k]) {
+            let name = node.name.toLowerCase()
+            if (name in footnoteDict) footnoteDict[name].push(node)
+            else footnoteDict[name] = [node]
+          }
+        }
       }
     }
   }

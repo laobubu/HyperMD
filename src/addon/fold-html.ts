@@ -14,7 +14,7 @@ import { cm_t } from '../core/type'
 import { registerFolder, breakMark, FolderFunc, RequestRangeResult } from './fold'
 import './read-link'
 
-/********************************************************************************** */
+//-------------------------------------------------------
 /**
  * Before folding HTML, check its security and avoid XSS attack! Returns true if safe.
  */
@@ -30,7 +30,7 @@ export var defaultChecker: CheckerFunc = (html) => {
   return true
 }
 
-/********************************************************************************** */
+//-------------------------------------------------------
 
 /**
  * Something like `jQuery("<div>xxxx</div>")`, but serves for HyperMD's FoldHTML. You may returns `null` to stop folding.
@@ -108,14 +108,14 @@ export var defaultRenderer: RendererFunc = (html: string, pos: Position, cm: cm_
   return ans
 }
 
-/********************************************************************************** */
+//-------------------------------------------------------
 
 const stubClass = "hmd-fold-html-stub"
 const stubClassOmittable = "omittable"
 const stubClassHighlight = "highlight"
 const elWrapperHighlight = "highlight"
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Folder
 /**
  * Detect if a token is a beginning of HTML, and fold it!
@@ -164,7 +164,7 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
 
 registerFolder("html", HTMLFolder, false)
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
@@ -238,7 +238,7 @@ CodeMirror.defineOption("hmdFoldHTML", defaultOption, function (cm: cm_t, newVal
 
 //#endregion
 
-/********************************************************************************** */
+//-------------------------------------------------------
 //#region Addon Class
 
 export class FoldHTML implements Addon.Addon, Options {
