@@ -141,7 +141,7 @@ You may use both original CodeMirror and HyperMD on the same page.
 
 <table>
   <tr>
-    <td><a href="http://www.umbst.com/" target="_blank"><img src="http://www.umbst.com/images/logo.svg" height="38" width="38" title="圆伞科技"></a></td>
+    <td><a href="http://www.umbst.com/" target="_blank"><img src="http://www.umbst.com/assets/images/logo.svg" height="38" width="38" title="圆伞科技"></a></td>
   </tr>
 </table>
 
