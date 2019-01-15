@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Custom Emoji</title>
+
+  <link rel="stylesheet" href="./assets/basic.css">
+</head>
+
+<body>
+
+  <div id="loadingSplash">
+    <p>
+      <i class="loadingIcon"></i>
+    </p>
+    <p>Loading modules and EmojiOne...</p>
+  </div>
+
+  <div class="tools">
+    <button id="toNormal">switchToNormal</button>
+    <button id="toHyperMD">switchToHyperMD</button>
+  </div>
+
+  <textarea id="myTextarea">
+# Emoji
+
+With __FoldEmoji__ and __Fold__ addon, `:smile:` can be rendered into real emoji :smile:
+
+There are some powerpacks like `hypermd/powerpack/fold-emoji-with-emojione` can make emojis look better.
+All you need is to load it, before initializing editor.
+
+> **[EmojiOne](https://www.emojione.com/)** - Open emoji icons
+> This demo uses Emoji icons provided free by [EmojiOne](https://www.emojione.com/) [*(free license)*](https://www.emojione.com/licenses/free)
+> (You may use other alternatives, eg. twemoji from twitter)
+
+## AutoComplete
+
+HyperMD's `hypermd/goods/complete-emoji` provides auto-complete support for emojis.
+Its document can be found here: https://github.com/laobubu/HyperMD/blob/master/docs/goods.md#complete-emoji
+
+With [CodeMirror show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint), you may get an autocomplete popup by typing `:`
+or, you can complete an unfinished emoji by pressing `Ctrl+Space`.
+
+**Try it out** :dog
+
+
+
+## Custom Emoji
+
+Editor option `hmdFoldEmoji` accepts `myEmoji`, see source code of this page.
+
+Once configured, `:doge:` can be :doge:
+
+Even more, if you know how to make fancy HTML effects,
+emmm... `:nyancat:` can be :nyancat:
+
+That silly effect is not recommended in production, but it's fun, right?
+
+:doge: :joy: :doge: :joy: :doge: :joy: :doge:
+
+> **Credit**
+>
+> - NyanCat: https://giphy.com/gifs/meme-rainbow-nyan-cat-10j1sRnpiklXB6
+> - Doge: http://www.stickpng.com/img/memes/doge/doge-head-big
+
+</textarea>
+
+  <!-- To load HyperMD, see -- basic-requirejs.html -- -->
+  <script src="../../demo/vendor/require.js"></script>
+  <script src="../../goods/patch-requirejs.js"></script>
+  <script src="../../demo/requirejs_packages.js"></script>
+  <script src="./assets/demo_basic.js"></script>
+
+  <!-- Here is our main script -->
+  <script data-main="scripts/main">
+    requirejs([
+      "codemirror",
+      "hypermd",
+
+      "../../goods/complete-emoji.js",
+      // "codemirror/addon/hint/show-hint" is already loaded by "./assets/complete-emoji.js"
+
+      "hypermd/powerpack/fold-emoji-with-emojione"
+    ], function (CodeMirror, HyperMD, CompleteEmoji) {
+      var myTextarea = document.getElementById('myTextarea')
+      var editor = HyperMD.fromTextArea(myTextarea, {
+        hmdFoldEmoji: {
+          myEmoji: {
+            ':doge:': make_doge,
+            ':nyancat:': make_nyancat,
+          }
+        },
+
+        // Emoji AutoComplete config
+        extraKeys: {
+          "Ctrl-Space": "autocomplete",
+        },
+        hintOptions: {
+          hint: CompleteEmoji.createHintFunc()
+        }
+      })
+
+      // show AutoComplete when ":" is inputed
+      editor.on("inputRead", function (cm, change) {
+        if (change.text.length === 1 && change.text[0] === ':') editor.showHint()
+      })
+
+      // [demo] display the AutoComplete
+      setTimeout(function () {
+        window.focus()
+        editor.focus()
+        editor.setCursor({ line: 19, ch: 19 })
+        editor.showHint()
+      }, 1000);
+
+      demo_loaded(CodeMirror, HyperMD, editor)
+    });
+
+    function make_doge() {
+      var img = document.createElement('img')
+      img.src = './assets/doge.png'
+      img.style.height = '48px'
+      return img
+    }
+
+    function make_nyancat() {
+      var img = document.createElement('img')
+      img.src = './assets/nyancat.gif'
+      img.style.height = '40px'
+      img.className = "emoji-nyancat"
+      return img
+    }
+  </script>
+
+  <style>
+    .emoji-nyancat {
+      pointer-events: none;
+      animation: jump 1s linear infinite;
+    }
+
+    @keyframes jump {
+      0%,
+      100% {
+        transform: translateY(-20px);
+      }
+      50% {
+        transform: translateY(0);
+      }
+    }
+  </style>
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Turn existing CodeMirror editor into HyperMD</title>
+
+  <link rel="stylesheet" href="./assets/basic.css">
+</head>
+
+<body>
+  <article>
+    <h1>Turn existing CodeMirror editor into HyperMD</h1>
+
+    <blockquote>
+      <p>
+        This example is for plain browser environment. Make sure that...
+      </p>
+      <ul>
+        <li>
+          <p>
+            <b>All necessary CodeMirror assets must be loaded already.</b> (scripts, stylesheets...
+            <a href="./ai1.html">The list can be found here</a>)
+          </p>
+        </li>
+        <li>
+          <p>
+            <b>The CodeMirror is not protected by closure.</b>
+            Check if
+            <code>CodeMirror</code> the global variable exists.
+          </p>
+        </li>
+      </ul>
+    </blockquote>
+
+    <p>If a Markdown editor based on CodeMirror is already existing, you can convert it to HyperMD mode!</p>
+
+    <ol>
+      <li>
+        <p>Open
+          <a href="https://codemirror.net/mode/gfm/index.html" target="_blank">https://codemirror.net/mode/gfm/index.html</a>
+        </p>
+      </li>
+      <li>
+        <p>Open Inspector, switch to the
+          <b>console</b> panel
+        </p>
+      </li>
+      <li>
+        <p>
+          <b>Load HyperMD</b>. Copy and run this in console:</p>
+        <pre><code>// This create element and insert into body
+function elt(tagName, attrs) {
+  var el = document.createElement(tagName)
+  if (attrs) for (var attr in attrs) el.setAttribute(attr, attrs[attr])
+  document.body.appendChild(el)
+  return el
+}
+
+elt('link', { rel: "stylesheet", href: "https://laobubu.net/HyperMD/mode/hypermd.css" })
+elt('link', { rel: "stylesheet", href: "https://laobubu.net/HyperMD/theme/hypermd-light.css" })
+elt('script', { src: "https://laobubu.net/HyperMD/ai1.js" })
+  .addEventListener('load', function() { console.log('HyperMD is ready!') }, false)</code></pre>
+      </li>
+      <li>
+        <p>Wait until
+          <code>HyperMD is ready</code> appears</p>
+      </li>
+      <li>
+        <p>Run this:</p>
+        <pre><code>HyperMD.switchToHyperMD(editor)</code></pre>
+      </li>
+    </ol>
+
+  </article>
+</body>
+
+</html>

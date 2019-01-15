@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>HyperMD Examples</title>
+</head>
+
+<body>
+
+  <div id="wrapper">
+
+    <h1>HyperMD Demo Gallery</h1>
+
+    <div id="content"></div>
+
+  </div>
+
+  <script src="index.js"></script>
+
+  <script>
+    var categories_sorted = [];
+
+    (function () { // init categories_sorted and categories[xxx].items
+      items.forEach(function (item) {
+        item.cat.forEach(function (cat) {
+          var catInst = categories[cat] || (categories[cat] = { order: 999, name: cat, desc: "" })
+
+          if (catInst.items) catInst.items.push(item)
+          else catInst.items = [item]
+
+          if (!catInst.met) {
+            categories_sorted.push(catInst)
+            catInst.met = true
+          }
+        })
+      })
+
+      categories_sorted.sort(function (c1, c2) { return c1.order - c2.order })
+    })();
+
+    (function () { // populate tags.xxx.items
+      items.forEach(function (item) {
+        item.tags.forEach(function (tag) {
+          var t = tags[tag]
+          if (!t.items) t.items = [item];
+          else t.items.push(item);
+        })
+      })
+    })();
+
+    (function (container) { // render DOM
+      categories_sorted.forEach(function (cat) {
+        if (!cat.items) return
+
+        var $cat = elt('div', { 'class': 'cat' })
+        $cat.appendChild(elt('h2', { 'class': 'name' }, cat.name))
+        $cat.appendChild(elt('div', { 'class': 'desc' }, cat.desc))
+
+        var $ul = elt('ul', { 'class': 'demo-items' })
+        cat.items.forEach(function (item) {
+          $ul.appendChild(item2dom(item))
+        })
+
+        container.appendChild($cat)
+        container.appendChild($ul)
+      })
+    })(document.getElementById('content'));
+
+    function item2dom(item) {
+      var $el = elt('li', { 'class': 'demo-item', })
+
+      $el.appendChild(elt('a', { 'href': item.page + '.html', 'class': 'name', }, item.name))
+      $el.appendChild(elt('div', { 'class': 'desc', }, item.desc))
+
+      if (item.tags.length > 0) {
+        var $tags = elt('div', { 'class': 'tags' })
+        item.tags.forEach(function (tag) {
+          $tags.appendChild(tag2dom(tags[tag]))
+        })
+        $el.appendChild($tags)
+      }
+
+      return $el
+    }
+
+    (function (container) {
+      container.addEventListener('click', function (ev) {
+        var t = ev.target
+        if (/^a$/i.test(t.tagName)) return
+        if (t.className !== 'demo-item') t = t.parentElement
+        if (!t) return
+        if (t.className === 'demo-item') t.querySelector('a').click()
+      }, true)
+    })(document.getElementById('content'));
+
+    function tag2dom(tag) {
+      var $el = elt('span', { 'class': 'tag' }, tag.name)
+      return $el
+    }
+
+    /** @return {HTMLElement} */
+    function elt(tagName, attrs, text) {
+      var el = document.createElement(tagName)
+      if (attrs) for (var attr in attrs) el.setAttribute(attr, attrs[attr])
+      if (text) el.textContent = text
+      return el
+    }
+  </script>
+
+  <link rel="stylesheet" href="./assets/index.css">
+</body>
+
+</html>

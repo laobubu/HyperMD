@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Hashtag in Markdown</title>
+
+  <link rel="stylesheet" href="./assets/basic.css">
+</head>
+
+<body>
+
+  <div id="loadingSplash">
+    <p>
+      <i class="loadingIcon"></i>
+    </p>
+    <p>Loading modules...</p>
+  </div>
+
+  <div class="tools">
+    <button id="toNormal">switchToNormal</button>
+    <button id="toHyperMD">switchToHyperMD</button>
+  </div>
+
+  <textarea id="myTextarea">
+# Hashtag
+
+Yes, with HyperMD you can #hashtag #everything, even #label with space# (note that there must be a space after tailing `#`)!
+
+To enable this syntax, provide a mode option:
+
+```js
+var editor = HyperMD.fromTextArea(myTextarea, {
+  mode: {
+    name: "hypermd",
+    hashtag: true,
+  }
+})
+```
+
+## With #Click addon
+
+Addon/Click responds when user clicks hashtags. Try #click me#
+
+Clicked tags will be printed below. More info can be found in console.
+
+</textarea>
+
+  <!-- To load HyperMD, see -- basic-requirejs.html -- -->
+  <script src="../../demo/vendor/require.js"></script>
+  <script src="../../goods/patch-requirejs.js"></script>
+  <script src="../../demo/requirejs_packages.js"></script>
+  <script src="./assets/demo_basic.js"></script>
+
+  <!-- Here is our main script -->
+  <script data-main="scripts/main">
+    requirejs([
+      "codemirror",
+      "hypermd"
+    ], function (CodeMirror, HyperMD) {
+      var myTextarea = document.getElementById('myTextarea')
+      var editor = HyperMD.fromTextArea(myTextarea, {
+        mode: {
+          name: "hypermd",
+          hashtag: true,
+        },
+
+        hmdClick: function (info) {
+          console.log(info)
+
+          if (info.type === 'hashtag') {
+            var lineText = [
+              "- Clicked", info.text,
+              "( ctrlKey:", info.ctrlKey,
+              ") ( altKey:", info.altKey,
+              ") ( shiftKey:", info.shiftKey,
+              ")\n"
+            ].join(" ")
+            var pos = { line: editor.lastLine(), ch: 0 }
+            editor.replaceRange(lineText, pos)
+          }
+        }
+      })
+
+      demo_loaded(CodeMirror, HyperMD, editor)
+    });
+  </script>
+</body>
+
+</html>

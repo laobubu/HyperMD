@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>HyperMD Use All-in-One bundle</title>
+
+  <link rel="stylesheet" href="./assets/basic.css">
+</head>
+
+<body>
+
+  <div id="loadingSplash">
+    <p>
+      <i class="loadingIcon"></i>
+    </p>
+
+    <p> Maybe you prefer the hard
+      <del>core</del> code way, want to import all libraries manually 🤘.</p>
+
+    <p>No problem! HyperMD provides ai1 (all-in-one) single-file bundle 🎁!</p>
+
+    <p>Check-out this page's source code. It just imports all the stuff, without any trick!</p>
+
+    <p>
+      <i>Loading all libraries, please wait for a while.</i>
+    </p>
+  </div>
+
+  <div class="tools">
+    <button id="toNormal">switchToNormal</button>
+    <button id="toHyperMD">switchToHyperMD</button>
+  </div>
+
+  <textarea id="myTextarea">
+# Your HyperMD editor is here
+
+![Logo](../../demo/logo.png)
+
+Maybe you prefer the hard ~~core~~ code way, want to import all libraries manually 🤘.
+
+No problem! HyperMD provides ai1 (all-in-one) single-file bundle :gift:!
+
+**Check-out this page's source code.** It just imports all the stuff, without any trick!
+
+-------------------
+
+All built-in features are ready-to-go. You may manipulate the editor via `cm` or `HyperMD` global variables. Try out:
+
+1. `HyperMD.switchToNormal(cm)`
+2. `HyperMD.switchToHyperMD(cm)`
+3. `cm.getValue()` returns the Markdown source text
+
+> Note: This is a very basic example, therefore some features that rely on your implementation, like MathPreview, are unavaliable.
+> Please read related documentation pages and implement them, if you need.
+
+**Note**: This demo is using these powerpacks and 3rd-party libs and services. Special thanks to them!
+
+1. **fold-math-with-mathjax** uses _MathJax_ the TeX formular renderer.
+2. **hover-with-marked** uses _marked_ to render tooltip content.
+3. **paste-with-turndown** uses _turndown_ to convert HTML from clipboard to markdown text.
+4. **insert-file-with-smms** uses https://sm.ms/ the free image hosting service.
+5. **fold-emoji-with-emojione** uses EmojiOne, and Emoji icons provided free by [EmojiOne](https://www.emojione.com/)
+
+
+[hypermd-doc]: https://laobubu.net/HyperMD/docs/ HyperMD documentation
+[cm-manual]: https://codemirror.net/doc/manual.html CodeMirror User manual
+</textarea>
+
+
+  <!-- ----------------------------------------------------------------------------------- -->
+  <!-- CodeMirror -->
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror/lib/codemirror.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror/addon/fold/foldgutter.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/lib/codemirror.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/addon/fold/foldcode.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/addon/fold/foldgutter.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/addon/fold/markdown-fold.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/addon/mode/overlay.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/mode/meta.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/mode/markdown/markdown.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/mode/xml/xml.js"></script>
+  <!-- for embedded HTML -->
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/mode/stex/stex.js"></script>
+  <!-- for Math TeX Formular -->
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/mode/yaml/yaml.js"></script>
+  <!-- for Front Matters -->
+
+  <script src="https://cdn.jsdelivr.net/npm/codemirror/mode/javascript/javascript.js"></script>
+  <!-- load more for code blocks -->
+
+  <!-- ----------------------------------------------------------------------------------- -->
+  <!-- HyperMD -->
+
+  <link rel="stylesheet" href="../../mode/hypermd.css">
+  <link rel="stylesheet" href="../../theme/hypermd-light.css">
+
+  <script src="../../ai1.js"></script>
+
+  <!-- ----------------------------------------------------------------------------------- -->
+  <!-- (optional) PowerPacks with 3rd-party libs (Load them before creating editor!) -->
+
+  <!-- MathJax and powerpack/fold-math-with-mathjax -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        jax: ["input/TeX", "output/HTML-CSS","output/NativeMML","output/SVG"],
+        extensions: ["MathMenu.js","MathZoom.js", "AssistiveMML.js", "a11y/accessibility-menu.js"],
+        TeX: {
+            extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+        }
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js"></script>
+  <script src="../../powerpack/fold-math-with-mathjax.js"></script>
+
+  <!-- marked and powerpack/hover-with-marked -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.js"></script>
+  <script src="../../powerpack/hover-with-marked.js"></script>
+
+  <!-- Turndown and powerpack/paste-with-turndown -->
+  <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
+  <script src="../../powerpack/paste-with-turndown.js"></script>
+
+  <!-- Upload Images to https://sm.ms/  -->
+  <script src="../../powerpack/insert-file-with-smms.js"></script>
+
+  <!-- Use EmojiOne to render emoji  -->
+  <script src="https://cdn.jsdelivr.net/npm/emojione"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emojione/extras/css/emojione.min.css">
+  <script src="../../powerpack/fold-emoji-with-emojione.js"></script>
+
+  <!-- ----------------------------------------------------------------------------------- -->
+  <!-- Let's ROCK -->
+
+  <script>
+    document.getElementById('loadingSplash').style.display = 'none' // hide the loading... line
+
+    var myTextarea = document.getElementById('myTextarea')
+    var editor = HyperMD.fromTextArea(myTextarea, {
+      // for code fence highlighting
+      hmdModeLoader: "https://cdn.jsdelivr.net/npm/codemirror/",
+    })
+
+    // and that's all
+    // now you get a `editor` and you can do whatever you want
+    editor.setSize(null, "900px") // set height
+    editor.focus()
+
+    // bind events
+    document.getElementById('toNormal').addEventListener('click', function () {
+      HyperMD.switchToNormal(editor)
+    }, false)
+
+    document.getElementById('toHyperMD').addEventListener('click', function () {
+      HyperMD.switchToHyperMD(editor)
+    }, false)
+  </script>
+
+</body>
+
+</html>

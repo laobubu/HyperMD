@@ -1,0 +1,87 @@
+/* BASIC STYLE FOR EVERY DEMO */
+
+html,
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: #EEE;
+    min-height: 100%;
+}
+
+a {
+    color: #4183c4;
+}
+
+.wrapper,
+article,
+.CodeMirror,
+.tools,
+#myTextarea {
+    display: block;
+    margin: auto;
+    max-width: 1200px;
+}
+
+.CodeMirror {
+    border: 1px solid #999;
+    border-radius: 5px;
+    box-shadow: 0 1px 5px #AAA;
+}
+
+.tools {
+    margin-bottom: 1em;
+}
+
+#myTextarea {
+    border: 1px solid #999;
+    width: 100%;
+    height: 900px;
+}
+
+article blockquote {
+    background: #FFF;
+    border-left: 5px solid #999;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 1px 20px;
+}
+
+article code,
+article pre {
+    padding: 2px 5px;
+    background: #FFF;
+}
+
+#loadingSplash {
+    background: #FFF;
+    background: rgba(255, 255, 255, 0.85);
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 100%;
+    z-index: 100;
+    font-size: 24px;
+    text-align: center;
+    padding-top: 10%;
+    box-sizing: border-box;
+}
+
+.loadingIcon {
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    border: .3em solid transparent;
+    border-top-color: #666;
+    border-radius: 100%;
+    animation: ani-rotate .6s linear infinite;
+    transform-origin: center center;
+}
+
+@keyframes ani-rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

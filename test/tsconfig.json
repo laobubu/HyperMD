@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "amd",
+    "target": "es6",
+    "outDir": "js",
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "hypermd/*": [
+        "../../../*"
+      ],
+      "hypermd_test/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "../node_modules"
+  ]
+}

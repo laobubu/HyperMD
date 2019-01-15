@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Basic Example with RequireJS</title>
+
+  <link rel="stylesheet" href="./assets/basic.css">
+</head>
+
+<body>
+
+  <div id="loadingSplash">
+    <p>
+      <i class="loadingIcon"></i>
+    </p>
+    <p>RequireJS is loading modules.</p>
+  </div>
+
+  <div class="tools">
+    <button id="toNormal">switchToNormal</button>
+    <button id="toHyperMD">switchToHyperMD</button>
+  </div>
+
+  <textarea id="myTextarea">
+# HyperMD Basic Example with *RequireJS*
+
+![Logo](../../demo/logo.png)
+
+Hate the tedious `&lt;script>` and `&lt;link>` tags? Use [RequireJS][] to resolve and load modules!
+
+[RequireJS][] is a JavaScript file and module loader optimized for in-browser.
+
+Note that HyperMD `require` css files from JavaScript. **You must apply a [CSSPatch][]** before loading.
+
+
+## Summary
+
+*Please read the source code of this page*
+
+1. Include and Load RequireJS
+2. Patch RequireJS (use [this file][CSSPatch])
+3. Configure RequireJS
+4. Declare [main Entry Point](https://requirejs.org/docs/api.html#data-main)
+5. Ready to use
+
+
+## Other
+
+This page is using these powerpacks:
+
+- `fold-math-with-katex`: use KaTeX to render $\TeX$ formula!
+- `paste-with-turndown`: use Turndown (plus `turndown-plugin-gfm`) to convert HTML from clipboard
+
+This page also loaded [CodeMirror sTeX mode](https://codemirror.net/mode/stex/index.html) to highlight TeX formulas.
+
+
+[RequireJS]: https://requirejs.org/docs/start.html
+[CSSPatch]: ../../goods/patch-requirejs.js
+</textarea>
+
+  <!-- 1. Include and Load RequireJS -->
+  <script src="../../demo/vendor/require.js"></script>
+
+  <!-- 2. Patch RequireJS. Let RequireJS support .css files! -->
+  <script src="../../goods/patch-requirejs.js"></script>
+
+  <!-- 3. Configure RequireJS. Note that requirejs_packages is just a example. -->
+  <script src="../../demo/requirejs_packages.js"></script>
+  <script>
+    requirejs.config({
+      // baseUrl: "node_modules/",                   // using local version
+      baseUrl: "https://cdn.jsdelivr.net/npm/",   // or use CDN
+
+      // Remove this, if you are using HyperMD outside "HyperMD" online demo site
+      paths: {
+        "hypermd": location.href.substr(0, location.href.indexOf('docs/examples/')) + ".",
+      },
+
+      // Remove this, if you occur errors with CDN
+      packages: requirejs_packages, // see: requirejs_packages.js
+
+      // You may add more RequireJS config
+      waitSeconds: 30
+    })
+  </script>
+
+  <!-- 4. Here is our main script -->
+  <script data-main="scripts/main">
+    requirejs([
+      "codemirror",
+      "hypermd",
+
+      "codemirror/mode/stex/stex",
+      "hypermd/powerpack/fold-math-with-katex",
+      "hypermd/powerpack/paste-with-turndown", "turndown-plugin-gfm",
+    ], function (CodeMirror, HyperMD) {
+      document.getElementById('loadingSplash').style.display = 'none' // hide the loading... line
+
+      var myTextarea = document.getElementById('myTextarea')
+      var editor = HyperMD.fromTextArea(myTextarea, {
+        // you may add CodeMirror/HyperMD config here
+      })
+
+      // and that's all
+      // now you get a `editor` and you can do whatever you want
+      editor.setSize(null, "900px") // set height
+      editor.focus()
+
+      // to debug the editor easily. expose it to global
+      window['editor'] = editor
+      // try this in console: editor.getValue()
+
+      // bind events
+      document.getElementById('toNormal').addEventListener('click', function () {
+        HyperMD.switchToNormal(editor)
+      }, false)
+
+      document.getElementById('toHyperMD').addEventListener('click', function () {
+        HyperMD.switchToHyperMD(editor)
+      }, false)
+    });
+  </script>
+</body>
+
+</html>

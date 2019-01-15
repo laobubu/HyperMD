@@ -1,0 +1,21 @@
+node_modules/
+tmp/
+.DS_Store
+.rpt2_cache
+cache/
+.vscode/
+
+
+*.js.map
+
+
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Auto Generated Docs. See dev/docgen/index.ts
+
+src/everything.ts

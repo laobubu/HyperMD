@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>HyperMD + mermaid</title>
+
+  <link rel="stylesheet" href="./assets/basic.css">
+</head>
+
+<body>
+
+  <div id="loadingSplash">
+    <p>
+      <i class="loadingIcon"></i>
+    </p>
+    <p>Loading mermaid and HyperMD related modules.</p>
+    <p></p>
+    <p>
+      <em>mermaid</em> is big, it may take a while to load.</p>
+  </div>
+
+  <textarea id="myTextarea">
+# mermaid
+
+[mermaid][] supports sequence diagram, gantt diagram, flowchart [and more](https://mermaidjs.github.io/demos.html).
+With a simple markdown-like script language, you may generate lots of beautiful charts.
+
+mermaid has an online editor: https://mermaidjs.github.io/mermaid-live-editor/
+
+> :warning: **Please include mermaid via HTML tag**
+>
+> mermaid's module declaration is buggy (v8.0.0). HyperMD gave up importing it.
+>
+> If using RequireJS or bundler (eg. webpack), include `&lt;script src="path/to/mermaid.min.js">&lt;/script>` manually,
+> before RequireJS or `dist/your_app.js`
+
+[mermaid]: https://mermaidjs.github.io/
+
+
+    ```mermaid
+    add_your_mermaid_script_here
+    ```
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
+```mermaid
+sequenceDiagram
+    participant Alice
+    participant Bob
+    Alice->John: Hello John, how are you?
+    loop Healthcheck
+        John->John: Fight against hypochondria
+    end
+    Note right of John: Rational thoughts &lt;br/>prevail...
+    John-->Alice: Great!
+    John->Bob: How about you?
+    Bob-->John: Jolly good!
+```
+</textarea>
+
+  <!-- This is important! Load this before requirejs! async is not acceptable! -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+  <!-- To load HyperMD, see -- basic-requirejs.html -- -->
+  <script src="../../demo/vendor/require.js"></script>
+  <script src="../../goods/patch-requirejs.js"></script>
+  <script src="../../demo/requirejs_packages.js"></script>
+  <script src="./assets/demo_basic.js"></script>
+
+  <script data-main="scripts/main">
+    requirejs([
+      "codemirror",
+      "hypermd",
+
+      "hypermd/powerpack/fold-code-with-mermaid",
+    ], function (CodeMirror, HyperMD) {
+      var myTextarea = document.getElementById('myTextarea')
+      var editor = HyperMD.fromTextArea(myTextarea, {
+        // hmdFoldCode: {
+        //   mermaid: false, // disable mermaid
+        // }
+      })
+
+      demo_loaded(CodeMirror, HyperMD, editor)
+    });
+  </script>
+</body>
+
+</html>

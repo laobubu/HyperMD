@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Mode Test</title>
+  <style>
+    .CodeMirror {
+      border: 1px solid #999;
+    }
+
+    .cm-hmd-test-error {
+      background: #F99;
+      outline: 1px solid #F33;
+    }
+
+    #progress-bar {
+      position: relative;
+      height: 32px;
+      background: #CCC;
+    }
+
+    #progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: #9C9;
+    }
+
+    #progress-bar.failed #progress-fill {
+      background: #F99;
+    }
+
+    #progress-percent {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      line-height: 32px;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .task-result {
+      border: 1px dashed;
+      padding: 0 1em;
+      margin: 1em 0;
+    }
+
+    .task-result-fail h3 {
+      color: red;
+    }
+
+    .task-result-error-message {
+      color: #900;
+    }
+
+    .task-result-error-stack {
+      color: #333;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="progress">
+    Finished:
+    <span id="running-name"></span>
+    <div id="progress-bar">
+      <div id="progress-fill"></div>
+      <span id="progress-percent">--</span>
+    </div>
+  </div>
+
+  <!-- using require.js to solve the dependencies -->
+  <script src="./bootstrap.js"></script>
+  <script src="./tests.js"></script>
+</body>
+
+</html>
