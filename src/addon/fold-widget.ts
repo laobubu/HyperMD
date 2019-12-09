@@ -11,6 +11,8 @@ import {
   RequestRangeResult
 } from "./fold";
 import { Attributes, parseAttributes } from "./attributes/index";
+import { TimerWidget } from "../widget/timer";
+import { BilibiliWidget } from "../widget/bilibili";
 
 export const WidgetFolder: FolderFunc = function(stream, token) {
   if (token.type !== "inline-code" || !token.string.trim().startsWith("@")) {
@@ -66,13 +68,20 @@ export const WidgetFolder: FolderFunc = function(stream, token) {
   if (reqAns !== RequestRangeResult.OK) return null;
 
   // Create the widget
-  const widget = document.createElement("span");
-  widget.innerHTML = `${widgetName} ${JSON.stringify(widgetAttributes)}`;
-  // Create widget here
+  let widget: HTMLElement;
+  if (widgetName === "timer") {
+    widget = TimerWidget(widgetAttributes);
+  } else if (widgetName === "bilibili") {
+    widget = BilibiliWidget(widgetAttributes);
+  } else {
+    return false;
+  }
 
+  // Create widget here
   const marker = cm.markText(from, to, {
     replacedWith: widget
   });
+
   // 1 here means `
   widget.addEventListener("click", () => breakMark(cm, marker, 1), false);
   return marker;
