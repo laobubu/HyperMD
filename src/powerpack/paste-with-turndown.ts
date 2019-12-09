@@ -11,56 +11,61 @@
 // Load `turndown-plugin-gfm` after this module and it will be automatically used while pasting.
 //
 
-import * as TurndownService from "turndown"
-import { PasteConvertor, suggestedOption, defaultOption } from "../addon/paste"
+import * as TurndownService from "turndown";
+import { PasteConvertor, suggestedOption, defaultOption } from "../addon/paste";
 
-export const TurndownConvertor: PasteConvertor =
-  (html) => {
-    // strip <a> without href
-    html = html.replace(/<a([^>]*)>(.*?)<\/a>/ig, (s, attrs, content) => {
-      if (!/href=/i.test(attrs)) return content
-      return s
-    })
+export const TurndownConvertor: PasteConvertor = html => {
+  // strip <a> without href
+  html = html.replace(/<a([^>]*)>(.*?)<\/a>/gi, (s, attrs, content) => {
+    if (!/href=/i.test(attrs)) return content;
+    return s;
+  });
 
-    // maybe you don't need to convert, if there is no img/link/header...
-    if (!/\<(?:hr|img|h\d|strong|em|strikethrough|table|a|b|i|del)(?:\s.*?|\/)?\>/i.test(html)) return null
+  // maybe you don't need to convert, if there is no img/link/header...
+  if (
+    !/\<(?:hr|img|h\d|strong|em|strikethrough|table|a|b|i|del)(?:\s.*?|\/)?\>/i.test(
+      html
+    )
+  )
+    return null;
 
-    const turndownService = getTurndownService()
-    if (turndownService) return turndownService.turndown(html)
+  const turndownService = getTurndownService();
+  if (turndownService) return turndownService.turndown(html);
 
-    return null
-  }
+  return null;
+};
 
-export const getTurndownService = (function () {
-  var service: TurndownService = null
+export const getTurndownService = (function() {
+  var service: TurndownService = null;
 
-  return function () {
-    if (!service && typeof TurndownService === 'function') {
+  return function() {
+    if (!service && typeof TurndownService === "function") {
       var opts = {
-        "headingStyle": "atx",
-        "hr": "---",
-        "bulletListMarker": "*",
-        "codeBlockStyle": "fenced",
-        "fence": "```",
-        "emDelimiter": "*",
-        "strongDelimiter": "**",
-        "linkStyle": "inlined",
-        "linkReferenceStyle": "collapsed"
-      }
-      service = new TurndownService(opts)
+        headingStyle: "atx",
+        hr: "---",
+        bulletListMarker: "*",
+        codeBlockStyle: "fenced",
+        fence: "```",
+        emDelimiter: "*",
+        strongDelimiter: "**",
+        linkStyle: "inlined",
+        linkReferenceStyle: "collapsed"
+      };
+      service = new (TurndownService as any)(opts);
 
-      if (typeof turndownPluginGfm !== 'undefined') {
-        service.use(turndownPluginGfm.gfm)
+      if (typeof turndownPluginGfm !== "undefined") {
+        service.use(turndownPluginGfm.gfm);
       }
-
     }
-    return service
-  }
-})()
+    return service;
+  };
+})();
 
 if (typeof TurndownService != "undefined") {
   // Use this convertor as default convertor
-  defaultOption.convertor = TurndownConvertor
+  defaultOption.convertor = TurndownConvertor;
 } else {
-  console.error("[HyperMD] PowerPack paste-with-turndown loaded, but turndown not found.")
+  console.error(
+    "[HyperMD] PowerPack paste-with-turndown loaded, but turndown not found."
+  );
 }

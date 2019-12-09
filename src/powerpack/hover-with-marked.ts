@@ -6,15 +6,17 @@
 // Render tooltip Markdown to HTML, with marked
 //
 
-import { defaultOption } from "../addon/hover"
-import * as marked from "marked"
+import { defaultOption } from "../addon/hover";
+import * as marked from "marked";
 
-if (typeof marked == "function") {
+if (typeof marked === "function" || typeof marked === "object") {
   // Use marked to render Hover tooltip content
-  defaultOption.convertor = function (footnote: string, text: string) {
-    if (!text) return null
-    return marked(text)
-  }
+  defaultOption.convertor = function(footnote: string, text: string) {
+    if (!text) return null;
+    return (marked as any)(text);
+  };
 } else {
-  console.error("[HyperMD] PowerPack hover-with-marked loaded, but marked not found.")
+  console.error(
+    "[HyperMD] PowerPack hover-with-marked loaded, but marked not found."
+  );
 }

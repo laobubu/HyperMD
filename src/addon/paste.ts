@@ -4,33 +4,33 @@
 // DESCRIPTION: Convert content to Markdown before pasting
 //
 
-import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
-import { cm_t } from '../core/type'
+import * as CodeMirror from "codemirror";
+import { Addon, FlipFlop, suggestedEditorConfig } from "../core";
+import { cm_t } from "../core/type";
 
 /********************************************************************************** */
 
-export type PasteConvertor = (html: string) => string | void
+export type PasteConvertor = (html: string) => string | void;
 
 /********************************************************************************** */
 //#region Addon Options
 
 export interface Options extends Addon.AddonOptions {
   /** Enable Paste feature or not. */
-  enabled: boolean
+  enabled: boolean;
 
   /** a function which accepts HTML, returning markdown text. */
-  convertor: PasteConvertor
+  convertor: PasteConvertor;
 }
 
 export const defaultOption: Options = {
   enabled: false,
-  convertor: null,
-}
+  convertor: null
+};
 
 export const suggestedOption: Partial<Options> = {
-  enabled: true,
-}
+  enabled: true
+};
 
 export type OptionValueType = Partial<Options> | boolean | PasteConvertor;
 
@@ -44,30 +44,32 @@ declare global {
        *
        * @see PasteConvertor
        */
-      hmdPaste?: OptionValueType
+      hmdPaste?: OptionValueType;
     }
   }
 }
 
-suggestedEditorConfig.hmdPaste = suggestedOption
+suggestedEditorConfig.hmdPaste = suggestedOption;
 
-CodeMirror.defineOption("hmdPaste", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
-
+CodeMirror.defineOption("hmdPaste", defaultOption, function(
+  cm: cm_t,
+  newVal: OptionValueType
+) {
   ///// convert newVal's type to `Partial<Options>`, if it is not.
 
   if (!newVal || typeof newVal === "boolean") {
-    newVal = { enabled: !!newVal }
+    newVal = { enabled: !!newVal };
   } else if (typeof newVal === "function") {
-    newVal = { enabled: true, convertor: newVal }
+    newVal = { enabled: true, convertor: newVal };
   }
 
   ///// apply config and write new values into cm
 
-  var inst = getAddon(cm)
+  var inst = getAddon(cm);
   for (var k in defaultOption) {
-    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+    inst[k] = k in newVal ? newVal[k] : defaultOption[k];
   }
-})
+});
 
 //#endregion
 
@@ -80,27 +82,41 @@ export class Paste implements Addon.Addon, Options /* if needed */ {
 
   constructor(public cm: cm_t) {
     new FlipFlop(
-      /* ON  */() => { cm.on('paste', this.pasteHandler) },
-      /* OFF */() => { cm.off('paste', this.pasteHandler) }
-    ).bind(this, "enabled", true)
+      /* ON  */ () => {
+        cm.on("paste", this.pasteHandler as any);
+      },
+      /* OFF */ () => {
+        cm.off("paste", this.pasteHandler as any);
+      }
+    ).bind(this, "enabled", true);
   }
 
   private pasteHandler = (cm: cm_t, ev: ClipboardEvent) => {
-    var cd: DataTransfer = ev.clipboardData || window['clipboardData']
-    var convertor = this.convertor
+    var cd: DataTransfer = ev.clipboardData || window["clipboardData"];
+    var convertor = this.convertor;
 
-    if (!convertor || !cd || cd.types.indexOf('text/html') == -1) return
-    var result = convertor(cd.getData('text/html'))
-    if (!result) return
+    if (!convertor || !cd || cd.types.indexOf("text/html") == -1) return;
+    var result = convertor(cd.getData("text/html"));
+    if (!result) return;
 
-    cm.operation(cm.replaceSelection.bind(cm, result))
+    cm.operation(cm.replaceSelection.bind(cm, result));
 
-    ev.preventDefault()
-  }
+    ev.preventDefault();
+  };
 }
 
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one Paste instance */
-export const getAddon = Addon.Getter("Paste", Paste, defaultOption /** if has options */)
-declare global { namespace HyperMD { interface HelperCollection { Paste?: Paste } } }
+export const getAddon = Addon.Getter(
+  "Paste",
+  Paste,
+  defaultOption /** if has options */
+);
+declare global {
+  namespace HyperMD {
+    interface HelperCollection {
+      Paste?: Paste;
+    }
+  }
+}

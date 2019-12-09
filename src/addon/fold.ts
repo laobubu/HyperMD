@@ -6,22 +6,30 @@
 // You may set `hmdFold.customFolders` option to fold more, where `customFolders` is Array<FolderFunc>
 //
 
-import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, debounce, TokenSeeker, suggestedEditorConfig, normalVisualConfig } from '../core'
-import { Position, Token } from 'codemirror'
-import { cm_t } from '../core/type'
-import { rangesIntersect, orderedRange } from '../core/cm_utils';
+import * as CodeMirror from "codemirror";
+import {
+  Addon,
+  FlipFlop,
+  debounce,
+  TokenSeeker,
+  suggestedEditorConfig,
+  normalVisualConfig
+} from "../core";
+import { Position, Token } from "codemirror";
+import { cm_t } from "../core/type";
+import { rangesIntersect, orderedRange } from "../core";
 
-const DEBUG = false
+const DEBUG = false;
 
-const FlagArray = typeof Uint8Array === 'undefined' ? (Array as typeof Uint8Array) : Uint8Array;
+const FlagArray =
+  typeof Uint8Array === "undefined" ? (Array as typeof Uint8Array) : Uint8Array;
 
 export interface HmdTextMarker extends CodeMirror.TextMarker {
   /** @internal when caret in this range, break this marker */
-  _hmd_crange?: [Position, Position]
+  _hmd_crange?: [Position, Position];
 
   /** @internal the folder type of current marker */
-  _hmd_fold_type?: string
+  _hmd_fold_type?: string;
 }
 
 /********************************************************************************** */
@@ -46,16 +54,19 @@ export interface HmdTextMarker extends CodeMirror.TextMarker {
  * @param token current checking token. a shortcut to `stream.lineTokens[stream.i_token]`
  * @returns a TextMarker if folded.
  */
-export type FolderFunc = (stream: FoldStream, token: CodeMirror.Token) => HmdTextMarker;
+export type FolderFunc = (
+  stream: FoldStream,
+  token: CodeMirror.Token
+) => HmdTextMarker;
 
 /** FolderFunc may use FoldStream to lookup for tokens */
 export interface FoldStream {
-  readonly cm: cm_t
+  readonly cm: cm_t;
 
-  readonly line: CodeMirror.LineHandle
-  readonly lineNo: number
-  readonly lineTokens: Token[]    // always same as cm.getLineTokens(line)
-  readonly i_token: number        // current token's index
+  readonly line: CodeMirror.LineHandle;
+  readonly lineNo: number;
+  readonly lineTokens: Token[]; // always same as cm.getLineTokens(line)
+  readonly i_token: number; // current token's index
   /**
    * Find next Token that matches the condition AFTER current token (whose index is `i_token`), or a given position
    * This function will NOT make the stream precede!
@@ -63,7 +74,11 @@ export interface FoldStream {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param maySpanLines by default the searching will not span lines
    */
-  findNext(condition: TokenSeeker.ConditionType, maySpanLines?: boolean, since?: Position): TokenSeeker.ResultType
+  findNext(
+    condition: TokenSeeker.ConditionType,
+    maySpanLines?: boolean,
+    since?: Position
+  ): TokenSeeker.ResultType;
 
   /**
    * In current line, find next Token that matches the condition SINCE the token with given index
@@ -72,14 +87,17 @@ export interface FoldStream {
    * @param condition a RegExp to check token.type, or a function check the Token
    * @param i_token_since default: i_token+1 (the next of current token)
    */
-  findNext(condition: TokenSeeker.ConditionType, i_token_since: number): TokenSeeker.ResultType
+  findNext(
+    condition: TokenSeeker.ConditionType,
+    i_token_since: number
+  ): TokenSeeker.ResultType;
 
   /**
    * Before creating a TextMarker, check if the range is good to use.
    *
    * Do NOT create TextMarker unless this returns `RequestRangeResult.OK`
    */
-  requestRange(from: Position, to: Position): RequestRangeResult
+  requestRange(from: Position, to: Position): RequestRangeResult;
 
   /**
    * Before creating a TextMarker, check if the range is good to use.
@@ -89,7 +107,12 @@ export interface FoldStream {
    * @param cfrom if cfrom <= caret <= cto, the TextMarker will be removed.
    * @param cto   if cfrom <= caret <= cto, the TextMarker will be removed.
    */
-  requestRange(from: Position, to: Position, cfrom: Position, cto: Position): RequestRangeResult
+  requestRange(
+    from: Position,
+    to: Position,
+    cfrom: Position,
+    cto: Position
+  ): RequestRangeResult;
 }
 
 export enum RequestRangeResult {
@@ -97,7 +120,7 @@ export enum RequestRangeResult {
   // Otherwise the generated code looks ugly
   OK = "ok",
   CURSOR_INSIDE = "ci",
-  HAS_MARKERS = "hm",
+  HAS_MARKERS = "hm"
 }
 
 //#endregion
@@ -105,7 +128,7 @@ export enum RequestRangeResult {
 /********************************************************************************** */
 //#region FolderFunc Registry
 
-export var folderRegistry: Record<string, FolderFunc> = {}
+export var folderRegistry: Record<string, FolderFunc> = {};
 
 /**
  * Add a Folder to the System Folder Registry
@@ -115,14 +138,20 @@ export var folderRegistry: Record<string, FolderFunc> = {}
  * @param suggested enable this folder in suggestedEditorConfig
  * @param force if a folder with same name is already exists, overwrite it. (dangerous)
  */
-export function registerFolder(name: string, folder: FolderFunc, suggested: boolean, force?: boolean) {
-  var registry = folderRegistry
+export function registerFolder(
+  name: string,
+  folder: FolderFunc,
+  suggested: boolean,
+  force?: boolean
+) {
+  var registry = folderRegistry;
 
-  if (name in registry && !force) throw new Error(`Folder ${name} already registered`)
+  if (name in registry && !force)
+    throw new Error(`Folder ${name} already registered`);
 
-  defaultOption[name] = false
-  suggestedOption[name] = !!suggested
-  registry[name] = folder
+  defaultOption[name] = false;
+  suggestedOption[name] = !!suggested;
+  registry[name] = folder;
 }
 
 //#endregion
@@ -132,13 +161,13 @@ export function registerFolder(name: string, folder: FolderFunc, suggested: bool
 
 /** break a TextMarker, move cursor to where marker is */
 export function breakMark(cm: cm_t, marker: HmdTextMarker, chOffset?: number) {
-  cm.operation(function () {
-    var pos = marker.find().from
-    pos = { line: pos.line, ch: pos.ch + ~~chOffset }
-    cm.setCursor(pos)
-    cm.focus()
-    marker.clear()
-  })
+  cm.operation(function() {
+    var pos = marker.find().from;
+    pos = { line: pos.line, ch: pos.ch + ~~chOffset };
+    cm.setCursor(pos);
+    cm.focus();
+    marker.clear();
+  });
 }
 
 //#endregion
@@ -146,15 +175,15 @@ export function breakMark(cm: cm_t, marker: HmdTextMarker, chOffset?: number) {
 /********************************************************************************** */
 //#region Addon Options
 
-export type Options = Record<string, boolean>
+export type Options = Record<string, boolean>;
 
 export const defaultOption: Options = {
   /* will be populated by registerFolder() */
-}
+};
 
 export const suggestedOption: Options = {
   /* will be populated by registerFolder() */
-}
+};
 
 export type OptionValueType = Options | boolean;
 
@@ -173,35 +202,38 @@ declare global {
        *
        * @example { image: true, link: true, math: true, html: false }
        */
-      hmdFold?: OptionValueType
+      hmdFold?: OptionValueType;
     }
   }
 }
 
-suggestedEditorConfig.hmdFold = suggestedOption
-normalVisualConfig.hmdFold = false
+suggestedEditorConfig.hmdFold = suggestedOption;
+normalVisualConfig.hmdFold = false;
 
-CodeMirror.defineOption("hmdFold", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
-
+CodeMirror.defineOption("hmdFold", defaultOption, function(
+  cm: cm_t,
+  newVal: OptionValueType
+) {
   ///// convert newVal's type to `Record<string, boolean>`, if it is not.
 
   if (!newVal || typeof newVal === "boolean") {
-    newVal = newVal ? suggestedOption : defaultOption
+    newVal = newVal ? suggestedOption : defaultOption;
   }
 
-  if ('customFolders' in newVal) {
-    console.error('[HyperMD][Fold] `customFolders` is removed. To use custom folders, `registerFolder` first.')
-    delete newVal['customFolders']
+  if ("customFolders" in newVal) {
+    console.error(
+      "[HyperMD][Fold] `customFolders` is removed. To use custom folders, `registerFolder` first."
+    );
+    delete newVal["customFolders"];
   }
 
   ///// apply config
-  var inst = getAddon(cm)
+  var inst = getAddon(cm);
   for (const type in folderRegistry) {
-    inst.setStatus(type, newVal[type])
+    inst.setStatus(type, newVal[type]);
   }
   // then, folding task will be queued by setStatus()
-
-})
+});
 
 //#endregion
 
@@ -213,101 +245,109 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
    * stores Folder status for current editor
    * @private To enable/disable folders, use `setStatus()`
    */
-  private _enabled: Record<string, boolean> = {}
+  private _enabled: Record<string, boolean> = {};
 
   /** Folder's output goes here */
   public folded: Record<string, HmdTextMarker[]> = {};
 
   /** enable/disable one kind of folder, in current editor */
   setStatus(type: string, enabled: boolean) {
-    if (!(type in folderRegistry)) return
+    if (!(type in folderRegistry)) return;
 
     if (!this._enabled[type] !== !enabled) {
-      this._enabled[type] = !!enabled
+      this._enabled[type] = !!enabled;
 
-      if (enabled) this.startFold()
-      else this.clear(type)
+      if (enabled) this.startFold();
+      else this.clear(type);
     }
   }
 
   constructor(public cm: cm_t) {
-    super(cm)
+    super(cm);
 
     cm.on("changes", (cm, changes) => {
-      var changedMarkers: HmdTextMarker[] = []
+      var changedMarkers: HmdTextMarker[] = [];
 
       for (const change of changes) {
-        let markers = cm.findMarks(change.from, change.to) as HmdTextMarker[]
+        let markers = cm.findMarks(change.from, change.to) as HmdTextMarker[];
         for (const marker of markers) {
-          if (marker._hmd_fold_type) changedMarkers.push(marker)
+          if (marker._hmd_fold_type) changedMarkers.push(marker);
         }
       }
 
       for (const m of changedMarkers) {
-        m.clear() // TODO: add "changed" handler for FolderFunc
+        m.clear(); // TODO: add "changed" handler for FolderFunc
       }
 
       this.startFold();
-    })
-    cm.on("cursorActivity", (cm) => {
-      if (DEBUG) console.time('CA')
+    });
+    cm.on("cursorActivity", cm => {
+      if (DEBUG) console.time("CA");
 
       let lineStuff: {
         [lineNo: string]: {
-          lineNo: number, ch: number[],
-          markers: [HmdTextMarker, number, number][] // two numbers are: char_from char_to
-        }
-      } = {}
+          lineNo: number;
+          ch: number[];
+          markers: [HmdTextMarker, number, number][]; // two numbers are: char_from char_to
+        };
+      } = {};
 
       function addPosition(pos: CodeMirror.Position) {
-        const lineNo = pos.line
+        const lineNo = pos.line;
         if (!(lineNo in lineStuff)) {
-          let lh = cm.getLineHandle(pos.line)
-          let ms = lh.markedSpans || []
-          let markers = [] as [HmdTextMarker, number, number][]
+          let lh = cm.getLineHandle(pos.line);
+          let ms = lh.markedSpans || [];
+          let markers = [] as [HmdTextMarker, number, number][];
           for (let i = 0; i < ms.length; i++) {
-            let marker = ms[i].marker as HmdTextMarker
-            if ('_hmd_crange' in marker) {
-              let from = marker._hmd_crange[0].line < lineNo ? 0 : marker._hmd_crange[0].ch
-              let to = marker._hmd_crange[1].line > lineNo ? lh.text.length : marker._hmd_crange[1].ch
-              markers.push([marker, from, to])
+            let marker = ms[i].marker as HmdTextMarker;
+            if ("_hmd_crange" in marker) {
+              let from =
+                marker._hmd_crange[0].line < lineNo
+                  ? 0
+                  : marker._hmd_crange[0].ch;
+              let to =
+                marker._hmd_crange[1].line > lineNo
+                  ? lh.text.length
+                  : marker._hmd_crange[1].ch;
+              markers.push([marker, from, to]);
             }
           }
           lineStuff[lineNo] = {
-            lineNo, ch: [pos.ch],
-            markers,
-          }
+            lineNo,
+            ch: [pos.ch],
+            markers
+          };
         } else {
-          lineStuff[lineNo].ch.push(pos.ch)
+          lineStuff[lineNo].ch.push(pos.ch);
         }
       }
 
       cm.listSelections().forEach(selection => {
-        addPosition(selection.anchor)
-        addPosition(selection.head)
-      })
+        addPosition(selection.anchor);
+        addPosition(selection.head);
+      });
 
       for (let tmp_id in lineStuff) {
-        let lineData = lineStuff[tmp_id]
-        if (!lineData.markers.length) continue
+        let lineData = lineStuff[tmp_id];
+        if (!lineData.markers.length) continue;
 
         for (let i = 0; i < lineData.ch.length; i++) {
-          const ch = lineData.ch[i]
+          const ch = lineData.ch[i];
           for (let j = 0; j < lineData.markers.length; j++) {
-            let [marker, from, to] = lineData.markers[j]
+            let [marker, from, to] = lineData.markers[j];
             if (from <= ch && ch <= to) {
-              marker.clear()
-              lineData.markers.splice(j, 1)
-              j--
+              marker.clear();
+              lineData.markers.splice(j, 1);
+              j--;
             }
           }
         }
       }
 
-      if (DEBUG) console.timeEnd('CA')
+      if (DEBUG) console.timeEnd("CA");
 
-      this.startQuickFold()
-    })
+      this.startQuickFold();
+    });
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -319,34 +359,41 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
    *
    * NOTE: this function is always called after `_quickFoldHint` reset by `startFoldImmediately`
    */
-  requestRange(from: Position, to: Position, cfrom?: Position, cto?: Position): RequestRangeResult {
-    if (!cto) cto = to
-    if (!cfrom) cfrom = from
+  requestRange(
+    from: Position,
+    to: Position,
+    cfrom?: Position,
+    cto?: Position
+  ): RequestRangeResult {
+    if (!cto) cto = to;
+    if (!cfrom) cfrom = from;
 
-    const cm = this.cm
+    const cm = this.cm;
 
-    var markers = cm.findMarks(from, to)
-    if (markers.length !== 0) return RequestRangeResult.HAS_MARKERS
+    var markers = cm.findMarks(from, to);
+    if (markers.length !== 0) return RequestRangeResult.HAS_MARKERS;
 
-    this._quickFoldHint.push(from.line)
+    this._quickFoldHint.push(from.line);
 
     // store "crange" for the coming marker
-    this._lastCRange = [cfrom, cto]
+    this._lastCRange = [cfrom, cto];
 
-    const selections = cm.listSelections()
+    const selections = cm.listSelections();
     for (let i = 0; i < selections.length; i++) {
-      let oselection = orderedRange(selections[i])
+      let oselection = orderedRange(selections[i]);
       // note that "crange" can be bigger or smaller than marked-text range.
-      if (rangesIntersect(this._lastCRange, oselection) || rangesIntersect([from, to], oselection)) {
-        return RequestRangeResult.CURSOR_INSIDE
+      if (
+        rangesIntersect(this._lastCRange, oselection) ||
+        rangesIntersect([from, to], oselection)
+      ) {
+        return RequestRangeResult.CURSOR_INSIDE;
       }
     }
 
-    this._quickFoldHint.push(cfrom.line)
+    this._quickFoldHint.push(cfrom.line);
 
-    return RequestRangeResult.OK
+    return RequestRangeResult.OK;
   }
-
 
   /// END OF APIS THAT EXPOSED TO FolderFunc
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -354,7 +401,7 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
   /**
    * Fold everything! (This is a debounced, and `this`-binded version)
    */
-  startFold = debounce(this.startFoldImmediately.bind(this), 100)
+  startFold = debounce(this.startFoldImmediately.bind(this), 100);
 
   /**
    * Fold everything!
@@ -362,127 +409,132 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
    * @param toLine last line to fold. Inclusive
    */
   startFoldImmediately(fromLine?: number, toLine?: number) {
-    const cm = this.cm
+    const cm = this.cm;
 
-    fromLine = fromLine || cm.firstLine()
-    toLine = (toLine || cm.lastLine()) + 1
+    fromLine = fromLine || cm.firstLine();
+    toLine = (toLine || cm.lastLine()) + 1;
 
-    this._quickFoldHint = []
-    this.setPos(fromLine, 0, true)
+    this._quickFoldHint = [];
+    this.setPos(fromLine, 0, true);
 
     if (DEBUG) {
-      console.log("start fold! ", fromLine, toLine)
+      console.log("start fold! ", fromLine, toLine);
     }
 
-    cm.operation(() => cm.eachLine(fromLine, toLine, line => {
-      var lineNo = line.lineNo()
-      if (lineNo < this.lineNo) return // skip current line...
-      else if (lineNo > this.lineNo) this.setPos(lineNo, 0) // hmmm... maybe last one is empty line
+    cm.operation(() =>
+      cm.eachLine(fromLine, toLine, line => {
+        var lineNo = line.lineNo();
+        if (lineNo < this.lineNo) return;
+        // skip current line...
+        else if (lineNo > this.lineNo) this.setPos(lineNo, 0); // hmmm... maybe last one is empty line
 
-      // all the not-foldable chars are marked
-      var charMarked = new FlagArray(line.text.length)
-      {
-        // populate charMarked array.
-        // @see CodeMirror's findMarksAt
-        let lineMarkers = line.markedSpans
-        if (lineMarkers) {
-          for (let i = 0; i < lineMarkers.length; ++i) {
-            let span = lineMarkers[i]
-            let spanFrom = span.from == null ? 0 : span.from
-            let spanTo = span.to == null ? charMarked.length : span.to
-            for (let j = spanFrom; j < spanTo; j++) charMarked[j] = 1
-          }
-        }
-      }
-
-      const tokens = this.lineTokens
-
-      while (this.i_token < tokens.length) {
-        var token = tokens[this.i_token]
-        var type: string
-        var marker: HmdTextMarker = null
-
-        var tokenFoldable: boolean = true
+        // all the not-foldable chars are marked
+        var charMarked = new FlagArray(line.text.length);
         {
-          for (let i = token.start; i < token.end; i++) {
-            if (charMarked[i]) {
-              tokenFoldable = false
-              break
+          // populate charMarked array.
+          // @see CodeMirror's findMarksAt
+          let lineMarkers = line.markedSpans;
+          if (lineMarkers) {
+            for (let i = 0; i < lineMarkers.length; ++i) {
+              let span = lineMarkers[i];
+              let spanFrom = span.from == null ? 0 : span.from;
+              let spanTo = span.to == null ? charMarked.length : span.to;
+              for (let j = spanFrom; j < spanTo; j++) charMarked[j] = 1;
             }
           }
         }
 
-        if (tokenFoldable) {
-          // try all enabled folders in registry
-          for (type in folderRegistry) {
-            if (!this._enabled[type]) continue
-            if (marker = folderRegistry[type](this, token)) break
-          }
-        }
+        const tokens = this.lineTokens;
 
-        if (!marker) {
-          // this token not folded. check next
-          this.i_token++
-        } else {
-          var { from, to } = marker.find();
-          (this.folded[type] || (this.folded[type] = [])).push(marker)
-          marker._hmd_fold_type = type;
-          marker._hmd_crange = this._lastCRange;
-          marker.on('clear', (from, to) => {
-            var markers = this.folded[type]
-            var idx: number
-            if (markers && (idx = markers.indexOf(marker)) !== -1) markers.splice(idx, 1)
-            this._quickFoldHint.push(from.line)
-          })
+        while (this.i_token < tokens.length) {
+          var token = tokens[this.i_token];
+          var type: string;
+          var marker: HmdTextMarker = null;
 
-          if (DEBUG) {
-            console.log("[FOLD] New marker ", type, from, to, marker)
+          var tokenFoldable: boolean = true;
+          {
+            for (let i = token.start; i < token.end; i++) {
+              if (charMarked[i]) {
+                tokenFoldable = false;
+                break;
+              }
+            }
           }
 
-          // now let's update the pointer position
+          if (tokenFoldable) {
+            // try all enabled folders in registry
+            for (type in folderRegistry) {
+              if (!this._enabled[type]) continue;
+              if ((marker = folderRegistry[type](this, token))) break;
+            }
+          }
 
-          if (from.line > lineNo || from.ch > token.start) {
-            // there are some not-marked chars after current token, before the new marker
-            // first, advance the pointer
-            this.i_token++
-            // then mark the hidden chars as "marked"
-            let fromCh = from.line === lineNo ? from.ch : charMarked.length
-            let toCh = to.line === lineNo ? to.ch : charMarked.length
-            for (let i = fromCh; i < toCh; i++) charMarked[i] = 1
+          if (!marker) {
+            // this token not folded. check next
+            this.i_token++;
           } else {
-            // classical situation
-            // new marker starts since current token
-            if (to.line !== lineNo) {
-              this.setPos(to.line, to.ch)
-              return // nothing left in this line
+            var { from, to } = marker.find();
+            (this.folded[type] || (this.folded[type] = [])).push(marker);
+            marker._hmd_fold_type = type;
+            marker._hmd_crange = this._lastCRange;
+            marker.on("clear", (from, to) => {
+              var markers = this.folded[type];
+              var idx: number;
+              if (markers && (idx = markers.indexOf(marker)) !== -1)
+                markers.splice(idx, 1);
+              this._quickFoldHint.push(from.line);
+            });
+
+            if (DEBUG) {
+              console.log("[FOLD] New marker ", type, from, to, marker);
+            }
+
+            // now let's update the pointer position
+
+            if (from.line > lineNo || from.ch > token.start) {
+              // there are some not-marked chars after current token, before the new marker
+              // first, advance the pointer
+              this.i_token++;
+              // then mark the hidden chars as "marked"
+              let fromCh = from.line === lineNo ? from.ch : charMarked.length;
+              let toCh = to.line === lineNo ? to.ch : charMarked.length;
+              for (let i = fromCh; i < toCh; i++) charMarked[i] = 1;
             } else {
-              this.setPos(to.ch) // i_token will be updated by this.setPos()
+              // classical situation
+              // new marker starts since current token
+              if (to.line !== lineNo) {
+                this.setPos(to.line, to.ch);
+                return; // nothing left in this line
+              } else {
+                this.setPos(to.ch); // i_token will be updated by this.setPos()
+              }
             }
           }
         }
-      }
-    }))
+      })
+    );
   }
 
   /** stores every affected lineNo */
-  private _quickFoldHint: number[] = []
-  private _lastCRange: [Position, Position]
+  private _quickFoldHint: number[] = [];
+  private _lastCRange: [Position, Position];
 
   /**
    * Start a quick fold: only process recent `requestRange`-failed ranges
    */
   startQuickFold() {
-    var hint = this._quickFoldHint
-    if (hint.length === 0) return
+    var hint = this._quickFoldHint;
+    if (hint.length === 0) return;
 
-    var from = hint[0], to = from
+    var from = hint[0],
+      to = from;
     for (const lineNo of hint) {
-      if (from > lineNo) from = lineNo
-      if (to < lineNo) to = lineNo
+      if (from > lineNo) from = lineNo;
+      if (to < lineNo) to = lineNo;
     }
 
-    this.startFold.stop()
-    this.startFoldImmediately(from, to)
+    this.startFold.stop();
+    this.startFoldImmediately(from, to);
   }
 
   /**
@@ -491,24 +543,24 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
    * @param type builtin folder type ("image", "link" etc) or custom fold type
    */
   clear(type: string) {
-    this.startFold.stop()
+    this.startFold.stop();
 
-    var folded = this.folded[type]
-    if (!folded || !folded.length) return
-    var marker: CodeMirror.TextMarker
-    while (marker = folded.pop()) marker.clear()
+    var folded = this.folded[type];
+    if (!folded || !folded.length) return;
+    var marker: CodeMirror.TextMarker;
+    while ((marker = folded.pop())) marker.clear();
   }
 
   /**
    * Clear all folding result
    */
   clearAll() {
-    this.startFold.stop()
+    this.startFold.stop();
 
     for (const type in this.folded) {
-      var folded = this.folded[type]
-      var marker: CodeMirror.TextMarker
-      while (marker = folded.pop()) marker.clear()
+      var folded = this.folded[type];
+      var marker: CodeMirror.TextMarker;
+      while ((marker = folded.pop())) marker.clear();
     }
   }
 }
@@ -516,5 +568,11 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one Fold instance */
-export const getAddon = Addon.Getter("Fold", Fold)
-declare global { namespace HyperMD { interface HelperCollection { Fold?: Fold } } }
+export const getAddon = Addon.Getter("Fold", Fold);
+declare global {
+  namespace HyperMD {
+    interface HelperCollection {
+      Fold?: Fold;
+    }
+  }
+}

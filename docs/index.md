@@ -21,12 +21,12 @@
 
 In this section, you will learn how to make HyperMD basically runs on your webpage.
 
-+ [**Quick Start**](./quick-start.md): first of all, let's put HyperMD into your webpage...
-+ [**PowerPacks**](./powerpacks.md): and integrate 3rd-party libs and services, make HyperMD more powerful!
+- [**Quick Start**](./quick-start.md): first of all, let's put HyperMD into your webpage...
+- [**PowerPacks**](./powerpacks.md): and integrate 3rd-party libs and services, make HyperMD more powerful!
 
 Once a editor is ready, lots of API and methods are available. These pages can be helpful.
 
-+ [**CodeMirror's API**](https://codemirror.net/doc/manual.html#api): remember that a HyperMD editor is also a CodeMirror editor!
+- [**CodeMirror's API**](https://codemirror.net/doc/manual.html#api): remember that a HyperMD editor is also a CodeMirror editor!
 
 ## Level 2
 
@@ -34,20 +34,23 @@ In this section, you will try to add some interesting features to your editor.
 
 Assuming there is a variable named as `editor`, storing your editor instance.
 
-+ **Load and Save Content**
+- **Load and Save Content**
+
   - `editor.getValue()` returns Markdown text string
   - `editor.setValue(text)`
 
-+ **Toggle WYSIWYG mode**
+- **Toggle WYSIWYG mode**
+
   - `HyperMD.switchToNormal(editor)`
   - `HyperMD.switchToHyperMD(editor)`
 
-+ **Update HyperMD Editor/Addon Options**
+- **Update HyperMD Editor/Addon Options**
+
   - You can use `editor.setOption(name, value)` during runtime
   - HyperMD-related addon option names always start with "hmd",
     the full list can be found here: [Options-for-Addons][]
 
-+ **Handle Relative URL**
+- **Handle Relative URL**
   - Image and Link URL in Markdown can be relative URL.
   - HyperMD editors have a API `editor.hmdResolveURL("../relative/url")`, which is provided by addon _ReadLink_.
   - _ReadLink_ the addon resolves relative paths, and its `baseURI` is configurable.
@@ -59,12 +62,12 @@ Assuming there is a variable named as `editor`, storing your editor instance.
 In this section, you will learn how HyperMD magic works, and write some advanced handlers.
 
 1. A document (Markdown text) is loaded
-2. __HyperMD Mode__ parses, tokenizes and styles the text
-3. __Addons__ use the parsed info to implement features
-   + __HideToken__ hides `*`s, `~~`s and more formatting tokens
-   + __Click__ checks the clicked element's token type, and call ClickHandler
-   + __FoldMath__ checks if a token is the beginning of a formula (usually, a `$`), folds to the end and renders $\TeX$ formula
-   + _and more_
+2. **HyperMD Mode** parses, tokenizes and styles the text
+3. **Addons** use the parsed info to implement features
+   - **HideToken** hides `*`s, `~~`s and more formatting tokens
+   - **Click** checks the clicked element's token type, and call ClickHandler
+   - **FoldMath** checks if a token is the beginning of a formula (usually, a `$`), folds to the end and renders $\TeX$ formula
+   - _and more_
 
 **Conclusion**:
 
@@ -73,10 +76,10 @@ In this section, you will learn how HyperMD magic works, and write some advanced
    - or [submit a feature request](https://github.com/laobubu/HyperMD/issues/new) if the syntax is not supported yet.
 2. The parsed token info is essential and useful.
    - :bulb: **Hint**: You can use [CodeMirror mode-related API](https://codemirror.net/doc/manual.html#api_mode) to extract the parsed info.
-     + [getTokenAt](https://codemirror.net/doc/manual.html#getTokenAt)
-     + [getLineTokens](https://codemirror.net/doc/manual.html#getLineTokens)
-     + [getTokenTypeAt](https://codemirror.net/doc/manual.html#getTokenTypeAt)
-     + _and more_
+     - [getTokenAt](https://codemirror.net/doc/manual.html#getTokenAt)
+     - [getLineTokens](https://codemirror.net/doc/manual.html#getLineTokens)
+     - [getTokenTypeAt](https://codemirror.net/doc/manual.html#getTokenTypeAt)
+     - _and more_
 
 ## Level 4
 
@@ -101,6 +104,6 @@ Understand TypeScript and CodeMirror? Want to add new features to HyperMD core? 
 
 [Buy me a coffee](https://laobubu.net/donate.html) to encourage me?
 
------
+---
 
 [options-for-addons]: ./options-for-addons.md
