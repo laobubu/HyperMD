@@ -41,3 +41,10 @@ export function AudioWidget(attributes: Attributes) {
   audio.appendChild(source);
   return audio;
 }
+
+/*
+Example:
+
+  `@audio "src":"https://raw.githubusercontent.com/shd101wyy/PlanetWalley/master/May4/songs/%E8%80%81%E7%94%B7%E5%AD%A9.mp3","autoplay":true`
+
+*/

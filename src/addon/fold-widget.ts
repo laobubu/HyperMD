@@ -89,7 +89,7 @@ export const WidgetFolder = function(
   } else if (widgetName === "audio") {
     widget = AudioWidget(widgetAttributes);
   } else if (widgetName === "error") {
-    widget = ErrorWidget(widgetAttributes);
+    widget = ErrorWidget(widgetAttributes as any);
   } else {
     return false;
   }
