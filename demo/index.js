@@ -60,6 +60,7 @@ require([
   "hypermd/addon/fold-image",
   "hypermd/addon/fold-math",
   "hypermd/addon/fold-html",
+  "hypermd/addon/fold-widget",
   "hypermd/addon/fold-emoji",
   "hypermd/addon/read-link",
   "hypermd/addon/click",
@@ -111,7 +112,8 @@ require([
       link: true,
       math: true,
       html: true, // maybe dangerous
-      emoji: true
+      emoji: true,
+      widget: true
     }
   });
   editor.setSize(null, "100%"); // set height

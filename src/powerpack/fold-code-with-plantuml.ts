@@ -44,5 +44,10 @@ if (window["plantumlEncoder"]) {
   });
   console.log("[HyperMD] PowerPack fold-code-with-plantuml loaded.");
 } else {
-  console.log("[HyperMD] PowerPack fold-code-with-plantuml failed to load.");
+  console.log(`[HyperMD] PowerPack fold-code-with-plantuml failed to load.
+Please include  
+
+  <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+
+in your HTML file`);
 }
