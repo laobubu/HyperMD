@@ -1,10 +1,12 @@
 import { Attributes } from "../../addon/fold";
 import { ErrorWidget } from "../error/error";
 
-export function AudioWidget(attributes: Attributes) {
+export function AudioWidget(attributes: Attributes, displayIcon = true) {
   const id = "_widget_audio_id_" + Math.round(1e9 * Math.random()).toString(36);
+  const audioWrapper = document.createElement("span");
+  audioWrapper.id = id;
+
   const audio = document.createElement("audio");
-  audio.id = id;
   audio.innerText = "Your browser does not support the audio element.";
   const src = attributes["src"];
   if (!src) {
@@ -38,8 +40,18 @@ export function AudioWidget(attributes: Attributes) {
   if (type) {
     source.setAttribute("type", type);
   }
+
   audio.appendChild(source);
-  return audio;
+  audioWrapper.appendChild(audio);
+
+  if (displayIcon) {
+    const audioIcon = document.createElement("span");
+    audioIcon.classList.add("widget-audio-icon");
+    audioIcon.innerText = "🎵";
+    audioWrapper.appendChild(audioIcon);
+  }
+
+  return audioWrapper;
 }
 
 /*
