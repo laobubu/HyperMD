@@ -8,13 +8,21 @@ import {
   FolderFunc,
   registerFolder,
   breakMark,
-  RequestRangeResult
+  RequestRangeResult,
+  FoldStream
 } from "./fold";
 import { Attributes, parseAttributes } from "./attributes/index";
-import { TimerWidget } from "../widget/timer";
-import { BilibiliWidget } from "../widget/bilibili";
+import { TimerWidget } from "../widget/timer/timer";
+import { BilibiliWidget } from "../widget/bilibili/bilibili";
+import { YoutubeWidget } from "../widget/youtube/youtube";
+import { VideoWidget } from "../widget/video/video";
+import { ErrorWidget } from "../widget/error/error";
+import { AudioWidget } from "../widget/audio/audio";
 
-export const WidgetFolder: FolderFunc = function(stream, token) {
+export const WidgetFolder = function(
+  stream: FoldStream,
+  token: CodeMirror.Token
+): any {
   if (token.type !== "inline-code" || !token.string.trim().startsWith("@")) {
     return null;
   }
@@ -45,7 +53,8 @@ export const WidgetFolder: FolderFunc = function(stream, token) {
         "{" + str.slice(firstSpace + 1).trim() + "}"
       );
     } catch (error) {
-      widgetAttributes = {};
+      widgetName = "error";
+      widgetAttributes = { message: error.toString() };
     }
   } else {
     widgetName = str.trim().replace(/^@/, "");
@@ -73,17 +82,28 @@ export const WidgetFolder: FolderFunc = function(stream, token) {
     widget = TimerWidget(widgetAttributes);
   } else if (widgetName === "bilibili") {
     widget = BilibiliWidget(widgetAttributes);
+  } else if (widgetName === "youtube") {
+    widget = YoutubeWidget(widgetAttributes);
+  } else if (widgetName === "video") {
+    widget = VideoWidget(widgetAttributes);
+  } else if (widgetName === "audio") {
+    widget = AudioWidget(widgetAttributes);
+  } else if (widgetName === "error") {
+    widget = ErrorWidget(widgetAttributes);
   } else {
     return false;
   }
 
   // Create widget here
   const marker = cm.markText(from, to, {
-    replacedWith: widget
+    replacedWith: widget,
+    collapsed: true
   });
 
   // 1 here means `
-  widget.addEventListener("click", () => breakMark(cm, marker, 1), false);
+  widget.addEventListener("click", () => {
+    breakMark(cm, marker, 1), false;
+  });
   return marker;
 };
 

@@ -1,4 +1,4 @@
-import { Attributes } from "../addon/fold";
+import { Attributes } from "../../addon/fold";
 
 export function TimerWidget(attributes: Attributes) {
   const el = document.createElement("span");
