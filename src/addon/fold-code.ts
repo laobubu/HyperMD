@@ -264,7 +264,6 @@ export class FoldCode implements Addon.Addon {
     ) {
       return null;
     }
-    console.log("token.string: ", token.string);
     var tmp = /([-\w]+)(\s*|\s+\{.+\}\s*)$/.exec(token.string);
     var lang = tmp && tmp[1].toLowerCase();
     let attributesStr = tmp && tmp[2] && tmp[2].trim();

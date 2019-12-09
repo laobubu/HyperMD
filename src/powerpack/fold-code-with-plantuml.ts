@@ -19,10 +19,9 @@ import { getAddon as getFold } from "../addon/fold";
 export const PlantUMLRenderer: CodeRenderer = (code, info) => {
   const id = "_plantuml_id_" + Math.round(1e9 * Math.random()).toString(36);
   const el = document.createElement("div");
+  el.style.margin = "8px";
 
   const encoded = window["plantumlEncoder"].encode(code);
-  console.log(encoded); // SrJGjLDmibBmICt9oGS0
-
   const url = "http://www.plantuml.com/plantuml/img/" + encoded;
 
   el.setAttribute("id", id);
