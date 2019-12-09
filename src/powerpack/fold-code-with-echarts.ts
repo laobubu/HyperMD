@@ -21,8 +21,9 @@ export const EchartsRenderer: CodeRenderer = (code, info) => {
 
   var el = document.createElement("div");
   el.setAttribute("id", id);
-  el.style.width = "400px";
-  el.style.height = "400px";
+  el.style.width = info.attributes["width"] || "400px";
+  el.style.height = info.attributes["height"] || "400px";
+  el.style.maxWidth = info.attributes["maxWidth"] || "100%";
 
   try {
     let option = {};
@@ -48,7 +49,7 @@ if (window["echarts"]) {
 
   registerRenderer({
     name: "echarts",
-    pattern: /^echarts$/i,
+    pattern: /^echarts(\s*$|\s+\{)/i,
     renderer: EchartsRenderer,
     suggested: true
   });

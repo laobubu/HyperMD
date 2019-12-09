@@ -235,6 +235,9 @@ CodeMirror.defineOption("hmdFold", defaultOption, function(
   // then, folding task will be queued by setStatus()
 });
 
+// 0xGG
+export { parseAttributes, Attributes } from "./attributes/index";
+
 //#endregion
 
 /********************************************************************************** */

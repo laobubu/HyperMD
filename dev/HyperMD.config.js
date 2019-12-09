@@ -24,6 +24,9 @@ exports.components = {
   "addon/hide-token": "HideToken",
   "addon/cursor-debounce": "CursorDebounce",
   "keymap/hypermd": "KeyMap"
+
+  // 0xGG team
+  // "addon/attributes": "Attributes" // <= doesn't work
 };
 
 /**
