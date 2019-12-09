@@ -33,9 +33,9 @@
         background-color: #fff;
         color: #000;
         border: 1px solid #000;
-        padding: .5em;
+        padding: 0.5em;
         p {
-            margin: .2em 0;
+            margin: 0.2em 0;
         }
     }
 
@@ -51,10 +51,11 @@
     }
 
     /* addon/fold */
-    .hmd-link-icon:after { // Link Placeholder
+    .hmd-link-icon:after {
+        // Link Placeholder
         content: "🔗»";
         color: #009;
-        text-shadow: 0 0 2px #69F;
+        text-shadow: 0 0 2px #69f;
     }
 
     /* addon/table-align */
@@ -66,9 +67,15 @@
             display: inline-block;
         }
 
-        .hmd-table-column-left { text-align: left }
-        .hmd-table-column-center { text-align: center }
-        .hmd-table-column-right { text-align: right }
+        .hmd-table-column-left {
+            text-align: left;
+        }
+        .hmd-table-column-center {
+            text-align: center;
+        }
+        .hmd-table-column-right {
+            text-align: right;
+        }
 
         .cm-hmd-table-sep {
             @extend %inline-block;
@@ -78,7 +85,8 @@
     /* addon/fold-math */
     .hmd-fold-math {
         @extend %inline-block;
-        &.hmd-fold-math.math-2 { // aka. display mode
+        &.hmd-fold-math.math-2 {
+            // aka. display mode
             width: 100%;
         }
     }

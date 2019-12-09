@@ -38,7 +38,7 @@ if (window["plantumlEncoder"]) {
 
   registerRenderer({
     name: "plantuml",
-    pattern: /^plantuml$/i,
+    pattern: /^(plantuml|puml)$/i,
     renderer: PlantUMLRenderer,
     suggested: true
   });

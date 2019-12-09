@@ -82,6 +82,7 @@ require([
   /////////////////////////////////////////////
   "hypermd/powerpack/fold-code-with-mermaid",
   "hypermd/powerpack/fold-code-with-plantuml",
+  "hypermd/powerpack/fold-code-with-echarts",
   // 'hypermd/powerpack/fold-emoji-with-twemoji',
 
   "hypermd/powerpack/insert-file-with-smms",
