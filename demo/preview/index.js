@@ -2,7 +2,7 @@ function togglePreview(editor) {
   const preview = document.getElementById("preview");
   if (preview.style.display === "none") {
     preview.style.display = "block";
-    HyperMD.renderPreview(preview, editor.getValue());
+    Preview.renderPreview(preview, editor.getValue());
   } else {
     preview.style.display = "none";
   }
@@ -15,5 +15,5 @@ function hidePreview() {
 
 function printPDF() {
   const preview = document.getElementById("preview");
-  HyperMD.printPDF(preview);
+  Preview.printPDF(preview);
 }

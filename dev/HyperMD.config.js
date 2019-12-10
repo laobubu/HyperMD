@@ -29,6 +29,8 @@ exports.components = {
   "keymap/hypermd": "KeyMap",
 
   // * 👇 0xGG team
+  // ** Fold
+  "powerpack/fold-code-with-plantuml": "FoldCodeWithPlantUML",
   // ** Widget
   "addon/fold-widget": "FoldWidget",
   "widget/error/error": "WidgetError",

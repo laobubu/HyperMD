@@ -34,6 +34,11 @@ require([
   "codemirror/lib/codemirror",
   "hypermd/core",
 
+  /////////////////////////////////////////////
+  /// 0xGG Team added following modules    ////
+  /////////////////////////////////////////////
+  "hypermd/preview/index",
+
   ///////////////////////////////////////
   /// CodeMirror                      ///
   ///////////////////////////////////////
@@ -96,14 +101,10 @@ require([
   // 'hypermd/powerpack/fold-math-with-mathjax',
 
   "hypermd/powerpack/paste-with-turndown",
-  "turndown-plugin-gfm",
-
-  /////////////////////////////////////////////
-  /// 0xGG Team added following modules    ////
-  /////////////////////////////////////////////
-  "hypermd/preview/index"
-], function(CodeMirror, HyperMD) {
-  "use strict";
+  "turndown-plugin-gfm"
+], function(CodeMirror, HyperMD, Preview) {
+  console.log(...arguments);
+  ("use strict");
   var myTextarea = document.getElementById("demo");
 
   // HyperMD magic. See https://laobubu.net/HyperMD/docs/
@@ -130,6 +131,7 @@ require([
   window.HyperMD = HyperMD;
   window.editor = editor;
   window.cm = editor;
+  window.Preview = Preview;
 
   // for demo page only:
   document.body.className += " loaded";
