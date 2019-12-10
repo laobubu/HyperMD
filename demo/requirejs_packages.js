@@ -31,5 +31,9 @@ var requirejs_packages = [
   // ☝️ All above are relatives links to jsdeliver CDN. Check ./index.js for more information.
   { name: "yamljs", main: "dist/yaml.min.js" },
   { name: "plantumlEncoder", main: "dist/plantuml-encoder.min.js" }, // 👈  0xGG doesn't work
-  { name: "markdown-it", main: "dist/markdown-it.min.js" }
+  { name: "markdown-it", main: "dist/markdown-it.min.js" },
+  { name: "markdown-it-footnote", main: "dist/markdown-it-footnote.min.js" },
+  { name: "markdown-it-emoji", main: "dist/markdown-it-emoji.min.js" }
+
+  // { name: "prismjs", main: "prism.min.js" }
 ];

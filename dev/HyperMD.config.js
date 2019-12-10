@@ -41,7 +41,9 @@ exports.components = {
   "addon/attributes/index": "AttributesAddon",
   "addon/attributes/parse": "AttributesParse",
   // ** Preview
-  "preview/index": "Preview"
+  "preview/index": "Preview",
+  "preview/features/math": "PreviewFeatureMath",
+  "preview/features/tag": "PreviewFeatureTag"
 };
 
 /**
@@ -68,7 +70,10 @@ exports.globalNames = {
   // 0xGG Team
   // "plantuml-encoder": "plantumlEncoder", // 👈 imported as commonjs module
   yamljs: "YAML",
-  "markdown-it": "MarkdownIt"
+  "markdown-it": "MarkdownIt",
+  "markdown-it-footnote": "MarkdownItFootnote",
+  "markdown-it-emoji": "MarkdownItEmoji"
+  // prismjs: "Prism"
 };
 
 exports.externalNames = Object.keys(exports.globalNames);

@@ -1,11 +1,40 @@
 import MarkdownIt from "markdown-it";
+// import Prism from "prismjs";
+import MarkdownItEmoji from "markdown-it-emoji";
+import MarkdownItFootnote from "markdown-it-footnote";
+
+import MathEnhancer from "./features/math";
+import TagEnhancer from "./features/tag";
 
 const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-  breaks: true
+  breaks: true,
+  highlight: (code: string, language: string) => {
+    if (!window["Prism"]) {
+      return `<pre>${code}</pre>`;
+    }
+    if (!(language in window["Prism"].languages)) {
+      return `<pre class="language-text">${code}</pre>`;
+    }
+    try {
+      const html = window["Prism"].highlight(
+        code,
+        window["Prism"].languages[language],
+        language
+      );
+      return `<pre class="language-${language}">${html}</pre>`;
+    } catch (error) {
+      return `<pre class="language-error">${error.toString()}</pre>`;
+    }
+  }
 });
+
+md.use(MarkdownItEmoji);
+md.use(MarkdownItFootnote);
+TagEnhancer(md);
+MathEnhancer(md);
 
 /**
  * renderMarkdown
