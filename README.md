@@ -1,6 +1,6 @@
 # VickyMD 微记
 
-> Please note that this project is released under **[AGPLv3](https://choosealicense.com/licenses/agpl-3.0/)** license.
+> Please note that this project is released under **[AGPLv3](https://choosealicense.com/licenses/agpl-3.0/)**.
 
 This WYSIWYG markdown editor is built and modified on top of [@laobubu](https://github.com/laobubu)'s awesome project [HyperMD](https://github.com/laobubu/HyperMD).
 

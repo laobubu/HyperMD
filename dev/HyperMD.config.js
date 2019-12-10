@@ -39,7 +39,13 @@ exports.components = {
   "widget/audio/audio": "WidgetAudio",
   // ** Attribute
   "addon/attributes/index": "AttributesAddon",
+  "addon/attributes/normalize": "AttributesNormalize",
   "addon/attributes/parse": "AttributesParse",
+  "addon/attributes/stringify": "AttributesStringify",
+  // ** Block Info
+  "addon/block-info/index": "BlockInfoAddon",
+  "addon/block-info/normalize": "BlockInfoNormalize",
+  "addon/block-info/parse": "BlockInfoParse",
   // ** Preview
   "preview/index": "Preview",
   "preview/features/math": "PreviewFeatureMath",

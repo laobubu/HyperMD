@@ -176,8 +176,11 @@
 <!-- yamljs -->
 <script src="https://cdn.jsdelivr.net/npm/yamljs@0.3.0/dist/yaml.min.js"></script>
 <!-- prismjs -->
-<link href="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/themes/prism.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/github.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"></script>
+<!-- html2pdf -->
+<script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
 <!-- 0xGG Team -->
 
 
@@ -233,6 +236,14 @@
         </button>
         <div class="test-tooltip">Documentation</div>
     </div>
+
+    <div class="right test-item">
+      <button onclick="printPDF()">
+          <svg class="icon icon-book"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-book"></use></svg> <span class="phone-hidden">Export as PDF</span>
+      </button>
+      <div class="test-tooltip">Export as PDF</div>
+  </div>
+
 
     <div class="test-item">
         <button onclick="winLab.show(true)">

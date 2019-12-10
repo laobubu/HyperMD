@@ -312,7 +312,8 @@ body.loaded #test-box .test-item.right .test-tooltip {
     box-shadow: rgb(204, 204, 204) 0px 2px 8px;
     position: absolute;
     background-color: rgb(255, 255, 255);
-    width: 98%;
+    width: 99%;
+    margin-left: 0.5%;
     height: 92%;
     z-index: 10;
     top: 70px;

@@ -12,3 +12,8 @@ function hidePreview() {
   const preview = document.getElementById("preview");
   preview.style.display = "none";
 }
+
+function printPDF() {
+  const preview = document.getElementById("preview");
+  HyperMD.printPDF(preview);
+}
