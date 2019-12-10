@@ -1,3 +1,5 @@
+// DESCRIPTION: BlockInfo related models & functions
+
 import { Attributes } from "../attributes/index";
 
 export interface BlockInfo {

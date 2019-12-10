@@ -1,3 +1,5 @@
+// DESCRIPTION: Attributes related models & functions
+
 import { Attributes } from ".";
 
 /**

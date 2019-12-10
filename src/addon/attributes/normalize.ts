@@ -1,3 +1,5 @@
+// DESCRIPTION: Attributes related models & functions
+
 // import * as snakeCase from "lodash/snakeCase";
 import { Attributes } from "./index";
 

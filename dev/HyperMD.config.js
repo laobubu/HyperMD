@@ -50,7 +50,8 @@ exports.components = {
   "preview/index": "Preview",
   "preview/features/math": "PreviewFeatureMath",
   "preview/features/tag": "PreviewFeatureTag",
-  "preview/features/widget": "PreviewFeatureWidget"
+  "preview/features/widget": "PreviewFeatureWidget",
+  "preview/features/fence": "PreviewFeatureFence"
 };
 
 /**

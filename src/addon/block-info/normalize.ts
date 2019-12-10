@@ -1,3 +1,5 @@
+// DESCRIPTION: BlockInfo related models & functions
+
 import { BlockInfo } from ".";
 import { normalizeAttributes } from "../attributes/index";
 

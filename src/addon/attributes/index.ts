@@ -1,3 +1,5 @@
+// DESCRIPTION: Attributes related models & functions
+
 export interface Attributes {
   [key: string]: any;
 }
