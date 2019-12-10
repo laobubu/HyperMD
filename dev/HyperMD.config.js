@@ -72,7 +72,8 @@ exports.globalNames = {
   yamljs: "YAML",
   "markdown-it": "MarkdownIt",
   "markdown-it-footnote": "MarkdownItFootnote",
-  "markdown-it-emoji": "MarkdownItEmoji"
+  "markdown-it-emoji": "MarkdownItEmoji",
+  "markdown-it-task-lists": "MarkdownItTaskLists"
   // prismjs: "Prism"
 };
 

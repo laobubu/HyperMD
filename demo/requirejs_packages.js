@@ -33,7 +33,7 @@ var requirejs_packages = [
   { name: "plantumlEncoder", main: "dist/plantuml-encoder.min.js" }, // 👈  0xGG doesn't work
   { name: "markdown-it", main: "dist/markdown-it.min.js" },
   { name: "markdown-it-footnote", main: "dist/markdown-it-footnote.min.js" },
-  { name: "markdown-it-emoji", main: "dist/markdown-it-emoji.min.js" }
-
+  { name: "markdown-it-emoji", main: "dist/markdown-it-emoji.min.js" },
+  { name: "markdown-it-task-lists", main: "dist/markdown-it-task-lists.min.js" }
   // { name: "prismjs", main: "prism.min.js" }
 ];

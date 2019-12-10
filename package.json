@@ -55,6 +55,10 @@
     "flowchart.js": "^1.13.0",
     "jsonic": "^0.3.1",
     "katex": "^0.11.1",
+    "markdown-it": "^10.0.0",
+    "markdown-it-emoji": "^1.4.0",
+    "markdown-it-footnote": "^3.0.2",
+    "markdown-it-task-lists": "^2.1.1",
     "marked": "^0.7.0",
     "mathjax": "^2.7.7",
     "mermaid": "^8.4.3",
@@ -63,9 +67,6 @@
     "turndown": "^5.0.3",
     "turndown-plugin-gfm": "^1.0.2",
     "twemoji": "^12.1.4",
-    "yamljs": "^0.3.0",
-    "markdown-it": "^10.0.0",
-    "markdown-it-emoji": "^1.4.0",
-    "markdown-it-footnote": "^3.0.2"
+    "yamljs": "^0.3.0"
   }
 }

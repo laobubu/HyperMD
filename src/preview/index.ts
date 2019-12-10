@@ -2,6 +2,7 @@ import MarkdownIt from "markdown-it";
 // import Prism from "prismjs";
 import MarkdownItEmoji from "markdown-it-emoji";
 import MarkdownItFootnote from "markdown-it-footnote";
+import MarkdownItTaskLists from "markdown-it-task-lists";
 
 import MathEnhancer from "./features/math";
 import TagEnhancer from "./features/tag";
@@ -33,6 +34,7 @@ const md = new MarkdownIt({
 
 md.use(MarkdownItEmoji);
 md.use(MarkdownItFootnote);
+md.use(MarkdownItTaskLists);
 TagEnhancer(md);
 MathEnhancer(md);
 
