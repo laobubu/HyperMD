@@ -43,7 +43,8 @@ exports.components = {
   // ** Preview
   "preview/index": "Preview",
   "preview/features/math": "PreviewFeatureMath",
-  "preview/features/tag": "PreviewFeatureTag"
+  "preview/features/tag": "PreviewFeatureTag",
+  "preview/features/widget": "PreviewFeatureWidget"
 };
 
 /**
