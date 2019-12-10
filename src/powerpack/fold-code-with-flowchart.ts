@@ -26,50 +26,61 @@
 // })
 // ```
 
-import * as CodeMirror from "codemirror"
-import * as flowchart from "flowchart.js"
-import { registerRenderer, CodeRenderer, getAddon as getFoldCode } from "../addon/fold-code"
-import { getAddon as getFold } from "../addon/fold"
+import * as CodeMirror from "codemirror";
+import * as flowchart from "flowchart.js";
+import {
+  registerRenderer,
+  CodeRenderer,
+  getAddon as getFoldCode
+} from "../addon/fold-code";
+import { getAddon as getFold } from "../addon/fold";
 
 export const FlowchartRenderer: CodeRenderer = (code, info) => {
-  var fc = flowchart.parse(code)
-  if (Object.keys(fc.symbols).length === 0) return null
+  var fc = flowchart.parse(code);
+  if (Object.keys(fc.symbols).length === 0) return null;
 
-  var el = document.createElement('div')
-  el.setAttribute('class', 'hmd-fold-code-image hmd-fold-code-flowchart')
+  var el = document.createElement("div");
+  el.setAttribute("class", "hmd-fold-code-image hmd-fold-code-flowchart");
 
   // tell Raphael the viewport width
-  var tmpContainer = document.createElement('div')
-  tmpContainer.setAttribute('style', 'position: absolute;left:0;top:0;width:' + info.editor.getScrollInfo().clientWidth + 'px;height:1px;overflow:hidden')
-  document.body.appendChild(tmpContainer)
-  tmpContainer.appendChild(el)
+  var tmpContainer = document.createElement("div");
+  tmpContainer.setAttribute(
+    "style",
+    "position: absolute;left:0;top:0;width:" +
+      info.editor.getScrollInfo().clientWidth +
+      "px;height:1px;overflow:hidden"
+  );
+  document.body.appendChild(tmpContainer);
+  tmpContainer.appendChild(el);
 
-  fc.drawSVG(el, info.editor.getOption("flowchart"))
+  fc.drawSVG(el, info.editor.getOption("flowchart" as any));
 
   setTimeout(() => {
-    document.body.removeChild(tmpContainer)
+    document.body.removeChild(tmpContainer);
   }, 100);
 
   info.onRemove = () => {
-    fc.clean()
-    fc = null
-  }
+    fc.clean();
+    fc = null;
+  };
 
-  return el
-}
+  return el;
+};
 
 if (typeof flowchart === "object") {
   CodeMirror.defineOption("flowchart", null, (cm: CodeMirror.Editor) => {
-    getFoldCode(cm).clear("flowchart")
-    getFold(cm).startFold()
+    getFoldCode(cm).clear("flowchart");
+    getFold(cm).startFold();
   });
 
   registerRenderer({
     name: "flowchart",
     pattern: /^flow(?:charts?)?$/i,
     renderer: FlowchartRenderer,
-    suggested: true,
-  })
+    suggested: true
+  });
 } else {
-  console.error("[HyperMD] PowerPack fold-code-with-flowchart loaded, but flowchart not found.")
+  console.error(
+    "[HyperMD] PowerPack fold-code-with-flowchart loaded, but flowchart not found."
+  );
 }

@@ -1,14 +1,15 @@
 @font-face {
-    font-family: 'HyperMD-Bullets';
-    src: url('data:application/x-font-woff;charset=utf-8;base64,d09GRk9UVE8AAATYAAsAAAAABrQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADLAAAAVkAAAFgkDDiyEZGVE0AAASsAAAAGwAAABx9TbkrR0RFRgAABIgAAAAiAAAAJgAnACpPUy8yAAABZAAAAEcAAABgVTNgQ2NtYXAAAALUAAAAQwAAAUoBRQLkaGVhZAAAAQgAAAAzAAAANgrgpUBoaGVhAAABPAAAAB4AAAAkBOsD+WhtdHgAAATIAAAAEAAAABALoAL5bWF4cAAAAVwAAAAGAAAABgAEUABuYW1lAAABrAAAASYAAAITC0mo3nBvc3QAAAMYAAAAEwAAACD/gwAzeJxjYGRgYABil5kPquP5bb4ycLMwgMCVWRq+ENpyHoMxAwNTNFMEkMvBwAQSBQAX2QkFAHicY2BkYGAyZtjFEMNsxQAETNEMjAyogAUAMnAB7AAAAABQAAAEAAB4nGNgYTZlnMDAysDANIvpDAMDQz+EZnzFYMTIARRlYOVkgAFGBiQQkOaawtDAoMWgy2z835ghhsn4vxuKGgUgZAQARsULIwB4nIWOMWvDMBSET4mT4g6lhC7dtBQSiI1kSgNZAw506FBIlk52YhyDsIPiDIGO/T39Lf01nXtyRJYOMcjv09O9ewfgDt8QOH+PePYsECL33MMNPj338YQfzwFCcet5gHvx4nnI/geVIgh5S7opxwIjvHnuca/x3McrvjwH1Px6HkCKB89DjMQSCzTY4wSLCiV2aCExxgYT1gQKGjNMyQYZlTmOwKLZn2xV7lo53kxkovRsKk3W5HxaoaZDxWNQYMtprOq2ak2xJb6zV9LBeVlei/JoMkJKZzfnqqWi6HbH3C4x5/nveu5rKiL+o0tSpE3dpo0tC5nESs7lZTtZq0hHLu61nGv2LA58d7kkvZ173FWXCevCHqqmlkrpWCklrxj+AequT5gAAHicY2BgYGaAYBkGRgYQcAHyGMF8FgYNIM0GpBkZmBi0GXT//wfytUD0/+v/r0HVAwEjGwOCQxAwMoHtG2YAAPijCSYAeJxjYGYAg/8NDMYMWAAAKBQBtgB4nEWOsUsCYRjG38+7y/O8zoxOIi8RXBLE0iWCtkYjLLBoNMsSJC2sKILIFuuDKIhKbBKDwDFovAgC5eb8AwqaCqql740TzBZ7nuU3Pb+HAM8DIUSKreZSufTSYgiIBQhE0AHoJqhZcJDDft7zbKm0ZM4zXW7JvEcC2+bsMKUdkK06xQ98FzQoOTSAHg3KTg1UjUR6gfsbHAAfBCYy2e311PJKzjuU8HvDI6HRgDcdzyxsdOz/N9qxgwwK8IT4ssflb6pjVCe6zuo6p7swiHfNYJfePFAxyurNqFXBBG6pGWYTYmvZZGFONO3nwtlUNX6/I86bnFAsXNILekurpcqN+DIuFK9PK7TdfHm3In7VhHQ1dZWkebp/tHcoKjiGYXxTJ0236Ywx54xhumrMxdRHU30QFPbaIJ/M4NgJ2lRmPJlGl/JT60O/SmWpITVkmRl2Zsjdv2uJiQgAAAB4nGNgZGBg4AFiMQY5BiYGRiBkBmIWoAgTEDNCMAAIgwBSAAB4nGNgYGBkAIIrkuH2YHqWhi+EtpwHADfuBa0AAgAAMwMzAOgDOgDiAzMA/A==') format('woff');
+    font-family: "HyperMD-Bullets";
+    src: url("data:application/x-font-woff;charset=utf-8;base64,d09GRk9UVE8AAATYAAsAAAAABrQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADLAAAAVkAAAFgkDDiyEZGVE0AAASsAAAAGwAAABx9TbkrR0RFRgAABIgAAAAiAAAAJgAnACpPUy8yAAABZAAAAEcAAABgVTNgQ2NtYXAAAALUAAAAQwAAAUoBRQLkaGVhZAAAAQgAAAAzAAAANgrgpUBoaGVhAAABPAAAAB4AAAAkBOsD+WhtdHgAAATIAAAAEAAAABALoAL5bWF4cAAAAVwAAAAGAAAABgAEUABuYW1lAAABrAAAASYAAAITC0mo3nBvc3QAAAMYAAAAEwAAACD/gwAzeJxjYGRgYABil5kPquP5bb4ycLMwgMCVWRq+ENpyHoMxAwNTNFMEkMvBwAQSBQAX2QkFAHicY2BkYGAyZtjFEMNsxQAETNEMjAyogAUAMnAB7AAAAABQAAAEAAB4nGNgYTZlnMDAysDANIvpDAMDQz+EZnzFYMTIARRlYOVkgAFGBiQQkOaawtDAoMWgy2z835ghhsn4vxuKGgUgZAQARsULIwB4nIWOMWvDMBSET4mT4g6lhC7dtBQSiI1kSgNZAw506FBIlk52YhyDsIPiDIGO/T39Lf01nXtyRJYOMcjv09O9ewfgDt8QOH+PePYsECL33MMNPj338YQfzwFCcet5gHvx4nnI/geVIgh5S7opxwIjvHnuca/x3McrvjwH1Px6HkCKB89DjMQSCzTY4wSLCiV2aCExxgYT1gQKGjNMyQYZlTmOwKLZn2xV7lo53kxkovRsKk3W5HxaoaZDxWNQYMtprOq2ak2xJb6zV9LBeVlei/JoMkJKZzfnqqWi6HbH3C4x5/nveu5rKiL+o0tSpE3dpo0tC5nESs7lZTtZq0hHLu61nGv2LA58d7kkvZ173FWXCevCHqqmlkrpWCklrxj+AequT5gAAHicY2BgYGaAYBkGRgYQcAHyGMF8FgYNIM0GpBkZmBi0GXT//wfytUD0/+v/r0HVAwEjGwOCQxAwMoHtG2YAAPijCSYAeJxjYGYAg/8NDMYMWAAAKBQBtgB4nEWOsUsCYRjG38+7y/O8zoxOIi8RXBLE0iWCtkYjLLBoNMsSJC2sKILIFuuDKIhKbBKDwDFovAgC5eb8AwqaCqql740TzBZ7nuU3Pb+HAM8DIUSKreZSufTSYgiIBQhE0AHoJqhZcJDDft7zbKm0ZM4zXW7JvEcC2+bsMKUdkK06xQ98FzQoOTSAHg3KTg1UjUR6gfsbHAAfBCYy2e311PJKzjuU8HvDI6HRgDcdzyxsdOz/N9qxgwwK8IT4ssflb6pjVCe6zuo6p7swiHfNYJfePFAxyurNqFXBBG6pGWYTYmvZZGFONO3nwtlUNX6/I86bnFAsXNILekurpcqN+DIuFK9PK7TdfHm3In7VhHQ1dZWkebp/tHcoKjiGYXxTJ0236Ywx54xhumrMxdRHU30QFPbaIJ/M4NgJ2lRmPJlGl/JT60O/SmWpITVkmRl2Zsjdv2uJiQgAAAB4nGNgZGBg4AFiMQY5BiYGRiBkBmIWoAgTEDNCMAAIgwBSAAB4nGNgYGBkAIIrkuH2YHqWhi+EtpwHADfuBa0AAgAAMwMzAOgDOgDiAzMA/A==")
+        format("woff");
     font-weight: normal;
     font-style: normal;
 }
 
 .cm-s-hypermd-light {
-    $fs: 12pt;  //default font-size
+    $fs: 12pt; //default font-size
 
-    $editor-background: #FFF;
+    $editor-background: #fff;
     $editor-color: #000;
 
     $line-height: 1.5;
@@ -23,15 +24,15 @@
     $list-margin: 10px;
     $list-indent: 30px;
     $list-bullet-width: 30px;
-    $list-margin-after-line: .3em;
+    $list-margin-after-line: 0.3em;
 
     $table-border-style: 1px solid #999;
     $table-row1-height: 8px;
     $table-sep-width: 15px;
-    $table-sep-image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=';
-    $table-row-1-image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAQAAAAziH6sAAAADklEQVR42mOc+Z9x5n8ACTkDM4ikM1IAAAAASUVORK5CYII=';
+    $table-sep-image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=";
+    $table-row-1-image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAQAAAAziH6sAAAADklEQVR42mOc+Z9x5n8ACTkDM4ikM1IAAAAASUVORK5CYII=";
 
-    $codeblock-border: 1px solid #CCC;
+    $codeblock-border: 1px solid #ccc;
     $codeblock-padding: 5px;
 
     $hashtag-fontsize: 0.84em;
@@ -43,7 +44,11 @@
     $hr-image: $table-row-1-image;
     $hr-padding: 5px;
 
-    font-family: -apple-system, BlinkMacSystemFont, "Open Sans", "Helvetica Neue", Helvetica, Arial, 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Noto Sans CJK SC', 'Microsoft YaHei', STHeiti, 'Microsoft Jhenghei', sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: -apple-system, BlinkMacSystemFont, "Open Sans",
+        "Helvetica Neue", Helvetica, Arial, "Hiragino Sans GB",
+        "WenQuanYi Micro Hei", "Noto Sans CJK SC", "Microsoft YaHei", STHeiti,
+        "Microsoft Jhenghei", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol";
     -webkit-font-smoothing: antialiased;
 
     %monospace {
@@ -63,7 +68,8 @@
     .hmd-fold-html {
         table {
             border-collapse: collapse;
-            td, th {
+            td,
+            th {
                 padding: 10px;
                 border: 1px solid #ccc;
             }
@@ -91,40 +97,99 @@
 
     /// CodeMirror
 
-    .cm-header, .cm-strong {font-weight: 600;}
-    span.cm-quote { color: #666; }
-    span.cm-meta { color: #FF1717; }
-    span.cm-keyword { line-height: 1em; font-weight: bold; color: #7F0055; }
-    span.cm-atom { color: #219; }
-    span.cm-number { color: #164; }
-    span.cm-def { color: #00f; }
-    span.cm-variable { color: black; }
-    span.cm-variable-2 { color: #0000C0; }
-    span.cm-variable-3 { color: #0000C0; }
-    span.cm-property { color: black; }
-    span.cm-operator { color: black; }
-    span.cm-comment { color: #4F9F5F; }
-    span.cm-string { color: #2A00FF; }
-    span.cm-string-2 { color: #f50; }
-    span.cm-qualifier { color: #555; }
-    span.cm-builtin { color: #30a; }
-    span.cm-bracket { color: #cc7; }
-    span.cm-tag { color: #170; }
-    span.cm-attribute { color: #00c; }
-    span.cm-url { color: #4af }
+    .cm-header,
+    .cm-strong {
+        font-weight: 600;
+    }
+    span.cm-quote {
+        color: #666;
+    }
+    span.cm-meta {
+        color: #ff1717;
+    }
+    span.cm-keyword {
+        line-height: 1em;
+        font-weight: bold;
+        color: #7f0055;
+    }
+    span.cm-atom {
+        color: #219;
+    }
+    span.cm-number {
+        color: #164;
+    }
+    span.cm-def {
+        color: #00f;
+    }
+    span.cm-variable {
+        color: black;
+    }
+    span.cm-variable-2 {
+        color: #0000c0;
+    }
+    span.cm-variable-3 {
+        color: #0000c0;
+    }
+    span.cm-property {
+        color: black;
+    }
+    span.cm-operator {
+        color: black;
+    }
+    span.cm-comment {
+        color: #4f9f5f;
+    }
+    span.cm-string {
+        color: #2a00ff;
+    }
+    span.cm-string-2 {
+        color: #f50;
+    }
+    span.cm-qualifier {
+        color: #555;
+    }
+    span.cm-builtin {
+        color: #30a;
+    }
+    span.cm-bracket {
+        color: #cc7;
+    }
+    span.cm-tag {
+        color: #170;
+    }
+    span.cm-attribute {
+        color: #00c;
+    }
+    span.cm-url {
+        color: #4af;
+    }
     span.cm-link {
         color: #4078c0;
         text-decoration: none;
         &:hover {
-            text-decoration: underline
+            text-decoration: underline;
         }
     }
-    span.cm-error { color: #f00; }
-    span.cm-math { @extend %monospace; font-style: italic; background: rgba(#ffe,.4); }
-    span.cm-formatting-math { color: #CAA; font-weight: inherit; }
+    span.cm-error {
+        color: #f00;
+    }
+    span.cm-math {
+        @extend %monospace;
+        font-style: italic;
+        background: rgba(#ffe, 0.4);
+    }
+    span.cm-formatting-math {
+        color: #caa;
+        font-weight: inherit;
+    }
 
-    .CodeMirror-activeline-background { background: #e8f2ff; }
-    .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
+    .CodeMirror-activeline-background {
+        background: #e8f2ff;
+    }
+    .CodeMirror-matchingbracket {
+        outline: 1px solid grey;
+        color: black !important;
+    }
 
     .CodeMirror-linenumber {
         color: #ccc;
@@ -180,7 +245,7 @@
     %hmd-stdheader-with-line {
         &:after {
             display: block;
-            content: ' ';
+            content: " ";
             margin-top: 2px;
             height: 1px;
             background: #eee;
@@ -194,14 +259,22 @@
         padding-left: $line-padding !important;
         margin-left: 0 !important;
         border-left: 0 !important;
-        padding-bottom: .25em;
+        padding-bottom: 0.25em;
         > span > span:first-child {
             margin-left: 0 !important;
         }
 
-        &.HyperMD-header-1 { font-weight: 600; font-size: $fs * 2 }
-        &.HyperMD-header-2 { font-weight: 600; font-size: $fs * 1.5 }
-        &.HyperMD-header-3 { font-size: $fs * 1.2 }
+        &.HyperMD-header-1 {
+            font-weight: 600;
+            font-size: $fs * 2;
+        }
+        &.HyperMD-header-2 {
+            font-weight: 600;
+            font-size: $fs * 1.5;
+        }
+        &.HyperMD-header-3 {
+            font-size: $fs * 1.2;
+        }
 
         &.HyperMD-header-1,
         &.HyperMD-header-2 {
@@ -231,15 +304,15 @@
 
     /// blockquote
 
-    pre.HyperMD-quote
-    {
+    pre.HyperMD-quote {
         &:before {
             content: " ";
             position: absolute;
             left: $quote-margin;
             top: 0;
             height: 100%;
-            background: url('data:image/gif;base64,R0lGODlhIAABAIABAOjo6P///yH5BAEAAAEALAAAAAAgAAEAAAIHhI8Yy+1cAAA7') 0 0;
+            background: url("data:image/gif;base64,R0lGODlhIAABAIABAOjo6P///yH5BAEAAAEALAAAAAAgAAEAAAIHhI8Yy+1cAAA7")
+                0 0;
             background-size: $quote-padding 1px;
         }
     }
@@ -256,12 +329,12 @@
                 padding-left: $line-padding + $padding-left + $footnote-padding;
             }
 
-            span.cm-formatting-quote{
+            span.cm-formatting-quote {
                 transform: translateZ(0); // avoid getting covered by pre:before
                 display: inline-block;
                 width: $quote-padding;
                 &:first-child {
-                    margin-left: - $quote-padding * $i;
+                    margin-left: -$quote-padding * $i;
                 }
             }
         }
@@ -279,9 +352,9 @@
         text-align: right;
         white-space: pre;
         box-sizing: border-box;
-        border-right: 1px dashed #CCC;
+        border-right: 1px dashed #ccc;
         overflow: hidden;
-        font-size: .5em;
+        font-size: 0.5em;
         line-height: 200%;
     }
 
@@ -298,13 +371,13 @@
         }
 
         span.cm-hmd-list-indent {
-            margin-left: - $list-indent - $list-bullet-width;
+            margin-left: -$list-indent - $list-bullet-width;
         }
 
         &.HyperMD-list-line-nobullet {
             padding-top: initial;
             span.cm-hmd-list-indent {
-                margin-left: - $list-bullet-width;
+                margin-left: -$list-bullet-width;
             }
         }
     }
@@ -317,10 +390,9 @@
         }
     }
 
-    span.cm-formatting-list
-    {
-        margin-left: - $list-bullet-width;
-        font-family: 'HyperMD-Bullets';
+    span.cm-formatting-list {
+        margin-left: -$list-bullet-width;
+        font-family: "HyperMD-Bullets";
         color: #666;
         &.cm-list-2 {
             text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
@@ -329,7 +401,7 @@
     }
 
     span.cm-formatting-task // task list checkbox
-    {
+ {
         @extend %monospace;
         white-space: pre;
         display: inline-block;
@@ -342,13 +414,14 @@
         background-position: center 0;
         cursor: pointer;
 
-        &.cm-property { // checked
+        &.cm-property {
+            // checked
             background-position-y: -1em;
         }
 
-        color: rgba(#000, .5);
+        color: rgba(#000, 0.5);
 
-        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAwCAMAAAA8VkqRAAAAclBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACa4vOeAAAAJXRSTlMADcjpDswcLZOzsvOYBvWdbtvTX0D69+ORa1dRJCDtuaF7ZDkoQyuUXgAAAMhJREFUOMvt0reywjAUhOFjKxmcrgMZboL//V8Rm6GwkNUx0LClvhkVZ1fEZoqHqMwO7wuUSb0YxcJKxtLpxIt2SzJRykkQp5RgdAjaIKRJCEn6gWdA9OzRoqLVRscQnc9bdtXX/eyurOF7N3erLVDPwCGHxoVwamH1LwGUBfBbhrCvoLlMitL9DY8trLtJg7qoCj18VAN1OYE/YJBuDe1RJtBVo5wbqPb+GL5yWG1GLX0YZYw5iQ93yQ/yAHfZzu5qt/mxr97VFS15JGSVM0C6AAAAAElFTkSuQmCC');
+        background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAwCAMAAAA8VkqRAAAAclBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACa4vOeAAAAJXRSTlMADcjpDswcLZOzsvOYBvWdbtvTX0D69+ORa1dRJCDtuaF7ZDkoQyuUXgAAAMhJREFUOMvt0reywjAUhOFjKxmcrgMZboL//V8Rm6GwkNUx0LClvhkVZ1fEZoqHqMwO7wuUSb0YxcJKxtLpxIt2SzJRykkQp5RgdAjaIKRJCEn6gWdA9OzRoqLVRscQnc9bdtXX/eyurOF7N3erLVDPwCGHxoVwamH1LwGUBfBbhrCvoLlMitL9DY8trLtJg7qoCj18VAN1OYE/YJBuDe1RJtBVo5wbqPb+GL5yWG1GLX0YZYw5iQ93yQ/yAHfZzu5qt/mxr97VFS15JGSVM0C6AAAAAElFTkSuQmCC");
         background-size: 1em;
     }
 
@@ -359,10 +432,10 @@
         padding-left: $line-padding + $footnote-padding;
 
         > span > span:first-child {
-            margin-left: - $footnote-padding;
+            margin-left: -$footnote-padding;
         }
 
-        span.cm-hmd-footnote{
+        span.cm-hmd-footnote {
             color: #666;
             cursor: text;
             text-decoration: none;
@@ -395,7 +468,7 @@
     div.HyperMD-codeblock-bg {
         left: $line-padding - $codeblock-padding;
         right: $line-padding - $codeblock-padding;
-        background-color: #FAFAFA;
+        background-color: #fafafa;
         border-left: $codeblock-border;
         border-right: $codeblock-border;
     }
@@ -414,20 +487,25 @@
 
     div.HyperMD-codeblock-begin-bg,
     div.HyperMD-codeblock-end-bg {
-        background-color: #F3F3F3;
+        background-color: #f3f3f3;
     }
-
 
     /// link
 
     .cm-formatting-link + .cm-formatting-link-string,
     .cm-formatting-link + .cm-formatting-link-string + .cm-url,
-    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-formatting-link-string,
+    .cm-formatting-link
+        + .cm-formatting-link-string
+        + .cm-url
+        + .cm-formatting-link-string,
     .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link,
-    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link + .cm-formatting-link-string
-    {
+    .cm-formatting-link
+        + .cm-formatting-link-string
+        + .cm-url
+        + .cm-link
+        + .cm-formatting-link-string {
         display: inline-block;
-        font-size: .85em;
+        font-size: 0.85em;
         vertical-align: text-top;
     }
 
@@ -437,8 +515,7 @@
         span.cm-url,
         span.cm-link,
         .cm-link + .CodeMirror-widget,
-        span.cm-hashtag,
-        {
+        span.cm-hashtag {
             cursor: pointer;
         }
     }
@@ -449,12 +526,12 @@
         height: 16px;
         display: inline-block;
         vertical-align: middle;
-        opacity: .4;
+        opacity: 0.4;
         &:hover {
-            opacity: 1
+            opacity: 1;
         }
         &:after {
-            content: "" //remove default stuff
+            content: ""; //remove default stuff
         }
     }
 
@@ -469,7 +546,8 @@
         &.hmd-image-error {
             min-width: 24px;
             min-height: 24px;
-            background: #eeeeee url(hypermd-image-spin.gif) no-repeat center center;
+            background: #eeeeee url(hypermd-image-spin.gif) no-repeat center
+                center;
         }
         &.hmd-image-error {
             background-image: url(hypermd-image-error.png);
@@ -479,23 +557,29 @@
     /// math blocks
 
     span.hmd-fold-math-placeholder {
-      // when math is not fully rendered. a placeholder with raw Tex expression is presented
-      @extend .cm-math;
+        // when math is not fully rendered. a placeholder with raw Tex expression is presented
+        @extend .cm-math;
     }
 
-    span.cm-math-2 { font-size: 1.1 * $fs }
+    span.cm-math-2 {
+        font-size: 1.1 * $fs;
+    }
 
     /// other Markdown stuff
 
-    span.cm-hmd-escape-backslash { color: #CAA; }
-    span.cm-hmd-escape-char { color: #666 }
+    span.cm-hmd-escape-backslash {
+        color: #caa;
+    }
+    span.cm-hmd-escape-char {
+        color: #666;
+    }
     span.cm-hmd-footref {
         display: inline-block;
-        font-size: .7em;
+        font-size: 0.7em;
         vertical-align: text-top;
-        background-color: rgba(#eee, .7);
+        background-color: rgba(#eee, 0.7);
         color: #999;
-        margin-top: -.2em;
+        margin-top: -0.2em;
     }
 
     span.cm-inline-code {
@@ -504,11 +588,11 @@
         font-size: 90%;
 
         &:not(.cm-formatting):not(.cm-hmd-indented-code) {
-            background-color: rgba(#eee, .5);
+            background-color: rgba(#eee, 0.5);
             border-radius: 4px;
             vertical-align: baseline;
             border: #ccc solid 1px;
-            padding: 1px .4em;
+            padding: 1px 0.4em;
         }
 
         &.hmd-hidden-token {
@@ -523,7 +607,7 @@
     span.cm-hashtag {
         background-color: #999;
         background-color: rgba(#000, 0.3);
-        color: #FFF;
+        color: #fff;
         font-size: $hashtag-fontsize;
         display: inline-block;
         vertical-align: middle;
@@ -541,30 +625,35 @@
         }
 
         &.cm-hmd-escape-backslash {
-            color: #FCC;
+            color: #fcc;
         }
     }
 
     span.cm-formatting-hashtag {
         @extend %monospace;
-        color: #EEE;
+        color: #eee;
     }
 
     /// hypermd/addon/insert-file
 
     .hmd-file-uploading {
-        outline: 2px dashed #CCC;
+        outline: 2px dashed #ccc;
         outline-offset: -2px;
         animation: hmd-file-uploading-ani 1.5s linear infinite;
     }
 
     @keyframes hmd-file-uploading-ani {
-        0%, 100% { opacity: 0.4; }
-        50% { opacity: 0.7; }
+        0%,
+        100% {
+            opacity: 0.4;
+        }
+        50% {
+            opacity: 0.7;
+        }
     }
 
     .hmd-file-uploaded {
-        outline: 2px solid #6C3;
+        outline: 2px solid #6c3;
         outline-offset: -2px;
     }
 
@@ -622,7 +711,7 @@
             }
 
             &:before {
-                content: '|';
+                content: "|";
                 color: transparent;
                 top: 0;
                 height: 100%;
@@ -651,17 +740,27 @@
             // :----: | :-----: | dash line
             line-height: $table-row1-height;
 
-            > span { border-bottom: 0 }
-            .hmd-table-column-content { padding: 1px }
+            > span {
+                border-bottom: 0;
+            }
+            .hmd-table-column-content {
+                padding: 1px;
+            }
         }
 
         &.HyperMD-table-row-0 {
-            > span { border-bottom: 0 }
-            span.hmd-table-column-content { padding-bottom: 1px }
+            > span {
+                border-bottom: 0;
+            }
+            span.hmd-table-column-content {
+                padding-bottom: 1px;
+            }
         }
 
         &.HyperMD-table-row-2 {
-            span.hmd-table-column-content { padding-top: 1px }
+            span.hmd-table-column-content {
+                padding-top: 1px;
+            }
         }
     }
 
@@ -670,7 +769,7 @@
     &.CodeMirror div.HyperMD-hover {
         > .HyperMD-hover-content {
             background-color: #000;
-            background-color: rgba(#000, .7);
+            background-color: rgba(#000, 0.7);
             border: 0;
             color: #fff;
             border-radius: 5px;
@@ -678,15 +777,15 @@
             font-size: 95%;
             min-width: 200px;
             a {
-                color: inherit
+                color: inherit;
             }
             p {
-                margin: .2em 0;
+                margin: 0.2em 0;
             }
             code {
                 @extend %monospace;
                 display: inline-block;
-                font-size: .87em;
+                font-size: 0.87em;
                 border: 1px solid #999;
                 border-radius: 2px;
                 padding: 0px 4px;
@@ -694,12 +793,12 @@
         }
         > .HyperMD-hover-indicator {
             content: " ";
-            display:block;
+            display: block;
             width: 0px;
             margin-bottom: -5px;
             border: 5px solid transparent;
             border-top-color: #000;
-            border-top-color: rgba(#000, .7);
+            border-top-color: rgba(#000, 0.7);
         }
     }
 
@@ -712,10 +811,10 @@
         color: #999;
         vertical-align: middle;
         border: 1px solid #999;
-        padding: 0 .2em;
+        padding: 0 0.2em;
         border-radius: 5px;
-        margin: 0 .5em;
-        background: #FAFAFA;
+        margin: 0 0.5em;
+        background: #fafafa;
         cursor: pointer;
 
         &.omittable {
@@ -725,15 +824,15 @@
         &:hover,
         &.highlight {
             // for non-inline HTML stub. Remind user where the stub is.
-            color: #FFF;
-            border-color: #C30;
-            background: #F40;
+            color: #fff;
+            border-color: #c30;
+            background: #f40;
         }
     }
 
     .hmd-fold-html {
         position: relative;
-        border: 1px solid #FFF;
+        border: 1px solid #fff;
 
         &:hover {
             border: 1px dashed #999;
@@ -764,13 +863,12 @@
     pre.HyperMD-header,
     pre.HyperMD-footnote,
     pre.HyperMD-codeblock,
-    pre.HyperMD-hr
-    {
+    pre.HyperMD-hr {
         clear: left;
     }
 
     /// hide-token
-    span.hmd-hidden-token{
+    span.hmd-hidden-token {
         &.cm-formatting-task {
             color: transparent !important;
         }
@@ -779,7 +877,8 @@
     pre.hmd-inactive-line {
         // background: aqua;  // just for debug
 
-        &.HyperMD-table-row-1 {  // table line |:--------:|:-------:|
+        &.HyperMD-table-row-1 {
+            // table line |:--------:|:-------:|
             color: transparent;
             text-shadow: none;
         }

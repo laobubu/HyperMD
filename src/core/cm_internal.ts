@@ -30,7 +30,7 @@
 
   */
 
-import { cm_t } from "./type"
+import { cm_t } from "./type";
 
 /**
  * Find the view element corresponding to a given line. Return null when the line isn't visible.
@@ -39,13 +39,13 @@ import { cm_t } from "./type"
  * @param n lineNo
  */
 export function findViewIndex(cm: cm_t, n: number): number {
-  if (n >= cm.display.viewTo) return null
-  n -= cm.display.viewFrom
-  if (n < 0) return null
-  let view = cm.display.view
+  if (n >= cm.display.viewTo) return null;
+  n -= cm.display.viewFrom;
+  if (n < 0) return null;
+  let view = cm.display.view;
   for (let i = 0; i < view.length; i++) {
-    n -= view[i].size
-    if (n < 0) return i
+    n -= view[i].size;
+    if (n < 0) return i;
   }
 }
 
@@ -56,10 +56,9 @@ export function findViewIndex(cm: cm_t, n: number): number {
  */
 export function findViewForLine(cm: cm_t, lineN: number): CodeMirror.LineView {
   if (lineN >= cm.display.viewFrom && lineN < cm.display.viewTo)
-    return cm.display.view[findViewIndex(cm, lineN)]
-  let ext = cm.display.externalMeasured
-  if (ext && lineN >= ext.lineN && lineN < ext.lineN + ext.size)
-    return ext
+    return cm.display.view[findViewIndex(cm, lineN)];
+  let ext = cm.display.externalMeasured;
+  if (ext && lineN >= ext.lineN && lineN < ext.lineN + ext.size) return ext;
 }
 
 /**
@@ -69,13 +68,29 @@ export function findViewForLine(cm: cm_t, lineN: number): CodeMirror.LineView {
  *
  * @see codemirror\src\measurement\position_measurement.js 5.37.0
  */
-export function mapFromLineView(lineView: CodeMirror.LineView, line: CodeMirror.LineHandle, lineN: number) {
+export function mapFromLineView(
+  lineView: CodeMirror.LineView,
+  line: CodeMirror.LineHandle,
+  lineN: number
+) {
   if (lineView.line == line)
-    return { map: lineView.measure.map, cache: lineView.measure.cache, before: false }
+    return {
+      map: lineView.measure.map,
+      cache: lineView.measure.cache,
+      before: false
+    };
   for (let i = 0; i < lineView.rest.length; i++)
     if (lineView.rest[i] == line)
-      return { map: lineView.measure.maps[i], cache: lineView.measure.caches[i], before: false }
+      return {
+        map: lineView.measure.maps[i],
+        cache: lineView.measure.caches[i],
+        before: false
+      };
   for (let i = 0; i < lineView.rest.length; i++)
     if (lineView.rest[i].lineNo() > lineN)
-      return { map: lineView.measure.maps[i], cache: lineView.measure.caches[i], before: true }
+      return {
+        map: lineView.measure.maps[i],
+        cache: lineView.measure.caches[i],
+        before: true
+      };
 }

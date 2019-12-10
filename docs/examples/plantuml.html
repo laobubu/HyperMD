@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>HyperMD + PlantUML</title>
+
+  <link rel="stylesheet" href="./assets/basic.css">
+</head>
+
+<body>
+
+  <div id="loadingSplash">
+    <p>
+      <i class="loadingIcon"></i>
+    </p>
+    <p>Loading plantuml and HyperMD related modules.</p>
+    <p></p>
+    <p>
+  </div>
+
+  <textarea id="myTextarea">
+# PlantUML
+
+</textarea>
+
+  <!-- To load HyperMD, see -- basic-requirejs.html -- -->
+  <script src="../../demo/vendor/require.js"></script>
+  <script src="../../goods/patch-requirejs.js"></script>
+  <script src="../../demo/requirejs_packages.js"></script>
+  <script src="./assets/demo_basic.js"></script>
+
+  <script data-main="scripts/main">
+    requirejs([
+      "codemirror",
+      "hypermd",
+
+      "hypermd/powerpack/fold-code-with-plantuml",
+    ], function (CodeMirror, HyperMD) {
+      var myTextarea = document.getElementById('myTextarea')
+      var editor = HyperMD.fromTextArea(myTextarea, {
+        // hmdFoldCode: {
+        //   plantuml: false, // disable plantuml
+        // }
+      })
+
+      demo_loaded(CodeMirror, HyperMD, editor)
+    });
+  </script>
+</body>
+
+</html>
