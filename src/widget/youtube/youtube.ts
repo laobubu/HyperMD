@@ -1,3 +1,8 @@
+// 0xGG Team
+// Distributed under AGPL3
+//
+// DESCRIPTION: This widget embeds Youtube video
+
 import { Attributes } from "../../addon/fold";
 import { ErrorWidget } from "../error/error";
 

@@ -1,13 +1,11 @@
-/* VickyMD
- * Distributed under AGPL3
- *
- * The code below is basic on https://github.com/markushedvall/plantuml-encoder/blob/master/dist/plantuml-encoder.min.js
- * Credit to @markushedvall
- *
- * Please include the following in your index.html file
- *
- *   <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
- */
+// 0xGG Team
+// Distributed under AGPL3
+//
+// DESCRIPTION: The code below is basic on https://github.com/markushedvall/plantuml-encoder/blob/master/dist/plantuml-encoder.min.js. Credit to @markushedvall
+// Please include the following in your index.html file
+//
+//   <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+
 import * as CodeMirror from "codemirror";
 import {
   registerRenderer,

@@ -15,6 +15,7 @@ import {
   getAddon as getFoldCode
 } from "../addon/fold-code";
 import { getAddon as getFold } from "../addon/fold";
+import * as YAML from "yamljs";
 
 export const EchartsRenderer: CodeRenderer = (code, info) => {
   var id = "_echarts_id_" + Math.round(1e9 * Math.random()).toString(36);
@@ -28,7 +29,7 @@ export const EchartsRenderer: CodeRenderer = (code, info) => {
   try {
     let option = {};
     if (code.trim()[0] !== "{") {
-      option = window["YAML"].parse(code);
+      option = YAML.parse(code);
     } else {
       option = JSON.parse(code);
     }

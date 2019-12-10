@@ -60,7 +60,7 @@ require([
   "hypermd/addon/fold-image",
   "hypermd/addon/fold-math",
   "hypermd/addon/fold-html",
-  "hypermd/addon/fold-widget",
+  "hypermd/addon/fold-widget", // 👈 0xGG
   "hypermd/addon/fold-emoji",
   "hypermd/addon/read-link",
   "hypermd/addon/click",
@@ -79,12 +79,13 @@ require([
   "hypermd/powerpack/fold-emoji-with-emojione",
 
   /////////////////////////////////////////////
-  /// 0xGG Team added following            ////
+  /// 0xGG Team added following folds      ////
   /////////////////////////////////////////////
   "hypermd/powerpack/fold-code-with-mermaid",
   "hypermd/powerpack/fold-code-with-plantuml",
   "hypermd/powerpack/fold-code-with-echarts",
   "hypermd/powerpack/fold-code-with-wavedrom",
+
   // 'hypermd/powerpack/fold-emoji-with-twemoji',
 
   "hypermd/powerpack/insert-file-with-smms",

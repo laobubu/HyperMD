@@ -39,7 +39,6 @@ function isExternal(mod) {
 }
 
 bundleFiles.forEach(item => {
-  console.log("bundleFiles: ", item);
   var item_plugins = [plugins.ts]; // Essential: typescript
   if (item.uglify) item_plugins.push(plugins.uglify); // optional: uglify
   item_plugins.push(plugins.buble); // Essential: Buble

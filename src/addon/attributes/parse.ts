@@ -1,3 +1,8 @@
+// 0xGG Team
+// Distributed under AGPL3
+//
+// DESCRIPTION: This library parses code block attributes
+
 import { Attributes } from ".";
 
 enum NodeType {

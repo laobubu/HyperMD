@@ -1,4 +1,6 @@
 const path = require("path");
+const resolve = require("rollup-plugin-node-resolve");
+const commonJS = require("rollup-plugin-commonjs");
 
 /**
  * Components that will be bundled into ai1.js (all in one bundle)
@@ -24,10 +26,20 @@ exports.components = {
   "addon/mode-loader": "ModeLoader",
   "addon/hide-token": "HideToken",
   "addon/cursor-debounce": "CursorDebounce",
-  "keymap/hypermd": "KeyMap"
+  "keymap/hypermd": "KeyMap",
 
-  // 0xGG team
-  // "addon/attributes": "Attributes" // <= doesn't work
+  // * 0xGG team
+  // ** Widget
+  "addon/fold-widget": "FoldWidget",
+  "widget/error/error": "WidgetError",
+  "widget/timer/timer": "WidgetTimer",
+  "widget/bilibili/bilibili": "WidgetBilibili",
+  "widget/youtube/youtube": "WidgetYoutube",
+  "widget/video/video": "WidgetVideo",
+  "widget/audio/audio": "WidgetAudio",
+  // ** Attribute
+  "addon/attributes/index": "AttributesIndex",
+  "addon/attributes/parse": "AttributesParse"
 };
 
 /**
@@ -35,7 +47,7 @@ exports.components = {
  *
  * Support minimatch pattern syntax
  */
-exports.dummyComponents = ["addon/skeleton", "powerpack/*"];
+exports.dummyComponents = ["addon/skeleton", "powerpack/*", "widget/*"];
 
 /**
  * If not using mode loader, try to get 3rd party libraries via these global names
@@ -49,8 +61,11 @@ exports.globalNames = {
   emojione: "emojione",
   twemoji: "twemoji",
   "flowchart.js": "flowchart",
-  // "plantuml-encoder": "plantumlEncoder",
-  mermaid: "mermaid"
+  mermaid: "mermaid",
+
+  // 0xGG Team
+  // "plantuml-encoder": "plantumlEncoder", // 👈 imported as commonjs module
+  yamljs: "YAML"
 };
 
 exports.externalNames = Object.keys(exports.globalNames);
@@ -70,6 +85,14 @@ exports.bundleFiles = [
       "// !! Not Work With Bundlers                  !! //",
       "//-----------------------------------------------//"
     ].join("\n")
+    /*
+    // 0xGG 👇 doesn't work
+    plugins: [
+      resolve(),
+      commonJS({
+        include: "node_modules/plantuml-encoder/**"
+      })
+    ]*/
   },
   {
     // not necessary but maybe you just want the core utils?
