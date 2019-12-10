@@ -303,3 +303,20 @@ body.loaded #test-box .test-item.right .test-tooltip {
     border-radius: 5px;
     font-size: 87%;
 }
+
+
+
+/* 0xGG Team */
+
+#preview.preview {
+    box-shadow: rgb(204, 204, 204) 0px 2px 8px;
+    position: absolute;
+    background-color: rgb(255, 255, 255);
+    width: 98%;
+    height: 92%;
+    z-index: 10;
+    top: 70px;
+    padding: 16px;
+    box-sizing: border-box;
+    overflow: auto;
+}

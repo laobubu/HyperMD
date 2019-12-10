@@ -96,7 +96,12 @@ require([
   // 'hypermd/powerpack/fold-math-with-mathjax',
 
   "hypermd/powerpack/paste-with-turndown",
-  "turndown-plugin-gfm"
+  "turndown-plugin-gfm",
+
+  /////////////////////////////////////////////
+  /// 0xGG Team added following modules    ////
+  /////////////////////////////////////////////
+  "hypermd/preview/index"
 ], function(CodeMirror, HyperMD) {
   "use strict";
   var myTextarea = document.getElementById("demo");

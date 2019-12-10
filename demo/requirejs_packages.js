@@ -30,5 +30,6 @@ var requirejs_packages = [
   // 0xGG TEAM
   // ☝️ All above are relatives links to jsdeliver CDN. Check ./index.js for more information.
   { name: "yamljs", main: "dist/yaml.min.js" },
-  { name: "plantumlEncoder", main: "dist/plantuml-encoder.min.js" }
+  { name: "plantumlEncoder", main: "dist/plantuml-encoder.min.js" }, // 👈  0xGG doesn't work
+  { name: "markdown-it", main: "dist/markdown-it.min.js" }
 ];

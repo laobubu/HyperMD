@@ -1,5 +1,5 @@
 const path = require("path");
-const resolve = require("rollup-plugin-node-resolve");
+const nodeResolve = require("rollup-plugin-node-resolve");
 const commonJS = require("rollup-plugin-commonjs");
 
 /**
@@ -28,7 +28,7 @@ exports.components = {
   "addon/cursor-debounce": "CursorDebounce",
   "keymap/hypermd": "KeyMap",
 
-  // * 0xGG team
+  // * 👇 0xGG team
   // ** Widget
   "addon/fold-widget": "FoldWidget",
   "widget/error/error": "WidgetError",
@@ -38,8 +38,10 @@ exports.components = {
   "widget/video/video": "WidgetVideo",
   "widget/audio/audio": "WidgetAudio",
   // ** Attribute
-  "addon/attributes/index": "AttributesIndex",
-  "addon/attributes/parse": "AttributesParse"
+  "addon/attributes/index": "AttributesAddon",
+  "addon/attributes/parse": "AttributesParse",
+  // ** Preview
+  "preview/index": "Preview"
 };
 
 /**
@@ -65,7 +67,8 @@ exports.globalNames = {
 
   // 0xGG Team
   // "plantuml-encoder": "plantumlEncoder", // 👈 imported as commonjs module
-  yamljs: "YAML"
+  yamljs: "YAML",
+  "markdown-it": "MarkdownIt"
 };
 
 exports.externalNames = Object.keys(exports.globalNames);
@@ -85,14 +88,18 @@ exports.bundleFiles = [
       "// !! Not Work With Bundlers                  !! //",
       "//-----------------------------------------------//"
     ].join("\n")
+
     /*
     // 0xGG 👇 doesn't work
     plugins: [
-      resolve(),
+      nodeResolve({
+        jsNext: true
+      }),
       commonJS({
-        include: "node_modules/plantuml-encoder/**"
+        include: ["node_modules/**"]
       })
-    ]*/
+    ]
+    */
   },
   {
     // not necessary but maybe you just want the core utils?
