@@ -6,7 +6,8 @@
 import { Attributes } from "../../addon/fold";
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import { Widget, WidgetArgs } from "../component/widget";
+import { Widget } from "../component/widget";
+import { WidgetArgs, WidgetCreator } from "..";
 
 interface Props {
   attributes: Attributes;
@@ -48,7 +49,7 @@ export function Hello(props: Props) {
   );
 }
 
-export function HelloWidget(args: WidgetArgs) {
+export const HelloWidget: WidgetCreator = args => {
   const el = document.createElement("span");
   ReactDOM.render(
     <Widget>
@@ -61,4 +62,4 @@ export function HelloWidget(args: WidgetArgs) {
     el
   );
   return el;
-}
+};

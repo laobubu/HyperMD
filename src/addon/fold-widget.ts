@@ -12,7 +12,7 @@ import {
   RequestRangeResult,
   FoldStream
 } from "./fold";
-import { Attributes, parseAttributes } from "./attributes/index";
+import { Attributes } from "./attributes/index";
 import { TimerWidget } from "../widget/timer/timer";
 import { BilibiliWidget } from "../widget/bilibili/bilibili";
 import { YoutubeWidget } from "../widget/youtube/youtube";
@@ -20,6 +20,9 @@ import { VideoWidget } from "../widget/video/video";
 import { ErrorWidget } from "../widget/error/error";
 import { AudioWidget } from "../widget/audio/audio";
 import { HelloWidget } from "../widget/hello/hello";
+import { registerWidgetCreator, getWidgetCreator } from "../widget/index";
+
+registerWidgetCreator("hello", HelloWidget);
 
 export const WidgetFolder = function(
   stream: FoldStream,
@@ -118,7 +121,7 @@ export const WidgetFolder = function(
   // Create the widget
   let widget: HTMLElement;
   if (widgetName === "hello") {
-    widget = HelloWidget({
+    widget = getWidgetCreator(widgetName)({
       attributes: widgetAttributes,
       setAttributes: setAttributes,
       removeSelf: removeSelf

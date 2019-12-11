@@ -36,7 +36,8 @@ exports.components = {
   "powerpack/fold-code-with-wavedrom": "FoldCodeWithWavedrom",
   // ** Widget
   "addon/fold-widget": "FoldWidget",
-  "widget/component/widget": "Widget",
+  "widget/index": "Widget",
+  "widget/component/widget": "WidgetComponent",
   "widget/hello/hello": "WidgetHello",
   "widget/error/error": "WidgetError",
   "widget/timer/timer": "WidgetTimer",
