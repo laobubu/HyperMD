@@ -31,6 +31,8 @@ exports.components = {
   // * 👇 0xGG team
   // ** Fold
   "powerpack/fold-code-with-plantuml": "FoldCodeWithPlantUML",
+  "powerpack/fold-code-with-echarts": "FoldCodeWithEcharts",
+  "powerpack/fold-code-with-mermaid": "FoldCodeWithMermaid",
   // ** Widget
   "addon/fold-widget": "FoldWidget",
   "widget/error/error": "WidgetError",

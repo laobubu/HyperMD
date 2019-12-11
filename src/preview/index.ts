@@ -22,6 +22,7 @@ import { transformMarkdown, HeadingData } from "./transform";
 import HeadingIdGenerator from "./heading-id-generator";
 import { parseSlides } from "./slide";
 import { EchartsRenderer } from "../powerpack/fold-code-with-echarts";
+import { MermaidRenderer } from "../powerpack/fold-code-with-mermaid";
 
 const md = new MarkdownIt({
   html: true,
@@ -85,9 +86,12 @@ function renderMarkdown(markdown: string): RenderMarkdownOutput {
   }
 }
 
-function performAfterWorks(previewElement: HTMLElement) {
+function performAfterWorks(
+  previewElement: HTMLElement,
+  isPresentation = false
+) {
   renderWidgets(previewElement);
-  renderCodeFences(previewElement);
+  renderCodeFences(previewElement, isPresentation);
 }
 
 /**
@@ -105,6 +109,40 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
     // Slide
     previewElement.innerHTML = "";
     const iframe = document.createElement("iframe");
+
+    // Check mermaid. Copied from @shd101wyy/mume
+    let mermaidScript = "";
+    let mermaidInitScript = "";
+    if (html.indexOf("mermaid") >= 0) {
+      mermaidScript = `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>`;
+      mermaidInitScript += `<script>
+      if (window['MERMAID_CONFIG']) {
+        window['MERMAID_CONFIG'].startOnLoad = false
+        window['MERMAID_CONFIG'].cloneCssStyles = false
+      }
+      mermaid.initialize(window['MERMAID_CONFIG'] || {})
+      if (typeof(window['Reveal']) !== 'undefined') {
+        function mermaidRevealHelper(event) {
+          var currentSlide = event.currentSlide
+          var diagrams = currentSlide.querySelectorAll('.mermaid')
+          for (var i = 0; i < diagrams.length; i++) {
+            var diagram = diagrams[i]
+            if (!diagram.hasAttribute('data-processed')) {
+              mermaid.init(null, diagram, ()=> {
+                Reveal.slide(event.indexh, event.indexv)
+              })
+            }
+          }
+        }
+        Reveal.addEventListener('slidechanged', mermaidRevealHelper)
+        Reveal.addEventListener('ready', mermaidRevealHelper)
+      } else {
+        mermaid.init(null, document.getElementsByClassName('mermaid'))
+      }
+      </script>`;
+    } else {
+      console.log("mermaid not found");
+    }
 
     iframe.style.border = "none";
     iframe.style.width = "100%";
@@ -125,6 +163,9 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
 
     <!-- prism github theme -->
     <link href="https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/github.css" rel="stylesheet">
+  
+    <!-- mermaid -->
+    ${mermaidScript}
   </head>
   <body>
   ${html}
@@ -134,6 +175,9 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
 
   <!-- prism.js -->
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"></script>
+
+  <!-- mermaid -->
+  ${mermaidInitScript}
 
   <!-- initialize reveal.js -->
   <script>
@@ -149,7 +193,7 @@ Reveal.addEventListener('ready', function(event) {
         event.data.event === "reveal-ready" &&
         event.data.id === id
       ) {
-        performAfterWorks(iframe.contentWindow.document.body);
+        performAfterWorks(iframe.contentWindow.document.body, true);
       }
     });
   }
@@ -194,7 +238,7 @@ function renderWidgets(previewElement: HTMLElement) {
   }
 }
 
-function renderCodeFences(previewElement: HTMLElement) {
+function renderCodeFences(previewElement: HTMLElement, isPresentation = false) {
   const fences = previewElement.getElementsByClassName("vickeymd-fence");
   const copyFences = [];
   for (let i = 0; i < fences.length; i++) {
@@ -221,6 +265,11 @@ function renderCodeFences(previewElement: HTMLElement) {
     } else if (language.match(/^echarts$/)) {
       const el = EchartsRenderer(code, info);
       fence.replaceWith(el);
+    } else if (language.match(/^mermaid$/)) {
+      if (!isPresentation) {
+        const el = MermaidRenderer(code, info);
+        fence.replaceWith(el);
+      }
     } else {
       // Normal code block
       const pre = document.createElement("pre");

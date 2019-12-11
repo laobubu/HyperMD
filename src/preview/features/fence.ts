@@ -3,6 +3,7 @@ import {
   parseBlockInfo,
   normalizeBlockInfo
 } from "../../addon/block-info/index";
+import { stringifyAttributes, Attributes } from "../../addon/attributes/index";
 
 const TAGS_TO_REPLACE = {
   "&": "&amp;",
@@ -36,6 +37,16 @@ export function unescapeString(str: string = ""): string {
   );
 }
 
+const ensureClassInAttributes = (attributes: Attributes, className: string) => {
+  const existingClassNames: string = attributes["class"] || "";
+  if (existingClassNames.split(" ").indexOf(className) === -1) {
+    return {
+      ...attributes,
+      ["class"]: `${existingClassNames} ${className}`.trim()
+    };
+  }
+};
+
 export default (md: MarkdownIt) => {
   md.renderer.rules.fence = (tokens, idx, options, env, instance) => {
     const token = tokens[idx];
@@ -51,6 +62,17 @@ export default (md: MarkdownIt) => {
     // copied from getBreak function.
     const finalBreak =
       idx < tokens.length && tokens[idx].type === "list_item_close" ? "\n" : "";
+
+    // Check diagrams
+    // https://github.com/shd101wyy/mume/blob/eb0f4107ee98505e8b5751d486f8c061c3b939b5/src/render-enhancers/fenced-diagrams.ts
+    if (parsedInfo.language === "mermaid") {
+      return `<div ${stringifyAttributes(
+        ensureClassInAttributes(
+          normalizedInfo.attributes,
+          normalizedInfo.language
+        )
+      )}>${content}</div>`;
+    }
 
     return `<pre data-role="codeBlock" class="vickeymd-fence" data-info="${escapeString(
       info
