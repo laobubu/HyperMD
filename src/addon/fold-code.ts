@@ -45,8 +45,10 @@ export interface FoldInfo {
   /** the languange name after leading triple-backtick in Markdown */
   readonly lang: string;
 
+  // ==================================
   // 0xGG team: Options of the language
   readonly attributes: Attributes;
+  // ==================================
 
   readonly editor: cm_t;
   readonly marker: CodeMirror.TextMarker;

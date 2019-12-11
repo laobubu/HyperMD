@@ -78,10 +78,51 @@ export const WidgetFolder = function(
   const reqAns = stream.requestRange(from, to);
   if (reqAns !== RequestRangeResult.OK) return null;
 
+  const setAttributes = (attributes: Attributes) => {
+    const editor = cm;
+    // const from = args.from;
+    // const to = args.to;
+    if (!editor) {
+      return;
+    }
+    const origin = editor.getRange(from, to);
+    const widgetName = origin.match(/^\@[^\s$]+/)[0];
+    editor.replaceRange(
+      `${widgetName} ${JSON.stringify(attributes)
+        .replace(/^{/, "")
+        .replace(/}$/, "")}`,
+      from,
+      to,
+      origin
+    );
+  };
+
+  const removeSelf = () => {
+    const editor = cm;
+    if (!editor) {
+      return;
+    }
+    editor.replaceRange(
+      "",
+      {
+        line: from.line,
+        ch: from.ch - 1
+      },
+      {
+        line: to.line,
+        ch: to.ch + 1
+      }
+    );
+  };
+
   // Create the widget
   let widget: HTMLElement;
   if (widgetName === "hello") {
-    widget = HelloWidget(widgetAttributes);
+    widget = HelloWidget({
+      attributes: widgetAttributes,
+      setAttributes: setAttributes,
+      removeSelf: removeSelf
+    });
   } else if (widgetName === "timer") {
     widget = TimerWidget(widgetAttributes);
   } else if (widgetName === "bilibili") {
@@ -101,13 +142,16 @@ export const WidgetFolder = function(
   // Create widget here
   const marker = cm.markText(from, to, {
     replacedWith: widget,
-    collapsed: true
+    collapsed: true,
+    title: "widget"
   });
 
+  /*
   // 1 here means `
   widget.addEventListener("click", () => {
     breakMark(cm, marker, 1), false;
   });
+  */
   return marker;
 };
 

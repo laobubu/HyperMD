@@ -236,7 +236,7 @@ function renderWidgets(previewElement: HTMLElement) {
 
     let widget: HTMLElement = null;
     if (widgetName === "hello") {
-      widget = HelloWidget(widgetAttributes);
+      widget = HelloWidget({ attributes: widgetAttributes, isPreview: true });
     } else if (widgetName === "timer") {
       widget = TimerWidget(widgetAttributes);
     } else if (widgetName === "bilibili") {
