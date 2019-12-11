@@ -1,4 +1,6 @@
-var is_running_demo = /\.github\.|laobubu\.net/.test(location.hostname);
+var is_running_demo = /\.github\.|laobubu\.net|(localhost|127\.0\.0\.1)/.test(
+  location.hostname
+);
 
 var demo_page_baseurl = window.location.href
   .replace(/[\?\#].*$/, "")

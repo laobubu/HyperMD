@@ -24,6 +24,7 @@ import { parseSlides } from "./slide";
 import { EchartsRenderer } from "../powerpack/fold-code-with-echarts";
 import { MermaidRenderer } from "../powerpack/fold-code-with-mermaid";
 import { WaveDromRenderer } from "../powerpack/fold-code-with-wavedrom";
+import { HelloWidget } from "../widget/hello/hello";
 
 const md = new MarkdownIt({
   html: true,
@@ -234,7 +235,9 @@ function renderWidgets(previewElement: HTMLElement) {
     }
 
     let widget: HTMLElement = null;
-    if (widgetName === "timer") {
+    if (widgetName === "hello") {
+      widget = HelloWidget(widgetAttributes);
+    } else if (widgetName === "timer") {
       widget = TimerWidget(widgetAttributes);
     } else if (widgetName === "bilibili") {
       widget = BilibiliWidget(widgetAttributes);
