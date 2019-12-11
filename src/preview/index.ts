@@ -100,6 +100,7 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
     previewElement.innerHTML = html;
     performAfterWorks(previewElement);
   } else {
+    const id = "reveal.js." + Date.now();
     // Slide
     previewElement.innerHTML = "";
     const iframe = document.createElement("iframe");
@@ -133,13 +134,20 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
   <!-- initialize reveal.js -->
   <script>
 Reveal.initialize();
+Reveal.addEventListener('ready', function(event) {
+  parent.postMessage({event: "reveal-ready", id:"${id}"})
+})
   </script>
 </html>`);
-
-    iframe.onload = function() {
-      console.log("iframe onload");
-      performAfterWorks(iframe.contentWindow.document.body);
-    };
+    window.addEventListener("message", function(event) {
+      if (
+        event.data &&
+        event.data.event === "reveal-ready" &&
+        event.data.id === id
+      ) {
+        performAfterWorks(iframe.contentWindow.document.body);
+      }
+    });
   }
 }
 
@@ -183,16 +191,16 @@ function renderWidgets(previewElement: HTMLElement) {
 }
 
 function renderCodeFences(previewElement: HTMLElement) {
-  console.log("renderCodeFences");
   const fences = previewElement.getElementsByClassName("vickeymd-fence");
-  console.log("fences.length: ", fences.length);
+  const copyFences = [];
   for (let i = 0; i < fences.length; i++) {
-    const fence = fences[i];
+    // replaceChild will cause issue, therefore we need to make a copy of the original elements array
+    copyFences.push(fences[i]);
+  }
+  for (let i = 0; i < copyFences.length; i++) {
+    const fence = copyFences[i];
     const language = fence.getAttribute("data-info") || "text";
     const code = fence.textContent;
-    console.log("i: ", i);
-    console.log("language: ", language);
-    console.log("code: ", code);
     // TODO: Diagrams rendering
     if (language.match(/^(puml|plantuml)$/)) {
       // Diagrams
@@ -203,7 +211,6 @@ function renderCodeFences(previewElement: HTMLElement) {
       // Normal code block
       const pre = document.createElement("pre");
       if (!window["Prism"]) {
-        console.log("window.Prism not found");
         pre.textContent = code;
         fence.replaceWith(pre);
         continue;
@@ -216,7 +223,6 @@ function renderCodeFences(previewElement: HTMLElement) {
       }
 
       try {
-        console.log("highlight code fence");
         const html = window["Prism"].highlight(
           code,
           window["Prism"].languages[language],
