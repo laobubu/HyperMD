@@ -10,7 +10,8 @@ import * as CodeMirror from "codemirror";
 import {
   registerRenderer,
   CodeRenderer,
-  getAddon as getFoldCode
+  getAddon as getFoldCode,
+  convertNumberToString
 } from "../addon/fold-code";
 import { getAddon as getFold } from "../addon/fold";
 
@@ -23,7 +24,10 @@ export const PlantUMLRenderer: CodeRenderer = (code, info) => {
   const url = "http://www.plantuml.com/plantuml/img/" + encoded;
 
   el.setAttribute("id", id);
-  el.innerHTML = `<img src="${url}">`;
+
+  const img = document.createElement("img");
+  img.src = url;
+  el.appendChild(img);
   return el;
 };
 

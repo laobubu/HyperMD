@@ -21,6 +21,7 @@ import { PlantUMLRenderer } from "../powerpack/fold-code-with-plantuml";
 import { transformMarkdown, HeadingData } from "./transform";
 import HeadingIdGenerator from "./heading-id-generator";
 import { parseSlides } from "./slide";
+import { EchartsRenderer } from "../powerpack/fold-code-with-echarts";
 
 const md = new MarkdownIt({
   html: true,
@@ -202,14 +203,24 @@ function renderCodeFences(previewElement: HTMLElement) {
   }
   for (let i = 0; i < copyFences.length; i++) {
     const fence = copyFences[i];
-    const language = fence.getAttribute("data-info") || "text";
+    const parsedInfo = fence.getAttribute("data-parsed-info") || "{}";
+    let info: any = {};
+    try {
+      info = JSON.parse(parsedInfo);
+    } catch (error) {
+      info = {};
+    }
     const code = fence.textContent;
+    const language = info["language"] || "text";
     // TODO: Diagrams rendering
     if (language.match(/^(puml|plantuml)$/)) {
       // Diagrams
-      const el = PlantUMLRenderer(code, null);
+      const el = PlantUMLRenderer(code, info);
       fence.replaceWith(el);
       continue;
+    } else if (language.match(/^echarts$/)) {
+      const el = EchartsRenderer(code, info);
+      fence.replaceWith(el);
     } else {
       // Normal code block
       const pre = document.createElement("pre");

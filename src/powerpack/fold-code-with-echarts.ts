@@ -12,7 +12,8 @@ import * as CodeMirror from "codemirror";
 import {
   registerRenderer,
   CodeRenderer,
-  getAddon as getFoldCode
+  getAddon as getFoldCode,
+  convertNumberToString
 } from "../addon/fold-code";
 import { getAddon as getFold } from "../addon/fold";
 import * as YAML from "yamljs";
@@ -22,8 +23,8 @@ export const EchartsRenderer: CodeRenderer = (code, info) => {
 
   var el = document.createElement("div");
   el.setAttribute("id", id);
-  el.style.width = info.attributes["width"] || "400px";
-  el.style.height = info.attributes["height"] || "400px";
+  el.style.width = convertNumberToString(info.attributes["width"], "400px");
+  el.style.height = convertNumberToString(info.attributes["height"], "400px");
   el.style.maxWidth = info.attributes["maxWidth"] || "100%";
 
   try {
@@ -35,7 +36,9 @@ export const EchartsRenderer: CodeRenderer = (code, info) => {
     }
     const myChart = window["echarts"].init(el);
     myChart.setOption(option);
-    info.changed();
+    if (info.changed) {
+      info.changed();
+    }
   } catch (error) {
     el.innerText = error.toString();
   }

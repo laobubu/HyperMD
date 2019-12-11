@@ -401,6 +401,20 @@ export class FoldCode implements Addon.Addon {
 
 //#endregion
 
+// 0xGG Team
+
+export function convertNumberToString(val, defaultVal: string, unit = "px") {
+  if (!val) {
+    return defaultVal;
+  } else if (typeof val === "number") {
+    return `${val}${unit}`;
+  } else {
+    return val;
+  }
+}
+
+// End
+
 const contentClass = "hmd-fold-code-content hmd-fold-code-"; // + renderer_type
 
 const stubClass = "hmd-fold-code-stub hmd-fold-code-"; // + renderer_type
