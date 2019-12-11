@@ -66,14 +66,22 @@ export default (md: MarkdownIt) => {
     // Check diagrams
     // https://github.com/shd101wyy/mume/blob/eb0f4107ee98505e8b5751d486f8c061c3b939b5/src/render-enhancers/fenced-diagrams.ts
     if (parsedInfo.language === "mermaid") {
-      return `<div ${stringifyAttributes(
-        ensureClassInAttributes(
-          normalizedInfo.attributes,
-          normalizedInfo.language
-        )
-      )}>${content}</div>`;
+      return `<div class="vickeymd-fence ${
+        parsedInfo.language
+      }" data-parsed-info="${escapeString(
+        JSON.stringify(parsedInfo)
+      )}" data-normalized-info="${escapeString(
+        JSON.stringify(normalizedInfo)
+      )}">${content}</div>`;
+    } else if (parsedInfo.language === "wavedrom") {
+      return `<div class="vickeymd-fence ${
+        parsedInfo.language
+      }" data-parsed-info="${escapeString(
+        JSON.stringify(parsedInfo)
+      )}" data-normalized-info="${escapeString(
+        JSON.stringify(normalizedInfo)
+      )}"><script type="WaveDrom">${token.content}</script></div>`;
     }
-
     return `<pre data-role="codeBlock" class="vickeymd-fence" data-info="${escapeString(
       info
     )}" data-parsed-info="${escapeString(

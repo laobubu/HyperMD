@@ -23,6 +23,7 @@ import HeadingIdGenerator from "./heading-id-generator";
 import { parseSlides } from "./slide";
 import { EchartsRenderer } from "../powerpack/fold-code-with-echarts";
 import { MermaidRenderer } from "../powerpack/fold-code-with-mermaid";
+import { WaveDromRenderer } from "../powerpack/fold-code-with-wavedrom";
 
 const md = new MarkdownIt({
   html: true,
@@ -101,6 +102,7 @@ function performAfterWorks(
  */
 function renderPreview(previewElement: HTMLElement, markdown: string) {
   const { html, headings, slideConfigs } = renderMarkdown(markdown);
+  previewElement.setAttribute("data-vickymd-preview", "true");
   if (!slideConfigs.length) {
     previewElement.innerHTML = html;
     performAfterWorks(previewElement);
@@ -109,6 +111,19 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
     // Slide
     previewElement.innerHTML = "";
     const iframe = document.createElement("iframe");
+
+    // Check wavedrom
+    let wavedromScript = "";
+    let wavedromInitScript = "";
+    if (html.indexOf("wavedrom") >= 0) {
+      wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/skins/default.js"></script>`;
+      wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/wavedrom.min.js"></script>`;
+      wavedromInitScript += `<script>
+Reveal.addEventListener("ready", ()=> {
+  WaveDrom.ProcessAll()
+})      
+</script>`;
+    }
 
     // Check mermaid. Copied from @shd101wyy/mume
     let mermaidScript = "";
@@ -140,10 +155,7 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
         mermaid.init(null, document.getElementsByClassName('mermaid'))
       }
       </script>`;
-    } else {
-      console.log("mermaid not found");
     }
-
     iframe.style.border = "none";
     iframe.style.width = "100%";
     iframe.style.height = "100%";
@@ -166,6 +178,9 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
   
     <!-- mermaid -->
     ${mermaidScript}
+
+    <!-- wavedrom -->
+    ${wavedromScript}
   </head>
   <body>
   ${html}
@@ -178,6 +193,9 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
 
   <!-- mermaid -->
   ${mermaidInitScript}
+
+  <!-- wavedrom -->
+  ${wavedromInitScript}
 
   <!-- initialize reveal.js -->
   <script>
@@ -267,7 +285,13 @@ function renderCodeFences(previewElement: HTMLElement, isPresentation = false) {
       fence.replaceWith(el);
     } else if (language.match(/^mermaid$/)) {
       if (!isPresentation) {
+        // console.log("render mermaid")
         const el = MermaidRenderer(code, info);
+        fence.replaceWith(el);
+      }
+    } else if (language.match(/^wavedrom$/i)) {
+      if (!isPresentation) {
+        const el = WaveDromRenderer(code, info);
         fence.replaceWith(el);
       }
     } else {
