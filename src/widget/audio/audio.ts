@@ -33,12 +33,6 @@ export function AudioWidget(attributes: Attributes, displayIcon = true) {
     audio.setAttribute("style", attributes["style"]);
   }
 
-  audio.style.position = "absolute";
-  audio.style.left = "0";
-  audio.style.top = "0";
-  audio.style.width = "100%";
-  audio.style.height = "100%";
-
   const source = document.createElement("source");
   source.setAttribute("src", src);
   const type = attributes["type"];
@@ -49,7 +43,8 @@ export function AudioWidget(attributes: Attributes, displayIcon = true) {
   audio.appendChild(source);
   audioWrapper.appendChild(audio);
 
-  if (displayIcon) {
+  if (displayIcon && !attributes["controls"]) {
+    // TODO: Hover display src
     const audioIcon = document.createElement("span");
     audioIcon.classList.add("widget-audio-icon");
     audioIcon.innerText = "🎵";

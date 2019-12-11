@@ -10,6 +10,7 @@ export function VideoWidget(attributes: Attributes) {
   const id = "_widget_video_id_" + Math.round(1e9 * Math.random()).toString(36);
   const videoWrapper = document.createElement("div");
   videoWrapper.id = id;
+  videoWrapper.style.position = "relative";
   videoWrapper.style.width = "100%";
   videoWrapper.style.height = "0";
   videoWrapper.style.paddingTop = "56.25%";

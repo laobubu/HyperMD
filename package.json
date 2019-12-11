@@ -1,7 +1,7 @@
 {
-  "name": "hypermd",
-  "version": "0.3.11",
-  "description": "A full-featured Markdown editor, breaks the wall between writing and preview.",
+  "name": "vickymd",
+  "version": "0.0.1",
+  "description": "An experimental WYSIWYG markdown editor built on top of HyperMD with extended Widgets support",
   "main": "./everything.js",
   "types": "./everything.d.ts",
   "scripts": {
@@ -22,9 +22,9 @@
     "codemirror",
     "wysiwyg"
   ],
-  "homepage": "https://laobubu.net/HyperMD/",
-  "author": "laobubu <laobubu@gmail.com> (http://laobubu.net)",
-  "license": "MIT",
+  "homepage": "https://github.com/0xGG/VickyMD",
+  "author": "0xGG Team",
+  "license": "AGPL3",
   "devDependencies": {
     "@types/codemirror": "^0.0.81",
     "@types/glob": "^7.1.1",
