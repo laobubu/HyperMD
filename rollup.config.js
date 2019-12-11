@@ -23,6 +23,7 @@ const plugins = {
   buble: buble({
     namedFunctionExpressions: false,
     transforms: {
+      generator: false,
       dangerousForOf: true // simplify `for (let i=0;i...)` to `for (let it of arr)`
     }
   })
@@ -39,7 +40,6 @@ function isExternal(mod) {
 }
 
 bundleFiles.forEach(item => {
-  console.log("bundleFiles: ", item);
   var item_plugins = [plugins.ts]; // Essential: typescript
   if (item.uglify) item_plugins.push(plugins.uglify); // optional: uglify
   item_plugins.push(plugins.buble); // Essential: Buble

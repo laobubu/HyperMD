@@ -1,24 +1,24 @@
 // this script runs before `npm run build`
 
-const path = require('path')
-const fs = require('fs')
-const config = require('./HyperMD.config.js')
+const path = require("path");
+const fs = require("fs");
+const config = require("./HyperMD.config.js");
 
-process.chdir(path.join(__dirname, ".."))
+process.chdir(path.join(__dirname, ".."));
 
 //--------------------------------------------------------------
 // Update src/everything.ts, export all components in all-in-one bundle
 
-var ai1_imports = []
-var ai1_exports = []
+var ai1_imports = [];
+var ai1_exports = [];
 
 for (const id in config.components) {
-  const export_as = config.components[id]
+  const export_as = config.components[id];
   if (export_as) {
-    ai1_exports.push(export_as)
-    ai1_imports.push(`import * as ${export_as} from "./${id}"`)
+    ai1_exports.push(export_as);
+    ai1_imports.push(`import * as ${export_as} from "./${id}"`);
   } else {
-    ai1_imports.push(`import "./${id}"`)
+    ai1_imports.push(`import "./${id}"`);
   }
 }
 
@@ -34,7 +34,11 @@ export * from "./core"
 
 ${ai1_imports.join("\n")}
 
-${ai1_exports.length ? ("export {\n" + ai1_exports.map(x => `  ${x},\n`).join("") + "}") : ("// No more exports")}
-`
+${
+  ai1_exports.length
+    ? "export {\n" + ai1_exports.map(x => `  ${x},\n`).join("") + "}"
+    : "// No more exports"
+}
+`;
 
-fs.writeFileSync("./src/everything.ts", ai1_code)
+fs.writeFileSync("./src/everything.ts", ai1_code);

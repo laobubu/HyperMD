@@ -9,7 +9,7 @@ process.chdir(path.join(__dirname, ".."));
 const app = express();
 app.use(express.static(process.cwd()));
 app.listen(8000, () =>
-  console.log("[HyperMD] http://127.0.0.1:8000 is now ready")
+  console.log("[HyperMD] http://127.0.0.1:8000 is now ready: ", process.cwd())
 );
 opn("http://127.0.0.1:8000");
 

@@ -1,4 +1,7 @@
-import { Attributes } from "../../addon/fold";
+// 0xGG Team
+// Distributed under AGPL3
+//
+// DESCRIPTION: The error widget that displays the error message
 
 interface ErrorParams {
   message: string;

@@ -146,6 +146,7 @@
 <div id="editor_area">
     <div id="toc"></div>
     <textarea id="demo" style="display:none"></textarea>
+    <div id="preview" class="preview" style="display:none">This is preview</div>
 </div>
 
 <!-- for powerpack/fold-math-with-mathjax -->
@@ -174,6 +175,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/2.1.2/wavedrom.min.js" type="text/javascript"></script>
 <!-- yamljs -->
 <script src="https://cdn.jsdelivr.net/npm/yamljs@0.3.0/dist/yaml.min.js"></script>
+<!-- prismjs -->
+<link href="https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/github.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"></script>
+<!-- html2pdf -->
+<script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
 <!-- 0xGG Team -->
 
 
@@ -189,21 +196,32 @@
 <script src="./demo/toc.js"></script>
 <script src="./demo/lab.js"></script>
 
+<!-- 0xGG Team -->
+<script src="./demo/preview/index.js"></script>
+
 <!-- some useless test stuff -->
 <div id="test-box">
     <div class="test-item">
-        <button onclick="HyperMD.switchToNormal(editor)">
+        <button onclick="(function(){HyperMD.switchToNormal(editor); hidePreview()})()">
             <svg class="icon icon-code"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-code"></use></svg> Normal
         </button>
         <div class="test-tooltip">Use default theme provided by CodeMirror, disable HyperMD's visual tricks.</div>
     </div>
 
     <div class="test-item">
-        <button onclick="HyperMD.switchToHyperMD(editor)">
+        <button onclick="(function(){HyperMD.switchToHyperMD(editor); hidePreview()})()">
             <svg class="icon icon-magic"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-magic"></use></svg> HyperMD Mode
         </button>
         <div class="test-tooltip">Revert previous button's change.</div>
     </div>
+
+    <div class="test-item">
+      <button onclick="togglePreview(editor)">
+          <svg class="icon icon-magic"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-magic"></use></svg> Preview Mode
+      </button>
+      <div class="test-tooltip">Show preview</div>
+  </div>
+
 
     <div class="right test-item">
         <button onclick="window.open('https://github.com/laobubu/hypermd/')">
@@ -218,6 +236,14 @@
         </button>
         <div class="test-tooltip">Documentation</div>
     </div>
+
+    <div class="right test-item">
+      <button onclick="printPDF()">
+          <svg class="icon icon-book"><use xlink:href="./demo/svgicon/symbol-defs.svg#icon-book"></use></svg> <span class="phone-hidden">Export as PDF</span>
+      </button>
+      <div class="test-tooltip">Export as PDF</div>
+  </div>
+
 
     <div class="test-item">
         <button onclick="winLab.show(true)">

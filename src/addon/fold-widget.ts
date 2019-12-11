@@ -1,5 +1,6 @@
 /**
  * 0xGG Team
+ * Distributed under AGPL3
  *
  * DESCRIPTION: Inline code fold that aims to get VickyWidgets work `@appname arg1=val1 arg2=val2`
  */

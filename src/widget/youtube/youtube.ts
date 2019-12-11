@@ -1,3 +1,8 @@
+// 0xGG Team
+// Distributed under AGPL3
+//
+// DESCRIPTION: This widget embeds Youtube video
+
 import { Attributes } from "../../addon/fold";
 import { ErrorWidget } from "../error/error";
 
@@ -6,6 +11,7 @@ export function YoutubeWidget(attributes: Attributes) {
     "_widget_youtube_id_" + Math.round(1e9 * Math.random()).toString(36);
   const videoWrapper = document.createElement("div");
   videoWrapper.id = id;
+  videoWrapper.style.position = "relative";
   videoWrapper.style.width = "100%";
   videoWrapper.style.height = "0";
   videoWrapper.style.paddingTop = "56.25%";

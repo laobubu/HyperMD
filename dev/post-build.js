@@ -61,10 +61,13 @@ function patchUMD(file) {
       data_tail.slice(0, data_tail.indexOf(")")).split(",").length - 2; // (argument count of mod function) - 2
 
     {
+      /*
+      // 👇 0xGG Team: Enable dynamic import
       // dynamic require is forbidden
       if (data_tail.indexOf("require(") !== -1) {
         throw new Error("[HyperMD] require('xxx') is not allowed in " + file);
       }
+      */
     }
 
     /** @type {string[]} */

@@ -1,3 +1,8 @@
+// 0xGG Team
+// Distributed under AGPL3
+//
+// DESCRIPTION: This widget displays time related information
+
 import { Attributes } from "../../addon/fold";
 import { ErrorWidget } from "../error/error";
 
@@ -5,7 +10,8 @@ export function TimerWidget(attributes: Attributes) {
   const el = document.createElement("div");
   el.classList.add("widget-timer");
   el.style.padding = "4px 12px";
-  el.style.backgroundColor = attributes["backgroundColor"] || "#ef6c00";
+  el.style.backgroundColor =
+    attributes["backgroundColor"] || "rgb(250, 145, 1)";
   el.style.color = attributes["color"] || "#fff";
   el.style.borderRadius = "16px";
   el.style.display = "flex";

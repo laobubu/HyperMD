@@ -34,6 +34,11 @@ require([
   "codemirror/lib/codemirror",
   "hypermd/core",
 
+  /////////////////////////////////////////////
+  /// 0xGG Team added following modules    ////
+  /////////////////////////////////////////////
+  "hypermd/preview/index",
+
   ///////////////////////////////////////
   /// CodeMirror                      ///
   ///////////////////////////////////////
@@ -60,7 +65,7 @@ require([
   "hypermd/addon/fold-image",
   "hypermd/addon/fold-math",
   "hypermd/addon/fold-html",
-  "hypermd/addon/fold-widget",
+  "hypermd/addon/fold-widget", // 👈 0xGG
   "hypermd/addon/fold-emoji",
   "hypermd/addon/read-link",
   "hypermd/addon/click",
@@ -79,12 +84,13 @@ require([
   "hypermd/powerpack/fold-emoji-with-emojione",
 
   /////////////////////////////////////////////
-  /// 0xGG Team added following            ////
+  /// 0xGG Team added following folds      ////
   /////////////////////////////////////////////
   "hypermd/powerpack/fold-code-with-mermaid",
   "hypermd/powerpack/fold-code-with-plantuml",
   "hypermd/powerpack/fold-code-with-echarts",
   "hypermd/powerpack/fold-code-with-wavedrom",
+
   // 'hypermd/powerpack/fold-emoji-with-twemoji',
 
   "hypermd/powerpack/insert-file-with-smms",
@@ -96,8 +102,8 @@ require([
 
   "hypermd/powerpack/paste-with-turndown",
   "turndown-plugin-gfm"
-], function(CodeMirror, HyperMD) {
-  "use strict";
+], function(CodeMirror, HyperMD, Preview) {
+  ("use strict");
   var myTextarea = document.getElementById("demo");
 
   // HyperMD magic. See https://laobubu.net/HyperMD/docs/
@@ -124,6 +130,7 @@ require([
   window.HyperMD = HyperMD;
   window.editor = editor;
   window.cm = editor;
+  window.Preview = Preview;
 
   // for demo page only:
   document.body.className += " loaded";

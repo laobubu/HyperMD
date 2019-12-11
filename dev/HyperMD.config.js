@@ -1,4 +1,6 @@
 const path = require("path");
+const nodeResolve = require("rollup-plugin-node-resolve");
+const commonJS = require("rollup-plugin-commonjs");
 
 /**
  * Components that will be bundled into ai1.js (all in one bundle)
@@ -24,10 +26,38 @@ exports.components = {
   "addon/mode-loader": "ModeLoader",
   "addon/hide-token": "HideToken",
   "addon/cursor-debounce": "CursorDebounce",
-  "keymap/hypermd": "KeyMap"
+  "keymap/hypermd": "KeyMap",
 
-  // 0xGG team
-  // "addon/attributes": "Attributes" // <= doesn't work
+  // * 👇 0xGG team
+  // ** Fold
+  "powerpack/fold-code-with-plantuml": "FoldCodeWithPlantUML",
+  // ** Widget
+  "addon/fold-widget": "FoldWidget",
+  "widget/error/error": "WidgetError",
+  "widget/timer/timer": "WidgetTimer",
+  "widget/bilibili/bilibili": "WidgetBilibili",
+  "widget/youtube/youtube": "WidgetYoutube",
+  "widget/video/video": "WidgetVideo",
+  "widget/audio/audio": "WidgetAudio",
+  // ** Attribute
+  "addon/attributes/index": "AttributesAddon",
+  "addon/attributes/normalize": "AttributesNormalize",
+  "addon/attributes/parse": "AttributesParse",
+  "addon/attributes/stringify": "AttributesStringify",
+  // ** Block Info
+  "addon/block-info/index": "BlockInfoAddon",
+  "addon/block-info/normalize": "BlockInfoNormalize",
+  "addon/block-info/parse": "BlockInfoParse",
+  // ** Preview
+  "preview/index": "Preview",
+  "preview/custom-subjects": "PreviewCustomSubjects",
+  "preview/heading-id-generator": "PreviewHeadingIDGenerator",
+  "preview/transform": "PreviewTransform",
+  "preview/slide": "PreviewSlide",
+  "preview/features/math": "PreviewFeatureMath",
+  "preview/features/tag": "PreviewFeatureTag",
+  "preview/features/widget": "PreviewFeatureWidget",
+  "preview/features/fence": "PreviewFeatureFence"
 };
 
 /**
@@ -35,7 +65,7 @@ exports.components = {
  *
  * Support minimatch pattern syntax
  */
-exports.dummyComponents = ["addon/skeleton", "powerpack/*"];
+exports.dummyComponents = ["addon/skeleton", "powerpack/*", "widget/*"];
 
 /**
  * If not using mode loader, try to get 3rd party libraries via these global names
@@ -49,8 +79,17 @@ exports.globalNames = {
   emojione: "emojione",
   twemoji: "twemoji",
   "flowchart.js": "flowchart",
-  // "plantuml-encoder": "plantumlEncoder",
-  mermaid: "mermaid"
+  mermaid: "mermaid",
+
+  // 0xGG Team
+  // "plantuml-encoder": "plantumlEncoder", // 👈 imported as commonjs module
+  yamljs: "YAML",
+  "markdown-it": "MarkdownIt",
+  "markdown-it-footnote": "MarkdownItFootnote",
+  "markdown-it-emoji": "MarkdownItEmoji",
+  "markdown-it-task-lists": "MarkdownItTaskLists",
+  uslug: "uslug"
+  // prismjs: "Prism"
 };
 
 exports.externalNames = Object.keys(exports.globalNames);
@@ -70,6 +109,18 @@ exports.bundleFiles = [
       "// !! Not Work With Bundlers                  !! //",
       "//-----------------------------------------------//"
     ].join("\n")
+
+    /*
+    // 0xGG 👇 doesn't work
+    plugins: [
+      nodeResolve({
+        jsNext: true
+      }),
+      commonJS({
+        include: ["node_modules/**"]
+      })
+    ]
+    */
   },
   {
     // not necessary but maybe you just want the core utils?

@@ -24,6 +24,16 @@ var requirejs_packages = [
   { name: "twemoji", main: "2/twemoji.amd.js" },
   { name: "flowchart.js", main: "release/flowchart.min.js" },
   { name: "Raphael", main: "raphael.min.js" }, // stupid
-  { name: "raphael", main: "raphael.min.js" }
+  { name: "raphael", main: "raphael.min.js" },
   // { name: 'mermaid', main: 'dist/mermaid.js' }, // mermaid AMD is buggy and unavaliable
+
+  // 0xGG TEAM
+  // ☝️ All above are relatives links to jsdeliver CDN. Check ./index.js for more information.
+  { name: "yamljs", main: "dist/yaml.min.js" },
+  { name: "plantumlEncoder", main: "dist/plantuml-encoder.min.js" }, // 👈  0xGG doesn't work
+  { name: "markdown-it", main: "dist/markdown-it.min.js" },
+  { name: "markdown-it-footnote", main: "dist/markdown-it-footnote.min.js" },
+  { name: "markdown-it-emoji", main: "dist/markdown-it-emoji.min.js" },
+  { name: "markdown-it-task-lists", main: "dist/markdown-it-task-lists.min.js" }
+  // { name: "prismjs", main: "prism.min.js" }
 ];
