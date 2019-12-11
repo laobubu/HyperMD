@@ -50,6 +50,10 @@ exports.components = {
   "addon/block-info/parse": "BlockInfoParse",
   // ** Preview
   "preview/index": "Preview",
+  "preview/custom-subjects": "PreviewCustomSubjects",
+  "preview/heading-id-generator": "PreviewHeadingIDGenerator",
+  "preview/transform": "PreviewTransform",
+  "preview/slide": "PreviewSlide",
   "preview/features/math": "PreviewFeatureMath",
   "preview/features/tag": "PreviewFeatureTag",
   "preview/features/widget": "PreviewFeatureWidget",
@@ -83,7 +87,8 @@ exports.globalNames = {
   "markdown-it": "MarkdownIt",
   "markdown-it-footnote": "MarkdownItFootnote",
   "markdown-it-emoji": "MarkdownItEmoji",
-  "markdown-it-task-lists": "MarkdownItTaskLists"
+  "markdown-it-task-lists": "MarkdownItTaskLists",
+  uslug: "uslug"
   // prismjs: "Prism"
 };
 

@@ -15,7 +15,12 @@ import { VideoWidget } from "../widget/video/video";
 import { AudioWidget } from "../widget/audio/audio";
 import { ErrorWidget } from "../widget/error/error";
 
+// Powerpacks
 import { PlantUMLRenderer } from "../powerpack/fold-code-with-plantuml";
+
+import { transformMarkdown, HeadingData } from "./transform";
+import HeadingIdGenerator from "./heading-id-generator";
+import { parseSlides } from "./slide";
 
 const md = new MarkdownIt({
   html: true,
@@ -32,17 +37,56 @@ MathEnhancer(md);
 WidgetEnhancer(md);
 FenceEnhancer(md);
 
+interface RenderMarkdownOutput {
+  html: string;
+  headings: HeadingData[];
+  slideConfigs: object[];
+}
 /**
  * renderMarkdown
  * @param markdown
  */
-function renderMarkdown(markdown: string) {
+function renderMarkdown(markdown: string): RenderMarkdownOutput {
   try {
-    // because md.render sometimes will fail.
-    return md.render(markdown);
+    const {
+      slideConfigs,
+      headings,
+      outputString,
+      frontMatterString
+    } = transformMarkdown(markdown, {
+      forPreview: true,
+      headingIdGenerator: new HeadingIdGenerator(),
+      forMarkdownExport: false,
+      usePandocParser: false
+    });
+
+    let html = md.render(outputString);
+    if (slideConfigs.length) {
+      html = parseSlides(html, slideConfigs);
+      return {
+        html,
+        headings,
+        slideConfigs
+      };
+    } else {
+      return {
+        html,
+        headings,
+        slideConfigs
+      };
+    }
   } catch (error) {
-    return `Failed to render markdown:\n${JSON.stringify(error)}`;
+    return {
+      html: `Failed to render markdown:\n${JSON.stringify(error)}`,
+      headings: [],
+      slideConfigs: []
+    };
   }
+}
+
+function performAfterWorks(previewElement: HTMLElement) {
+  renderWidgets(previewElement);
+  renderCodeFences(previewElement);
 }
 
 /**
@@ -51,17 +95,53 @@ function renderMarkdown(markdown: string) {
  * @param markdown
  */
 function renderPreview(previewElement: HTMLElement, markdown: string) {
-  previewElement.innerHTML = renderMarkdown(markdown);
-  renderWidgets(previewElement);
-  renderCodeFences(previewElement);
-}
+  const { html, headings, slideConfigs } = renderMarkdown(markdown);
+  if (!slideConfigs.length) {
+    previewElement.innerHTML = html;
+    performAfterWorks(previewElement);
+  } else {
+    // Slide
+    previewElement.innerHTML = "";
+    const iframe = document.createElement("iframe");
 
-/**
- * renderIframe
- * @param iframeElement, which should be <iframe> element
- * @param markdown
- */
-function renderIframe(iframeElement: HTMLElement, markdown: string) {}
+    iframe.style.border = "none";
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.boxSizing = "border-box";
+    previewElement.appendChild(iframe);
+    iframe.contentWindow.document.write(`<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- reveal.js styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/theme/white.css">
+
+    <!-- prism github theme -->
+    <link href="https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/github.css" rel="stylesheet">
+  </head>
+  <body>
+  ${html}
+  </body>
+  <!-- reveal.js -->
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/js/reveal.min.js"></script>
+
+  <!-- prism.js -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"></script>
+
+  <!-- initialize reveal.js -->
+  <script>
+Reveal.initialize();
+  </script>
+</html>`);
+
+    iframe.onload = function() {
+      console.log("iframe onload");
+      performAfterWorks(iframe.contentWindow.document.body);
+    };
+  }
+}
 
 function renderWidgets(previewElement: HTMLElement) {
   // render widgets
@@ -103,30 +183,40 @@ function renderWidgets(previewElement: HTMLElement) {
 }
 
 function renderCodeFences(previewElement: HTMLElement) {
+  console.log("renderCodeFences");
   const fences = previewElement.getElementsByClassName("vickeymd-fence");
+  console.log("fences.length: ", fences.length);
   for (let i = 0; i < fences.length; i++) {
     const fence = fences[i];
     const language = fence.getAttribute("data-info") || "text";
     const code = fence.textContent;
+    console.log("i: ", i);
+    console.log("language: ", language);
+    console.log("code: ", code);
     // TODO: Diagrams rendering
     if (language.match(/^(puml|plantuml)$/)) {
       // Diagrams
       const el = PlantUMLRenderer(code, null);
-      return fence.replaceWith(el);
+      fence.replaceWith(el);
+      continue;
     } else {
       // Normal code block
       const pre = document.createElement("pre");
       if (!window["Prism"]) {
+        console.log("window.Prism not found");
         pre.textContent = code;
-        return fence.replaceWith(pre);
+        fence.replaceWith(pre);
+        continue;
       }
       if (!(language in window["Prism"].languages)) {
         pre.classList.add("language-text");
         pre.textContent = code;
-        return fence.replaceWith(pre);
+        fence.replaceWith(pre);
+        continue;
       }
 
       try {
+        console.log("highlight code fence");
         const html = window["Prism"].highlight(
           code,
           window["Prism"].languages[language],
@@ -134,11 +224,13 @@ function renderCodeFences(previewElement: HTMLElement) {
         );
         pre.classList.add(`language-${language}`);
         pre.innerHTML = html; // <= QUESTION: Is this safe?
-        return fence.replaceWith(pre);
+        fence.replaceWith(pre);
+        continue;
       } catch (error) {
         pre.classList.add("language-error");
         pre.textContent = error.toString();
-        return fence.replaceWith(pre);
+        fence.replaceWith(pre);
+        continue;
       }
     }
   }

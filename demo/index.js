@@ -103,7 +103,6 @@ require([
   "hypermd/powerpack/paste-with-turndown",
   "turndown-plugin-gfm"
 ], function(CodeMirror, HyperMD, Preview) {
-  console.log(...arguments);
   ("use strict");
   var myTextarea = document.getElementById("demo");
 

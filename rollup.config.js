@@ -23,6 +23,7 @@ const plugins = {
   buble: buble({
     namedFunctionExpressions: false,
     transforms: {
+      generator: false,
       dangerousForOf: true // simplify `for (let i=0;i...)` to `for (let it of arr)`
     }
   })
