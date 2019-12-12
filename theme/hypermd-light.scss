@@ -247,8 +247,9 @@
             display: block;
             content: " ";
             margin-top: 2px;
-            height: 1px;
-            background: #eee;
+            // 0xGG Team: 👇 Removed border at bottom
+            // height: 1px;
+            // background: #eee;
         }
     }
 

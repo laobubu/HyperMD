@@ -19,7 +19,8 @@ function Timer(props: Props) {
   return (
     <div
       style={{
-        paddingTop: "4px 12px",
+        cursor: "default",
+        padding: "4px 12px",
         backgroundColor: attributes["backgroundColor"] || "rgb(250, 145, 1)",
         color: attributes["color"] || "#fff",
         borderRadius: "16px",
@@ -43,7 +44,14 @@ function Timer(props: Props) {
 export const TimerWidget: WidgetCreator = args => {
   const el = document.createElement("span");
   if (!args.attributes["date"]) {
-    return ErrorWidget({ ...args, ...{ message: "Field 'date' is missing" } });
+    return ErrorWidget({
+      ...args,
+      ...{
+        attributes: {
+          message: "Field 'date' is missing"
+        }
+      }
+    });
   }
   ReactDOM.render(
     <Widget>

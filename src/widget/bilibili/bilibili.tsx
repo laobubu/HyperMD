@@ -19,6 +19,7 @@ function Bilibili(props: Props) {
   return (
     <div
       style={{
+        cursor: "default",
         position: "relative",
         width: "100%",
         height: "0",
@@ -47,7 +48,14 @@ function Bilibili(props: Props) {
 export const BilibiliWidget: WidgetCreator = args => {
   const el = document.createElement("span");
   if (!args.attributes["aid"]) {
-    return ErrorWidget({ ...args, ...{ message: "Field 'aid' is missing" } });
+    return ErrorWidget({
+      ...args,
+      ...{
+        attributes: {
+          message: "Field 'aid' is missing"
+        }
+      }
+    });
   }
   ReactDOM.render(
     <Widget>

@@ -24,7 +24,7 @@ interface Props {
 function Audio(props: Props) {
   const attributes = props.attributes;
   return (
-    <span>
+    <span style={{ cursor: "default" }}>
       <audio
         autoPlay={attributes["autoplay"] || attributes["autoPlay"]}
         controls={attributes["controls"]}
@@ -43,7 +43,12 @@ function Audio(props: Props) {
 export const AudioWidget: WidgetCreator = args => {
   const el = document.createElement("span");
   if (!args.attributes["src"]) {
-    return ErrorWidget({ ...args, ...{ message: "Field 'src' is missing" } });
+    return ErrorWidget({
+      ...args,
+      ...{
+        attributes: { message: "Field 'src' is missing" }
+      }
+    });
   }
   ReactDOM.render(
     <Widget>

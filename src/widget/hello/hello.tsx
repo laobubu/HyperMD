@@ -17,34 +17,48 @@ interface Props {
 function Hello(props: Props) {
   const [value, setValue] = useState<string>(props.attributes.value || "");
   return (
-    <div style={{ padding: "24px", border: "1px solid #aaa" }}>
-      <span>Hello, world! {value}</span>
+    <div
+      style={{
+        cursor: "default",
+        padding: "24px",
+        boxShadow: "0 1px 6px 2px #ddd"
+      }}
+    >
+      <span>
+        Hello, world! I am <b>{value || "VickyMD"}</b>
+      </span>
       <br></br>
       <input
         onChange={event => {
           setValue(event.target.value);
         }}
+        placeholder={"Enter your name here"}
         value={value}
       ></input>
       <br></br>
-      <button
-        onClick={() => {
-          props.setAttributes({
-            ...props.attributes,
-            ...{ value }
-          });
-        }}
-      >
-        Submit
-      </button>
-      <br></br>
-      <button
-        onClick={() => {
-          props.removeSelf();
-        }}
-      >
-        Delete
-      </button>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <button
+          style={{ marginTop: "4px", marginRight: "4px" }}
+          onClick={() => {
+            if (props.setAttributes)
+              props.setAttributes({
+                ...props.attributes,
+                ...{ value }
+              });
+          }}
+        >
+          Save
+        </button>
+        <br></br>
+        <button
+          style={{ marginTop: "4px", marginRight: "4px" }}
+          onClick={() => {
+            props.removeSelf();
+          }}
+        >
+          Delete
+        </button>
+      </div>
     </div>
   );
 }

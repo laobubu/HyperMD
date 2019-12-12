@@ -18,6 +18,7 @@ function Video(props: Props) {
     <div
       style={Object.assign(
         {
+          cursor: "default",
           position: "relative",
           width: "100%",
           height: "0",
@@ -50,7 +51,12 @@ function Video(props: Props) {
 export const VideoWidget: WidgetCreator = args => {
   const el = document.createElement("span");
   if (!args.attributes["src"]) {
-    return ErrorWidget({ ...args, ...{ message: "Field 'src' is missing" } });
+    return ErrorWidget({
+      ...args,
+      ...{
+        attributes: { message: "Field 'src' is missing" }
+      }
+    });
   }
   ReactDOM.render(
     <Widget>
