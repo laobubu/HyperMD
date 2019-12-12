@@ -13,16 +13,22 @@ import {
   FoldStream
 } from "./fold";
 import { Attributes } from "./attributes/index";
-import { TimerWidget } from "../widget/timer/timer";
-import { BilibiliWidget } from "../widget/bilibili/bilibili";
-import { YoutubeWidget } from "../widget/youtube/youtube";
-import { VideoWidget } from "../widget/video/video";
-import { ErrorWidget } from "../widget/error/error";
-import { AudioWidget } from "../widget/audio/audio";
-import { HelloWidget } from "../widget/hello/hello";
 import { registerWidgetCreator, getWidgetCreator } from "../widget/index";
+import { HelloWidget } from "../widget/hello/hello";
+import { AudioWidget } from "../widget/audio/audio";
+import { BilibiliWidget } from "../widget/bilibili/bilibili";
+import { ErrorWidget } from "../widget/error/error";
+import { TimerWidget } from "../widget/timer/timer";
+import { VideoWidget } from "../widget/video/video";
+import { YoutubeWidget } from "../widget/youtube/youtube";
 
 registerWidgetCreator("hello", HelloWidget);
+registerWidgetCreator("audio", AudioWidget);
+registerWidgetCreator("bilibili", BilibiliWidget);
+registerWidgetCreator("error", ErrorWidget);
+registerWidgetCreator("timer", TimerWidget);
+registerWidgetCreator("video", VideoWidget);
+registerWidgetCreator("youtube", YoutubeWidget);
 
 export const WidgetFolder = function(
   stream: FoldStream,
@@ -120,26 +126,16 @@ export const WidgetFolder = function(
 
   // Create the widget
   let widget: HTMLElement;
-  if (widgetName === "hello") {
-    widget = getWidgetCreator(widgetName)({
+  const widgetCreator = getWidgetCreator(widgetName);
+  if (!widgetCreator) {
+    return false;
+  } else {
+    widget = widgetCreator({
       attributes: widgetAttributes,
       setAttributes: setAttributes,
-      removeSelf: removeSelf
+      removeSelf: removeSelf,
+      isPreview: false
     });
-  } else if (widgetName === "timer") {
-    widget = TimerWidget(widgetAttributes);
-  } else if (widgetName === "bilibili") {
-    widget = BilibiliWidget(widgetAttributes);
-  } else if (widgetName === "youtube") {
-    widget = YoutubeWidget(widgetAttributes);
-  } else if (widgetName === "video") {
-    widget = VideoWidget(widgetAttributes);
-  } else if (widgetName === "audio") {
-    widget = AudioWidget(widgetAttributes);
-  } else if (widgetName === "error") {
-    widget = ErrorWidget(widgetAttributes as any);
-  } else {
-    return false;
   }
 
   // Create widget here

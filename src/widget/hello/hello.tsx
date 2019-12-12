@@ -7,14 +7,14 @@ import { Attributes } from "../../addon/fold";
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { Widget } from "../component/widget";
-import { WidgetArgs, WidgetCreator } from "..";
+import { WidgetCreator } from "..";
 
 interface Props {
   attributes: Attributes;
   setAttributes: (attributes: Attributes) => void;
   removeSelf: () => void;
 }
-export function Hello(props: Props) {
+function Hello(props: Props) {
   const [value, setValue] = useState<string>(props.attributes.value || "");
   return (
     <div style={{ padding: "24px", border: "1px solid #aaa" }}>

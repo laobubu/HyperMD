@@ -8,12 +8,6 @@ import MathEnhancer from "./features/math";
 import TagEnhancer from "./features/tag";
 import WidgetEnhancer from "./features/widget";
 import FenceEnhancer from "./features/fence";
-import { TimerWidget } from "../widget/timer/timer";
-import { BilibiliWidget } from "../widget/bilibili/bilibili";
-import { YoutubeWidget } from "../widget/youtube/youtube";
-import { VideoWidget } from "../widget/video/video";
-import { AudioWidget } from "../widget/audio/audio";
-import { ErrorWidget } from "../widget/error/error";
 
 // Powerpacks
 import { PlantUMLRenderer } from "../powerpack/fold-code-with-plantuml";
@@ -24,7 +18,7 @@ import { parseSlides } from "./slide";
 import { EchartsRenderer } from "../powerpack/fold-code-with-echarts";
 import { MermaidRenderer } from "../powerpack/fold-code-with-mermaid";
 import { WaveDromRenderer } from "../powerpack/fold-code-with-wavedrom";
-import { HelloWidget } from "../widget/hello/hello";
+import { getWidgetCreator } from "../widget/index";
 
 const md = new MarkdownIt({
   html: true,
@@ -235,27 +229,21 @@ function renderWidgets(previewElement: HTMLElement) {
     }
 
     let widget: HTMLElement = null;
-    if (widgetName === "hello") {
-      widget = HelloWidget({ attributes: widgetAttributes, isPreview: true });
-    } else if (widgetName === "timer") {
-      widget = TimerWidget(widgetAttributes);
-    } else if (widgetName === "bilibili") {
-      widget = BilibiliWidget(widgetAttributes);
-    } else if (widgetName === "youtube") {
-      widget = YoutubeWidget(widgetAttributes);
-    } else if (widgetName === "video") {
-      widget = VideoWidget(widgetAttributes);
-    } else if (widgetName === "audio") {
-      widget = AudioWidget(widgetAttributes, false);
-    } else if (widgetName === "error") {
-      widget = ErrorWidget(widgetAttributes as any);
+    const widgetCreator = getWidgetCreator(widgetName);
+    if (!widgetCreator) {
+      continue;
     }
+    widget = widgetCreator({
+      attributes: widgetAttributes,
+      isPreview: true
+    });
     if (widget) {
       widget.classList.add("vickymd-widget");
       widget.setAttribute("data-widget-name", widgetName);
       widget.setAttribute("data-widget-attributes", widgetAttributesStr);
       widgetSpan.replaceWith(widget);
     }
+    widgetSpan.replaceWith(widget);
   }
 }
 
