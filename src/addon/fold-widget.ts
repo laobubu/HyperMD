@@ -89,20 +89,32 @@ export const WidgetFolder = function(
 
   const setAttributes = (attributes: Attributes) => {
     const editor = cm;
-    // const from = args.from;
-    // const to = args.to;
     if (!editor) {
       return;
     }
-    const origin = editor.getRange(from, to);
-    const widgetName = origin.match(/^\@[^\s$]+/)[0];
+    let widigetFrom = from;
+    let widgetTo = to;
+    const line = editor.getLine(from.line);
+    if (!line) {
+      throw new Error("Failed to update widget attributes");
+    }
+    let end = widgetTo.ch;
+    for (; end < line.length; end++) {
+      if (line[end - 1] !== "\\" && line[end] === "`") {
+        break;
+      }
+    }
+    widgetTo.ch = end;
+
+    const widgetName = line
+      .slice(widigetFrom.ch, widgetTo.ch)
+      .match(/^\@[^\s$]+/)[0];
     editor.replaceRange(
       `${widgetName} ${JSON.stringify(attributes)
         .replace(/^{/, "")
         .replace(/}$/, "")}`,
-      from,
-      to,
-      origin
+      widigetFrom,
+      widgetTo
     );
   };
 
@@ -142,7 +154,8 @@ export const WidgetFolder = function(
   const marker = cm.markText(from, to, {
     replacedWith: widget,
     collapsed: true,
-    title: "widget"
+    inclusiveLeft: true,
+    inclusiveRight: true
   });
 
   /*

@@ -24,7 +24,7 @@
   ],
   "homepage": "https://github.com/0xGG/VickyMD",
   "author": "0xGG Team",
-  "license": "AGPL3",
+  "license": "AGPL-3.0-or-later",
   "devDependencies": {
     "@types/codemirror": "^0.0.81",
     "@types/glob": "^7.1.1",
