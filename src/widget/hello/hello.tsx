@@ -13,6 +13,7 @@ interface Props {
   attributes: Attributes;
   setAttributes: (attributes: Attributes) => void;
   removeSelf: () => void;
+  replaceSelf: (inputString: string) => void;
 }
 function Hello(props: Props) {
   const [value, setValue] = useState<string>(props.attributes.value || "");
@@ -49,14 +50,25 @@ function Hello(props: Props) {
         >
           Save
         </button>
-        <br></br>
         <button
           style={{ marginTop: "4px", marginRight: "4px" }}
           onClick={() => {
-            props.removeSelf();
+            if (props.removeSelf) {
+              props.removeSelf();
+            }
           }}
         >
           Delete
+        </button>
+        <button
+          style={{ marginTop: "4px", marginRight: "4px" }}
+          onClick={() => {
+            if (props.replaceSelf) {
+              props.replaceSelf(`**${value}** is awesome ;)`);
+            }
+          }}
+        >
+          Replace
         </button>
       </div>
     </div>
@@ -71,6 +83,7 @@ export const HelloWidget: WidgetCreator = args => {
         attributes={args.attributes}
         setAttributes={args.setAttributes}
         removeSelf={args.removeSelf}
+        replaceSelf={args.replaceSelf}
       ></Hello>
     </Widget>,
     el

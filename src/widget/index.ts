@@ -9,6 +9,7 @@ export interface WidgetArgs {
   attributes: Attributes;
   setAttributes?: (attributes: Attributes) => void;
   removeSelf?: () => void;
+  replaceSelf?: (inputString: string) => void;
   isPreview?: boolean;
 }
 
