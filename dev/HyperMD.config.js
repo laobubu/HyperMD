@@ -31,8 +31,14 @@ exports.components = {
   // * 👇 0xGG team
   // ** Fold
   "powerpack/fold-code-with-plantuml": "FoldCodeWithPlantUML",
+  "powerpack/fold-code-with-echarts": "FoldCodeWithEcharts",
+  "powerpack/fold-code-with-mermaid": "FoldCodeWithMermaid",
+  "powerpack/fold-code-with-wavedrom": "FoldCodeWithWavedrom",
   // ** Widget
   "addon/fold-widget": "FoldWidget",
+  "widget/index": "Widget",
+  "widget/component/widget": "WidgetComponent",
+  "widget/hello/hello": "WidgetHello",
   "widget/error/error": "WidgetError",
   "widget/timer/timer": "WidgetTimer",
   "widget/bilibili/bilibili": "WidgetBilibili",
@@ -88,7 +94,8 @@ exports.globalNames = {
   "markdown-it-footnote": "MarkdownItFootnote",
   "markdown-it-emoji": "MarkdownItEmoji",
   "markdown-it-task-lists": "MarkdownItTaskLists",
-  uslug: "uslug"
+  react: "React",
+  "react-dom": "ReactDOM"
   // prismjs: "Prism"
 };
 

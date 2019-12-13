@@ -45,8 +45,10 @@ export interface FoldInfo {
   /** the languange name after leading triple-backtick in Markdown */
   readonly lang: string;
 
+  // ==================================
   // 0xGG team: Options of the language
   readonly attributes: Attributes;
+  // ==================================
 
   readonly editor: cm_t;
   readonly marker: CodeMirror.TextMarker;
@@ -400,6 +402,20 @@ export class FoldCode implements Addon.Addon {
 }
 
 //#endregion
+
+// 0xGG Team
+
+export function convertNumberToString(val, defaultVal: string, unit = "px") {
+  if (!val) {
+    return defaultVal;
+  } else if (typeof val === "number") {
+    return `${val}${unit}`;
+  } else {
+    return val;
+  }
+}
+
+// End
 
 const contentClass = "hmd-fold-code-content hmd-fold-code-"; // + renderer_type
 

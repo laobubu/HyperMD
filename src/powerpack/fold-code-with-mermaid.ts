@@ -40,8 +40,12 @@ export const MermaidRenderer: CodeRenderer = (code, info) => {
   mermaid.render(id, code, (svgCode, bindFunctions) => {
     el.innerHTML = svgCode;
     el.removeAttribute("id");
-    bindFunctions(el);
-    info.changed();
+    if (bindFunctions) {
+      bindFunctions(el);
+    }
+    if (info.changed) {
+      info.changed();
+    }
   });
 
   return el;

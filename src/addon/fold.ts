@@ -279,7 +279,16 @@ export class Fold extends TokenSeeker implements Addon.Addon, FoldStream {
       }
 
       for (const m of changedMarkers) {
-        m.clear(); // TODO: add "changed" handler for FolderFunc
+        const line = cm.getLine(changes[0].from.line);
+        if (
+          line[changes[0].from.ch - 1] === "`" &&
+          line[changes[0].from.ch] === "@" &&
+          line.slice(changes[0].from.ch).length > 1
+        ) {
+          // This is widget, so don't clear
+        } else {
+          m.clear(); // TODO: add "changed" handler for FolderFunc
+        }
       }
 
       this.startFold();

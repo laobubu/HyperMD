@@ -1,4 +1,6 @@
-var is_running_demo = /\.github\.|laobubu\.net/.test(location.hostname);
+var is_running_demo = /\.github\.|laobubu\.net|(localhost|127\.0\.0\.1)/.test(
+  location.hostname
+);
 
 var demo_page_baseurl = window.location.href
   .replace(/[\?\#].*$/, "")
@@ -38,6 +40,7 @@ require([
   /// 0xGG Team added following modules    ////
   /////////////////////////////////////////////
   "hypermd/preview/index",
+  "hypermd/widget/index",
 
   ///////////////////////////////////////
   /// CodeMirror                      ///
@@ -102,7 +105,7 @@ require([
 
   "hypermd/powerpack/paste-with-turndown",
   "turndown-plugin-gfm"
-], function(CodeMirror, HyperMD, Preview) {
+], function(CodeMirror, HyperMD, Preview, Widget) {
   ("use strict");
   var myTextarea = document.getElementById("demo");
 
@@ -131,6 +134,7 @@ require([
   window.editor = editor;
   window.cm = editor;
   window.Preview = Preview;
+  window.Widget = Widget;
 
   // for demo page only:
   document.body.className += " loaded";

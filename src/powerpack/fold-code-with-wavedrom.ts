@@ -19,15 +19,15 @@ import {
 import { getAddon as getFold } from "../addon/fold";
 
 export const WaveDromRenderer: CodeRenderer = (code, info) => {
-  const seq = document.getElementsByClassName("vickeymd-widget-wavedrom")
-    .length; // Math.round(1e9 * Math.random()) + Date.now();
-  const id = "wavedrom" + seq;
+  const targetClass = info.changed
+    ? "vickeymd-wavedrom-editor"
+    : "vickymd-wavedrom-preview";
+  let seq = document.getElementsByClassName(targetClass).length; // Math.round(1e9 * Math.random()) + Date.now();
+  const id = targetClass + seq;
   const el = document.createElement("div");
   el.id = id;
-  el.classList.add("vickeymd-widget-wavedrom");
+  el.classList.add(targetClass);
   el.style.margin = "8px";
-
-  console.log(info.el);
 
   let json = {};
   try {
@@ -40,7 +40,7 @@ export const WaveDromRenderer: CodeRenderer = (code, info) => {
   try {
     document.body.append(el); // HACK: Have to append to body first
     el.textContent = code;
-    window["WaveDrom"].RenderWaveForm(seq, json, "wavedrom");
+    window["WaveDrom"].RenderWaveForm(seq, json, targetClass);
   } catch (error) {
     el.innerText = "Failed to eval WaveDrom code. " + error;
     console.log(error);

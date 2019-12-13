@@ -8,12 +8,6 @@ import MathEnhancer from "./features/math";
 import TagEnhancer from "./features/tag";
 import WidgetEnhancer from "./features/widget";
 import FenceEnhancer from "./features/fence";
-import { TimerWidget } from "../widget/timer/timer";
-import { BilibiliWidget } from "../widget/bilibili/bilibili";
-import { YoutubeWidget } from "../widget/youtube/youtube";
-import { VideoWidget } from "../widget/video/video";
-import { AudioWidget } from "../widget/audio/audio";
-import { ErrorWidget } from "../widget/error/error";
 
 // Powerpacks
 import { PlantUMLRenderer } from "../powerpack/fold-code-with-plantuml";
@@ -21,6 +15,10 @@ import { PlantUMLRenderer } from "../powerpack/fold-code-with-plantuml";
 import { transformMarkdown, HeadingData } from "./transform";
 import HeadingIdGenerator from "./heading-id-generator";
 import { parseSlides } from "./slide";
+import { EchartsRenderer } from "../powerpack/fold-code-with-echarts";
+import { MermaidRenderer } from "../powerpack/fold-code-with-mermaid";
+import { WaveDromRenderer } from "../powerpack/fold-code-with-wavedrom";
+import { getWidgetCreator } from "../widget/index";
 
 const md = new MarkdownIt({
   html: true,
@@ -84,9 +82,12 @@ function renderMarkdown(markdown: string): RenderMarkdownOutput {
   }
 }
 
-function performAfterWorks(previewElement: HTMLElement) {
+function performAfterWorks(
+  previewElement: HTMLElement,
+  isPresentation = false
+) {
   renderWidgets(previewElement);
-  renderCodeFences(previewElement);
+  renderCodeFences(previewElement, isPresentation);
 }
 
 /**
@@ -96,6 +97,7 @@ function performAfterWorks(previewElement: HTMLElement) {
  */
 function renderPreview(previewElement: HTMLElement, markdown: string) {
   const { html, headings, slideConfigs } = renderMarkdown(markdown);
+  previewElement.setAttribute("data-vickymd-preview", "true");
   if (!slideConfigs.length) {
     previewElement.innerHTML = html;
     performAfterWorks(previewElement);
@@ -105,6 +107,50 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
     previewElement.innerHTML = "";
     const iframe = document.createElement("iframe");
 
+    // Check wavedrom
+    let wavedromScript = "";
+    let wavedromInitScript = "";
+    if (html.indexOf("wavedrom") >= 0) {
+      wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/skins/default.js"></script>`;
+      wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/wavedrom.min.js"></script>`;
+      wavedromInitScript += `<script>
+Reveal.addEventListener("ready", ()=> {
+  WaveDrom.ProcessAll()
+})      
+</script>`;
+    }
+
+    // Check mermaid. Copied from @shd101wyy/mume
+    let mermaidScript = "";
+    let mermaidInitScript = "";
+    if (html.indexOf("mermaid") >= 0) {
+      mermaidScript = `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>`;
+      mermaidInitScript += `<script>
+      if (window['MERMAID_CONFIG']) {
+        window['MERMAID_CONFIG'].startOnLoad = false
+        window['MERMAID_CONFIG'].cloneCssStyles = false
+      }
+      mermaid.initialize(window['MERMAID_CONFIG'] || {})
+      if (typeof(window['Reveal']) !== 'undefined') {
+        function mermaidRevealHelper(event) {
+          var currentSlide = event.currentSlide
+          var diagrams = currentSlide.querySelectorAll('.mermaid')
+          for (var i = 0; i < diagrams.length; i++) {
+            var diagram = diagrams[i]
+            if (!diagram.hasAttribute('data-processed')) {
+              mermaid.init(null, diagram, ()=> {
+                Reveal.slide(event.indexh, event.indexv)
+              })
+            }
+          }
+        }
+        Reveal.addEventListener('slidechanged', mermaidRevealHelper)
+        Reveal.addEventListener('ready', mermaidRevealHelper)
+      } else {
+        mermaid.init(null, document.getElementsByClassName('mermaid'))
+      }
+      </script>`;
+    }
     iframe.style.border = "none";
     iframe.style.width = "100%";
     iframe.style.height = "100%";
@@ -124,6 +170,12 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
 
     <!-- prism github theme -->
     <link href="https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/github.css" rel="stylesheet">
+  
+    <!-- mermaid -->
+    ${mermaidScript}
+
+    <!-- wavedrom -->
+    ${wavedromScript}
   </head>
   <body>
   ${html}
@@ -133,6 +185,12 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
 
   <!-- prism.js -->
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"></script>
+
+  <!-- mermaid -->
+  ${mermaidInitScript}
+
+  <!-- wavedrom -->
+  ${wavedromInitScript}
 
   <!-- initialize reveal.js -->
   <script>
@@ -148,7 +206,7 @@ Reveal.addEventListener('ready', function(event) {
         event.data.event === "reveal-ready" &&
         event.data.id === id
       ) {
-        performAfterWorks(iframe.contentWindow.document.body);
+        performAfterWorks(iframe.contentWindow.document.body, true);
       }
     });
   }
@@ -171,29 +229,25 @@ function renderWidgets(previewElement: HTMLElement) {
     }
 
     let widget: HTMLElement = null;
-    if (widgetName === "timer") {
-      widget = TimerWidget(widgetAttributes);
-    } else if (widgetName === "bilibili") {
-      widget = BilibiliWidget(widgetAttributes);
-    } else if (widgetName === "youtube") {
-      widget = YoutubeWidget(widgetAttributes);
-    } else if (widgetName === "video") {
-      widget = VideoWidget(widgetAttributes);
-    } else if (widgetName === "audio") {
-      widget = AudioWidget(widgetAttributes, false);
-    } else if (widgetName === "error") {
-      widget = ErrorWidget(widgetAttributes as any);
+    const widgetCreator = getWidgetCreator(widgetName);
+    if (!widgetCreator) {
+      continue;
     }
+    widget = widgetCreator({
+      attributes: widgetAttributes,
+      isPreview: true
+    });
     if (widget) {
       widget.classList.add("vickymd-widget");
       widget.setAttribute("data-widget-name", widgetName);
       widget.setAttribute("data-widget-attributes", widgetAttributesStr);
       widgetSpan.replaceWith(widget);
     }
+    widgetSpan.replaceWith(widget);
   }
 }
 
-function renderCodeFences(previewElement: HTMLElement) {
+function renderCodeFences(previewElement: HTMLElement, isPresentation = false) {
   const fences = previewElement.getElementsByClassName("vickeymd-fence");
   const copyFences = [];
   for (let i = 0; i < fences.length; i++) {
@@ -202,14 +256,35 @@ function renderCodeFences(previewElement: HTMLElement) {
   }
   for (let i = 0; i < copyFences.length; i++) {
     const fence = copyFences[i];
-    const language = fence.getAttribute("data-info") || "text";
+    const parsedInfo = fence.getAttribute("data-parsed-info") || "{}";
+    let info: any = {};
+    try {
+      info = JSON.parse(parsedInfo);
+    } catch (error) {
+      info = {};
+    }
     const code = fence.textContent;
+    const language = info["language"] || "text";
     // TODO: Diagrams rendering
     if (language.match(/^(puml|plantuml)$/)) {
       // Diagrams
-      const el = PlantUMLRenderer(code, null);
+      const el = PlantUMLRenderer(code, info);
       fence.replaceWith(el);
       continue;
+    } else if (language.match(/^echarts$/)) {
+      const el = EchartsRenderer(code, info);
+      fence.replaceWith(el);
+    } else if (language.match(/^mermaid$/)) {
+      if (!isPresentation) {
+        // console.log("render mermaid")
+        const el = MermaidRenderer(code, info);
+        fence.replaceWith(el);
+      }
+    } else if (language.match(/^wavedrom$/i)) {
+      if (!isPresentation) {
+        const el = WaveDromRenderer(code, info);
+        fence.replaceWith(el);
+      }
     } else {
       // Normal code block
       const pre = document.createElement("pre");
