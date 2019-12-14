@@ -60,9 +60,12 @@ export const WidgetFolder = function(
       .trim()
       .replace(/^@/, "");
     try {
-      widgetAttributes = JSON.parse(
-        "{" + str.slice(firstSpace + 1).trim() + "}"
-      );
+      const j = str.slice(firstSpace + 1).trim();
+      if (j[0] === "{") {
+        widgetAttributes = JSON.parse(j);
+      } else {
+        widgetAttributes = JSON.parse("{" + j + "}");
+      }
     } catch (error) {
       widgetName = "error";
       widgetAttributes = { message: error.toString() };
