@@ -60,9 +60,12 @@ export const WidgetFolder = function(
       .trim()
       .replace(/^@/, "");
     try {
-      widgetAttributes = JSON.parse(
-        "{" + str.slice(firstSpace + 1).trim() + "}"
-      );
+      const j = str.slice(firstSpace + 1).trim();
+      if (j[0] === "{") {
+        widgetAttributes = JSON.parse(j);
+      } else {
+        widgetAttributes = JSON.parse("{" + j + "}");
+      }
     } catch (error) {
       widgetName = "error";
       widgetAttributes = { message: error.toString() };
@@ -118,22 +121,39 @@ export const WidgetFolder = function(
     );
   };
 
-  const removeSelf = () => {
+  const replaceSelf = (inputString: string) => {
     const editor = cm;
     if (!editor) {
       return;
     }
+    let widigetFrom = from;
+    let widgetTo = to;
+    const line = editor.getLine(from.line);
+    if (!line) {
+      throw new Error("Failed to update widget attributes");
+    }
+    let end = widgetTo.ch;
+    for (; end < line.length; end++) {
+      if (line[end - 1] !== "\\" && line[end] === "`") {
+        break;
+      }
+    }
+    widgetTo.ch = end;
     editor.replaceRange(
-      "",
+      inputString,
       {
         line: from.line,
-        ch: from.ch - 1
+        ch: widigetFrom.ch - 1
       },
       {
         line: to.line,
-        ch: to.ch + 1
+        ch: widgetTo.ch + 1
       }
     );
+  };
+
+  const removeSelf = () => {
+    return replaceSelf("");
   };
 
   // Create the widget
@@ -146,6 +166,7 @@ export const WidgetFolder = function(
       attributes: widgetAttributes,
       setAttributes: setAttributes,
       removeSelf: removeSelf,
+      replaceSelf: replaceSelf,
       isPreview: false
     });
   }
