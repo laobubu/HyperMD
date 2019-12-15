@@ -15,7 +15,7 @@ export interface WidgetArgs {
 
 export type WidgetCreator = (args: WidgetArgs) => HTMLElement;
 
-const widgetMap: { [key: string]: WidgetCreator } = {};
+let widgetMap: { [key: string]: WidgetCreator } = {};
 
 /**
  *
@@ -35,4 +35,8 @@ export function registerWidgetCreator(name: string, creator: WidgetCreator) {
  */
 export function getWidgetCreator(name: string): WidgetCreator {
   return widgetMap[name];
+}
+
+export function resetWidgetCreators() {
+  widgetMap = {};
 }

@@ -1,9 +1,7 @@
 /* VickyMD
  * Distributed under AGPL3
  *
- * The code below is basic on https://github.com/markushedvall/plantuml-encoder/blob/master/dist/plantuml-encoder.min.js
- * Credit to @markushedvall
- *
+ * DESCRIPTION: WaveDrom powerpack
  * Please include the following in your index.html file
  *
  *  <script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/2.1.2/skins/default.js" type="text/javascript"></script>
@@ -34,24 +32,31 @@ export const WaveDromRenderer: CodeRenderer = (code, info) => {
     json = JSON.parse(code);
   } catch (error) {
     el.innerText = error.toString();
-    return el;
+    return {
+      element: el,
+      asyncRenderer: null
+    };
   }
 
-  try {
-    document.body.append(el); // HACK: Have to append to body first
-    el.textContent = code;
-    window["WaveDrom"].RenderWaveForm(seq, json, targetClass);
-  } catch (error) {
-    el.innerText = "Failed to eval WaveDrom code. " + error;
-    console.log(error);
-  }
+  const asyncRenderer = () => {
+    try {
+      // document.body.append(el); // HACK: Have to append to body first
+      el.textContent = code;
+      window["WaveDrom"].RenderWaveForm(seq, json, targetClass);
+    } catch (error) {
+      el.innerText = "Failed to eval WaveDrom code. " + error;
+    }
+  };
 
-  return el;
+  return {
+    element: el,
+    asyncRenderer: asyncRenderer
+  };
 };
 
 if (window["WaveDrom"]) {
-  CodeMirror.defineOption("plantuml", null, (cm: CodeMirror.Editor) => {
-    getFoldCode(cm).clear("plantuml");
+  CodeMirror.defineOption("wavedrom", null, (cm: CodeMirror.Editor) => {
+    getFoldCode(cm).clear("wavedrom");
     getFold(cm).startFold();
   });
 

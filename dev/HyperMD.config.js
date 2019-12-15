@@ -34,6 +34,8 @@ exports.components = {
   "powerpack/fold-code-with-echarts": "FoldCodeWithEcharts",
   "powerpack/fold-code-with-mermaid": "FoldCodeWithMermaid",
   "powerpack/fold-code-with-wavedrom": "FoldCodeWithWavedrom",
+  "powerpack/fold-code-with-vega": "FoldCodeWithVega",
+  "powerpack/fold-code-with-vega-lite": "FoldCodeWithVegaLite",
   // ** Widget
   "addon/fold-widget": "FoldWidget",
   "widget/index": "Widget",
@@ -88,14 +90,15 @@ exports.globalNames = {
   mermaid: "mermaid",
 
   // 0xGG Team
-  // "plantuml-encoder": "plantumlEncoder", // 👈 imported as commonjs module
   yamljs: "YAML",
   "markdown-it": "MarkdownIt",
   "markdown-it-footnote": "MarkdownItFootnote",
   "markdown-it-emoji": "MarkdownItEmoji",
   "markdown-it-task-lists": "MarkdownItTaskLists",
   react: "React",
-  "react-dom": "ReactDOM"
+  "react-dom": "ReactDOM",
+  vega: "vega",
+  "vega-embed": "vegaEmbed"
   // prismjs: "Prism"
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "vickymd",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "An experimental WYSIWYG markdown editor built on top of HyperMD with extended Widgets support",
   "main": "./everything.js",
   "types": "./everything.d.ts",
@@ -74,6 +74,9 @@
     "turndown": "^5.0.3",
     "turndown-plugin-gfm": "^1.0.2",
     "twemoji": "^12.1.4",
+    "vega": "^5.9.0",
+    "vega-embed": "^6.2.1",
+    "vega-lite": "^4.0.2",
     "yamljs": "^0.3.0"
   }
 }

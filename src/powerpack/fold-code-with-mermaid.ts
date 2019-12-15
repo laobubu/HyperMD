@@ -48,7 +48,10 @@ export const MermaidRenderer: CodeRenderer = (code, info) => {
     }
   });
 
-  return el;
+  return {
+    element: el,
+    asyncRenderer: null
+  };
 };
 
 if (typeof mermaid === "object") {

@@ -28,7 +28,10 @@ export const PlantUMLRenderer: CodeRenderer = (code, info) => {
   const img = document.createElement("img");
   img.src = url;
   el.appendChild(img);
-  return el;
+  return {
+    element: el,
+    asyncRenderer: null
+  };
 };
 
 if (window["plantumlEncoder"]) {

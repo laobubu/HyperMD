@@ -42,7 +42,10 @@ export const EchartsRenderer: CodeRenderer = (code, info) => {
   } catch (error) {
     el.innerText = error.toString();
   }
-  return el;
+  return {
+    element: el,
+    asyncRenderer: null
+  };
 };
 
 if (window["echarts"]) {
