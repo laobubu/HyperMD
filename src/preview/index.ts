@@ -20,6 +20,7 @@ import { MermaidRenderer } from "../powerpack/fold-code-with-mermaid";
 import { WaveDromRenderer } from "../powerpack/fold-code-with-wavedrom";
 import { getWidgetCreator } from "../widget/index";
 import { VegaRenderer } from "../powerpack/fold-code-with-vega";
+import { VegaLiteRenderer } from "../powerpack/fold-code-with-vega-lite";
 
 const md = new MarkdownIt({
   html: true,
@@ -283,6 +284,10 @@ function renderCodeFences(previewElement: HTMLElement, isPresentation = false) {
       }
     } else if (language.match(/^vega$/)) {
       const { element, asyncRenderer } = VegaRenderer(code, info);
+      fence.replaceWith(element);
+      if (asyncRenderer) asyncRenderer();
+    } else if (language.match(/^vega\-lite$/)) {
+      const { element, asyncRenderer } = VegaLiteRenderer(code, info);
       fence.replaceWith(element);
       if (asyncRenderer) asyncRenderer();
     } else if (language.match(/^wavedrom$/i)) {

@@ -35,6 +35,7 @@ exports.components = {
   "powerpack/fold-code-with-mermaid": "FoldCodeWithMermaid",
   "powerpack/fold-code-with-wavedrom": "FoldCodeWithWavedrom",
   "powerpack/fold-code-with-vega": "FoldCodeWithVega",
+  "powerpack/fold-code-with-vega-lite": "FoldCodeWithVegaLite",
   // ** Widget
   "addon/fold-widget": "FoldWidget",
   "widget/index": "Widget",
@@ -96,7 +97,8 @@ exports.globalNames = {
   "markdown-it-task-lists": "MarkdownItTaskLists",
   react: "React",
   "react-dom": "ReactDOM",
-  vega: "vega"
+  vega: "vega",
+  "vega-embed": "vegaEmbed"
   // prismjs: "Prism"
 };
 

@@ -4,7 +4,7 @@
 // DESCRIPTION: Vega support
 // Please include the following in your index.html file
 //
-//   <script src="https://cdn.jsdelivr.net/npm/vega@5.9.0/build/vega.min.js"></script>
+//      <script src="https://cdn.jsdelivr.net/npm/vega@5/build/vega.min.js"></script>
 
 import * as CodeMirror from "codemirror";
 import {
@@ -63,11 +63,10 @@ if (vega && vega.View) {
   });
   console.log("[HyperMD] PowerPack fold-code-with-vega loaded.");
 } else {
-  console.log(vega);
   console.log(`[HyperMD] PowerPack fold-code-with-vega failed to load.
 Please include  
 
-  <script src="https://cdn.jsdelivr.net/npm/vega@5.9.0/build/vega.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5/build/vega.min.js"></script>
 
 in your HTML file`);
 }
