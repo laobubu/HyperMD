@@ -78,7 +78,13 @@ export interface FoldInfo {
  * 2. if rendered element's dimension is changed, you must call `info.changed()`
  * 3. do NOT use destructuring assignment with `info` !!!
  */
-export type CodeRenderer = (code: string, info: FoldInfo) => HTMLElement;
+export type CodeRenderer = (
+  code: string,
+  info: FoldInfo
+) => {
+  element: HTMLElement;
+  asyncRenderer?: () => void;
+};
 
 //#endregion
 
@@ -337,7 +343,9 @@ export class FoldCode implements Addon.Addon {
       changed: undefined_function
     };
 
-    let el = (info.el = renderer(code, info));
+    const { element, asyncRenderer } = renderer(code, info);
+    info.el = element;
+    let el = element;
     if (!el) {
       info.marker.clear();
       return null;
@@ -356,6 +364,10 @@ export class FoldCode implements Addon.Addon {
       noHScroll: false,
       showIfHidden: false
     }));
+
+    if (asyncRenderer) {
+      asyncRenderer();
+    }
 
     //-----------------------------
 

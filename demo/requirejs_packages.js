@@ -42,4 +42,7 @@ var requirejs_packages = [
   // I still don't know how to import
   { name: "react-dom", main: "umd/react-dom.production.min.js" },
   { name: "react", main: "umd/react.production.min.js" }
+
+  // Vega
+  // { name: "vega", main: "build/vega.min.js" } // <= vega AMD is not working
 ];

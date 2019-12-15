@@ -19,6 +19,7 @@ import { EchartsRenderer } from "../powerpack/fold-code-with-echarts";
 import { MermaidRenderer } from "../powerpack/fold-code-with-mermaid";
 import { WaveDromRenderer } from "../powerpack/fold-code-with-wavedrom";
 import { getWidgetCreator } from "../widget/index";
+import { VegaRenderer } from "../powerpack/fold-code-with-vega";
 
 const md = new MarkdownIt({
   html: true,
@@ -268,22 +269,27 @@ function renderCodeFences(previewElement: HTMLElement, isPresentation = false) {
     // TODO: Diagrams rendering
     if (language.match(/^(puml|plantuml)$/)) {
       // Diagrams
-      const el = PlantUMLRenderer(code, info);
-      fence.replaceWith(el);
+      const { element } = PlantUMLRenderer(code, info);
+      fence.replaceWith(element);
       continue;
     } else if (language.match(/^echarts$/)) {
-      const el = EchartsRenderer(code, info);
-      fence.replaceWith(el);
+      const { element } = EchartsRenderer(code, info);
+      fence.replaceWith(element);
     } else if (language.match(/^mermaid$/)) {
       if (!isPresentation) {
         // console.log("render mermaid")
-        const el = MermaidRenderer(code, info);
-        fence.replaceWith(el);
+        const { element } = MermaidRenderer(code, info);
+        fence.replaceWith(element);
       }
+    } else if (language.match(/^vega$/)) {
+      const { element, asyncRenderer } = VegaRenderer(code, info);
+      fence.replaceWith(element);
+      if (asyncRenderer) asyncRenderer();
     } else if (language.match(/^wavedrom$/i)) {
       if (!isPresentation) {
-        const el = WaveDromRenderer(code, info);
-        fence.replaceWith(el);
+        const { element, asyncRenderer } = WaveDromRenderer(code, info);
+        fence.replaceWith(element);
+        if (asyncRenderer) asyncRenderer();
       }
     } else {
       // Normal code block

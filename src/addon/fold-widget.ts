@@ -150,6 +150,7 @@ export const WidgetFolder = function(
         ch: widgetTo.ch + 1
       }
     );
+    editor.focus();
   };
 
   const removeSelf = () => {

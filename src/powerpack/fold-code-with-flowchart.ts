@@ -64,7 +64,10 @@ export const FlowchartRenderer: CodeRenderer = (code, info) => {
     fc = null;
   };
 
-  return el;
+  return {
+    element: el,
+    asyncRenderer: null
+  };
 };
 
 if (typeof flowchart === "object") {
