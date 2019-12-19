@@ -167,7 +167,7 @@ export function transformMarkdown(
           outputString += createAnchor(lineNo); // insert anchor for scroll sync
         }
         /* tslint:disable-next-line:no-conditional-assignment */
-      } else if ((headingMatch = line.match(/^(\#{1,7}).*/))) {
+      } else if ((headingMatch = line.match(/^(\#{1,7})\s+.*/))) {
         /* ((headingMatch = line.match(/^(\#{1,7})(.+)$/)) ||
                   // the ==== and --- headers don't work well. For example, table and list will affect it, therefore I decide not to support it.
                   (inputString[end + 1] === '=' && inputString[end + 2] === '=') ||
