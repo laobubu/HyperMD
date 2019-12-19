@@ -3,7 +3,7 @@ import {
   parseBlockInfo,
   normalizeBlockInfo
 } from "../../addon/block-info/index";
-import { stringifyAttributes, Attributes } from "../../addon/attributes/index";
+import { Attributes } from "../../addon/attributes/index";
 
 const TAGS_TO_REPLACE = {
   "&": "&amp;",
