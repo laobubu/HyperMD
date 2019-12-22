@@ -359,14 +359,17 @@ function printPDF(
       bannerElement.innerHTML = `<p>Printing ...</p>`;
     }
     document.body.appendChild(bannerElement);
+    const oldDisplayStyle = previewElement.style.display;
     const oldPositionStyle = previewElement.style.position;
     const oldPadding = previewElement.style.padding;
     const oldMargin = previewElement.style.margin;
+    previewElement.style.display = "block";
     previewElement.style.position = "relative";
     previewElement.style.padding = "0";
     previewElement.style.margin = "0";
     const restore = () => {
       document.body.removeChild(bannerElement);
+      previewElement.style.display = oldDisplayStyle;
       previewElement.style.position = oldPositionStyle;
       previewElement.style.padding = oldPadding;
       previewElement.style.margin = oldMargin;
