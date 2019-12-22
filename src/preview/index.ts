@@ -389,4 +389,70 @@ function printPDF(
   });
 }
 
-export { renderMarkdown, renderPreview, printPDF };
+function print(previewElement: HTMLElement, bannerElement?: HTMLElement) {
+  if (!bannerElement) {
+    bannerElement = document.createElement("div");
+    bannerElement.style.position = "fixed";
+    bannerElement.style.width = "100%";
+    bannerElement.style.height = "100%";
+    bannerElement.style.top = "0";
+    bannerElement.style.left = "0";
+    bannerElement.style.textAlign = "center";
+    bannerElement.style.backgroundColor = "#fff";
+    bannerElement.style.zIndex = "9999";
+    bannerElement.innerHTML = `<p>Preparing ...</p>`;
+  }
+  bannerElement.classList.add("print-hidden");
+  document.body.appendChild(bannerElement);
+
+  const styleElement = document.createElement("style");
+  styleElement.innerHTML = `
+@media print {
+  .print-hidden, #test-box {
+    display: none;
+  }
+}
+`;
+  document.body.appendChild(styleElement);
+
+  const oldDisplayStyle = previewElement.style.display;
+  const oldPositionStyle = previewElement.style.position;
+  const oldWidthStyle = previewElement.style.width;
+  const oldHeightStyle = previewElement.style.height;
+  const oldOverflowStyle = previewElement.style.overflow;
+  const oldTopStyle = previewElement.style.top;
+  const oldLeftStyle = previewElement.style.left;
+  const oldPaddingStyle = previewElement.style.padding;
+  const oldMarginStyle = previewElement.style.margin;
+  previewElement.style.display = "block";
+  previewElement.style.position = "absolute";
+  previewElement.style.width = "100%";
+  previewElement.style.height = "auto";
+  previewElement.style.overflow = "auto";
+  previewElement.style.zIndex = "9999";
+  previewElement.style.top = "0";
+  previewElement.style.left = "0";
+  previewElement.style.padding = "0";
+  previewElement.style.margin = "0";
+
+  const restore = () => {
+    document.body.removeChild(bannerElement);
+    document.body.removeChild(styleElement);
+    previewElement.style.display = oldDisplayStyle;
+    previewElement.style.position = oldPositionStyle;
+    previewElement.style.width = oldWidthStyle;
+    previewElement.style.height = oldHeightStyle;
+    previewElement.style.overflow = oldOverflowStyle;
+    previewElement.style.top = oldTopStyle;
+    previewElement.style.left = oldLeftStyle;
+    previewElement.style.padding = oldPaddingStyle;
+    previewElement.style.margin = oldMarginStyle;
+  };
+
+  setTimeout(() => {
+    window.print();
+    restore();
+  }, 2000);
+}
+
+export { renderMarkdown, renderPreview, printPDF, print };
