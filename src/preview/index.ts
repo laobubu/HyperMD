@@ -22,6 +22,8 @@ import { getWidgetCreator } from "../widget/index";
 import { VegaRenderer } from "../powerpack/fold-code-with-vega";
 import { VegaLiteRenderer } from "../powerpack/fold-code-with-vega-lite";
 
+declare var html2pdf: typeof import("html2pdf.js").default;
+
 const md = new MarkdownIt({
   html: true,
   linkify: true,
@@ -335,11 +337,53 @@ function renderCodeFences(previewElement: HTMLElement, isPresentation = false) {
  * Print as PDF
  * @param previewElement
  */
-function printPDF(previewElement) {
-  if (!window["html2pdf"]) {
-    throw new Error("html2pdf is not imported. Failed to print pdf");
-  }
-  window["html2pdf"](previewElement);
+function printPDF(
+  previewElement: HTMLElement,
+  printOption = {},
+  bannerElement?: HTMLElement
+) {
+  return new Promise((resolve, reject) => {
+    if (!window["html2pdf"]) {
+      throw new Error("html2pdf is not imported. Failed to print pdf");
+    }
+    if (!bannerElement) {
+      bannerElement = document.createElement("div");
+      bannerElement.style.position = "fixed";
+      bannerElement.style.width = "100%";
+      bannerElement.style.height = "100%";
+      bannerElement.style.top = "0";
+      bannerElement.style.left = "0";
+      bannerElement.style.textAlign = "center";
+      bannerElement.style.backgroundColor = "#fff";
+      bannerElement.style.zIndex = "9999";
+      bannerElement.innerHTML = `<p>Printing ...</p>`;
+    }
+    document.body.appendChild(bannerElement);
+    const oldPositionStyle = previewElement.style.position;
+    const oldPadding = previewElement.style.padding;
+    const oldMargin = previewElement.style.margin;
+    previewElement.style.position = "relative";
+    previewElement.style.padding = "0";
+    previewElement.style.margin = "0";
+    const restore = () => {
+      document.body.removeChild(bannerElement);
+      previewElement.style.position = oldPositionStyle;
+      previewElement.style.padding = oldPadding;
+      previewElement.style.margin = oldMargin;
+    };
+    html2pdf()
+      .set(printOption)
+      .from(previewElement)
+      .save()
+      .then(() => {
+        restore();
+        return resolve();
+      })
+      .catch(error => {
+        restore();
+        return reject(error);
+      });
+  });
 }
 
 export { renderMarkdown, renderPreview, printPDF };

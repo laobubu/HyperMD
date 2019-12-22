@@ -124,7 +124,9 @@ require([
       html: true, // maybe dangerous
       emoji: true,
       widget: true
-    }
+    },
+
+    inputProps: "textarea"
   });
   editor.setSize(null, "100%"); // set height
 
