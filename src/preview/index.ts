@@ -255,6 +255,15 @@ Reveal.addEventListener("ready", ()=> {
   ${html}
   </body>
   <!-- reveal.js -->
+  ${
+    forRevealJSPrint
+      ? `
+  <script>
+  window.history.replaceState("", "", "?print-pdf")
+  </script>
+  `
+      : ""
+  }
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/js/reveal.min.js"></script>
 
   <!-- prism.js -->
@@ -268,13 +277,6 @@ Reveal.addEventListener("ready", ()=> {
 
   <!-- initialize reveal.js -->
   <script>
-${
-  forRevealJSPrint
-    ? `
-window.history.replaceState("", "", "?print-pdf")
-`
-    : ``
-}
 Reveal.initialize(${JSON.stringify({
       margin: 0.1,
       ...revealJSConfig
