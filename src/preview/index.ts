@@ -452,7 +452,11 @@ function printPDF(
   });
 }
 
-function print(previewElement: HTMLElement, bannerElement?: HTMLElement) {
+function print(
+  previewElement: HTMLElement,
+  bannerElement?: HTMLElement,
+  timeout = 2000
+) {
   if (!bannerElement) {
     bannerElement = document.createElement("div");
     bannerElement.style.position = "fixed";
@@ -515,7 +519,7 @@ function print(previewElement: HTMLElement, bannerElement?: HTMLElement) {
   setTimeout(() => {
     window.print();
     restore();
-  }, 2000);
+  }, timeout);
 }
 
 export { renderMarkdown, renderPreview, printPDF, print };
