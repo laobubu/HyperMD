@@ -8,3 +8,13 @@ We will migrate to [codemirror 6](https://codemirror.net/6/) in the future, whic
 But for now, we will just stick to the current [codemirror 5](https://codemirror.net) codebase, that is what HyperMD currently uses.
 
 The documtation is on the way :)
+
+## Development
+
+Check the `package.json`
+
+```
+$ yarn
+$ yarn build
+$ yarn dev
+```
