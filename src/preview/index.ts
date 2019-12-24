@@ -146,7 +146,11 @@ const AutoPrismThemeMapForPresentation = {
  * @param previewElement, which should be <div> element
  * @param markdown
  */
-function renderPreview(previewElement: HTMLElement, markdown: string) {
+function renderPreview(
+  previewElement: HTMLElement,
+  markdown: string,
+  forRevealJSPrint: boolean = false
+) {
   const { html, headings, slideConfigs, yamlConfig } = renderMarkdown(markdown);
   previewElement.setAttribute("data-vickymd-preview", "true");
   if (!slideConfigs.length) {
@@ -157,6 +161,7 @@ function renderPreview(previewElement: HTMLElement, markdown: string) {
     // Slide
     previewElement.innerHTML = "";
     const iframe = document.createElement("iframe");
+    iframe.setAttribute("data-markdown", markdown);
 
     // Check wavedrom
     let wavedromScript = "";
@@ -228,6 +233,11 @@ Reveal.addEventListener("ready", ()=> {
     <!-- reveal.js styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/reveal.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/theme/${revealJSTheme}">
+    ${
+      forRevealJSPrint
+        ? `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/print/pdf.css">`
+        : ""
+    }
 
     <!-- katex -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
@@ -258,6 +268,13 @@ Reveal.addEventListener("ready", ()=> {
 
   <!-- initialize reveal.js -->
   <script>
+${
+  forRevealJSPrint
+    ? `
+window.history.replaceState("", "", "?print-pdf")
+`
+    : ``
+}
 Reveal.initialize(${JSON.stringify({
       margin: 0.1,
       ...revealJSConfig
@@ -519,23 +536,24 @@ function printPreview(
       }
     });
 
-    let iframe: HTMLIFrameElement = null;
+    let isPresentation = false;
+    let presentationMarkdown = "";
+    let presentationIframe: HTMLIFrameElement = null;
     if (
-      previewElement &&
+      // It's presentation
       previewElement.childElementCount > 0 &&
       previewElement.children[0].tagName &&
       previewElement.children[0].tagName.toUpperCase() === "IFRAME"
     ) {
-      iframe = previewElement.children[0] as HTMLIFrameElement;
-      // append pdf.css
-      const link = document.createElement("link");
-      link.id = "revealjs-print-pdf";
-      link.rel = "stylesheet";
-      link.type = "text/css";
-      link.href =
-        "https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/print/pdf.css";
-      iframe.contentDocument.getElementsByTagName("head")[0].appendChild(link);
+      // rerender
+      isPresentation = true;
+      presentationMarkdown = previewElement.children[0].getAttribute(
+        "data-markdown"
+      );
+      renderPreview(previewElement, presentationMarkdown, true);
+      presentationIframe = previewElement.children[0] as HTMLIFrameElement;
     }
+
     const restore = () => {
       document.body.removeChild(bannerElement);
       document.body.removeChild(styleElement);
@@ -549,13 +567,9 @@ function printPreview(
       previewElement.style.padding = oldPaddingStyle;
       previewElement.style.margin = oldMarginStyle;
 
-      if (iframe) {
-        const link = iframe.contentDocument.getElementById(
-          "revealjs-print-pdf"
-        );
-        if (link) {
-          link.remove();
-        }
+      if (isPresentation) {
+        // rerender
+        renderPreview(previewElement, presentationMarkdown);
       }
 
       elements.forEach((elem, idx) => {
@@ -564,9 +578,8 @@ function printPreview(
     };
 
     setTimeout(() => {
-      if (iframe) {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
+      if (isPresentation) {
+        presentationIframe.contentWindow.print();
       } else {
         window.print();
       }
