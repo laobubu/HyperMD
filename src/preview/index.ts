@@ -452,87 +452,128 @@ function printPDF(
   });
 }
 
-function print(
+function printPreview(
   previewElement: HTMLElement,
   bannerElement?: HTMLElement,
+  elementsWhosePositionsToInitial: string[] = [],
+  extraMediaPrintCSS: string = "",
   timeout = 2000
 ) {
-  if (!bannerElement) {
-    bannerElement = document.createElement("div");
-    bannerElement.style.position = "fixed";
-    bannerElement.style.width = "100%";
-    bannerElement.style.height = "100%";
-    bannerElement.style.top = "0";
-    bannerElement.style.left = "0";
-    bannerElement.style.textAlign = "center";
-    bannerElement.style.backgroundColor = "#fff";
-    bannerElement.style.zIndex = "9999";
-    bannerElement.innerHTML = `<p>Preparing ...</p>`;
-  }
-  bannerElement.classList.add("print-hidden");
-  document.body.appendChild(bannerElement);
+  return new Promise((resolve, reject) => {
+    if (!bannerElement) {
+      bannerElement = document.createElement("div");
+      bannerElement.style.position = "fixed";
+      bannerElement.style.width = "100%";
+      bannerElement.style.height = "100%";
+      bannerElement.style.top = "0";
+      bannerElement.style.left = "0";
+      bannerElement.style.textAlign = "center";
+      bannerElement.style.backgroundColor = "#fff";
+      bannerElement.style.zIndex = "9999";
+      bannerElement.innerHTML = `<p>Preparing ...</p>`;
+    }
+    bannerElement.classList.add("print-hidden");
+    document.body.appendChild(bannerElement);
 
-  const styleElement = document.createElement("style");
-  styleElement.innerHTML = `
+    const styleElement = document.createElement("style");
+    styleElement.innerHTML = `
 @media print {
-  .print-hidden, #test-box {
+  .print-hidden {
     display: none;
   }
+
+  ${extraMediaPrintCSS}
 }
 `;
-  document.body.appendChild(styleElement);
+    document.body.appendChild(styleElement);
 
-  const oldDisplayStyle = previewElement.style.display;
-  const oldPositionStyle = previewElement.style.position;
-  const oldWidthStyle = previewElement.style.width;
-  const oldHeightStyle = previewElement.style.height;
-  const oldOverflowStyle = previewElement.style.overflow;
-  const oldTopStyle = previewElement.style.top;
-  const oldLeftStyle = previewElement.style.left;
-  const oldPaddingStyle = previewElement.style.padding;
-  const oldMarginStyle = previewElement.style.margin;
-  previewElement.style.display = "block";
-  previewElement.style.position = "absolute";
-  previewElement.style.width = "100%";
-  previewElement.style.height = "auto";
-  previewElement.style.overflow = "auto";
-  previewElement.style.zIndex = "9999";
-  previewElement.style.top = "0";
-  previewElement.style.left = "0";
-  previewElement.style.padding = "0";
-  previewElement.style.margin = "0";
+    const oldDisplayStyle = previewElement.style.display;
+    const oldPositionStyle = previewElement.style.position;
+    const oldWidthStyle = previewElement.style.width;
+    const oldHeightStyle = previewElement.style.height;
+    const oldOverflowStyle = previewElement.style.overflow;
+    const oldTopStyle = previewElement.style.top;
+    const oldLeftStyle = previewElement.style.left;
+    const oldPaddingStyle = previewElement.style.padding;
+    const oldMarginStyle = previewElement.style.margin;
+    previewElement.style.display = "block";
+    previewElement.style.position = "absolute";
+    previewElement.style.width = "100%";
+    previewElement.style.height = "auto";
+    previewElement.style.overflow = "auto";
+    previewElement.style.zIndex = "9999";
+    previewElement.style.top = "0";
+    previewElement.style.left = "0";
+    previewElement.style.padding = "0";
+    previewElement.style.margin = "0";
 
-  const restore = () => {
-    document.body.removeChild(bannerElement);
-    document.body.removeChild(styleElement);
-    previewElement.style.display = oldDisplayStyle;
-    previewElement.style.position = oldPositionStyle;
-    previewElement.style.width = oldWidthStyle;
-    previewElement.style.height = oldHeightStyle;
-    previewElement.style.overflow = oldOverflowStyle;
-    previewElement.style.top = oldTopStyle;
-    previewElement.style.left = oldLeftStyle;
-    previewElement.style.padding = oldPaddingStyle;
-    previewElement.style.margin = oldMarginStyle;
-  };
+    // elements whose positions need to be relative
+    const elements: HTMLElement[] = [];
+    const oldPositions: string[] = [];
+    elementsWhosePositionsToInitial.forEach(selector => {
+      const elem = document.querySelector(selector) as HTMLElement;
+      if (elem) {
+        elements.push(elem);
+        oldPositions.push(elem.style.position || "relative");
+        elem.style.position = "initial";
+      }
+    });
 
-  setTimeout(() => {
-    window.print();
-    restore();
-  }, timeout);
+    let iframe: HTMLIFrameElement = null;
+    if (
+      previewElement &&
+      previewElement.childElementCount > 0 &&
+      previewElement.children[0].tagName &&
+      previewElement.children[0].tagName.toUpperCase() === "IFRAME"
+    ) {
+      iframe = previewElement.children[0] as HTMLIFrameElement;
+      // append pdf.css
+      const link = document.createElement("link");
+      link.id = "revealjs-print-pdf";
+      link.rel = "stylesheet";
+      link.type = "text/css";
+      link.href =
+        "https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/print/pdf.css";
+      iframe.contentDocument.getElementsByTagName("head")[0].appendChild(link);
+    }
+    const restore = () => {
+      document.body.removeChild(bannerElement);
+      document.body.removeChild(styleElement);
+      previewElement.style.display = oldDisplayStyle;
+      previewElement.style.position = oldPositionStyle;
+      previewElement.style.width = oldWidthStyle;
+      previewElement.style.height = oldHeightStyle;
+      previewElement.style.overflow = oldOverflowStyle;
+      previewElement.style.top = oldTopStyle;
+      previewElement.style.left = oldLeftStyle;
+      previewElement.style.padding = oldPaddingStyle;
+      previewElement.style.margin = oldMarginStyle;
+
+      if (iframe) {
+        const link = iframe.contentDocument.getElementById(
+          "revealjs-print-pdf"
+        );
+        if (link) {
+          link.remove();
+        }
+      }
+
+      elements.forEach((elem, idx) => {
+        elem.style.position = oldPositions[idx];
+      });
+    };
+
+    setTimeout(() => {
+      if (iframe) {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      } else {
+        window.print();
+      }
+      restore();
+      return resolve();
+    }, timeout);
+  });
 }
 
-export { renderMarkdown, renderPreview, printPDF, print };
-
-/*
-
----
-presentation:
-  theme: black.css
----
-
-<!-- slide -->
-
-# Hi
-
-*/
+export { renderMarkdown, renderPreview, printPDF, printPreview };
