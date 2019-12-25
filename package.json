@@ -15,6 +15,7 @@
     "watch_js": "tsc -w --sourceMap --sourceRoot /src",
     "watch_css": "node dev/build-css.js -w",
     "pretest": "cd test && tsc && node tools/prepare",
+    "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -26,6 +27,7 @@
   "author": "0xGG Team",
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
+    "@rollup/plugin-buble": "^0.21.0",
     "@types/codemirror": "^0.0.81",
     "@types/glob": "^7.1.1",
     "@types/markdown-it": "^0.0.9",
@@ -41,11 +43,10 @@
     "minimatch": "^3.0.4",
     "opn": "^6.0.0",
     "rollup": "^1.27.9",
-    "rollup-plugin-buble": "^0.19.8",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-typescript2": "^0.25.3",
-    "rollup-plugin-uglify": "^6.0.3",
+    "rollup-plugin-uglify": "^6.0.4",
     "sass": "^1.23.7",
     "typescript": "^3.7.3"
   },
@@ -78,5 +79,6 @@
     "vega-embed": "^6.2.1",
     "vega-lite": "^4.0.2",
     "yamljs": "^0.3.0"
-  }
+  },
+  "dependencies": {}
 }
