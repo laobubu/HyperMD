@@ -1,6 +1,6 @@
 {
   "name": "vickymd",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "An experimental WYSIWYG markdown editor built on top of HyperMD with extended Widgets support",
   "main": "./everything.js",
   "types": "./everything.d.ts",

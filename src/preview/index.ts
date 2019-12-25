@@ -233,11 +233,13 @@ Reveal.addEventListener("ready", ()=> {
     <!-- reveal.js styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/reveal.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/theme/${revealJSTheme}">
+    <!--
+    // Don't insert pdf.css manually
     ${
       forRevealJSPrint
         ? `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/print/pdf.css">`
         : ""
-    }
+    }-->
 
     <!-- katex -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
