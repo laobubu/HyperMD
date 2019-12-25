@@ -1,4 +1,4 @@
-import buble from "rollup-plugin-buble";
+import buble from "@rollup/plugin-buble";
 import typescript from "rollup-plugin-typescript2";
 import { uglify } from "rollup-plugin-uglify";
 
@@ -9,7 +9,7 @@ const plugins = {
   ts: typescript({
     tsconfigOverride: {
       compilerOptions: {
-        target: "es6",
+        target: "es5",
         module: "es6",
         declaration: false
       }
