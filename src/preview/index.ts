@@ -151,153 +151,160 @@ function renderPreview(
   markdown: string,
   forRevealJSPrint: boolean = false
 ) {
-  const { html, headings, slideConfigs, yamlConfig } = renderMarkdown(markdown);
-  previewElement.setAttribute("data-vickymd-preview", "true");
-  if (!slideConfigs.length) {
-    previewElement.innerHTML = html;
-    performAfterWorks(previewElement);
-  } else {
-    const id = "reveal.js." + Date.now();
-    // Slide
-    previewElement.innerHTML = "";
-    const iframe = document.createElement("iframe");
-    iframe.setAttribute("data-markdown", markdown);
+  return new Promise((resolve, reject) => {
+    const { html, headings, slideConfigs, yamlConfig } = renderMarkdown(
+      markdown
+    );
+    previewElement.setAttribute("data-vickymd-preview", "true");
+    if (!slideConfigs.length) {
+      previewElement.innerHTML = html;
+      performAfterWorks(previewElement);
+      return resolve();
+    } else {
+      const id = "reveal.js." + Date.now();
+      // Slide
+      previewElement.innerHTML = "";
+      const iframe = document.createElement("iframe");
+      iframe.setAttribute("data-markdown", markdown);
 
-    // Check wavedrom
-    let wavedromScript = "";
-    let wavedromInitScript = "";
-    if (html.indexOf("wavedrom") >= 0) {
-      wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/skins/default.js"></script>`;
-      wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/wavedrom.min.js"></script>`;
-      wavedromInitScript += `<script>
-Reveal.addEventListener("ready", ()=> {
-  WaveDrom.ProcessAll()
-})      
-</script>`;
-    }
-
-    // Check mermaid. Copied from @shd101wyy/mume
-    let mermaidScript = "";
-    let mermaidInitScript = "";
-    if (html.indexOf("mermaid") >= 0) {
-      mermaidScript = `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>`;
-      mermaidInitScript += `<script>
-      if (window['MERMAID_CONFIG']) {
-        window['MERMAID_CONFIG'].startOnLoad = false
-        window['MERMAID_CONFIG'].cloneCssStyles = false
+      // Check wavedrom
+      let wavedromScript = "";
+      let wavedromInitScript = "";
+      if (html.indexOf("wavedrom") >= 0) {
+        wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/skins/default.js"></script>`;
+        wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/wavedrom.min.js"></script>`;
+        wavedromInitScript += `<script>
+  Reveal.addEventListener("ready", ()=> {
+    WaveDrom.ProcessAll()
+  })      
+  </script>`;
       }
-      mermaid.initialize(window['MERMAID_CONFIG'] || {})
-      if (typeof(window['Reveal']) !== 'undefined') {
-        function mermaidRevealHelper(event) {
-          var currentSlide = event.currentSlide
-          var diagrams = currentSlide.querySelectorAll('.mermaid')
-          for (var i = 0; i < diagrams.length; i++) {
-            var diagram = diagrams[i]
-            if (!diagram.hasAttribute('data-processed')) {
-              mermaid.init(null, diagram, ()=> {
-                Reveal.slide(event.indexh, event.indexv)
-              })
+
+      // Check mermaid. Copied from @shd101wyy/mume
+      let mermaidScript = "";
+      let mermaidInitScript = "";
+      if (html.indexOf("mermaid") >= 0) {
+        mermaidScript = `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>`;
+        mermaidInitScript += `<script>
+        if (window['MERMAID_CONFIG']) {
+          window['MERMAID_CONFIG'].startOnLoad = false
+          window['MERMAID_CONFIG'].cloneCssStyles = false
+        }
+        mermaid.initialize(window['MERMAID_CONFIG'] || {})
+        if (typeof(window['Reveal']) !== 'undefined') {
+          function mermaidRevealHelper(event) {
+            var currentSlide = event.currentSlide
+            var diagrams = currentSlide.querySelectorAll('.mermaid')
+            for (var i = 0; i < diagrams.length; i++) {
+              var diagram = diagrams[i]
+              if (!diagram.hasAttribute('data-processed')) {
+                mermaid.init(null, diagram, ()=> {
+                  Reveal.slide(event.indexh, event.indexv)
+                })
+              }
             }
           }
+          Reveal.addEventListener('slidechanged', mermaidRevealHelper)
+          Reveal.addEventListener('ready', mermaidRevealHelper)
+        } else {
+          mermaid.init(null, document.getElementsByClassName('mermaid'))
         }
-        Reveal.addEventListener('slidechanged', mermaidRevealHelper)
-        Reveal.addEventListener('ready', mermaidRevealHelper)
-      } else {
-        mermaid.init(null, document.getElementsByClassName('mermaid'))
+        </script>`;
       }
-      </script>`;
-    }
 
-    // reveal.js
-    let revealJSConfig = {};
-    if (yamlConfig && yamlConfig["presentation"]) {
-      revealJSConfig = yamlConfig["presentation"] || {};
-    }
-    let revealJSTheme = "white.css";
-    if (revealJSConfig && revealJSConfig["theme"]) {
-      revealJSTheme = RevealJSThemes[revealJSConfig["theme"]] || "white.css";
-    }
-    let revealJSCodeBlockTheme =
-      AutoPrismThemeMapForPresentation[revealJSTheme];
+      // reveal.js
+      let revealJSConfig = {};
+      if (yamlConfig && yamlConfig["presentation"]) {
+        revealJSConfig = yamlConfig["presentation"] || {};
+      }
+      let revealJSTheme = "white.css";
+      if (revealJSConfig && revealJSConfig["theme"]) {
+        revealJSTheme = RevealJSThemes[revealJSConfig["theme"]] || "white.css";
+      }
+      let revealJSCodeBlockTheme =
+        AutoPrismThemeMapForPresentation[revealJSTheme];
 
-    iframe.style.border = "none";
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.style.boxSizing = "border-box";
-    previewElement.appendChild(iframe);
-    iframe.contentWindow.document.write(`<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+      iframe.style.border = "none";
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.boxSizing = "border-box";
+      iframe.src = "javascript:;";
+      previewElement.appendChild(iframe);
+      iframe.contentWindow.document.open();
+      iframe.contentWindow.document.write(`<html>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      
+      <!-- reveal.js styles -->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/reveal.css">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/theme/${revealJSTheme}">    
+      ${
+        forRevealJSPrint
+          ? `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/print/pdf.css">`
+          : ""
+      }
+  
+      <!-- katex -->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+  
+      <!-- prism github theme -->
+      <link href="https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/${revealJSCodeBlockTheme}" rel="stylesheet">
     
-    <!-- reveal.js styles -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/reveal.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/theme/${revealJSTheme}">
-    <!--
-    // Don't insert pdf.css manually
+      <!-- mermaid -->
+      ${mermaidScript}
+  
+      <!-- wavedrom -->
+      ${wavedromScript}
+    </head>
+    <body>
+    ${html}
+    </body>
+    <!-- reveal.js -->
     ${
       forRevealJSPrint
-        ? `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/print/pdf.css">`
+        ? `
+    <script>
+    window.history.replaceState("", "", "?print-pdf")
+    </script>
+    `
         : ""
-    }-->
-
-    <!-- katex -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
-
-    <!-- prism github theme -->
-    <link href="https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/${revealJSCodeBlockTheme}" rel="stylesheet">
+    }
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/js/reveal.min.js"></script>
+  
+    <!-- prism.js -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"></script>
   
     <!-- mermaid -->
-    ${mermaidScript}
-
+    ${mermaidInitScript}
+  
     <!-- wavedrom -->
-    ${wavedromScript}
-  </head>
-  <body>
-  ${html}
-  </body>
-  <!-- reveal.js -->
-  ${
-    forRevealJSPrint
-      ? `
-  <script>
-  window.history.replaceState("", "", "?print-pdf")
-  </script>
-  `
-      : ""
-  }
-  <script src="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/js/reveal.min.js"></script>
-
-  <!-- prism.js -->
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"></script>
-
-  <!-- mermaid -->
-  ${mermaidInitScript}
-
-  <!-- wavedrom -->
-  ${wavedromInitScript}
-
-  <!-- initialize reveal.js -->
-  <script>
-Reveal.initialize(${JSON.stringify({
-      margin: 0.1,
-      ...revealJSConfig
-    })});
-Reveal.addEventListener('ready', function(event) {
-  parent.postMessage({event: "reveal-ready", id:"${id}"})
-})
-  </script>
-</html>`);
-    window.addEventListener("message", function(event) {
-      if (
-        event.data &&
-        event.data.event === "reveal-ready" &&
-        event.data.id === id
-      ) {
-        performAfterWorks(iframe.contentWindow.document.body, true);
-      }
-    });
-  }
+    ${wavedromInitScript}
+  
+    <!-- initialize reveal.js -->
+    <script>
+  Reveal.initialize(${JSON.stringify({
+    margin: 0.1,
+    ...revealJSConfig
+  })});
+  Reveal.addEventListener('ready', function(event) {
+    parent.postMessage({event: "reveal-ready", id:"${id}"})
+  })
+    </script>
+  </html>`);
+      iframe.contentWindow.document.close();
+      window.addEventListener("message", function(event) {
+        if (
+          event.data &&
+          event.data.event === "reveal-ready" &&
+          event.data.id === id
+        ) {
+          performAfterWorks(iframe.contentWindow.document.body, true);
+          return resolve();
+        }
+      });
+    }
+  });
 }
 
 function renderWidgets(previewElement: HTMLElement) {
@@ -480,7 +487,7 @@ function printPreview(
   extraMediaPrintCSS: string = "",
   timeout = 2000
 ) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     if (!bannerElement) {
       bannerElement = document.createElement("div");
       bannerElement.style.position = "fixed";
@@ -554,7 +561,7 @@ function printPreview(
       presentationMarkdown = previewElement.children[0].getAttribute(
         "data-markdown"
       );
-      renderPreview(previewElement, presentationMarkdown, true);
+      await renderPreview(previewElement, presentationMarkdown, true);
       presentationIframe = previewElement.children[0] as HTMLIFrameElement;
     }
 
