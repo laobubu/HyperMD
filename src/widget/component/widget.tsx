@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { Attributes } from "../../addon/fold";
 
 interface Props {
   children: ReactNode;

@@ -43,10 +43,6 @@ exports.components = {
   "widget/hello/hello": "WidgetHello",
   "widget/error/error": "WidgetError",
   "widget/timer/timer": "WidgetTimer",
-  "widget/bilibili/bilibili": "WidgetBilibili",
-  "widget/youtube/youtube": "WidgetYoutube",
-  "widget/video/video": "WidgetVideo",
-  "widget/audio/audio": "WidgetAudio",
   // ** Attribute
   "addon/attributes/index": "AttributesAddon",
   "addon/attributes/normalize": "AttributesNormalize",
