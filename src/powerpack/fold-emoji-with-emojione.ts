@@ -39,7 +39,7 @@ export const emojioneRenderer: EmojiRenderer = text => {
 };
 
 // Update default EmojiChecker and EmojiRenderer
-if (emojione) {
+if (typeof emojione !== "undefined") {
   defaultOption.emojiChecker = emojioneChecker;
   defaultOption.emojiRenderer = emojioneRenderer;
 } else {
