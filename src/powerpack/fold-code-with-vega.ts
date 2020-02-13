@@ -49,7 +49,7 @@ export const VegaRenderer: CodeRenderer = (code, info) => {
   };
 };
 
-if (vega && vega.View) {
+if (typeof vega !== "undefined" && vega.View) {
   CodeMirror.defineOption("vega", null, (cm: CodeMirror.Editor) => {
     getFoldCode(cm).clear("vega");
     getFold(cm).startFold();

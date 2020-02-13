@@ -40,7 +40,7 @@ export const VegaLiteRenderer: CodeRenderer = (code, info) => {
   };
 };
 
-if (vegaEmbed) {
+if (typeof vegaEmbed !== "undefined") {
   CodeMirror.defineOption("vega-lite", null, (cm: CodeMirror.Editor) => {
     getFoldCode(cm).clear("vega-lite");
     getFold(cm).startFold();

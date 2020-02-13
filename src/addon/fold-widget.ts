@@ -15,20 +15,12 @@ import {
 import { Attributes } from "./attributes/index";
 import { registerWidgetCreator, getWidgetCreator } from "../widget/index";
 import { HelloWidget } from "../widget/hello/hello";
-import { AudioWidget } from "../widget/audio/audio";
-import { BilibiliWidget } from "../widget/bilibili/bilibili";
 import { ErrorWidget } from "../widget/error/error";
 import { TimerWidget } from "../widget/timer/timer";
-import { VideoWidget } from "../widget/video/video";
-import { YoutubeWidget } from "../widget/youtube/youtube";
 
 registerWidgetCreator("hello", HelloWidget);
-registerWidgetCreator("audio", AudioWidget);
-registerWidgetCreator("bilibili", BilibiliWidget);
 registerWidgetCreator("error", ErrorWidget);
 registerWidgetCreator("timer", TimerWidget);
-registerWidgetCreator("video", VideoWidget);
-registerWidgetCreator("youtube", YoutubeWidget);
 
 export const WidgetFolder = function(
   stream: FoldStream,
