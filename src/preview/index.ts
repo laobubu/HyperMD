@@ -371,7 +371,6 @@ function renderCodeFences(previewElement: HTMLElement, isPresentation = false) {
       fence.replaceWith(element);
     } else if (language.match(/^mermaid$/)) {
       if (!isPresentation) {
-        // console.log("render mermaid")
         const { element } = MermaidRenderer(code, info);
         fence.replaceWith(element);
       }

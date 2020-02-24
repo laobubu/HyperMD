@@ -85,7 +85,9 @@ export class KatexRenderer implements MathRenderer {
 if (typeof katex != "undefined") {
   defaultOption.renderer = KatexRenderer;
 } else {
-  console.error(
-    "[HyperMD] PowerPack fold-math-with-katex loaded, but katex not found."
-  );
+  if (window["VICKYMD_DEBUG"]) {
+    console.error(
+      "[HyperMD] PowerPack fold-math-with-katex loaded, but katex not found."
+    );
+  }
 }

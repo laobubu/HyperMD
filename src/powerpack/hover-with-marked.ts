@@ -16,7 +16,9 @@ if (typeof marked === "function" || typeof marked === "object") {
     return (marked as any)(text);
   };
 } else {
-  console.error(
-    "[HyperMD] PowerPack hover-with-marked loaded, but marked not found."
-  );
+  if (window["VICKYMD_DEBUG"]) {
+    console.error(
+      "[HyperMD] PowerPack hover-with-marked loaded, but marked not found."
+    );
+  }
 }

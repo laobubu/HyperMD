@@ -52,13 +52,17 @@ if (typeof vegaEmbed !== "undefined") {
     renderer: VegaLiteRenderer,
     suggested: true
   });
-  console.log("[HyperMD] PowerPack fold-code-with-vega-lite loaded.");
+  if (window["VICKYMD_DEBUG"]) {
+    console.log("[HyperMD] PowerPack fold-code-with-vega-lite loaded.");
+  }
 } else {
-  console.log(`[HyperMD] PowerPack fold-code-with-vega-lite failed to load.
+  if (window["VICKYMD_DEBUG"]) {
+    console.log(`[HyperMD] PowerPack fold-code-with-vega-lite failed to load.
 Please include  
 
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@4/build/vega-lite.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@6/build/vega-embed.min.js"></script>
 
 in your HTML file`);
+  }
 }

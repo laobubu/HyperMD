@@ -59,7 +59,9 @@ export const MathFolder: FolderFunc = (stream, token) => {
   // CodeMirror GFM mode split "$$" into two tokens, so do a extra check.
 
   if (tokenLength == 2 && token.string.length == 1) {
-    if (DEBUG) console.log("[FoldMath] $$ is splitted into 2 tokens");
+    if (DEBUG && window["VICKYMD_DEBUG"]) {
+      console.log("[FoldMath] $$ is splitted into 2 tokens");
+    }
     let nextToken = stream.lineTokens[stream.i_token + 1];
     if (!nextToken || !mathBeginRE.test(nextToken.type)) return null;
   }
@@ -135,7 +137,7 @@ export function insertMathMark(
 
   span.appendChild(mathPlaceholder);
 
-  if (DEBUG) {
+  if (DEBUG && window["VICKYMD_DEBUG"]) {
     console.log("insert", p1, p2, expression);
   }
 
@@ -168,7 +170,9 @@ export function insertMathMark(
 
   tryToRun(
     () => {
-      if (DEBUG) console.log("[MATH] Trying to render ", expression);
+      if (DEBUG && window["VICKYMD_DEBUG"]) {
+        console.log("[MATH] Trying to render ", expression);
+      }
       if (!mathRenderer.isReady()) return false;
       mathRenderer.startRender(expression);
       return true;
@@ -177,7 +181,7 @@ export function insertMathMark(
     () => {
       // if failed 5 times...
       marker.clear();
-      if (DEBUG) {
+      if (DEBUG && window["VICKYMD_DEBUG"]) {
         console.log(
           "[MATH] engine always not ready. faild to render ",
           expression,

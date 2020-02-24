@@ -83,7 +83,9 @@ if (typeof flowchart === "object") {
     suggested: true
   });
 } else {
-  console.error(
-    "[HyperMD] PowerPack fold-code-with-flowchart loaded, but flowchart not found."
-  );
+  if (window["VICKYMD_DEBUG"]) {
+    console.error(
+      "[HyperMD] PowerPack fold-code-with-flowchart loaded, but flowchart not found."
+    );
+  }
 }

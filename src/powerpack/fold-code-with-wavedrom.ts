@@ -66,15 +66,19 @@ if (window["WaveDrom"]) {
     renderer: WaveDromRenderer,
     suggested: true
   });
-  console.log("[HyperMD] PowerPack fold-code-with-wavedrom loaded.");
+  if (window["VICKYMD_DEBUG"]) {
+    console.log("[HyperMD] PowerPack fold-code-with-wavedrom loaded.");
+  }
 } else {
-  console.log(`[HyperMD] PowerPack fold-code-with-wavedrom failed to load.
+  if (window["VICKYMD_DEBUG"]) {
+    console.log(`[HyperMD] PowerPack fold-code-with-wavedrom failed to load.
 Please include  
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/2.1.2/skins/default.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/2.1.2/wavedrom.min.js" type="text/javascript"></script>
 
 in your HTML file`);
+  }
 }
 
 /*

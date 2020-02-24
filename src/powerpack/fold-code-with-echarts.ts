@@ -61,13 +61,15 @@ if (window["echarts"]) {
     suggested: true
   });
 } else {
-  console.error(`[HyperMD] PowerPack fold-code-with-echarts failed to load.
+  if (window["VICKYMD_DEBUG"]) {
+    console.error(`[HyperMD] PowerPack fold-code-with-echarts failed to load.
 Please include
 
    <script src="https://cdn.jsdelivr.net/npm/yamljs@0.3.0/dist/yaml.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/echarts-gl@1.1.1/dist/echarts-gl.min.js"></script>
 
 in your HTML file`);
+  }
 }
 
 /*
