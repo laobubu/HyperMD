@@ -4,15 +4,21 @@
 // DESCRIPTION: Load code highlighting modes (aka. profiles) automatically
 //
 
-import * as CodeMirror from 'codemirror'
-import { Addon, FlipFlop, suggestedEditorConfig } from '../core'
-import { cm_t } from '../core/type'
-import 'codemirror/mode/meta'
+import * as CodeMirror from "codemirror";
+import { Addon, FlipFlop, suggestedEditorConfig } from "../core";
+import { cm_t } from "../core/type";
+import "codemirror/mode/meta";
 
-declare global { const requirejs: (modules: string[], factory: Function) => any }
+declare global {
+  const requirejs: (modules: string[], factory: Function) => any;
+}
 
 /** user may provider an async CodeMirror mode loader function */
-export type LoaderFunc = (mode: string, successCb: Function, errorCb: Function) => void
+export type LoaderFunc = (
+  mode: string,
+  successCb: Function,
+  errorCb: Function
+) => void;
 
 /********************************************************************************** */
 //#region Addon Options
@@ -26,16 +32,19 @@ export interface Options extends Addon.AddonOptions {
    * - `"./node_modules/codemirror/"`            <- relative to webpage's URL
    * - `"~codemirror/"`                          <- for requirejs
    */
-  source: string | LoaderFunc
+  source: string | LoaderFunc;
 }
 
 export const defaultOption: Options = {
-  source: null,
-}
+  source: null
+};
 
 export const suggestedOption: Partial<Options> = {
-  source: (typeof requirejs === 'function') ? "~codemirror/" : "https://cdn.jsdelivr.net/npm/codemirror/",
-}
+  source:
+    typeof requirejs === "function"
+      ? "~codemirror/"
+      : "https://cdn.jsdelivr.net/npm/codemirror/"
+};
 
 export type OptionValueType = Partial<Options> | boolean | string | LoaderFunc;
 
@@ -51,30 +60,32 @@ declare global {
        *
        * @see LoaderFunc
        */
-      hmdModeLoader?: OptionValueType
+      hmdModeLoader?: OptionValueType;
     }
   }
 }
 
-suggestedEditorConfig.hmdModeLoader = suggestedOption
+suggestedEditorConfig.hmdModeLoader = suggestedOption;
 
-CodeMirror.defineOption("hmdModeLoader", defaultOption, function (cm: cm_t, newVal: OptionValueType) {
-
+CodeMirror.defineOption("hmdModeLoader", defaultOption, function(
+  cm: cm_t,
+  newVal: OptionValueType
+) {
   ///// convert newVal's type to `Partial<Options>`, if it is not.
 
   if (!newVal || typeof newVal === "boolean") {
-    newVal = { source: newVal && suggestedOption.source || null }
+    newVal = { source: (newVal && suggestedOption.source) || null };
   } else if (typeof newVal === "string" || typeof newVal === "function") {
-    newVal = { source: newVal }
+    newVal = { source: newVal };
   }
 
   ///// apply config and write new values into cm
 
-  var inst = getAddon(cm)
+  var inst = getAddon(cm);
   for (var k in defaultOption) {
-    inst[k] = (k in newVal) ? newVal[k] : defaultOption[k]
+    inst[k] = k in newVal ? newVal[k] : defaultOption[k];
   }
-})
+});
 
 //#endregion
 
@@ -90,19 +101,26 @@ export class ModeLoader implements Addon.Addon, Options {
 
     new FlipFlop() // use FlipFlop to detect if a option is changed
       .bind(this, "source")
-      .ON(() => { cm.on("renderLine", this.rlHandler) })
-      .OFF(() => { cm.off("renderLine", this.rlHandler) })
+      .ON(() => {
+        cm.on("renderLine", this.rlHandler);
+      })
+      .OFF(() => {
+        cm.off("renderLine", this.rlHandler);
+      });
   }
-
 
   /** trig a "change" event on one line */
   touchLine(lineNo: number) {
     var line = this.cm.getLineHandle(lineNo);
     var lineLen = line.text.length;
-    this.cm.replaceRange(line.text.charAt(lineLen - 1), { line: lineNo, ch: lineLen - 1 }, { line: lineNo, ch: lineLen });
+    this.cm.replaceRange(
+      line.text.charAt(lineLen - 1),
+      { line: lineNo, ch: lineLen - 1 },
+      { line: lineNo, ch: lineLen }
+    );
   }
 
-  private _loadingModes: { [mode: string]: number[] } = {}
+  private _loadingModes: { [mode: string]: number[] } = {};
 
   /**
    * load a mode, then refresh editor
@@ -119,45 +137,50 @@ export class ModeLoader implements Addon.Addon, Options {
     }
 
     // start load a mode
-    if (line >= 0)
-      linesWaiting[mode] = [line];
-    var successCb = function () {
-      console.log("[HyperMD] mode-loader loaded " + mode);
-      const lines = linesWaiting[mode]
+    if (line >= 0) linesWaiting[mode] = [line];
+    var successCb = function() {
+      if (window["VICKYMD_DEBUG"]) {
+        console.log("[HyperMD] mode-loader loaded " + mode);
+      }
+      const lines = linesWaiting[mode];
       self.cm.operation(() => {
         for (var i = 0; i < lines.length; i++) {
           self.touchLine(lines[i]);
         }
-      })
-      delete linesWaiting[mode]
+      });
+      delete linesWaiting[mode];
     };
-    var errorCb = function () {
-      console.warn("[HyperMD] mode-loader failed to load mode " + mode + " from ", url);
+    var errorCb = function() {
+      if (window["VICKYMD_DEBUG"]) {
+        console.warn(
+          "[HyperMD] mode-loader failed to load mode " + mode + " from ",
+          url
+        );
+      }
       if (line === -1) {
         // no more chance
         return;
       }
-      console.log("[HyperMD] mode-loader will retry loading " + mode);
-      setTimeout(function () {
-        self.startLoadMode(mode, line >= 0 ? -3 : (line + 1));
+      if (window["VICKYMD_DEBUG"]) {
+        console.log("[HyperMD] mode-loader will retry loading " + mode);
+      }
+      setTimeout(function() {
+        self.startLoadMode(mode, line >= 0 ? -3 : line + 1);
       }, 1000);
     };
 
     if (typeof this.source === "function") {
-      this.source(mode, successCb, errorCb)
-      return
+      this.source(mode, successCb, errorCb);
+      return;
     }
 
     var url = this.source + "mode/" + mode + "/" + mode + ".js";
-    if (typeof requirejs === 'function' && url.charAt(0) === "~") {
+    if (typeof requirejs === "function" && url.charAt(0) === "~") {
       // require.js
-      requirejs([
-        url.slice(1, -3),
-      ], successCb);
-    }
-    else {
+      requirejs([url.slice(1, -3)], successCb);
+    } else {
       // trandition loadScript
-      var script = document.createElement('script');
+      var script = document.createElement("script");
       script.onload = successCb;
       script.onerror = errorCb;
       script.src = url;
@@ -170,8 +193,10 @@ export class ModeLoader implements Addon.Addon, Options {
    */
   private rlHandler = (cm: cm_t, line: CodeMirror.LineHandle) => {
     var lineNo = line.lineNo();
-    var text = line.text || "", mat = text.match(/^```\s*(\S+)/);
-    if (mat) { // seems found one code fence
+    var text = line.text || "",
+      mat = text.match(/^```\s*(\S+)/);
+    if (mat) {
+      // seems found one code fence
       var lang = mat[1];
       var modeInfo = CodeMirror.findModeByName(lang);
       var modeName = modeInfo && modeInfo.mode;
@@ -181,11 +206,21 @@ export class ModeLoader implements Addon.Addon, Options {
         this.startLoadMode(modeName, lineNo);
       }
     }
-  }
+  };
 }
 
 //#endregion
 
 /** ADDON GETTER (Singleton Pattern): a editor can have only one ModeLoader instance */
-export const getAddon = Addon.Getter("ModeLoader", ModeLoader, defaultOption /** if has options */)
-declare global { namespace HyperMD { interface HelperCollection { ModeLoader?: ModeLoader } } }
+export const getAddon = Addon.Getter(
+  "ModeLoader",
+  ModeLoader,
+  defaultOption /** if has options */
+);
+declare global {
+  namespace HyperMD {
+    interface HelperCollection {
+      ModeLoader?: ModeLoader;
+    }
+  }
+}

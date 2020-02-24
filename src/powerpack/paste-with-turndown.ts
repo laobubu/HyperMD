@@ -65,7 +65,9 @@ if (typeof TurndownService != "undefined") {
   // Use this convertor as default convertor
   defaultOption.convertor = TurndownConvertor;
 } else {
-  console.error(
-    "[HyperMD] PowerPack paste-with-turndown loaded, but turndown not found."
-  );
+  if (window["VICKYMD_DEBUG"]) {
+    console.error(
+      "[HyperMD] PowerPack paste-with-turndown loaded, but turndown not found."
+    );
+  }
 }

@@ -67,7 +67,9 @@ if (typeof mermaid === "object") {
     suggested: true
   });
 } else {
-  console.error(
-    "[HyperMD] PowerPack fold-code-with-mermaid loaded, but mermaid not found."
-  );
+  if (window["VICKYMD_DEBUG"]) {
+    console.error(
+      "[HyperMD] PowerPack fold-code-with-mermaid loaded, but mermaid not found."
+    );
+  }
 }

@@ -88,11 +88,18 @@ export const ImageFolder: FolderFunc = function(stream, token) {
       img.addEventListener("click", () => breakMark(cm, marker), false);
 
       img.className = "hmd-image hmd-image-loading";
+
+      // Yiyi: Disable unsafe http URL
+      if (url.match(/^http:\/\//)) {
+        url = "";
+        title = "Unsafe http image is not allowed";
+      }
+
       img.src = url;
       img.title = title;
       return marker;
     } else {
-      if (DEBUG) {
+      if (DEBUG && window["VICKYMD_DEBUG"]) {
         console.log("[image]FAILED TO REQUEST RANGE: ", rngReq);
       }
     }

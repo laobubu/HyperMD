@@ -21,35 +21,37 @@
 // </script>
 // ```
 
-declare global { const MathJax } // @types/MathJax is not fully typed
+declare global {
+  const MathJax;
+} // @types/MathJax is not fully typed
 
-import 'mathjax'
-import { defaultOption, MathRenderer, MathRenderMode } from '../addon/fold-math';
+import "mathjax";
+import {
+  defaultOption,
+  MathRenderer,
+  MathRenderMode
+} from "../addon/fold-math";
 
 export class MathJaxRenderer implements MathRenderer {
-  public onChanged: (expr: string) => void = null
+  public onChanged: (expr: string) => void = null;
 
-  public jax: any = null
-  public script: HTMLScriptElement
+  public jax: any = null;
+  public script: HTMLScriptElement;
 
-  private _cleared: boolean = false
-  private _renderingExpr: string = "" // Currently rendering expr
+  private _cleared: boolean = false;
+  private _renderingExpr: string = ""; // Currently rendering expr
 
-  constructor(
-    public div: HTMLElement,
-    public mode: MathRenderMode
-  ) {
-    var script = document.createElement("script")
-    script.setAttribute("type", mode ? 'math/tex; mode=' + mode : 'math/tex')
-    div.appendChild(script)
-    this.script = script
+  constructor(public div: HTMLElement, public mode: MathRenderMode) {
+    var script = document.createElement("script");
+    script.setAttribute("type", mode ? "math/tex; mode=" + mode : "math/tex");
+    div.appendChild(script);
+    this.script = script;
   }
 
   clear() {
     var script = this.script;
-    script.innerHTML = '';
-    if (this.jax)
-      this.jax.Remove();
+    script.innerHTML = "";
+    if (this.jax) this.jax.Remove();
     this._cleared = true;
   }
 
@@ -67,10 +69,15 @@ export class MathJaxRenderer implements MathRenderer {
     var script = this.script;
     script.innerHTML = expr;
     if (this.jax) {
-      MathJax.Hub.Queue(["Text", this.jax, expr], ["_TypesetDoneCB", this, expr]);
-    }
-    else {
-      MathJax.Hub.Queue(["Typeset", MathJax.Hub, script], ["_TypesetDoneCB", this, expr]);
+      MathJax.Hub.Queue(
+        ["Text", this.jax, expr],
+        ["_TypesetDoneCB", this, expr]
+      );
+    } else {
+      MathJax.Hub.Queue(
+        ["Typeset", MathJax.Hub, script],
+        ["_TypesetDoneCB", this, expr]
+      );
     }
   }
 
@@ -90,23 +97,30 @@ export class MathJaxRenderer implements MathRenderer {
     }
     // Rendering finished. Nothing wrong
     this._renderingExpr = "";
-    if (typeof (this.onChanged) === 'function')
-      this.onChanged(finished_expr)
+    if (typeof this.onChanged === "function") this.onChanged(finished_expr);
   }
 
   public isReady() {
-    return MathJax.isReady
+    return MathJax.isReady;
   }
 }
 
 if (typeof MathJax !== "object") {
   // MathJax not exists. Do nothing
-  console.error("[HyperMD] PowerPack fold-math-with-mathjax loaded, but MathJax not found.")
+  if (window["VICKYMD_DEBUG"]) {
+    console.error(
+      "[HyperMD] PowerPack fold-math-with-mathjax loaded, but MathJax not found."
+    );
+  }
 } else if (0 == MathJax.Hub.config.jax.length) {
   // IF NOT FOUND, throw a warning
-  console.error("[HyperMD] Looks like MathJax is not configured.\nPlease do this BEFORE loading MathJax.\nSee http://docs.mathjax.org/en/latest/configuration.html")
-  MathJax.isReady = false
+  if (window["VICKYMD_DEBUG"]) {
+    console.error(
+      "[HyperMD] Looks like MathJax is not configured.\nPlease do this BEFORE loading MathJax.\nSee http://docs.mathjax.org/en/latest/configuration.html"
+    );
+  }
+  MathJax.isReady = false;
 } else {
   // Use MathJaxRenderer as default MathRenderer
-  defaultOption.renderer = MathJaxRenderer
+  defaultOption.renderer = MathJaxRenderer;
 }

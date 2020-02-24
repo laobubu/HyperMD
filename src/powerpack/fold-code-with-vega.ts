@@ -61,12 +61,16 @@ if (typeof vega !== "undefined" && vega.View) {
     renderer: VegaRenderer,
     suggested: true
   });
-  console.log("[HyperMD] PowerPack fold-code-with-vega loaded.");
+  if (window["VICKYMD_DEBUG"]) {
+    console.log("[HyperMD] PowerPack fold-code-with-vega loaded.");
+  }
 } else {
-  console.log(`[HyperMD] PowerPack fold-code-with-vega failed to load.
+  if (window["VICKYMD_DEBUG"]) {
+    console.log(`[HyperMD] PowerPack fold-code-with-vega failed to load.
 Please include  
 
     <script src="https://cdn.jsdelivr.net/npm/vega@5/build/vega.min.js"></script>
 
 in your HTML file`);
+  }
 }
