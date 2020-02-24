@@ -29,7 +29,7 @@ export const WidgetFolder = function(
   if (token.type !== "inline-code" || !token.string.trim().startsWith("@")) {
     return null;
   }
-  const start = token.start;
+  let start = token.start;
   const cm = stream.cm;
   const line = cm.getLine(stream.lineNo);
   let end = token.end;
@@ -41,6 +41,10 @@ export const WidgetFolder = function(
     }
   }
   const str = line.slice(start, end).trim();
+
+  // Include "`"
+  start = start - 1;
+  end = end + 1;
 
   let widgetName: string;
   let widgetAttributes: Attributes = {};
@@ -87,28 +91,29 @@ export const WidgetFolder = function(
     if (!editor) {
       return;
     }
-    let widigetFrom = from;
-    let widgetTo = to;
+    let widgetFrom: CodeMirror.Position = { line: from.line, ch: from.ch };
+    let widgetTo: CodeMirror.Position = { line: to.line, ch: to.ch };
     const line = editor.getLine(from.line);
     if (!line) {
       throw new Error("Failed to update widget attributes");
     }
-    let end = widgetTo.ch;
+    let end = widgetFrom.ch + 1;
     for (; end < line.length; end++) {
       if (line[end - 1] !== "\\" && line[end] === "`") {
+        end++;
         break;
       }
     }
     widgetTo.ch = end;
 
     const widgetName = line
-      .slice(widigetFrom.ch, widgetTo.ch)
-      .match(/^\@[^\s$]+/)[0];
+      .slice(widgetFrom.ch + 1, widgetTo.ch)
+      .match(/^\@[^\s$`]+/)[0];
     editor.replaceRange(
-      `${widgetName} ${JSON.stringify(attributes)
+      `\`${widgetName} ${JSON.stringify(attributes)
         .replace(/^{/, "")
-        .replace(/}$/, "")}`,
-      widigetFrom,
+        .replace(/}$/, "")}\``,
+      widgetFrom,
       widgetTo
     );
   };
@@ -118,30 +123,21 @@ export const WidgetFolder = function(
     if (!editor) {
       return;
     }
-    let widigetFrom = from;
-    let widgetTo = to;
+    let widgetFrom: CodeMirror.Position = { line: from.line, ch: from.ch };
+    let widgetTo: CodeMirror.Position = { line: to.line, ch: to.ch };
     const line = editor.getLine(from.line);
     if (!line) {
       throw new Error("Failed to update widget attributes");
     }
-    let end = widgetTo.ch;
+    let end = widgetFrom.ch + 1;
     for (; end < line.length; end++) {
       if (line[end - 1] !== "\\" && line[end] === "`") {
+        end++;
         break;
       }
     }
     widgetTo.ch = end;
-    editor.replaceRange(
-      inputString,
-      {
-        line: from.line,
-        ch: widigetFrom.ch - 1
-      },
-      {
-        line: to.line,
-        ch: widgetTo.ch + 1
-      }
-    );
+    editor.replaceRange(inputString, widgetFrom, widgetTo);
     editor.focus();
   };
 
