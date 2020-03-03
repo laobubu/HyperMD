@@ -21,7 +21,7 @@ export const PlantUMLRenderer: CodeRenderer = (code, info) => {
   el.style.margin = "8px";
 
   const encoded = window["plantumlEncoder"].encode(code);
-  const url = "http://www.plantuml.com/plantuml/img/" + encoded;
+  const url = "https://www.plantuml.com/plantuml/img/" + encoded;
 
   el.setAttribute("id", id);
 
