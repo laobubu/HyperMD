@@ -17,6 +17,7 @@ import { registerWidgetCreator, getWidgetCreator } from "../widget/index";
 import { HelloWidget } from "../widget/hello/hello";
 import { ErrorWidget } from "../widget/error/error";
 import { TimerWidget } from "../widget/timer/timer";
+import { TextMarker } from "codemirror";
 
 registerWidgetCreator("hello", HelloWidget);
 registerWidgetCreator("error", ErrorWidget);
@@ -86,14 +87,16 @@ export const WidgetFolder = function(
   const reqAns = stream.requestRange(from, to);
   if (reqAns !== RequestRangeResult.OK) return null;
 
+  let marker: TextMarker = null;
   const setAttributes = (attributes: Attributes) => {
     const editor = cm;
-    if (!editor) {
+    if (!editor || !marker) {
       return;
     }
-    let widgetFrom: CodeMirror.Position = { line: from.line, ch: from.ch };
-    let widgetTo: CodeMirror.Position = { line: to.line, ch: to.ch };
-    const line = editor.getLine(from.line);
+    let pos = marker.find();
+    let widgetFrom: CodeMirror.Position = pos.from;
+    let widgetTo: CodeMirror.Position = pos.to;
+    const line = editor.getLine(widgetFrom.line);
     if (!line) {
       throw new Error("Failed to update widget attributes");
     }
@@ -120,12 +123,13 @@ export const WidgetFolder = function(
 
   const replaceSelf = (inputString: string) => {
     const editor = cm;
-    if (!editor) {
+    if (!editor || !marker) {
       return;
     }
-    let widgetFrom: CodeMirror.Position = { line: from.line, ch: from.ch };
-    let widgetTo: CodeMirror.Position = { line: to.line, ch: to.ch };
-    const line = editor.getLine(from.line);
+    const pos = marker.find();
+    let widgetFrom: CodeMirror.Position = pos.from;
+    let widgetTo: CodeMirror.Position = pos.to;
+    const line = editor.getLine(widgetFrom.line);
     if (!line) {
       throw new Error("Failed to update widget attributes");
     }
@@ -161,7 +165,7 @@ export const WidgetFolder = function(
   }
 
   // Create widget here
-  const marker = cm.markText(from, to, {
+  marker = cm.markText(from, to, {
     replacedWith: widget,
     collapsed: true,
     inclusiveLeft: true,

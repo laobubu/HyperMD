@@ -33,10 +33,8 @@ export const LinkFolder: FolderFunc = function(stream, token) {
     return null;
 
   let spanExtractor = getLineSpanExtractor(cm);
-  let tmpSpans: Span[];
 
   // first, find the link text span
-
   let linkTextSpan = spanExtractor.findSpanWithTypeAt(
     { line: stream.lineNo, ch: token.start },
     "linkText"
@@ -44,7 +42,6 @@ export const LinkFolder: FolderFunc = function(stream, token) {
   if (!linkTextSpan) return null;
 
   // then find the link href span
-
   let linkHrefSpan = spanExtractor.findSpanWithTypeAt(
     { line: stream.lineNo, ch: linkTextSpan.end + 1 },
     "linkHref"
@@ -53,30 +50,32 @@ export const LinkFolder: FolderFunc = function(stream, token) {
 
   // now compose the ranges
 
-  const href_from: Position = { line: stream.lineNo, ch: linkHrefSpan.begin };
-  const href_to: Position = { line: stream.lineNo, ch: linkHrefSpan.end };
-  const link_from: Position = { line: stream.lineNo, ch: linkTextSpan.begin };
-  const link_to: Position = href_to;
+  const hrefFrom: Position = { line: stream.lineNo, ch: linkHrefSpan.begin };
+  const hrefTo: Position = { line: stream.lineNo, ch: linkHrefSpan.end };
+  const linkFrom: Position = { line: stream.lineNo, ch: linkTextSpan.begin };
+  // const linkTo: Position = { line: stream.lineNo, ch: linkTextSpan.end };
 
   // and check if the range is OK
-  const rngReq = stream.requestRange(href_from, href_to, link_from, href_from);
+  const rngReq = stream.requestRange(hrefFrom, hrefTo, linkFrom, hrefFrom);
   if (rngReq !== RequestRangeResult.OK) return null;
 
   // everything is OK! make the widget
-  var text = cm.getRange(href_from, href_to);
-  var { url, title } = splitLink(text.substr(1, text.length - 2));
+  const text = cm.getRange(hrefFrom, hrefTo);
+  const { url, title } = splitLink(text.substr(1, text.length - 2));
 
-  var img = document.createElement("span");
-  img.setAttribute("class", "hmd-link-icon");
-  img.setAttribute("title", url + "\n" + title);
-  img.setAttribute("data-url", url);
+  const imgElem = document.createElement("span");
+  imgElem.setAttribute("class", "hmd-link-icon");
+  imgElem.setAttribute("title", url + "\n" + title);
+  imgElem.setAttribute("data-url", url);
+  imgElem.style.cursor = "pointer";
 
-  var marker = cm.markText(href_from, href_to, {
+  var marker = cm.markText(hrefFrom, hrefTo, {
     collapsed: true,
-    replacedWith: img
+    replacedWith: imgElem,
+    clearOnEnter: true
   });
 
-  img.addEventListener("click", () => breakMark(cm, marker), false);
+  imgElem.addEventListener("click", () => breakMark(cm, marker), false);
   return marker;
 };
 
