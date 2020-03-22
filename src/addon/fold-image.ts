@@ -35,8 +35,9 @@ export const ImageFolder: FolderFunc = function(stream, token) {
     let rngReq = stream.requestRange(from, to, from, from);
 
     if (rngReq === RequestRangeResult.OK) {
-      var url: string;
-      var title: string;
+      let url: string;
+      let alt: string;
+      let title: string;
 
       {
         // extract the URL
@@ -50,13 +51,15 @@ export const ImageFolder: FolderFunc = function(stream, token) {
           if (!tmp) return null; // Yup! bad URL?!
           rawurl = tmp.content;
         }
-        url = splitLink(rawurl).url;
+        const split = splitLink(rawurl);
+        url = split.url;
+        title = split.title;
         url = cm.hmdResolveURL(url);
       }
 
       {
-        // extract the title
-        title = cm.getRange(
+        // extract the alt
+        alt = cm.getRange(
           { line: lineNo, ch: from.ch + 2 },
           { line: lineNo, ch: url_begin.token.start - 1 }
         );
@@ -93,7 +96,8 @@ export const ImageFolder: FolderFunc = function(stream, token) {
       // Yiyi: Disable unsafe http URL
       if (url.match(/^http:\/\//)) {
         url = "";
-        title = "Unsafe http image is not allowed";
+        title = "";
+        alt = "Unsafe http image is not allowed";
       }
 
       // Yiyi: Disable the break
@@ -112,6 +116,7 @@ export const ImageFolder: FolderFunc = function(stream, token) {
       );
 
       img.src = url;
+      img.alt = alt;
       img.title = title;
       return marker;
     } else {
