@@ -12,6 +12,7 @@ import {
 } from "./fold";
 import { Position } from "codemirror";
 import { splitLink } from "./read-link";
+import * as CodeMirror from "codemirror";
 
 const DEBUG = false;
 
@@ -66,8 +67,7 @@ export const ImageFolder: FolderFunc = function(stream, token) {
         collapsed: true,
         replacedWith: img,
         inclusiveLeft: true,
-        inclusiveRight: true,
-        clearOnEnter: false
+        inclusiveRight: true
       });
 
       img.addEventListener(
@@ -88,12 +88,6 @@ export const ImageFolder: FolderFunc = function(stream, token) {
         false
       );
 
-      // Yiyi: Disable the break
-      // img.addEventListener("click", () => breakMark(cm, marker));
-      img.addEventListener("click", () => {
-        img.setAttribute("data-marker-position", JSON.stringify(marker.find()));
-      });
-
       img.className = "hmd-image hmd-image-loading";
 
       // Yiyi: Disable unsafe http URL
@@ -101,6 +95,21 @@ export const ImageFolder: FolderFunc = function(stream, token) {
         url = "";
         title = "Unsafe http image is not allowed";
       }
+
+      // Yiyi: Disable the break
+      // img.addEventListener("click", () => breakMark(cm, marker));
+      img.addEventListener(
+        "click",
+        () => {
+          CodeMirror.signal(cm, "imageClicked", {
+            editor: cm,
+            marker,
+            breakMark,
+            element: img
+          });
+        },
+        false
+      );
 
       img.src = url;
       img.title = title;
