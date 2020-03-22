@@ -63,9 +63,11 @@ export const ImageFolder: FolderFunc = function(stream, token) {
 
       var img = document.createElement("img");
       var marker = cm.markText(from, to, {
-        clearOnEnter: true,
         collapsed: true,
-        replacedWith: img
+        replacedWith: img,
+        inclusiveLeft: true,
+        inclusiveRight: true,
+        clearOnEnter: false
       });
 
       img.addEventListener(
@@ -85,7 +87,12 @@ export const ImageFolder: FolderFunc = function(stream, token) {
         },
         false
       );
-      img.addEventListener("click", () => breakMark(cm, marker), false);
+
+      // Yiyi: Disable the break
+      // img.addEventListener("click", () => breakMark(cm, marker));
+      img.addEventListener("click", () => {
+        img.setAttribute("data-marker-position", JSON.stringify(marker.find()));
+      });
 
       img.className = "hmd-image hmd-image-loading";
 
