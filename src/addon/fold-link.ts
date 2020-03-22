@@ -69,13 +69,13 @@ export const LinkFolder: FolderFunc = function(stream, token) {
   imgElem.setAttribute("data-url", url);
   imgElem.style.cursor = "pointer";
 
-  var marker = cm.markText(hrefFrom, hrefTo, {
+  const marker = cm.markText(hrefFrom, hrefTo, {
     collapsed: true,
     replacedWith: imgElem,
     clearOnEnter: true
   });
 
-  imgElem.addEventListener("click", () => breakMark(cm, marker), false);
+  // imgElem.addEventListener("click", () => breakMark(cm, marker), false);
   return marker;
 };
 
