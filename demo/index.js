@@ -129,6 +129,12 @@ require([
     inputProps: "textarea"
   });
   editor.setSize(null, "100%"); // set height
+  editor.on("imageClicked", args => {
+    args.breakMark(args.editor, args.marker);
+  });
+  editor.on("linkIconClicked", args => {
+    args.breakMark(args.editor, args.marker);
+  });
 
   // for debugging
   window.CodeMirror = CodeMirror;

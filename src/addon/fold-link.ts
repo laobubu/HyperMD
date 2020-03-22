@@ -13,6 +13,7 @@ import {
 import { Position } from "codemirror";
 import { splitLink } from "./read-link";
 import { getLineSpanExtractor, Span } from "../core";
+import * as CodeMirror from "codemirror";
 
 const DEBUG = false;
 
@@ -76,6 +77,18 @@ export const LinkFolder: FolderFunc = function(stream, token) {
   });
 
   // imgElem.addEventListener("click", () => breakMark(cm, marker), false);
+  imgElem.addEventListener(
+    "click",
+    () => {
+      CodeMirror.signal(cm, "linkIconClicked", {
+        editor: cm,
+        marker,
+        breakMark,
+        element: imgElem
+      });
+    },
+    false
+  );
   return marker;
 };
 
