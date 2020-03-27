@@ -141,14 +141,6 @@ export const WidgetFolder = function(
     if (!line) {
       throw new Error("Failed to update widget attributes");
     }
-    let end = widgetFrom.ch + 1;
-    for (; end < line.length; end++) {
-      if (line[end - 1] !== "\\" && line[end] === "`") {
-        end++;
-        break;
-      }
-    }
-    widgetTo.ch = end;
     editor.replaceRange(inputString, widgetFrom, widgetTo);
     editor.focus();
   };
