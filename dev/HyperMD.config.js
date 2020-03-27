@@ -61,7 +61,9 @@ exports.components = {
   "preview/features/math": "PreviewFeatureMath",
   "preview/features/tag": "PreviewFeatureTag",
   "preview/features/widget": "PreviewFeatureWidget",
-  "preview/features/fence": "PreviewFeatureFence"
+  "preview/features/fence": "PreviewFeatureFence",
+  // ** Emoji
+  "addon/emoji/index": "Emoji"
 };
 
 /**

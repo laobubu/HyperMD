@@ -1,6 +1,7 @@
 import buble from "@rollup/plugin-buble";
 import typescript from "rollup-plugin-typescript2";
 import { uglify } from "rollup-plugin-uglify";
+import json from "@rollup/plugin-json";
 
 const { banner, globalNames, externalNames, bundleFiles } = require(__dirname +
   "/dev/HyperMD.config");
@@ -26,7 +27,8 @@ const plugins = {
       generator: false,
       dangerousForOf: true // simplify `for (let i=0;i...)` to `for (let it of arr)`
     }
-  })
+  }),
+  json: json()
 };
 
 var configs = [];
@@ -43,6 +45,7 @@ bundleFiles.forEach(item => {
   var item_plugins = [plugins.ts]; // Essential: typescript
   if (item.uglify) item_plugins.push(plugins.uglify); // optional: uglify
   item_plugins.push(plugins.buble); // Essential: Buble
+  item_plugins.push(plugins.json);
 
   var _banner = banner;
   if (item.banner) _banner += "\n" + item.banner;

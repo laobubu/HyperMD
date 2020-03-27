@@ -1,6 +1,6 @@
 {
   "name": "vickymd",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "An experimental WYSIWYG markdown editor built on top of HyperMD with extended Widgets support",
   "main": "./everything.js",
   "types": "./everything.d.ts",
@@ -28,6 +28,7 @@
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.1",
+    "@rollup/plugin-json": "^4.0.2",
     "@types/codemirror": "^0.0.88",
     "@types/glob": "^7.1.1",
     "@types/markdown-it": "^0.0.9",
