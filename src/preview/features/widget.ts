@@ -19,7 +19,12 @@ export default (md: MarkdownIt) => {
           .replace(/^@/, "");
         try {
           widgetAttributes = JSON.parse(
-            "{" + content.slice(firstSpace + 1).trim() + "}"
+            "{" +
+              content
+                .slice(firstSpace + 1)
+                .trim()
+                .replace(/\\`/g, "`") +
+              "}"
           );
         } catch (error) {
           widgetName = "error";
