@@ -42,9 +42,13 @@ export const WidgetFolder = function(
     }
   }
   const str = line.slice(start, end).trim();
-
+  while (line[end + 1] === "`") {
+    end++;
+  }
+  while (line[start - 1] === "`") {
+    start--;
+  }
   // Include "`"
-  start = start - 1;
   end = end + 1;
 
   let widgetName: string;
@@ -59,9 +63,9 @@ export const WidgetFolder = function(
     try {
       const j = str.slice(firstSpace + 1).trim();
       if (j[0] === "{") {
-        widgetAttributes = JSON.parse(j);
+        widgetAttributes = JSON.parse(j.replace(/\\`/g, "`"));
       } else {
-        widgetAttributes = JSON.parse("{" + j + "}");
+        widgetAttributes = JSON.parse("{" + j.replace(/\\`/g, "`") + "}");
       }
     } catch (error) {
       widgetName = "error";
@@ -100,25 +104,29 @@ export const WidgetFolder = function(
     if (!line) {
       throw new Error("Failed to update widget attributes");
     }
-    let end = widgetFrom.ch + 1;
-    for (; end < line.length; end++) {
-      if (line[end - 1] !== "\\" && line[end] === "`") {
-        end++;
-        break;
-      }
-    }
-    widgetTo.ch = end;
-
     const widgetName = line
-      .slice(widgetFrom.ch + 1, widgetTo.ch)
-      .match(/^\@[^\s$`]+/)[0];
-    editor.replaceRange(
-      `\`${widgetName} ${JSON.stringify(attributes)
-        .replace(/^{/, "")
-        .replace(/}$/, "")}\``,
-      widgetFrom,
-      widgetTo
-    );
+      .slice(widgetFrom.ch, widgetTo.ch)
+      .match(/\@[^\s$`]+/)[0];
+
+    const attributesStr = JSON.stringify(attributes);
+    if (attributesStr.indexOf("`") > 0) {
+      editor.replaceRange(
+        `\`\`${widgetName} ${attributesStr
+          .replace(/`/g, "\\`")
+          .replace(/^{/, "")
+          .replace(/}$/, "")}\`\``,
+        widgetFrom,
+        widgetTo
+      );
+    } else {
+      editor.replaceRange(
+        `\`${widgetName} ${attributesStr
+          .replace(/^{/, "")
+          .replace(/}$/, "")}\``,
+        widgetFrom,
+        widgetTo
+      );
+    }
   };
 
   const replaceSelf = (inputString: string) => {
