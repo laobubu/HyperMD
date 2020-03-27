@@ -41,6 +41,7 @@ require([
   /////////////////////////////////////////////
   "hypermd/preview/index",
   "hypermd/widget/index",
+  "hypermd/addon/emoji/index",
 
   ///////////////////////////////////////
   /// CodeMirror                      ///
@@ -84,7 +85,7 @@ require([
   /// PowerPack with third-party libraries  ///
   /////////////////////////////////////////////
 
-  "hypermd/powerpack/fold-emoji-with-emojione",
+  // "hypermd/powerpack/fold-emoji-with-emojione",
 
   /////////////////////////////////////////////
   /// 0xGG Team added following folds      ////
@@ -105,7 +106,7 @@ require([
 
   "hypermd/powerpack/paste-with-turndown",
   "turndown-plugin-gfm"
-], function(CodeMirror, HyperMD, Preview, Widget) {
+], function(CodeMirror, HyperMD, Preview, Widget, Emoji) {
   ("use strict");
   var myTextarea = document.getElementById("demo");
 
@@ -143,6 +144,7 @@ require([
   window.cm = editor;
   window.Preview = Preview;
   window.Widget = Widget;
+  window.Emoji = Emoji;
 
   // for demo page only:
   document.body.className += " loaded";

@@ -23,6 +23,7 @@ import { WaveDromRenderer } from "../powerpack/fold-code-with-wavedrom";
 import { getWidgetCreator } from "../widget/index";
 import { VegaRenderer } from "../powerpack/fold-code-with-vega";
 import { VegaLiteRenderer } from "../powerpack/fold-code-with-vega-lite";
+import EmojiDefinitions from "../addon/emoji/index";
 
 declare var html2pdf: typeof import("html2pdf.js").default;
 
@@ -33,7 +34,7 @@ const md = new MarkdownIt({
   breaks: true
 });
 
-md.use(MarkdownItEmoji);
+md.use(MarkdownItEmoji, { defs: EmojiDefinitions });
 md.use(MarkdownItFootnote);
 md.use(MarkdownItTaskLists);
 TagEnhancer(md);
