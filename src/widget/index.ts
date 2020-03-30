@@ -7,7 +7,7 @@ import { Editor } from "codemirror";
 //
 
 export interface WidgetArgs {
-  editor: Editor;
+  editor?: Editor;
   attributes: Attributes;
   setAttributes?: (attributes: Attributes) => void;
   removeSelf?: () => void;
