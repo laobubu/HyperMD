@@ -156,6 +156,7 @@ export const WidgetFolder = function(
     return false;
   } else {
     widget = widgetCreator({
+      editor: cm,
       attributes: widgetAttributes,
       setAttributes: setAttributes,
       removeSelf: removeSelf,
