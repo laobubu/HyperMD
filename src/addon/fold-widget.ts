@@ -27,15 +27,17 @@ export const WidgetFolder = function(
   stream: FoldStream,
   token: CodeMirror.Token
 ): any {
-  if (token.type !== "inline-code" || !token.string.trim().startsWith("@")) {
+  if (
+    !token.type ||
+    token.type.indexOf("inline-code") < 0 ||
+    !token.string.trim().startsWith("@")
+  ) {
     return null;
   }
   let start = token.start;
   const cm = stream.cm;
   const line = cm.getLine(stream.lineNo);
   let end = token.end;
-  // TODO: variable `end` here might be wrong
-  // TODO: Support multiple line inline_code
   for (; end < line.length; end++) {
     if (line[end] === "`" && line[end - 1] !== "\\") {
       break;
@@ -156,6 +158,7 @@ export const WidgetFolder = function(
     return false;
   } else {
     widget = widgetCreator({
+      editor: cm,
       attributes: widgetAttributes,
       setAttributes: setAttributes,
       removeSelf: removeSelf,
