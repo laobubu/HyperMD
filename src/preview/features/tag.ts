@@ -1,5 +1,5 @@
-const StopRegExp = /[\s@#,.!$%^&*()\[\]-_+=~`<>?\\/，。]/;
-export default function(md: any) {
+const StopRegExp = /[\s@#,.!$%^&*()\[\]-_+=~`<>?\\，。]/;
+export default function (md: any) {
   md.inline.ruler.before("escape", "tag", (state: any, silent: boolean) => {
     let tagMode = null; // TODO: Support @mention later
     /*if (state.src[state.pos] === '@') {

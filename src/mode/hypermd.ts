@@ -118,13 +118,13 @@ export interface HyperMDState extends MarkdownState {
 export const enum HashtagType {
   NONE = 0,
   NORMAL, // hashtag text with no unescaped spaces
-  WITH_SPACE // hashtag text
+  WITH_SPACE, // hashtag text
 }
 
 export const enum TableType {
   NONE = 0,
   SIMPLE, //   table | column
-  NORMAL // | table | column |
+  NORMAL, // | table | column |
 }
 
 const SimpleTableRE = /^\s*[^\|].*?\|.*[^|]\s*$/;
@@ -135,7 +135,7 @@ const NormalTableLooseRE = /^\s*\|/; // | unfinished row
 export const enum NextMaybe {
   NONE = 0,
   FRONT_MATTER, // only appears once, for each Doc
-  FRONT_MATTER_END // endline of front_matter not reached
+  FRONT_MATTER_END, // endline of front_matter not reached
 }
 
 export const enum LinkType {
@@ -146,7 +146,7 @@ export const enum LinkType {
   FOOTNOTE, // [footnote]:
   MAYBE_FOOTNOTE_URL, // things after colon
   BARELINK2, // [some-name][]  except latter []
-  FOOTREF2 // [text][doc]  the [doc] part
+  FOOTREF2, // [text][doc]  the [doc] part
 }
 
 const linkStyle = {
@@ -154,7 +154,7 @@ const linkStyle = {
   [LinkType.BARELINK2]: "hmd-barelink2",
   [LinkType.FOOTREF]: "hmd-barelink hmd-footref",
   [LinkType.FOOTNOTE]: "hmd-footnote line-HyperMD-footnote",
-  [LinkType.FOOTREF2]: "hmd-footref2"
+  [LinkType.FOOTREF2]: "hmd-footref2",
 };
 
 function resetTable(state: HyperMDState) {
@@ -176,12 +176,12 @@ const defaultTokenTypeOverrides = {
   list2: "list-2",
   list3: "list-3",
   code: "inline-code",
-  hashtag: "hashtag meta"
+  hashtag: "hashtag meta",
 };
 
 CodeMirror.defineMode(
   "hypermd",
-  function(cmCfg, modeCfgUser) {
+  function (cmCfg, modeCfgUser) {
     var modeCfg = {
       front_matter: true,
       math: true,
@@ -198,7 +198,7 @@ CodeMirror.defineMode(
       emoji: true,
 
       /** @see defaultTokenTypeOverrides */
-      tokenTypeOverrides: defaultTokenTypeOverrides as Record<string, string>
+      tokenTypeOverrides: defaultTokenTypeOverrides as Record<string, string>,
     };
     Object.assign(modeCfg, modeCfgUser);
     if (modeCfg.tokenTypeOverrides !== defaultTokenTypeOverrides) {
@@ -212,7 +212,7 @@ CodeMirror.defineMode(
 
     /** functions from CodeMirror Markdown mode closure. Only for status checking */
     var rawClosure = {
-      htmlBlock: null
+      htmlBlock: null,
     };
 
     var rawMode: CodeMirror.Mode<MarkdownState> = CodeMirror.getMode(
@@ -221,7 +221,7 @@ CodeMirror.defineMode(
     );
     var newMode: CodeMirror.Mode<HyperMDState> = { ...rawMode } as any;
 
-    newMode.startState = function() {
+    newMode.startState = function () {
       var ans = rawMode.startState() as HyperMDState;
       resetTable(ans);
       ans.hmdOverride = null;
@@ -238,7 +238,7 @@ CodeMirror.defineMode(
       return ans;
     };
 
-    newMode.copyState = function(s) {
+    newMode.copyState = function (s) {
       var ans = rawMode.copyState(s) as HyperMDState;
       const keys: (keyof HyperMDState)[] = [
         "hmdLinkType",
@@ -254,7 +254,7 @@ CodeMirror.defineMode(
         "hmdNextPos",
         "hmdNextState",
         "hmdNextStyle",
-        "hmdHashtag"
+        "hmdHashtag",
       ];
       for (const key of keys) ans[key as any] = s[key];
 
@@ -269,7 +269,7 @@ CodeMirror.defineMode(
       return ans;
     };
 
-    newMode.blankLine = function(state) {
+    newMode.blankLine = function (state) {
       var ans: string | void;
 
       var innerMode = state.hmdInnerMode;
@@ -288,7 +288,7 @@ CodeMirror.defineMode(
       return ans.trim() || null;
     };
 
-    newMode.indent = function(state, textAfter) {
+    newMode.indent = function (state, textAfter) {
       var mode = state.hmdInnerMode || rawMode;
       var f = mode.indent;
 
@@ -296,13 +296,13 @@ CodeMirror.defineMode(
       return CodeMirror.Pass;
     };
 
-    newMode.innerMode = function(state) {
+    newMode.innerMode = function (state) {
       if (state.hmdInnerMode)
         return { mode: state.hmdInnerMode, state: state.hmdInnerState };
       return rawMode.innerMode(state);
     };
 
-    newMode.token = function(stream, state) {
+    newMode.token = function (stream, state) {
       if (state.hmdOverride) return state.hmdOverride(stream, state);
 
       if (state.hmdNextMaybe === NextMaybe.FRONT_MATTER) {
@@ -312,7 +312,7 @@ CodeMirror.defineMode(
           return enterMode(stream, state, "yaml", {
             style: "hmd-frontmatter",
             fallbackMode: () => createDummyMode("---"),
-            exitChecker: function(stream, state) {
+            exitChecker: function (stream, state) {
               if (stream.string === "---") {
                 // found the endline of front_matter
                 state.hmdNextMaybe = NextMaybe.NONE;
@@ -320,7 +320,7 @@ CodeMirror.defineMode(
               } else {
                 return null;
               }
-            }
+            },
           });
         } else {
           state.hmdNextMaybe = NextMaybe.NONE;
@@ -358,7 +358,7 @@ CodeMirror.defineMode(
           ) {
             // $$ may span lines, $ must be paired
             let texMode = CodeMirror.getMode(cmCfg, {
-              name: "stex"
+              name: "stex",
             });
             let noTexMode = texMode["name"] !== "stex";
             ans += enterMode(stream, state, texMode, {
@@ -368,8 +368,8 @@ CodeMirror.defineMode(
               exitChecker: createSimpleInnerModeExitChecker(endTag, {
                 style:
                   "formatting formatting-math formatting-math-end math-" +
-                  mathLevel
-              })
+                  mathLevel,
+              }),
             });
             if (noTexMode) stream.pos += tmp[0].length;
             ans +=
@@ -799,7 +799,7 @@ CodeMirror.defineMode(
           if (endTag != null) {
             return enterMode(stream, state, null, {
               endTag,
-              style: (ans + " comment hmd-cdata-html").trim()
+              style: (ans + " comment hmd-cdata-html").trim(),
             });
           }
         }
@@ -970,7 +970,7 @@ CodeMirror.defineMode(
           }
 
           return null;
-        }
+        },
       };
     }
 
@@ -980,7 +980,7 @@ CodeMirror.defineMode(
     ): InnerModeExitChecker {
       if (!retInfo) retInfo = {};
 
-      return function(stream, state) {
+      return function (stream, state) {
         if (stream.string.substr(stream.start, endTag.length) === endTag) {
           retInfo.endPos = stream.start + endTag.length;
           return retInfo;
