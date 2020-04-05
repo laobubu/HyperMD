@@ -10,7 +10,7 @@ import {
   registerFolder,
   breakMark,
   RequestRangeResult,
-  FoldStream
+  FoldStream,
 } from "./fold";
 import { Attributes } from "./attributes/index";
 import { registerWidgetCreator, getWidgetCreator } from "../widget/index";
@@ -23,7 +23,7 @@ registerWidgetCreator("hello", HelloWidget);
 registerWidgetCreator("error", ErrorWidget);
 registerWidgetCreator("timer", TimerWidget);
 
-export const WidgetFolder = function(
+export const WidgetFolder = function (
   stream: FoldStream,
   token: CodeMirror.Token
 ): any {
@@ -58,10 +58,7 @@ export const WidgetFolder = function(
   const firstSpaceMatch = str.match(/\s/);
   const firstSpace = firstSpaceMatch ? firstSpaceMatch.index : -1;
   if (firstSpace > 0) {
-    widgetName = str
-      .slice(0, firstSpace)
-      .trim()
-      .replace(/^@/, "");
+    widgetName = str.slice(0, firstSpace).trim().replace(/^@/, "");
     try {
       const j = str.slice(firstSpace + 1).trim();
       if (j[0] === "{") {
@@ -99,7 +96,10 @@ export const WidgetFolder = function(
     if (!editor || !marker) {
       return;
     }
-    let pos = marker.find();
+    const pos = marker.find();
+    if (!pos) {
+      return;
+    }
     let widgetFrom: CodeMirror.Position = pos.from;
     let widgetTo: CodeMirror.Position = pos.to;
     const line = editor.getLine(widgetFrom.line);
@@ -137,6 +137,9 @@ export const WidgetFolder = function(
       return;
     }
     const pos = marker.find();
+    if (!pos) {
+      return;
+    }
     let widgetFrom: CodeMirror.Position = pos.from;
     let widgetTo: CodeMirror.Position = pos.to;
     const line = editor.getLine(widgetFrom.line);
@@ -163,7 +166,7 @@ export const WidgetFolder = function(
       setAttributes: setAttributes,
       removeSelf: removeSelf,
       replaceSelf: replaceSelf,
-      isPreview: false
+      isPreview: false,
     });
   }
 
@@ -172,7 +175,7 @@ export const WidgetFolder = function(
     replacedWith: widget,
     collapsed: true,
     inclusiveLeft: true,
-    inclusiveRight: true
+    inclusiveRight: true,
   });
 
   /*
