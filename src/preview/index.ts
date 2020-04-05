@@ -31,7 +31,7 @@ const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-  breaks: true
+  breaks: true,
 });
 
 md.use(MarkdownItEmoji, { defs: EmojiDefinitions });
@@ -58,22 +58,18 @@ function renderMarkdown(markdown: string): RenderMarkdownOutput {
       slideConfigs,
       headings,
       outputString,
-      frontMatterString
+      frontMatterString,
     } = transformMarkdown(markdown, {
       forPreview: true,
       headingIdGenerator: new HeadingIdGenerator(),
       forMarkdownExport: false,
-      usePandocParser: false
+      usePandocParser: false,
     });
 
     let yamlConfig = {};
     try {
       yamlConfig = YAML.parse(
-        frontMatterString
-          .trim()
-          .replace(/^\-+/, "")
-          .replace(/\-+$/, "")
-          .trim()
+        frontMatterString.trim().replace(/^\-+/, "").replace(/\-+$/, "").trim()
       );
     } catch (error) {
       yamlConfig = {};
@@ -86,14 +82,14 @@ function renderMarkdown(markdown: string): RenderMarkdownOutput {
         html,
         headings,
         slideConfigs,
-        yamlConfig
+        yamlConfig,
       };
     } else {
       return {
         html,
         headings,
         slideConfigs,
-        yamlConfig
+        yamlConfig,
       };
     }
   } catch (error) {
@@ -101,7 +97,7 @@ function renderMarkdown(markdown: string): RenderMarkdownOutput {
       html: `Failed to render markdown:\n${JSON.stringify(error)}`,
       headings: [],
       slideConfigs: [],
-      yamlConfig: {}
+      yamlConfig: {},
     };
   }
 }
@@ -125,7 +121,7 @@ const RevealJSThemes = {
   "simple.css": "simple.css",
   "sky.css": "sky.css",
   "solarized.css": "solarized.css",
-  "white.css": "white.css"
+  "white.css": "white.css",
 };
 
 const AutoPrismThemeMapForPresentation = {
@@ -139,8 +135,21 @@ const AutoPrismThemeMapForPresentation = {
   "simple.css": "github.css",
   "sky.css": "default.css",
   "solarized.css": "solarized-light.css",
-  "white.css": "default.css"
+  "white.css": "default.css",
 };
+
+interface Requires {
+  WaveDromSkinJS?: string;
+  WaveDromJS?: string;
+  MermaidJS?: string;
+  RevealJS?: string;
+  RevealCSS?: string;
+  RevealThemeCSSFunc?: (theme: string) => string;
+  RevealPrintPDFCSS?: string;
+  KaTeXCSS?: string;
+  PrismJS?: string;
+  PrismCSSFunc?: (theme: string) => string;
+}
 
 /**
  * renderPreview
@@ -150,7 +159,8 @@ const AutoPrismThemeMapForPresentation = {
 function renderPreview(
   previewElement: HTMLElement,
   markdown: string,
-  forRevealJSPrint: boolean = false
+  forRevealJSPrint: boolean = false,
+  requires: Requires = {}
 ) {
   return new Promise((resolve, reject) => {
     const { html, headings, slideConfigs, yamlConfig } = renderMarkdown(
@@ -172,8 +182,14 @@ function renderPreview(
       let wavedromScript = "";
       let wavedromInitScript = "";
       if (html.indexOf("wavedrom") >= 0) {
-        wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/skins/default.js"></script>`;
-        wavedromScript += `<script src="https://cdn.jsdelivr.net/npm/wavedrom@2.3.0/wavedrom.min.js"></script>`;
+        wavedromScript += `<script src="${
+          requires.WaveDromSkinJS ||
+          "https://cdn.jsdelivr.net/npm/wavedrom@2.3.2/skins/default.js"
+        }></script>`;
+        wavedromScript += `<script src=${
+          requires.WaveDromJS ||
+          "https://cdn.jsdelivr.net/npm/wavedrom@2.3.2/wavedrom.min.js"
+        }></script>`;
         wavedromInitScript += `<script>
   Reveal.addEventListener("ready", ()=> {
     WaveDrom.ProcessAll()
@@ -185,7 +201,10 @@ function renderPreview(
       let mermaidScript = "";
       let mermaidInitScript = "";
       if (html.indexOf("mermaid") >= 0) {
-        mermaidScript = `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>`;
+        mermaidScript = `<script type="text/javascript" src=${
+          requires.MermaidJS ||
+          "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"
+        }></script>`;
         mermaidInitScript += `<script>
         if (window['MERMAID_CONFIG']) {
           window['MERMAID_CONFIG'].startOnLoad = false
@@ -238,19 +257,36 @@ function renderPreview(
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       
       <!-- reveal.js styles -->
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/reveal.css">
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/theme/${revealJSTheme}">    
+      <link rel="stylesheet" href=${
+        requires.RevealCSS ||
+        "https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/reveal.css"
+      }>
+      <link rel="stylesheet" href=${
+        (requires.RevealThemeCSSFunc &&
+          requires.RevealThemeCSSFunc(revealJSTheme)) ||
+        `https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/theme/${revealJSTheme}`
+      }>    
       ${
         forRevealJSPrint
-          ? `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/css/print/pdf.css">`
+          ? `<link rel="stylesheet" href=${
+              requires.RevealPrintPDFCSS ||
+              "https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/css/print/pdf.css"
+            }>`
           : ""
       }
   
       <!-- katex -->
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+      <link rel="stylesheet" href=${
+        requires.KaTeXCSS ||
+        "https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css"
+      }>
   
       <!-- prism github theme -->
-      <link href="https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/${revealJSCodeBlockTheme}" rel="stylesheet">
+      <link href=${
+        (requires.PrismCSSFunc &&
+          requires.PrismCSSFunc(revealJSCodeBlockTheme)) ||
+        `https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/${revealJSCodeBlockTheme}`
+      } rel="stylesheet">
     
       <!-- mermaid -->
       ${mermaidScript}
@@ -271,10 +307,16 @@ function renderPreview(
     `
         : ""
     }
-    <script src="https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/js/reveal.min.js"></script>
+    <script src=${
+      requires.RevealJS ||
+      "https://cdn.jsdelivr.net/npm/reveal.js@3.9.2/js/reveal.min.js"
+    }></script>
   
     <!-- prism.js -->
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"></script>
+    <script src=${
+      requires.PrismJS ||
+      "https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"
+    }></script>
   
     <!-- mermaid -->
     ${mermaidInitScript}
@@ -286,7 +328,7 @@ function renderPreview(
     <script>
   Reveal.initialize(${JSON.stringify({
     margin: 0.1,
-    ...revealJSConfig
+    ...revealJSConfig,
   })});
   Reveal.addEventListener('ready', function(event) {
     parent.postMessage({event: "reveal-ready", id:"${id}"})
@@ -294,7 +336,7 @@ function renderPreview(
     </script>
   </html>`);
       iframe.contentWindow.document.close();
-      window.addEventListener("message", function(event) {
+      window.addEventListener("message", function (event) {
         if (
           event.data &&
           event.data.event === "reveal-ready" &&
@@ -331,7 +373,7 @@ function renderWidgets(previewElement: HTMLElement) {
     }
     widget = widgetCreator({
       attributes: widgetAttributes,
-      isPreview: true
+      isPreview: true,
     });
     if (widget) {
       widget.classList.add("vickymd-widget");
@@ -473,7 +515,7 @@ function printPDF(
         restore();
         return resolve();
       })
-      .catch(error => {
+      .catch((error) => {
         restore();
         return reject(error);
       });
@@ -538,7 +580,7 @@ function printPreview(
     // elements whose positions need to be relative
     const elements: HTMLElement[] = [];
     const oldPositions: string[] = [];
-    elementsWhosePositionsToInitial.forEach(selector => {
+    elementsWhosePositionsToInitial.forEach((selector) => {
       const elem = document.querySelector(selector) as HTMLElement;
       if (elem) {
         elements.push(elem);

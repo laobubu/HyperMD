@@ -36,12 +36,12 @@ var requirejs_packages = [
   { name: "markdown-it-emoji", main: "dist/markdown-it-emoji.min.js" },
   {
     name: "markdown-it-task-lists",
-    main: "dist/markdown-it-task-lists.min.js"
+    main: "dist/markdown-it-task-lists.min.js",
   },
   // { name: "prismjs", main: "prism.min.js" }
   // I still don't know how to import
   { name: "react-dom", main: "umd/react-dom.production.min.js" },
-  { name: "react", main: "umd/react.production.min.js" }
+  { name: "react", main: "umd/react.production.min.js" },
 
   // Vega
   // { name: "vega", main: "build/vega.min.js" } // <= vega AMD is not working
