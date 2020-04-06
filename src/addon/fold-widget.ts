@@ -29,29 +29,19 @@ export const WidgetFolder = function (
 ): any {
   if (
     !token.type ||
-    token.type.indexOf("inline-code") < 0 ||
-    !token.string.trim().startsWith("@")
+    token.type.indexOf("comment") < 0 ||
+    !token.string.trim().match(/^<!--\s*@/) ||
+    !token.string.trim().match(/-->$/)
   ) {
     return null;
   }
   let start = token.start;
-  const cm = stream.cm;
-  const line = cm.getLine(stream.lineNo);
   let end = token.end;
-  for (; end < line.length; end++) {
-    if (line[end] === "`" && line[end - 1] !== "\\") {
-      break;
-    }
-  }
-  const str = line.slice(start, end).trim();
-  while (line[end + 1] === "`") {
-    end++;
-  }
-  while (line[start - 1] === "`") {
-    start--;
-  }
-  // Include "`"
-  end = end + 1;
+  const cm = stream.cm;
+  const str = token.string
+    .replace(/^<!--\s*/, "")
+    .replace(/-->$/, "")
+    .trim();
 
   let widgetName: string;
   let widgetAttributes: Attributes = {};
@@ -62,9 +52,13 @@ export const WidgetFolder = function (
     try {
       const j = str.slice(firstSpace + 1).trim();
       if (j[0] === "{") {
-        widgetAttributes = JSON.parse(j.replace(/\\`/g, "`"));
+        widgetAttributes = JSON.parse(
+          j.replace(/-\\->/g, "-->").replace(/<!\\--/g, "<!--")
+        );
       } else {
-        widgetAttributes = JSON.parse("{" + j.replace(/\\`/g, "`") + "}");
+        widgetAttributes = JSON.parse(
+          "{" + j.replace(/-\\->/g, "-->").replace(/<!\\--/g, "<!--") + "}"
+        );
       }
     } catch (error) {
       widgetName = "error";
@@ -111,24 +105,15 @@ export const WidgetFolder = function (
       .match(/\@[^\s$`]+/)[0];
 
     const attributesStr = JSON.stringify(attributes);
-    if (attributesStr.indexOf("`") > 0) {
-      editor.replaceRange(
-        `\`\`${widgetName} ${attributesStr
-          .replace(/`/g, "\\`")
-          .replace(/^{/, "")
-          .replace(/}$/, "")}\`\``,
-        widgetFrom,
-        widgetTo
-      );
-    } else {
-      editor.replaceRange(
-        `\`${widgetName} ${attributesStr
-          .replace(/^{/, "")
-          .replace(/}$/, "")}\``,
-        widgetFrom,
-        widgetTo
-      );
-    }
+    editor.replaceRange(
+      `<!-- ${widgetName} ${attributesStr
+        .replace(/^{/, "")
+        .replace(/}$/, "")
+        .replace(/-->/g, "-\\->")
+        .replace(/<!--/g, "<!\\--")} -->`,
+      widgetFrom,
+      widgetTo
+    );
   };
 
   const replaceSelf = (inputString: string) => {
