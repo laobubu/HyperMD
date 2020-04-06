@@ -24,8 +24,12 @@ let widgetMap: { [key: string]: WidgetCreator } = {};
  * @param name Name of the widget
  * @param creator Creator function
  */
-export function registerWidgetCreator(name: string, creator: WidgetCreator) {
-  if (name in widgetMap) {
+export function registerWidgetCreator(
+  name: string,
+  creator: WidgetCreator,
+  forceOverride: boolean = false
+) {
+  if (name in widgetMap && !forceOverride) {
     throw new Error(`Widget with name ${name} is already registered`);
   }
   widgetMap[name] = creator;

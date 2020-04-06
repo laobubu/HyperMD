@@ -42,7 +42,6 @@ exports.components = {
   "widget/component/widget": "WidgetComponent",
   "widget/hello/hello": "WidgetHello",
   "widget/error/error": "WidgetError",
-  "widget/timer/timer": "WidgetTimer",
   // ** Attribute
   "addon/attributes/index": "AttributesAddon",
   "addon/attributes/normalize": "AttributesNormalize",
@@ -63,7 +62,7 @@ exports.components = {
   "preview/features/widget": "PreviewFeatureWidget",
   "preview/features/fence": "PreviewFeatureFence",
   // ** Emoji
-  "addon/emoji/index": "Emoji"
+  "addon/emoji/index": "Emoji",
 };
 
 /**
@@ -96,7 +95,7 @@ exports.globalNames = {
   react: "React",
   "react-dom": "ReactDOM",
   vega: "vega",
-  "vega-embed": "vegaEmbed"
+  "vega-embed": "vegaEmbed",
   // prismjs: "Prism"
 };
 
@@ -115,8 +114,8 @@ exports.bundleFiles = [
       "//-----------------------------------------------//",
       "// !! This file is for Plain Browser Env ONLY !! //",
       "// !! Not Work With Bundlers                  !! //",
-      "//-----------------------------------------------//"
-    ].join("\n")
+      "//-----------------------------------------------//",
+    ].join("\n"),
 
     /*
     // 0xGG 👇 doesn't work
@@ -134,8 +133,8 @@ exports.bundleFiles = [
     // not necessary but maybe you just want the core utils?
     entry: "src/core.ts",
     output: "core.js",
-    name: "HyperMD"
-  }
+    name: "HyperMD",
+  },
 ];
 
 exports.banner = `
