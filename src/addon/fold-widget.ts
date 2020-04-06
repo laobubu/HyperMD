@@ -16,12 +16,10 @@ import { Attributes } from "./attributes/index";
 import { registerWidgetCreator, getWidgetCreator } from "../widget/index";
 import { HelloWidget } from "../widget/hello/hello";
 import { ErrorWidget } from "../widget/error/error";
-import { TimerWidget } from "../widget/timer/timer";
 import { TextMarker } from "codemirror";
 
 registerWidgetCreator("hello", HelloWidget);
 registerWidgetCreator("error", ErrorWidget);
-registerWidgetCreator("timer", TimerWidget);
 
 export const WidgetFolder = function (
   stream: FoldStream,
