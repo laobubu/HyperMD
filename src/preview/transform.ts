@@ -53,7 +53,7 @@ const fileExtensionToLanguageMap = {
   erl: "erlang",
   dot: "dot",
   gv: "dot",
-  viz: "dot"
+  viz: "dot",
 };
 
 const selfClosingTag = {
@@ -72,7 +72,7 @@ const selfClosingTag = {
   param: 1,
   source: 1,
   track: 1,
-  wbr: 1
+  wbr: 1,
 };
 
 export function transformMarkdown(
@@ -81,7 +81,7 @@ export function transformMarkdown(
     forPreview = false,
     headingIdGenerator = new HeadingIdGenerator(),
     forMarkdownExport = false,
-    usePandocParser = false
+    usePandocParser = false,
   }: TransformMarkdownOptions
 ) {
   let lastOpeningCodeBlockFence: string = null;
@@ -339,7 +339,7 @@ export function transformMarkdown(
             // return helper(commentEnd, lineNo + newlines, outputString + '\n')
             i = commentEnd;
             lineNo = lineNo + newlines;
-            outputString = outputString + "\n";
+            outputString = outputString + `<!-- ${content} -->\n`;
             continue;
           }
         }
@@ -430,7 +430,7 @@ export function transformMarkdown(
       slideConfigs,
       headings,
       frontMatterString,
-      tocBracketEnabled
+      tocBracketEnabled,
     };
   }
   let endFrontMatterOffset = 0;
