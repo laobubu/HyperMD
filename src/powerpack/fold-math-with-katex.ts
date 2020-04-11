@@ -12,7 +12,7 @@ import * as katex from "katex";
 import {
   defaultOption,
   MathRenderer,
-  MathRenderMode
+  MathRenderMode,
 } from "../addon/fold-math";
 
 import "katex/dist/katex.min.css";
@@ -45,7 +45,7 @@ export class KatexRenderer implements MathRenderer {
 
     try {
       katex.render(expr, el, {
-        displayMode: this.isDisplay
+        displayMode: this.isDisplay,
       });
 
       // remove "error" mark if exists
