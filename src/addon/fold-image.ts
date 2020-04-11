@@ -8,7 +8,7 @@ import {
   FolderFunc,
   registerFolder,
   RequestRangeResult,
-  breakMark
+  breakMark,
 } from "./fold";
 import { Position } from "codemirror";
 import { splitLink } from "./read-link";
@@ -16,7 +16,7 @@ import * as CodeMirror from "codemirror";
 
 const DEBUG = false;
 
-export const ImageFolder: FolderFunc = function(stream, token) {
+export const ImageFolder: FolderFunc = function (stream, token) {
   const cm = stream.cm;
   const imgRE = /\bimage-marker\b/;
   const urlRE = /\bformatting-link-string\b/; // matches the parentheses
@@ -70,7 +70,7 @@ export const ImageFolder: FolderFunc = function(stream, token) {
         collapsed: true,
         replacedWith: img,
         inclusiveLeft: true,
-        inclusiveRight: true
+        inclusiveRight: true,
       });
 
       img.addEventListener(
@@ -109,7 +109,7 @@ export const ImageFolder: FolderFunc = function(stream, token) {
             editor: cm,
             marker,
             breakMark,
-            element: img
+            element: img,
           });
         },
         false
@@ -118,6 +118,7 @@ export const ImageFolder: FolderFunc = function(stream, token) {
       img.src = url;
       img.alt = alt;
       img.title = title;
+      img.setAttribute("data-src", url);
       return marker;
     } else {
       if (DEBUG && window["VICKYMD_DEBUG"]) {
