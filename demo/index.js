@@ -19,13 +19,13 @@ if (requirejs)
     paths: {
       // HyperMD is not from node_modules nor CDN:
       // "hypermd": "./",
-      hypermd: demo_page_baseurl + "."
+      hypermd: demo_page_baseurl + ".",
     },
 
     // Remove this line if you occur errors with CDN
     packages: requirejs_packages, // see: requirejs_packages.js
 
-    waitSeconds: 15
+    waitSeconds: 15,
   });
 
 require([
@@ -105,8 +105,8 @@ require([
   // 'hypermd/powerpack/fold-math-with-mathjax',
 
   "hypermd/powerpack/paste-with-turndown",
-  "turndown-plugin-gfm"
-], function(CodeMirror, HyperMD, Preview, Widget, Emoji) {
+  "turndown-plugin-gfm",
+], function (CodeMirror, HyperMD, Preview, Widget, Emoji) {
   ("use strict");
   var myTextarea = document.getElementById("demo");
 
@@ -114,7 +114,7 @@ require([
   var editor = HyperMD.fromTextArea(myTextarea, {
     mode: {
       name: "hypermd",
-      hashtag: true // this syntax is not actived by default
+      hashtag: true, // this syntax is not actived by default
     },
 
     hmdClick: clickHandler,
@@ -124,17 +124,20 @@ require([
       math: true,
       html: true, // maybe dangerous
       emoji: true,
-      widget: true
+      widget: true,
     },
 
-    inputProps: "textarea"
+    inputProps: "textarea",
   });
   editor.setSize(null, "100%"); // set height
-  editor.on("imageClicked", args => {
+  editor.on("imageClicked", (args) => {
     args.breakMark(args.editor, args.marker);
   });
-  editor.on("linkIconClicked", args => {
+  editor.on("linkIconClicked", (args) => {
     args.breakMark(args.editor, args.marker);
+  });
+  editor.on("imageRendered", (args) => {
+    console.log("imageRendered, ", args.element);
   });
 
   // for debugging
@@ -162,7 +165,7 @@ require([
 
   // @see demo/lab.js
   init_lab(editor);
-}, function(err) {
+}, function (err) {
   var div = document.getElementById("loadErrorSplash");
   var ul = document.getElementById("loadErrorList");
 
@@ -177,7 +180,7 @@ require([
 
 var demoPageConfig = {
   directOpen: /directOpen/.test(window.location.search),
-  mathPreview: true
+  mathPreview: true,
 };
 
 function clickHandler(info, cm) {

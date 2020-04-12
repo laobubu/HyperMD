@@ -119,6 +119,12 @@ export const ImageFolder: FolderFunc = function (stream, token) {
       img.alt = alt;
       img.title = title;
       img.setAttribute("data-src", url);
+      CodeMirror.signal(cm, "imageRendered", {
+        editor: cm,
+        marker,
+        breakMark,
+        element: img,
+      });
       return marker;
     } else {
       if (DEBUG && window["VICKYMD_DEBUG"]) {
