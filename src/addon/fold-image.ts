@@ -115,11 +115,10 @@ export const ImageFolder: FolderFunc = function (stream, token) {
         false
       );
 
-      img.src = url;
       img.alt = alt;
       img.title = title;
       img.setAttribute("data-src", url);
-      CodeMirror.signal(cm, "imageRendered", {
+      CodeMirror.signal(cm, "imageReadyToLoad", {
         editor: cm,
         marker,
         breakMark,

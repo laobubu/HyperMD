@@ -136,8 +136,9 @@ require([
   editor.on("linkIconClicked", (args) => {
     args.breakMark(args.editor, args.marker);
   });
-  editor.on("imageRendered", (args) => {
-    console.log("imageRendered, ", args.element);
+  editor.on("imageReadyToLoad", (args) => {
+    console.log("imageReadyToLoad, ", args.element);
+    args.element.src = args.element.getAttribute("data-src");
   });
 
   // for debugging
