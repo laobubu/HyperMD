@@ -5,6 +5,7 @@ export default function (md: any) {
     /*if (state.src[state.pos] === '@') {
       tagMode = "mention";
     } else*/ if (
+      (state.src[state.pos - 1] || "").match(/(^|\s)$/) &&
       state.src[state.pos] === "#" &&
       !state.src[state.pos + 1].match(StopRegExp)
     ) {
