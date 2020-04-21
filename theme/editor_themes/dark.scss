@@ -1022,26 +1022,4 @@
       border-right: 0;
     }
   }
-
-  // 0xGG Team
-  // Tags
-  a.tag.tag-topic {
-    background-color: #999;
-    background-color: rgba(0, 0, 0, 0.3);
-    color: #fff;
-    font-size: 0.84em;
-    display: inline-block;
-    vertical-align: middle;
-    padding-top: 0.1em;
-    padding-bottom: 0.1em;
-    padding-right: 6px;
-    padding-left: 6px;
-    margin-right: 4px;
-    border-radius: 8px;
-    cursor: pointer;
-
-    &:before {
-      // content: "#";
-    }
-  }
 }
