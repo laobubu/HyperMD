@@ -1,5 +1,11 @@
 @import "github.scss";
+@import "../common/color.scss";
 
 html {
-  @include github(#ccc, #0c0c0c, #08c);
+  $fg: #ccc;
+  $bg: #0c0c0c;
+  $url-color: #08c;
+  $hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
+  $hashtag-color: #00BCD4;
+  @include github($fg, $bg, $url-color, $hashtag-bg, $hashtag-color);
 }
