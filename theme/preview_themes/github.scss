@@ -2,16 +2,20 @@
 @import "../common/color.scss";
 @import "../common/constant.scss";
 
-@mixin github($fg, $bg, $url-color, $hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%)), $hashtag-color: $fg) {
+@mixin github($fg,
+  $bg,
+  $url-color,
+  $hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%)),
+  $hashtag-color: $fg) {
   $fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
   $fg-subtle: contrast($fg, lighten($fg, 16%), darken($fg, 16%));
   $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
   $margin: 16px;
 
   .preview.preview {
-    font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans SC', 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Segoe UI",
+      "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+      "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     // font-size: 1.2em;
@@ -95,7 +99,6 @@
       color: $fg-subtle;
     }
 
-
     // Link --------------------
     a:not([href]) {
       color: inherit;
@@ -110,16 +113,16 @@
 
     a:hover {
       // color: #0050a3;
-      color: contrast($url-color, lighten($url-color, 8%), darken($url-color, 6%));
+      color: contrast($url-color,
+          lighten($url-color, 8%),
+          darken($url-color, 6%));
       text-decoration: none;
     }
-
 
     // Images --------------------
     img {
       max-width: 100%;
     }
-
 
     // Paragraph --------------------
 
@@ -162,7 +165,6 @@
       }
     }
 
-
     li>p {
       // margin-top: @margin;
       margin-top: 0;
@@ -195,7 +197,6 @@
       }
     }
 
-
     // Blockquotes --------------------
 
     blockquote {
@@ -203,6 +204,7 @@
       font-size: inherit;
       padding: 0 15px;
       color: $fg-subtle;
+      background-color: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
       border-left: 4px solid $border;
 
       > :first-child {
@@ -217,7 +219,7 @@
     // HR --------------------
     hr {
       height: 4px;
-      margin: $margin*2 0;
+      margin: $margin * 2 0;
       background-color: $border;
       border: 0 none;
     }
@@ -266,7 +268,7 @@
 
     // Code --------------------
     code {
-      font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
       font-size: 0.85em !important;
       color: $fg-strong;
       background-color: contrast($bg, lighten($bg, 8%), darken($bg, 6%));

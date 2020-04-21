@@ -51,11 +51,19 @@ export const WidgetFolder = function (
       const j = str.slice(firstSpace + 1).trim();
       if (j[0] === "{") {
         widgetAttributes = JSON.parse(
-          j.replace(/-\\->/g, "-->").replace(/<!\\--/g, "<!--")
+          j
+            .replace(/-\\->/g, "-->")
+            .replace(/<!\\--/g, "<!--")
+            .replace(/\\\|/g, "|")
         );
       } else {
         widgetAttributes = JSON.parse(
-          "{" + j.replace(/-\\->/g, "-->").replace(/<!\\--/g, "<!--") + "}"
+          "{" +
+            j
+              .replace(/-\\->/g, "-->")
+              .replace(/<!\\--/g, "<!--")
+              .replace(/\\\|/g, "|") +
+            "}"
         );
       }
     } catch (error) {
@@ -108,7 +116,7 @@ export const WidgetFolder = function (
         .replace(/^{/, "")
         .replace(/}$/, "")
         .replace(/-->/g, "-\\->")
-        .replace(/<!--/g, "<!\\--")} -->`,
+        .replace(/<!--/g, "<!\\--")} -->`.replace(/\|/g, "\\|"),
       widgetFrom,
       widgetTo
     );

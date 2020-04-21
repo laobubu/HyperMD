@@ -386,11 +386,13 @@
     &::before {
       content: " ";
       position: absolute;
-      left: $quote-margin;
+      left: 0; // $quote-margin;
       top: 0;
       height: 100%;
       border-left: 4px solid $border;
     }
+
+    background-color: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
   }
 
   @for $i from 1 through 9 {
