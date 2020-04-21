@@ -2,10 +2,10 @@
 @import "../common/color.scss";
 
 html {
-  $fg: #ccc;
-  $bg: #0c0c0c;
+  $fg: #d4d4d4;
+  $bg: #1e1e1e;
   $url-color: #08c;
   $hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
-  $hashtag-color: #00BCD4;
+  $hashtag-color: #00bcd4;
   @include github($fg, $bg, $url-color, $hashtag-bg, $hashtag-color);
 }
