@@ -125,6 +125,7 @@ require([
       html: true, // maybe dangerous
       emoji: true,
       widget: true,
+      code: true,
     },
 
     inputProps: "textarea",
