@@ -9,7 +9,7 @@
   font-style: normal;
 }
 
-.vickymd-theme.vickymd-theme {
+.cm-s-dark.cm-s-dark {
   $fg: #ccc;
   $bg: #0c0c0c;
   $fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
@@ -675,8 +675,8 @@
     display: inline-block;
     font-size: 0.7em;
     vertical-align: text-top;
-    background-color: rgba(#eee, 0.7);
-    color: #999;
+    // background-color: rgba(#eee, 0.7);
+    color: #4078c0;
     margin-top: -0.2em;
   }
 

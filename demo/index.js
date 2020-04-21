@@ -42,6 +42,7 @@ require([
   "hypermd/preview/index",
   "hypermd/widget/index",
   "hypermd/addon/emoji/index",
+  "hypermd/theme/index",
 
   ///////////////////////////////////////
   /// CodeMirror                      ///
@@ -106,7 +107,7 @@ require([
 
   "hypermd/powerpack/paste-with-turndown",
   "turndown-plugin-gfm",
-], function (CodeMirror, HyperMD, Preview, Widget, Emoji) {
+], function (CodeMirror, HyperMD, Preview, Widget, Emoji, Theme) {
   ("use strict");
   var myTextarea = document.getElementById("demo");
 
@@ -150,6 +151,27 @@ require([
   window.Preview = Preview;
   window.Widget = Widget;
   window.Emoji = Emoji;
+  window.Theme = Theme;
+
+  const styleID = "codemirror-cursor-style";
+  let style = document.getElementById(styleID);
+  if (!style) {
+    style = document.createElement("style");
+    style.id = styleID;
+    document.body.appendChild(style);
+  }
+  style.innerText = `
+.CodeMirror-cursor.CodeMirror-cursor {
+  border-left: 2px solid rgba(74, 144, 226, 1);
+}    
+`;
+
+  // Set theme
+  Theme.setTheme({
+    editor: editor,
+    themeName: "dark",
+    baseUri: "http://127.0.0.1:8000/theme/",
+  });
 
   // for demo page only:
   document.body.className += " loaded";
