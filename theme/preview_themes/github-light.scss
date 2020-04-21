@@ -1,5 +1,10 @@
 @import "github.scss";
 
 html {
-  @include github(#333, #fff, #08c);
+  $fg: #333;
+  $bg: #fff;
+  $url-color: #08c;
+  $hashtag-bg: #777;
+  $hashtag-color: #fff;
+  @include github($fg, $bg, $url-color, $hashtag-bg, $hashtag-color);
 }

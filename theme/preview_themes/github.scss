@@ -2,7 +2,7 @@
 @import "../common/color.scss";
 @import "../common/constant.scss";
 
-@mixin github($fg, $bg, $urlColor) {
+@mixin github($fg, $bg, $url-color, $hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%)), $hashtag-color: $fg) {
   $fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
   $fg-subtle: contrast($fg, lighten($fg, 16%), darken($fg, 16%));
   $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
@@ -104,13 +104,13 @@
 
     a {
       // color: #08c;
-      color: $urlColor;
+      color: $url-color;
       text-decoration: none;
     }
 
     a:hover {
       // color: #0050a3;
-      color: contrast($urlColor, lighten($urlColor, 8%), darken($urlColor, 6%));
+      color: contrast($url-color, lighten($url-color, 8%), darken($url-color, 6%));
       text-decoration: none;
     }
 
@@ -373,10 +373,8 @@
 
     // Tags
     a.tag.tag-topic {
-      background-color: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
-      ;
-      // background-color: rgba(0, 0, 0, 0.3);
-      color: $fg;
+      background-color: $hashtag-bg;
+      color: $hashtag-color;
       font-size: 0.84em;
       display: inline-block;
       vertical-align: middle;

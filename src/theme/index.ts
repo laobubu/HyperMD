@@ -40,7 +40,7 @@ export function setTheme({
   }
 
   // Set preview theme
-  const previewThemeStyleElementID = "crossnote-preview-theme";
+  const previewThemeStyleElementID = "vickymd-preview-theme";
   let previewThemeStyleElement: HTMLLinkElement = document.getElementById(
     previewThemeStyleElementID
   ) as HTMLLinkElement;
@@ -56,7 +56,7 @@ export function setTheme({
     baseUri + `preview_themes/${theme.previewTheme}.css`;
 
   // Set code block theme
-  const codeBlockThemeStyleElementID = "crossnote-code-block-theme";
+  const codeBlockThemeStyleElementID = "vickymd-code-block-theme";
   let codeBlockThemeStyleElement: HTMLLinkElement = document.getElementById(
     codeBlockThemeStyleElementID
   ) as HTMLLinkElement;
@@ -72,7 +72,7 @@ export function setTheme({
     baseUri + `prism_themes/${theme.codeBlockTheme}.css`;
 
   // Set editor theme
-  const editorThemeStyleElementID = "crossnote-editor-theme";
+  const editorThemeStyleElementID = "vickymd-editor-theme";
   let editorThemeStyleElement: HTMLLinkElement = document.getElementById(
     editorThemeStyleElementID
   ) as HTMLLinkElement;
