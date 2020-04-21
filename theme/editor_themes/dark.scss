@@ -4,8 +4,7 @@
 
 @font-face {
   font-family: "HyperMD-Bullets";
-  src: url("data:application/x-font-woff;charset=utf-8;base64,d09GRk9UVE8AAATYAAsAAAAABrQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADLAAAAVkAAAFgkDDiyEZGVE0AAASsAAAAGwAAABx9TbkrR0RFRgAABIgAAAAiAAAAJgAnACpPUy8yAAABZAAAAEcAAABgVTNgQ2NtYXAAAALUAAAAQwAAAUoBRQLkaGVhZAAAAQgAAAAzAAAANgrgpUBoaGVhAAABPAAAAB4AAAAkBOsD+WhtdHgAAATIAAAAEAAAABALoAL5bWF4cAAAAVwAAAAGAAAABgAEUABuYW1lAAABrAAAASYAAAITC0mo3nBvc3QAAAMYAAAAEwAAACD/gwAzeJxjYGRgYABil5kPquP5bb4ycLMwgMCVWRq+ENpyHoMxAwNTNFMEkMvBwAQSBQAX2QkFAHicY2BkYGAyZtjFEMNsxQAETNEMjAyogAUAMnAB7AAAAABQAAAEAAB4nGNgYTZlnMDAysDANIvpDAMDQz+EZnzFYMTIARRlYOVkgAFGBiQQkOaawtDAoMWgy2z835ghhsn4vxuKGgUgZAQARsULIwB4nIWOMWvDMBSET4mT4g6lhC7dtBQSiI1kSgNZAw506FBIlk52YhyDsIPiDIGO/T39Lf01nXtyRJYOMcjv09O9ewfgDt8QOH+PePYsECL33MMNPj338YQfzwFCcet5gHvx4nnI/geVIgh5S7opxwIjvHnuca/x3McrvjwH1Px6HkCKB89DjMQSCzTY4wSLCiV2aCExxgYT1gQKGjNMyQYZlTmOwKLZn2xV7lo53kxkovRsKk3W5HxaoaZDxWNQYMtprOq2ak2xJb6zV9LBeVlei/JoMkJKZzfnqqWi6HbH3C4x5/nveu5rKiL+o0tSpE3dpo0tC5nESs7lZTtZq0hHLu61nGv2LA58d7kkvZ173FWXCevCHqqmlkrpWCklrxj+AequT5gAAHicY2BgYGaAYBkGRgYQcAHyGMF8FgYNIM0GpBkZmBi0GXT//wfytUD0/+v/r0HVAwEjGwOCQxAwMoHtG2YAAPijCSYAeJxjYGYAg/8NDMYMWAAAKBQBtgB4nEWOsUsCYRjG38+7y/O8zoxOIi8RXBLE0iWCtkYjLLBoNMsSJC2sKILIFuuDKIhKbBKDwDFovAgC5eb8AwqaCqql740TzBZ7nuU3Pb+HAM8DIUSKreZSufTSYgiIBQhE0AHoJqhZcJDDft7zbKm0ZM4zXW7JvEcC2+bsMKUdkK06xQ98FzQoOTSAHg3KTg1UjUR6gfsbHAAfBCYy2e311PJKzjuU8HvDI6HRgDcdzyxsdOz/N9qxgwwK8IT4ssflb6pjVCe6zuo6p7swiHfNYJfePFAxyurNqFXBBG6pGWYTYmvZZGFONO3nwtlUNX6/I86bnFAsXNILekurpcqN+DIuFK9PK7TdfHm3In7VhHQ1dZWkebp/tHcoKjiGYXxTJ0236Ywx54xhumrMxdRHU30QFPbaIJ/M4NgJ2lRmPJlGl/JT60O/SmWpITVkmRl2Zsjdv2uJiQgAAAB4nGNgZGBg4AFiMQY5BiYGRiBkBmIWoAgTEDNCMAAIgwBSAAB4nGNgYGBkAIIrkuH2YHqWhi+EtpwHADfuBa0AAgAAMwMzAOgDOgDiAzMA/A==")
-    format("woff");
+  src: url("data:application/x-font-woff;charset=utf-8;base64,d09GRk9UVE8AAATYAAsAAAAABrQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADLAAAAVkAAAFgkDDiyEZGVE0AAASsAAAAGwAAABx9TbkrR0RFRgAABIgAAAAiAAAAJgAnACpPUy8yAAABZAAAAEcAAABgVTNgQ2NtYXAAAALUAAAAQwAAAUoBRQLkaGVhZAAAAQgAAAAzAAAANgrgpUBoaGVhAAABPAAAAB4AAAAkBOsD+WhtdHgAAATIAAAAEAAAABALoAL5bWF4cAAAAVwAAAAGAAAABgAEUABuYW1lAAABrAAAASYAAAITC0mo3nBvc3QAAAMYAAAAEwAAACD/gwAzeJxjYGRgYABil5kPquP5bb4ycLMwgMCVWRq+ENpyHoMxAwNTNFMEkMvBwAQSBQAX2QkFAHicY2BkYGAyZtjFEMNsxQAETNEMjAyogAUAMnAB7AAAAABQAAAEAAB4nGNgYTZlnMDAysDANIvpDAMDQz+EZnzFYMTIARRlYOVkgAFGBiQQkOaawtDAoMWgy2z835ghhsn4vxuKGgUgZAQARsULIwB4nIWOMWvDMBSET4mT4g6lhC7dtBQSiI1kSgNZAw506FBIlk52YhyDsIPiDIGO/T39Lf01nXtyRJYOMcjv09O9ewfgDt8QOH+PePYsECL33MMNPj338YQfzwFCcet5gHvx4nnI/geVIgh5S7opxwIjvHnuca/x3McrvjwH1Px6HkCKB89DjMQSCzTY4wSLCiV2aCExxgYT1gQKGjNMyQYZlTmOwKLZn2xV7lo53kxkovRsKk3W5HxaoaZDxWNQYMtprOq2ak2xJb6zV9LBeVlei/JoMkJKZzfnqqWi6HbH3C4x5/nveu5rKiL+o0tSpE3dpo0tC5nESs7lZTtZq0hHLu61nGv2LA58d7kkvZ173FWXCevCHqqmlkrpWCklrxj+AequT5gAAHicY2BgYGaAYBkGRgYQcAHyGMF8FgYNIM0GpBkZmBi0GXT//wfytUD0/+v/r0HVAwEjGwOCQxAwMoHtG2YAAPijCSYAeJxjYGYAg/8NDMYMWAAAKBQBtgB4nEWOsUsCYRjG38+7y/O8zoxOIi8RXBLE0iWCtkYjLLBoNMsSJC2sKILIFuuDKIhKbBKDwDFovAgC5eb8AwqaCqql740TzBZ7nuU3Pb+HAM8DIUSKreZSufTSYgiIBQhE0AHoJqhZcJDDft7zbKm0ZM4zXW7JvEcC2+bsMKUdkK06xQ98FzQoOTSAHg3KTg1UjUR6gfsbHAAfBCYy2e311PJKzjuU8HvDI6HRgDcdzyxsdOz/N9qxgwwK8IT4ssflb6pjVCe6zuo6p7swiHfNYJfePFAxyurNqFXBBG6pGWYTYmvZZGFONO3nwtlUNX6/I86bnFAsXNILekurpcqN+DIuFK9PK7TdfHm3In7VhHQ1dZWkebp/tHcoKjiGYXxTJ0236Ywx54xhumrMxdRHU30QFPbaIJ/M4NgJ2lRmPJlGl/JT60O/SmWpITVkmRl2Zsjdv2uJiQgAAAB4nGNgZGBg4AFiMQY5BiYGRiBkBmIWoAgTEDNCMAAIgwBSAAB4nGNgYGBkAIIrkuH2YHqWhi+EtpwHADfuBa0AAgAAMwMzAOgDOgDiAzMA/A==") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -42,17 +41,13 @@
   $table-row-1-image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAQAAAAziH6sAAAADklEQVR42mOc+Z9x5n8ACTkDM4ikM1IAAAAASUVORK5CYII=";
 
   $dark-gray: #282828;
-  $codeblock-toolbar-bg: contrast(
-    $dark-gray,
-    lighten($dark-gray, 4%),
-    darken($dark-gray, 6%)
-  );
+  $codeblock-toolbar-bg: contrast($dark-gray,
+      lighten($dark-gray, 4%),
+      darken($dark-gray, 6%));
   $codeblock-toolbar-color: #ff9800;
-  $codeblock-bg: contrast(
-    $dark-gray,
-    lighten($dark-gray, 4%),
-    darken($dark-gray, 6%)
-  );
+  $codeblock-bg: contrast($dark-gray,
+      lighten($dark-gray, 4%),
+      darken($dark-gray, 6%));
   $codeblock-border: none; // 1px solid #ccc;
   $codeblock-padding: 5px;
 
@@ -112,7 +107,7 @@
       // box-shadow: inset 0 -1px 0 #bbb;
     }
 
-    a > img {
+    a>img {
       border: 0;
     }
   }
@@ -264,6 +259,7 @@
 
   /// Formatting Tokens, use monospace chars
   span {
+
     &.cm-formatting-em,
     &.cm-formatting-strong,
     &.cm-formatting-strikethrough,
@@ -316,7 +312,7 @@
     border-left: 0 !important;
     padding-bottom: 0.25em;
 
-    > span > span:first-child {
+    >span>span:first-child {
       margin-left: 0 !important;
     }
 
@@ -378,11 +374,13 @@
     &::before {
       content: " ";
       position: absolute;
-      left: $quote-margin;
+      left: 0; // $quote-margin;
       top: 0;
       height: 100%;
       border-left: 4px solid $border;
     }
+
+    background-color: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
   }
 
   @for $i from 1 through 9 {
@@ -409,6 +407,7 @@
       }
     }
   }
+
 
   span.cm-hmd-indent-in-quote {
     @extend %monospace;
@@ -458,7 +457,8 @@
 
     pre.HyperMD-list-line-#{$i} {
       padding-left:
-        /*$line-padding +*/ $indent_i;
+        /*$line-padding +*/
+        $indent_i;
     }
   }
 
@@ -474,7 +474,8 @@
   }
 
   span.cm-formatting-task // task list checkbox
-  {
+
+    {
     @extend %monospace;
     white-space: pre;
     display: inline-block;
@@ -505,7 +506,7 @@
     font-size: $fs * 0.85;
     padding-left: $line-padding + $footnote-padding;
 
-    > span > span:first-child {
+    >span>span:first-child {
       margin-left: -$footnote-padding;
     }
 
@@ -570,18 +571,11 @@
 
   /// link
 
-  .cm-formatting-link + .cm-formatting-link-string,
-  .cm-formatting-link + .cm-formatting-link-string + .cm-url,
-  .cm-formatting-link
-    + .cm-formatting-link-string
-    + .cm-url
-    + .cm-formatting-link-string,
-  .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link,
-  .cm-formatting-link
-    + .cm-formatting-link-string
-    + .cm-url
-    + .cm-link
-    + .cm-formatting-link-string {
+  .cm-formatting-link+.cm-formatting-link-string,
+  .cm-formatting-link+.cm-formatting-link-string+.cm-url,
+  .cm-formatting-link+.cm-formatting-link-string+.cm-url+.cm-formatting-link-string,
+  .cm-formatting-link+.cm-formatting-link-string+.cm-url+.cm-link,
+  .cm-formatting-link+.cm-formatting-link-string+.cm-url+.cm-link+.cm-formatting-link-string {
     display: inline-block;
     font-size: 0.85em;
     vertical-align: text-top;
@@ -590,9 +584,10 @@
   // change cursor for links if modifier keys pressed
   &.HyperMD-with-alt,
   &.HyperMD-with-ctrl {
+
     span.cm-url,
     span.cm-link,
-    .cm-link + .CodeMirror-widget,
+    .cm-link+.CodeMirror-widget,
     span.cm-hashtag {
       cursor: pointer;
     }
@@ -736,6 +731,7 @@
   }
 
   @keyframes hmd-file-uploading-ani {
+
     0%,
     100% {
       opacity: 0.4;
@@ -782,7 +778,7 @@
   /// hpyermd table
 
   pre.HyperMD-table-row {
-    > span {
+    >span {
       display: inline-block;
       border-top: $table-border-style;
       margin-right: 30px + $line-margin * 2; // leave space for hscroller
@@ -791,7 +787,7 @@
     &.HyperMD-table-row-0,
     &.HyperMD-table-row-1,
     &.HyperMD-table-row-2 {
-      > span {
+      >span {
         border-top: 0;
       }
     }
@@ -838,7 +834,7 @@
       // :----: | :-----: | dash line
       line-height: $table-row1-height;
 
-      > span {
+      >span {
         border-bottom: 0;
       }
 
@@ -848,7 +844,7 @@
     }
 
     &.HyperMD-table-row-0 {
-      > span {
+      >span {
         border-bottom: 0;
       }
 
@@ -867,7 +863,7 @@
   /// hypermd/addon/hover
 
   &.CodeMirror div.HyperMD-hover {
-    > .HyperMD-hover-content {
+    >.HyperMD-hover-content {
       background-color: #000;
       background-color: rgba(#000, 0.7);
       border: 0;
@@ -895,7 +891,7 @@
       }
     }
 
-    > .HyperMD-hover-indicator {
+    >.HyperMD-hover-indicator {
       content: " ";
       display: block;
       width: 0px;
@@ -993,7 +989,7 @@
       background-color: transparent;
     }
 
-    &.HyperMD-table-row-1 > span {
+    &.HyperMD-table-row-1>span {
       background: url(#{$table-row-1-image}) repeat-x 0px center;
     }
 

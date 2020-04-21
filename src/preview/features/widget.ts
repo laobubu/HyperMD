@@ -20,7 +20,8 @@ export default (md: MarkdownIt) => {
               .slice(firstSpace + 1)
               .trim()
               .replace(/-\\->/g, "-->")
-              .replace(/<!\\--/g, "<!--") +
+              .replace(/<!\\--/g, "<!--")
+              .replace(/\\\|/g, "|") +
             "}"
         );
       } catch (error) {
