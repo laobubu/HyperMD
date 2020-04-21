@@ -25,7 +25,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
-yarn.lock
 
 # Auto Generated Docs. See dev/docgen/index.ts
 docs/options-for-addons.md

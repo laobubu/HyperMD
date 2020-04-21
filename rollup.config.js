@@ -12,23 +12,23 @@ const plugins = {
       compilerOptions: {
         target: "es5",
         module: "es6",
-        declaration: false
-      }
-    }
+        declaration: false,
+      },
+    },
   }),
   uglify: uglify({
     output: {
-      comments: /^!/
-    }
+      comments: /^!/,
+    },
   }),
   buble: buble({
     namedFunctionExpressions: false,
     transforms: {
       generator: false,
-      dangerousForOf: true // simplify `for (let i=0;i...)` to `for (let it of arr)`
-    }
+      dangerousForOf: true, // simplify `for (let i=0;i...)` to `for (let it of arr)`
+    },
   }),
-  json: json()
+  json: json(),
 };
 
 var configs = [];
@@ -41,7 +41,7 @@ function isExternal(mod) {
   return false;
 }
 
-bundleFiles.forEach(item => {
+bundleFiles.forEach((item) => {
   var item_plugins = [plugins.ts]; // Essential: typescript
   if (item.uglify) item_plugins.push(plugins.uglify); // optional: uglify
   item_plugins.push(plugins.buble); // Essential: Buble
@@ -58,9 +58,9 @@ bundleFiles.forEach(item => {
       format: "umd",
       name: item.name,
       globals: globalNames,
-      banner: _banner
+      banner: _banner,
     },
-    plugins: item_plugins
+    plugins: item_plugins,
   };
 
   configs.push(out);

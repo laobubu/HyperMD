@@ -17,8 +17,6 @@ import "codemirror/addon/edit/closebrackets";
 import "codemirror/lib/codemirror.css";
 import "codemirror/addon/fold/foldgutter.css";
 
-import "../theme/hypermd-light.css";
-
 // if (HyperMD_Mark in editor), the editor was a HyperMD mode at least once
 const HyperMD_Mark = "__hypermd__";
 
@@ -30,7 +28,7 @@ const HyperMD_Mark = "__hypermd__";
 export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
   lineNumbers: true,
   lineWrapping: true,
-  theme: "hypermd-light",
+  theme: "light",
   mode: "text/x-hypermd",
   tabSize: 4, // CommonMark specifies tab as 4 spaces
 
@@ -39,8 +37,8 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
   gutters: [
     "CodeMirror-linenumbers",
     "CodeMirror-foldgutter",
-    "HyperMD-goback" // (addon: click) 'back' button for footnotes
-  ]
+    "HyperMD-goback", // (addon: click) 'back' button for footnotes
+  ],
 };
 
 /**
@@ -50,7 +48,7 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
  * Addons about visual effects, shall update this object!
  */
 export var normalVisualConfig: CodeMirror.EditorConfiguration = {
-  theme: "default"
+  theme: "default",
   /* eg. hmdFold: false, */
 };
 
@@ -101,7 +99,11 @@ export function switchToNormal(
 
   if (typeof options_or_theme === "string")
     options_or_theme = { theme: options_or_theme };
-  var opt = { ...normalVisualConfig, ...options_or_theme };
+  var opt = {
+    ...normalVisualConfig,
+    ...{ theme: editor.getOption("theme") },
+    ...options_or_theme,
+  };
 
   for (const key in opt) {
     editor.setOption(key as any, opt[key]);
@@ -131,10 +133,15 @@ export function switchToHyperMD(
     for (const key in normalVisualConfig) {
       opt[key] = suggestedEditorConfig[key];
     }
-    Object.assign(opt, options_or_theme);
+    Object.assign(opt, { theme: editor.getOption("theme") }, options_or_theme);
   } else {
     // this CodeMirror editor is new to HyperMD
-    Object.assign(opt, suggestedEditorConfig, options_or_theme);
+    Object.assign(
+      opt,
+      suggestedEditorConfig,
+      { theme: editor.getOption("theme") },
+      options_or_theme
+    );
     editor[HyperMD_Mark] = true;
   }
 

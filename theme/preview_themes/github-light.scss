@@ -1,0 +1,5 @@
+@import "github.scss";
+
+html {
+  @include github(#333, #fff, #08c);
+}

@@ -25,7 +25,7 @@
       </p>
       <p><a href="https://github.com/laobubu/hypermd/">[View on GitHub]</a></p>
       <p>&nbsp;</p>
-      <div id="loadErrorSplash" style="display: none">
+      <div id="loadErrorSplash" style="display: none;">
         <p>
           Failed to load modules.
           <a href="#" onclick="location.reload()"
@@ -34,10 +34,10 @@
         </p>
         <ul id="loadErrorList"></ul>
       </div>
-      <p style="font-size:1.8em;text-align:center">
+      <p style="font-size: 1.8em; text-align: center;">
         <b><i>Loading...</i></b>
       </p>
-      <p style="font-size:0.9em;text-align:center">
+      <p style="font-size: 0.9em; text-align: center;">
         <i id="loadingFileName"></i>
       </p>
       <p>&nbsp;</p>
@@ -64,7 +64,7 @@
         </button>
         Lab
       </div>
-      <div class="float-win-content" style="column-count: 2">
+      <div class="float-win-content" style="column-count: 2;">
         <fieldset>
           <legend>Behavior</legend>
           <p>
@@ -97,7 +97,7 @@
             Resolve relative URL with <br />
             <label lab-bind="ReadLink.baseURI"
               >BaseURI
-              <input type="text" style="width: 250px" />
+              <input type="text" style="width: 250px;" />
               <span class="opt-tip">hmdReadLink.BaseURI</span>
             </label>
           </p>
@@ -175,8 +175,8 @@
 
     <div id="editor_area">
       <div id="toc"></div>
-      <textarea id="demo" style="display:none"></textarea>
-      <div id="preview" class="preview" style="display:none">
+      <textarea id="demo" style="display: none;"></textarea>
+      <div id="preview" class="preview" style="display: none;">
         This is preview
       </div>
     </div>
@@ -211,7 +211,7 @@
       src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/2.1.2/wavedrom.min.js"
       type="text/javascript"
     ></script>
-   <!-- prismjs -->
+    <!-- prismjs -->
     <link
       href="https://cdn.jsdelivr.net/npm/@shd101wyy/mume@0.4.7/styles/prism_theme/github.css"
       rel="stylesheet"
@@ -277,6 +277,10 @@
           </svg>
           Preview Mode
         </button>
+        <select id="theme-selector">
+          <option value="light">light</option>
+          <option value="dark">dark</option>
+        </select>
         <div class="test-tooltip">Show preview</div>
       </div>
 
