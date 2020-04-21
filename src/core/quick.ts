@@ -39,8 +39,8 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
   gutters: [
     "CodeMirror-linenumbers",
     "CodeMirror-foldgutter",
-    "HyperMD-goback" // (addon: click) 'back' button for footnotes
-  ]
+    "HyperMD-goback", // (addon: click) 'back' button for footnotes
+  ],
 };
 
 /**
@@ -50,7 +50,7 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
  * Addons about visual effects, shall update this object!
  */
 export var normalVisualConfig: CodeMirror.EditorConfiguration = {
-  theme: "default"
+  theme: "default",
   /* eg. hmdFold: false, */
 };
 

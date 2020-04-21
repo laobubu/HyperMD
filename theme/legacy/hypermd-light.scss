@@ -1,7 +1,6 @@
 @font-face {
     font-family: "HyperMD-Bullets";
-    src: url("data:application/x-font-woff;charset=utf-8;base64,d09GRk9UVE8AAATYAAsAAAAABrQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADLAAAAVkAAAFgkDDiyEZGVE0AAASsAAAAGwAAABx9TbkrR0RFRgAABIgAAAAiAAAAJgAnACpPUy8yAAABZAAAAEcAAABgVTNgQ2NtYXAAAALUAAAAQwAAAUoBRQLkaGVhZAAAAQgAAAAzAAAANgrgpUBoaGVhAAABPAAAAB4AAAAkBOsD+WhtdHgAAATIAAAAEAAAABALoAL5bWF4cAAAAVwAAAAGAAAABgAEUABuYW1lAAABrAAAASYAAAITC0mo3nBvc3QAAAMYAAAAEwAAACD/gwAzeJxjYGRgYABil5kPquP5bb4ycLMwgMCVWRq+ENpyHoMxAwNTNFMEkMvBwAQSBQAX2QkFAHicY2BkYGAyZtjFEMNsxQAETNEMjAyogAUAMnAB7AAAAABQAAAEAAB4nGNgYTZlnMDAysDANIvpDAMDQz+EZnzFYMTIARRlYOVkgAFGBiQQkOaawtDAoMWgy2z835ghhsn4vxuKGgUgZAQARsULIwB4nIWOMWvDMBSET4mT4g6lhC7dtBQSiI1kSgNZAw506FBIlk52YhyDsIPiDIGO/T39Lf01nXtyRJYOMcjv09O9ewfgDt8QOH+PePYsECL33MMNPj338YQfzwFCcet5gHvx4nnI/geVIgh5S7opxwIjvHnuca/x3McrvjwH1Px6HkCKB89DjMQSCzTY4wSLCiV2aCExxgYT1gQKGjNMyQYZlTmOwKLZn2xV7lo53kxkovRsKk3W5HxaoaZDxWNQYMtprOq2ak2xJb6zV9LBeVlei/JoMkJKZzfnqqWi6HbH3C4x5/nveu5rKiL+o0tSpE3dpo0tC5nESs7lZTtZq0hHLu61nGv2LA58d7kkvZ173FWXCevCHqqmlkrpWCklrxj+AequT5gAAHicY2BgYGaAYBkGRgYQcAHyGMF8FgYNIM0GpBkZmBi0GXT//wfytUD0/+v/r0HVAwEjGwOCQxAwMoHtG2YAAPijCSYAeJxjYGYAg/8NDMYMWAAAKBQBtgB4nEWOsUsCYRjG38+7y/O8zoxOIi8RXBLE0iWCtkYjLLBoNMsSJC2sKILIFuuDKIhKbBKDwDFovAgC5eb8AwqaCqql740TzBZ7nuU3Pb+HAM8DIUSKreZSufTSYgiIBQhE0AHoJqhZcJDDft7zbKm0ZM4zXW7JvEcC2+bsMKUdkK06xQ98FzQoOTSAHg3KTg1UjUR6gfsbHAAfBCYy2e311PJKzjuU8HvDI6HRgDcdzyxsdOz/N9qxgwwK8IT4ssflb6pjVCe6zuo6p7swiHfNYJfePFAxyurNqFXBBG6pGWYTYmvZZGFONO3nwtlUNX6/I86bnFAsXNILekurpcqN+DIuFK9PK7TdfHm3In7VhHQ1dZWkebp/tHcoKjiGYXxTJ0236Ywx54xhumrMxdRHU30QFPbaIJ/M4NgJ2lRmPJlGl/JT60O/SmWpITVkmRl2Zsjdv2uJiQgAAAB4nGNgZGBg4AFiMQY5BiYGRiBkBmIWoAgTEDNCMAAIgwBSAAB4nGNgYGBkAIIrkuH2YHqWhi+EtpwHADfuBa0AAgAAMwMzAOgDOgDiAzMA/A==")
-        format("woff");
+    src: url("data:application/x-font-woff;charset=utf-8;base64,d09GRk9UVE8AAATYAAsAAAAABrQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADLAAAAVkAAAFgkDDiyEZGVE0AAASsAAAAGwAAABx9TbkrR0RFRgAABIgAAAAiAAAAJgAnACpPUy8yAAABZAAAAEcAAABgVTNgQ2NtYXAAAALUAAAAQwAAAUoBRQLkaGVhZAAAAQgAAAAzAAAANgrgpUBoaGVhAAABPAAAAB4AAAAkBOsD+WhtdHgAAATIAAAAEAAAABALoAL5bWF4cAAAAVwAAAAGAAAABgAEUABuYW1lAAABrAAAASYAAAITC0mo3nBvc3QAAAMYAAAAEwAAACD/gwAzeJxjYGRgYABil5kPquP5bb4ycLMwgMCVWRq+ENpyHoMxAwNTNFMEkMvBwAQSBQAX2QkFAHicY2BkYGAyZtjFEMNsxQAETNEMjAyogAUAMnAB7AAAAABQAAAEAAB4nGNgYTZlnMDAysDANIvpDAMDQz+EZnzFYMTIARRlYOVkgAFGBiQQkOaawtDAoMWgy2z835ghhsn4vxuKGgUgZAQARsULIwB4nIWOMWvDMBSET4mT4g6lhC7dtBQSiI1kSgNZAw506FBIlk52YhyDsIPiDIGO/T39Lf01nXtyRJYOMcjv09O9ewfgDt8QOH+PePYsECL33MMNPj338YQfzwFCcet5gHvx4nnI/geVIgh5S7opxwIjvHnuca/x3McrvjwH1Px6HkCKB89DjMQSCzTY4wSLCiV2aCExxgYT1gQKGjNMyQYZlTmOwKLZn2xV7lo53kxkovRsKk3W5HxaoaZDxWNQYMtprOq2ak2xJb6zV9LBeVlei/JoMkJKZzfnqqWi6HbH3C4x5/nveu5rKiL+o0tSpE3dpo0tC5nESs7lZTtZq0hHLu61nGv2LA58d7kkvZ173FWXCevCHqqmlkrpWCklrxj+AequT5gAAHicY2BgYGaAYBkGRgYQcAHyGMF8FgYNIM0GpBkZmBi0GXT//wfytUD0/+v/r0HVAwEjGwOCQxAwMoHtG2YAAPijCSYAeJxjYGYAg/8NDMYMWAAAKBQBtgB4nEWOsUsCYRjG38+7y/O8zoxOIi8RXBLE0iWCtkYjLLBoNMsSJC2sKILIFuuDKIhKbBKDwDFovAgC5eb8AwqaCqql740TzBZ7nuU3Pb+HAM8DIUSKreZSufTSYgiIBQhE0AHoJqhZcJDDft7zbKm0ZM4zXW7JvEcC2+bsMKUdkK06xQ98FzQoOTSAHg3KTg1UjUR6gfsbHAAfBCYy2e311PJKzjuU8HvDI6HRgDcdzyxsdOz/N9qxgwwK8IT4ssflb6pjVCe6zuo6p7swiHfNYJfePFAxyurNqFXBBG6pGWYTYmvZZGFONO3nwtlUNX6/I86bnFAsXNILekurpcqN+DIuFK9PK7TdfHm3In7VhHQ1dZWkebp/tHcoKjiGYXxTJ0236Ywx54xhumrMxdRHU30QFPbaIJ/M4NgJ2lRmPJlGl/JT60O/SmWpITVkmRl2Zsjdv2uJiQgAAAB4nGNgZGBg4AFiMQY5BiYGRiBkBmIWoAgTEDNCMAAIgwBSAAB4nGNgYGBkAIIrkuH2YHqWhi+EtpwHADfuBa0AAgAAMwMzAOgDOgDiAzMA/A==") format("woff");
     font-weight: normal;
     font-style: normal;
 }
@@ -68,6 +67,7 @@
     .hmd-fold-html {
         table {
             border-collapse: collapse;
+
             td,
             th {
                 padding: 10px;
@@ -90,7 +90,7 @@
             vertical-align: baseline;
         }
 
-        a > img {
+        a>img {
             border: 0;
         }
     }
@@ -101,83 +101,108 @@
     .cm-strong {
         font-weight: 600;
     }
+
     span.cm-quote {
         color: #666;
     }
+
     span.cm-meta {
         color: #ff1717;
     }
+
     span.cm-keyword {
         line-height: 1em;
         font-weight: bold;
         color: #7f0055;
     }
+
     span.cm-atom {
         color: #219;
     }
+
     span.cm-number {
         color: #164;
     }
+
     span.cm-def {
         color: #00f;
     }
+
     span.cm-variable {
         color: black;
     }
+
     span.cm-variable-2 {
         color: #0000c0;
     }
+
     span.cm-variable-3 {
         color: #0000c0;
     }
+
     span.cm-property {
         color: black;
     }
+
     span.cm-operator {
         color: black;
     }
+
     span.cm-comment {
         color: #4f9f5f;
     }
+
     span.cm-string {
         color: #2a00ff;
     }
+
     span.cm-string-2 {
         color: #f50;
     }
+
     span.cm-qualifier {
         color: #555;
     }
+
     span.cm-builtin {
         color: #30a;
     }
+
     span.cm-bracket {
         color: #cc7;
     }
+
     span.cm-tag {
         color: #170;
     }
+
     span.cm-attribute {
         color: #00c;
     }
+
     span.cm-url {
         color: #4af;
     }
+
     span.cm-link {
         color: #4078c0;
         text-decoration: none;
+
         &:hover {
             text-decoration: underline;
         }
     }
+
     span.cm-error {
         color: #f00;
     }
+
     span.cm-math {
         @extend %monospace;
         font-style: italic;
         background: rgba(#ffe, 0.4);
     }
+
     span.cm-formatting-math {
         color: #caa;
         font-weight: inherit;
@@ -186,6 +211,7 @@
     .CodeMirror-activeline-background {
         background: #e8f2ff;
     }
+
     .CodeMirror-matchingbracket {
         outline: 1px solid grey;
         color: black !important;
@@ -194,16 +220,20 @@
     .CodeMirror-linenumber {
         color: #ccc;
     }
+
     .CodeMirror-gutters {
         border-right: $line-margin solid $editor-background;
         padding-right: 5px;
     }
+
     .CodeMirror-line {
         padding: 0 $line-padding;
     }
+
     .CodeMirror-code {
         padding-right: $line-margin;
     }
+
     .CodeMirror-foldmarker {
         display: inline-block;
         vertical-align: middle;
@@ -211,6 +241,7 @@
 
     /// Formatting Tokens, use monospace chars
     span {
+
         &.cm-formatting-em,
         &.cm-formatting-strong,
         &.cm-formatting-strikethrough,
@@ -262,7 +293,8 @@
         margin-left: 0 !important;
         border-left: 0 !important;
         padding-bottom: 0.25em;
-        > span > span:first-child {
+
+        >span>span:first-child {
             margin-left: 0 !important;
         }
 
@@ -270,10 +302,12 @@
             font-weight: 600;
             font-size: $fs * 2;
         }
+
         &.HyperMD-header-2 {
             font-weight: 600;
             font-size: $fs * 1.5;
         }
+
         &.HyperMD-header-3 {
             font-size: $fs * 1.2;
         }
@@ -313,11 +347,11 @@
             left: $quote-margin;
             top: 0;
             height: 100%;
-            background: url("data:image/gif;base64,R0lGODlhIAABAIABAOjo6P///yH5BAEAAAEALAAAAAAgAAEAAAIHhI8Yy+1cAAA7")
-                0 0;
+            background: url("data:image/gif;base64,R0lGODlhIAABAIABAOjo6P///yH5BAEAAAEALAAAAAAgAAEAAAIHhI8Yy+1cAAA7") 0 0;
             background-size: $quote-padding 1px;
         }
     }
+
     @for $i from 1 through 9 {
         pre.HyperMD-quote-#{$i} {
             $padding-left: $quote-margin + ($quote-padding) * ($i);
@@ -335,6 +369,7 @@
                 transform: translateZ(0); // avoid getting covered by pre:before
                 display: inline-block;
                 width: $quote-padding;
+
                 &:first-child {
                     margin-left: -$quote-padding * $i;
                 }
@@ -378,6 +413,7 @@
 
         &.HyperMD-list-line-nobullet {
             padding-top: initial;
+
             span.cm-hmd-list-indent {
                 margin-left: -$list-bullet-width;
             }
@@ -396,6 +432,7 @@
         margin-left: -$list-bullet-width;
         font-family: "HyperMD-Bullets";
         color: #666;
+
         &.cm-list-2 {
             text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
             color: #fff;
@@ -403,7 +440,8 @@
     }
 
     span.cm-formatting-task // task list checkbox
- {
+
+        {
         @extend %monospace;
         white-space: pre;
         display: inline-block;
@@ -433,7 +471,7 @@
         font-size: $fs * 0.85;
         padding-left: $line-padding + $footnote-padding;
 
-        > span > span:first-child {
+        >span>span:first-child {
             margin-left: -$footnote-padding;
         }
 
@@ -494,18 +532,11 @@
 
     /// link
 
-    .cm-formatting-link + .cm-formatting-link-string,
-    .cm-formatting-link + .cm-formatting-link-string + .cm-url,
-    .cm-formatting-link
-        + .cm-formatting-link-string
-        + .cm-url
-        + .cm-formatting-link-string,
-    .cm-formatting-link + .cm-formatting-link-string + .cm-url + .cm-link,
-    .cm-formatting-link
-        + .cm-formatting-link-string
-        + .cm-url
-        + .cm-link
-        + .cm-formatting-link-string {
+    .cm-formatting-link+.cm-formatting-link-string,
+    .cm-formatting-link+.cm-formatting-link-string+.cm-url,
+    .cm-formatting-link+.cm-formatting-link-string+.cm-url+.cm-formatting-link-string,
+    .cm-formatting-link+.cm-formatting-link-string+.cm-url+.cm-link,
+    .cm-formatting-link+.cm-formatting-link-string+.cm-url+.cm-link+.cm-formatting-link-string {
         display: inline-block;
         font-size: 0.85em;
         vertical-align: text-top;
@@ -514,9 +545,10 @@
     // change cursor for links if modifier keys pressed
     &.HyperMD-with-alt,
     &.HyperMD-with-ctrl {
+
         span.cm-url,
         span.cm-link,
-        .cm-link + .CodeMirror-widget,
+        .cm-link+.CodeMirror-widget,
         span.cm-hashtag {
             cursor: pointer;
         }
@@ -529,9 +561,11 @@
         display: inline-block;
         vertical-align: middle;
         opacity: 0.4;
+
         &:hover {
             opacity: 1;
         }
+
         &:after {
             content: ""; //remove default stuff
         }
@@ -544,13 +578,14 @@
         width: auto;
         max-width: 100%;
         height: auto;
+
         &.hmd-image-loading,
         &.hmd-image-error {
             min-width: 24px;
             min-height: 24px;
-            background: #eeeeee url(hypermd-image-spin.gif) no-repeat center
-                center;
+            background: #eeeeee url(hypermd-image-spin.gif) no-repeat center center;
         }
+
         &.hmd-image-error {
             background-image: url(hypermd-image-error.png);
         }
@@ -572,9 +607,11 @@
     span.cm-hmd-escape-backslash {
         color: #caa;
     }
+
     span.cm-hmd-escape-char {
         color: #666;
     }
+
     span.cm-hmd-footref {
         display: inline-block;
         font-size: 0.7em;
@@ -606,7 +643,8 @@
 
     /// hashtag
 
-    span.cm-hashtag, a.tag {
+    span.cm-hashtag,
+    a.tag {
         background-color: #999;
         background-color: rgba(#000, 0.3);
         color: #fff;
@@ -645,10 +683,12 @@
     }
 
     @keyframes hmd-file-uploading-ani {
+
         0%,
         100% {
             opacity: 0.4;
         }
+
         50% {
             opacity: 0.7;
         }
@@ -664,6 +704,7 @@
     .HyperMD-goback {
         width: 1px;
     }
+
     div.HyperMD-goback-button {
         padding-right: 15px; // not less than .CodeMirror-gutters padding-right
         border-radius: 0 10px 10px 0;
@@ -672,9 +713,11 @@
         background-color: lighten(#4078c0, 20%);
         color: #f7f7f7;
         cursor: pointer;
+
         &:hover {
             color: transparent;
             text-align: left;
+
             &:before {
                 position: absolute;
                 padding-left: 5px;
@@ -687,7 +730,7 @@
     /// hpyermd table
 
     pre.HyperMD-table-row {
-        > span {
+        >span {
             display: inline-block;
             border-top: $table-border-style;
             margin-right: 30px + $line-margin * 2; // leave space for hscroller
@@ -696,7 +739,7 @@
         &.HyperMD-table-row-0,
         &.HyperMD-table-row-1,
         &.HyperMD-table-row-2 {
-            > span {
+            >span {
                 border-top: 0;
             }
         }
@@ -727,6 +770,7 @@
         &.HyperMD-table-row-0 {
             // title row
             font-weight: 600;
+
             span.cm-strong {
                 font-weight: 800;
             }
@@ -742,18 +786,20 @@
             // :----: | :-----: | dash line
             line-height: $table-row1-height;
 
-            > span {
+            >span {
                 border-bottom: 0;
             }
+
             .hmd-table-column-content {
                 padding: 1px;
             }
         }
 
         &.HyperMD-table-row-0 {
-            > span {
+            >span {
                 border-bottom: 0;
             }
+
             span.hmd-table-column-content {
                 padding-bottom: 1px;
             }
@@ -769,7 +815,7 @@
     /// hypermd/addon/hover
 
     &.CodeMirror div.HyperMD-hover {
-        > .HyperMD-hover-content {
+        >.HyperMD-hover-content {
             background-color: #000;
             background-color: rgba(#000, 0.7);
             border: 0;
@@ -778,12 +824,15 @@
             padding: 5px 10px;
             font-size: 95%;
             min-width: 200px;
+
             a {
                 color: inherit;
             }
+
             p {
                 margin: 0.2em 0;
             }
+
             code {
                 @extend %monospace;
                 display: inline-block;
@@ -793,7 +842,8 @@
                 padding: 0px 4px;
             }
         }
-        > .HyperMD-hover-indicator {
+
+        >.HyperMD-hover-indicator {
             content: " ";
             display: block;
             width: 0px;
@@ -890,13 +940,14 @@
             background-color: transparent;
         }
 
-        &.HyperMD-table-row-1 > span {
+        &.HyperMD-table-row-1>span {
             background: url(#{$table-row-1-image}) repeat-x 0px center;
         }
 
         &.HyperMD-table-row {
             span.cm-hmd-table-sep {
                 color: transparent;
+
                 &.cm-hmd-table-sep-dummy:before {
                     display: none;
                 }

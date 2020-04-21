@@ -1,0 +1,32 @@
+@function de-gamma($n) {
+  @if $n <=0.03928 {
+    @return $n / 12.92;
+  }
+
+  @else {
+    @return pow((($n + 0.055)/1.055), 2.4);
+  }
+}
+
+// sRGB BT-709 BRIGHTNESS
+@function brightness($c) {
+  $rlin: de-gamma(red($c)/255);
+  $glin: de-gamma(green($c)/255);
+  $blin: de-gamma(blue($c)/255);
+  @return (0.2126 * $rlin + 0.7152 * $glin + 0.0722 * $blin) * 100;
+}
+
+// Compares contrast of a given color to the light/dark arguments and returns whichever is most "contrasty"
+@function contrast($color, $dark: #000000, $light: #FFFFFF) {
+  @if $color==null {
+    @return null;
+  }
+
+  @else {
+    $color-brightness: brightness($color);
+    $light-text-brightness: brightness($light);
+    $dark-text-brightness: brightness($dark);
+
+    @return if(abs($color-brightness - $light-text-brightness) > abs($color-brightness - $dark-text-brightness), $light, $dark);
+  }
+}
