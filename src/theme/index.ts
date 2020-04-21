@@ -88,5 +88,6 @@ export function setTheme({
   const currentTheme = editor.getOption("theme");
   if (currentTheme !== theme.editorTheme) {
     editor.setOption("theme", theme.editorTheme);
+    editor.refresh();
   }
 }

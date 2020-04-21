@@ -139,7 +139,6 @@ require([
     args.breakMark(args.editor, args.marker);
   });
   editor.on("imageReadyToLoad", (args) => {
-    console.log("imageReadyToLoad, ", args.element);
     args.element.src = args.element.getAttribute("data-src");
   });
 
@@ -167,10 +166,23 @@ require([
 `;
 
   // Set theme
+  const defaultThemeName = localStorage.getItem("settings/themeName") || "dark";
   Theme.setTheme({
     editor: editor,
-    themeName: "dark",
+    themeName: defaultThemeName,
     baseUri: "http://127.0.0.1:8000/theme/",
+  });
+  const themeSelector = document.getElementById("theme-selector");
+  themeSelector.value = defaultThemeName;
+  themeSelector.addEventListener("change", (event) => {
+    console.log(event.target.value);
+    themeSelector.value = event.target.value;
+    Theme.setTheme({
+      editor: editor,
+      themeName: themeSelector.value,
+      baseUri: "http://127.0.0.1:8000/theme/",
+    });
+    localStorage.setItem("settings/themeName", themeSelector.value);
   });
 
   // for demo page only:
