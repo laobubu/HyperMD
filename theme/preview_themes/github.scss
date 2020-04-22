@@ -221,7 +221,7 @@
     // HR --------------------
     hr {
       height: 4px;
-      margin: $margin * 2 0;
+      margin: 24px 0;
       background-color: $border;
       border: 0 none;
     }
@@ -270,7 +270,7 @@
 
     // Code --------------------
     code {
-      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
       font-size: 0.85em !important;
       color: $fg-strong;
       background-color: $inline-code-bg;
@@ -305,16 +305,10 @@
 
     .highlight pre,
     pre {
-      // font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+      font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
       padding: 1em;
       overflow: auto;
-      // font-size: 1.1em !important;
       line-height: 1.45;
-      // color: #922;
-
-      // color: @fg;
-      // background-color: contrast(@bg, lighten(@bg, 4%), darken(@bg, 6%)) !important;
-
       border: $border;
       border-radius: 3px;
     }
