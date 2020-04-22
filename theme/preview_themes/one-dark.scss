@@ -10,10 +10,12 @@ $syntax-brightness: 18%;
 $mono-1: hsl($syntax-hue, 14%, 71%); // default text
 
 // Base colors -----------------------------------
-$syntax-fg: $mono-1;
-$syntax-bg: hsl($syntax-hue, $syntax-saturation, $syntax-brightness);
+$fg: $mono-1;
+$bg: hsl($syntax-hue, $syntax-saturation, $syntax-brightness);
 $url-color: #56b6c2;
+$hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
+$hashtag-color: #61afef;
 
 html {
-  @include github($syntax-fg, $syntax-bg, $url-color);
+  @include github($fg, $bg, $url-color, $hashtag-bg, $hashtag-color);
 }

@@ -1,0 +1,13 @@
+@import "github.scss";
+
+html {
+  $fg: #657b83;
+  $bg: #fdf6e3;
+  $url-color: #08c;
+  $hashtag-bg: #faedc6;
+  $hashtag-color: #ff9800;
+  $blockquote-bg: $hashtag-bg;
+  $inline-code-bg: $hashtag-bg;
+
+  @include github($fg, $bg, $url-color, $hashtag-bg, $hashtag-color, $inline-code-bg, $blockquote-bg);
+}

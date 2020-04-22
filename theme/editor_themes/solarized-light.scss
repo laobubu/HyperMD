@@ -9,10 +9,10 @@
   font-style: normal;
 }
 
-.cm-s-dark.cm-s-dark {
-  $fg: #d4d4d4;
-  $bg: #1e1e1e;
-  $fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
+.cm-s-solarized-light.cm-s-solarized-light {
+  $fg: #657b83;
+  $bg: #fdf6e3;
+  $fg-strong: darken($fg, 10%);
   $fg-subtle: contrast($fg, lighten($fg, 16%), darken($fg, 16%));
   $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
 
@@ -40,19 +40,14 @@
   $table-sep-image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=";
   $table-row-1-image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAQAAAAziH6sAAAADklEQVR42mOc+Z9x5n8ACTkDM4ikM1IAAAAASUVORK5CYII=";
 
-  $dark-gray: #282828;
-  $codeblock-toolbar-bg: contrast($dark-gray,
-      lighten($dark-gray, 4%),
-      darken($dark-gray, 6%));
-  $codeblock-toolbar-color: #ff9800;
-  $codeblock-bg: contrast($dark-gray,
-      lighten($dark-gray, 4%),
-      darken($dark-gray, 6%));
+  $codeblock-toolbar-bg: #fbedc6;
+  $codeblock-toolbar-color: #FF9800;
+  $codeblock-bg: #fbedc6;
   $codeblock-border: none; // 1px solid #ccc;
   $codeblock-padding: 5px;
 
-  $hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
-  $hashtag-color: #00bcd4;
+  $hashtag-bg: #faedc6;
+  $hashtag-color: #ff9800;
   $hashtag-fontsize: 0.84em;
   $hashtag-padding-x: 6px;
   $hashtag-padding-y: 0.1em;
@@ -62,8 +57,8 @@
   $hr-image: $table-row-1-image;
   $hr-padding: 5px;
 
-  $inline-code-color: $fg;
-  $inline-code-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
+  $inline-code-color: $fg-strong;
+  $inline-code-bg: $hashtag-bg;
   $inline-code-border: none; // #ccc solid 1px;
 
   font-family: -apple-system, BlinkMacSystemFont, "Open Sans", "Helvetica Neue",
@@ -125,13 +120,13 @@
   }
 
   span.cm-meta {
-    color: #ff1717;
+    color: #cb4b16;
   }
 
   span.cm-keyword {
     line-height: 1em;
     font-weight: 400;
-    color: #66d9ef;
+    color: #859900;
   }
 
   span.cm-atom {
@@ -139,44 +134,44 @@
   }
 
   span.cm-number {
-    color: #ae81ff;
+    color: #d33682;
   }
 
   span.cm-type {
     font-weight: 400;
-    color: #66d9ef;
+    color: #859900;
   }
 
   span.cm-def {
-    color: #a6e22e;
+    color: #61afef;
   }
 
   span.cm-variable {
-    color: #fff;
+    color: #657b83;
   }
 
   span.cm-variable-2 {
-    color: #fff;
+    color: #657b83;
   }
 
   span.cm-variable-3 {
-    color: #fff;
+    color: #657b83;
   }
 
   span.cm-property {
-    color: #fff;
+    color: #657b83;
   }
 
   span.cm-operator {
-    color: #f92672;
+    color: #657b83;
   }
 
   span.cm-comment {
-    color: #75715e;
+    color: #5c6370;
   }
 
   span.cm-string {
-    color: #e6db74;
+    color: #2aa198;
   }
 
   span.cm-string-2 {
@@ -385,7 +380,7 @@
       border-left: 4px solid $border;
     }
 
-    background-color: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
+    background-color: $hashtag-bg;
   }
 
   @for $i from 1 through 9 {
