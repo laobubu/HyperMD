@@ -9,9 +9,19 @@
   font-style: normal;
 }
 
-.cm-s-dark.cm-s-dark {
-  $fg: #d4d4d4;
-  $bg: #1e1e1e;
+.cm-s-one-dark.cm-s-one-dark {
+  // Config -----------------------------------
+  $syntax-hue: 220;
+  $syntax-saturation: 13%;
+  $syntax-brightness: 18%;
+
+
+  // Monochrome -----------------------------------
+  $mono-1: hsl($syntax-hue, 14%, 71%); // default text
+
+  // Base colors -----------------------------------
+  $fg: $mono-1;
+  $bg: hsl($syntax-hue, $syntax-saturation, $syntax-brightness);
   $fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
   $fg-subtle: contrast($fg, lighten($fg, 16%), darken($fg, 16%));
   $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
@@ -40,19 +50,14 @@
   $table-sep-image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mOc+R8AAjcBmvywMWoAAAAASUVORK5CYII=";
   $table-row-1-image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAQAAAAziH6sAAAADklEQVR42mOc+Z9x5n8ACTkDM4ikM1IAAAAASUVORK5CYII=";
 
-  $dark-gray: #282828;
-  $codeblock-toolbar-bg: contrast($dark-gray,
-      lighten($dark-gray, 4%),
-      darken($dark-gray, 6%));
-  $codeblock-toolbar-color: #ff9800;
-  $codeblock-bg: contrast($dark-gray,
-      lighten($dark-gray, 4%),
-      darken($dark-gray, 6%));
+  $codeblock-toolbar-bg: #1b1d23;
+  $codeblock-toolbar-color: #93c15e;
+  $codeblock-bg: #1b1d23;
   $codeblock-border: none; // 1px solid #ccc;
   $codeblock-padding: 5px;
 
   $hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
-  $hashtag-color: #00bcd4;
+  $hashtag-color: #61afef;
   $hashtag-fontsize: 0.84em;
   $hashtag-padding-x: 6px;
   $hashtag-padding-y: 0.1em;
@@ -125,13 +130,13 @@
   }
 
   span.cm-meta {
-    color: #ff1717;
+    color: #FF9800;
   }
 
   span.cm-keyword {
     line-height: 1em;
     font-weight: 400;
-    color: #66d9ef;
+    color: #c678dd;
   }
 
   span.cm-atom {
@@ -144,27 +149,27 @@
 
   span.cm-type {
     font-weight: 400;
-    color: #66d9ef;
+    color: #c678dd;
   }
 
   span.cm-def {
-    color: #a6e22e;
+    color: #61afef;
   }
 
   span.cm-variable {
-    color: #a6e22e;
+    color: #ccc;
   }
 
   span.cm-variable-2 {
-    color: #fff;
+    color: #ccc;
   }
 
   span.cm-variable-3 {
-    color: #fff;
+    color: #ccc;
   }
 
   span.cm-property {
-    color: #fff;
+    color: #ccc;
   }
 
   span.cm-operator {
@@ -172,11 +177,11 @@
   }
 
   span.cm-comment {
-    color: #75715e;
+    color: #5c6370;
   }
 
   span.cm-string {
-    color: #e6db74;
+    color: #98c379;
   }
 
   span.cm-string-2 {

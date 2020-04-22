@@ -1,7 +1,7 @@
-export type ThemeName = "light" | "dark";
-export type EditorTheme = "light" | "dark";
-export type PreviewTheme = "github-light" | "github-dark";
-export type CodeBlockTheme = "github" | "monokai";
+export type ThemeName = "light" | "dark" | "one-dark";
+export type EditorTheme = "light" | "dark" | "one-dark";
+export type PreviewTheme = "github-light" | "github-dark" | "one-dark";
+export type CodeBlockTheme = "github" | "monokai" | "one-dark";
 
 export interface Theme {
   name: ThemeName;
@@ -22,6 +22,12 @@ export const Themes: Theme[] = [
     editorTheme: "dark",
     previewTheme: "github-dark",
     codeBlockTheme: "monokai",
+  },
+  {
+    name: "one-dark",
+    editorTheme: "one-dark",
+    previewTheme: "one-dark",
+    codeBlockTheme: "one-dark",
   },
 ];
 
