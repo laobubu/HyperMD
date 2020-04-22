@@ -1,0 +1,21 @@
+@import "github.scss";
+
+// Config -----------------------------------
+$syntax-hue: 220;
+$syntax-saturation: 13%;
+$syntax-brightness: 18%;
+
+
+// Monochrome -----------------------------------
+$mono-1: hsl($syntax-hue, 14%, 71%); // default text
+
+// Base colors -----------------------------------
+$fg: $mono-1;
+$bg: hsl($syntax-hue, $syntax-saturation, $syntax-brightness);
+$url-color: #56b6c2;
+$hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
+$hashtag-color: #61afef;
+
+html {
+  @include github($fg, $bg, $url-color, $hashtag-bg, $hashtag-color);
+}

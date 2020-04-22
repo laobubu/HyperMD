@@ -1,3 +1,5 @@
+@import "./math.scss";
+
 @function de-gamma($n) {
   @if $n <=0.03928 {
     @return $n / 12.92;

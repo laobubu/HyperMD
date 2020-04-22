@@ -6,7 +6,9 @@
   $bg,
   $url-color,
   $hashtag-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%)),
-  $hashtag-color: $fg) {
+  $hashtag-color: $fg,
+  $inline-code-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%)),
+  $blockquote-bg: contrast($bg, lighten($bg, 8%), darken($bg, 6%))) {
   $fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
   $fg-subtle: contrast($fg, lighten($fg, 16%), darken($fg, 16%));
   $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
@@ -204,7 +206,7 @@
       font-size: inherit;
       padding: 0 15px;
       color: $fg-subtle;
-      background-color: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
+      background-color: $blockquote-bg;
       border-left: 4px solid $border;
 
       > :first-child {
@@ -271,7 +273,7 @@
       font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
       font-size: 0.85em !important;
       color: $fg-strong;
-      background-color: contrast($bg, lighten($bg, 8%), darken($bg, 6%));
+      background-color: $inline-code-bg;
       border-radius: 3px;
       padding: 0.2em 6px;
       vertical-align: middle;
