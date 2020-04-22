@@ -22,6 +22,7 @@
   // Base colors -----------------------------------
   $fg: $mono-1;
   $bg: hsl($syntax-hue, $syntax-saturation, $syntax-brightness);
+  $url-color: #56b6c2;
   $fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
   $fg-subtle: contrast($fg, lighten($fg, 16%), darken($fg, 16%));
   $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
@@ -63,7 +64,7 @@
   $hashtag-padding-y: 0.1em;
   $hashtag-radius: 8px;
 
-  $hr-color: #999;
+  $hr-color: $border;
   $hr-image: $table-row-1-image;
   $hr-padding: 5px;
 
@@ -209,11 +210,11 @@
   }
 
   span.cm-url {
-    color: #4af;
+    color: $url-color;
   }
 
   span.cm-link {
-    color: #4078c0;
+    color: $url-color;
     text-decoration: none;
 
     &:hover {

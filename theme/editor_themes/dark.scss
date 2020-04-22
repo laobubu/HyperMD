@@ -12,6 +12,7 @@
 .cm-s-dark.cm-s-dark {
   $fg: #d4d4d4;
   $bg: #1e1e1e;
+  $url-color: #08c;
   $fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
   $fg-subtle: contrast($fg, lighten($fg, 16%), darken($fg, 16%));
   $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
@@ -58,7 +59,7 @@
   $hashtag-padding-y: 0.1em;
   $hashtag-radius: 8px;
 
-  $hr-color: #999;
+  $hr-color: $border;
   $hr-image: $table-row-1-image;
   $hr-padding: 5px;
 
@@ -204,11 +205,11 @@
   }
 
   span.cm-url {
-    color: #4af;
+    color: $url-color;
   }
 
   span.cm-link {
-    color: #4078c0;
+    color: $url-color;
     text-decoration: none;
 
     &:hover {
