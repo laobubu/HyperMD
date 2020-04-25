@@ -7,22 +7,16 @@ import { Attributes } from "../../addon/fold";
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { Widget } from "../component/widget";
-import { WidgetCreator } from "..";
+import { WidgetCreator, WidgetArgs } from "..";
 
-interface Props {
-  attributes: Attributes;
-  setAttributes: (attributes: Attributes) => void;
-  removeSelf: () => void;
-  replaceSelf: (inputString: string) => void;
-}
-function Hello(props: Props) {
+function Hello(props: WidgetArgs) {
   const [value, setValue] = useState<string>(props.attributes.value || "");
   return (
     <div
       style={{
         cursor: "default",
         padding: "24px",
-        boxShadow: "0 1px 6px 2px #ddd"
+        boxShadow: "0 1px 6px 2px #ddd",
       }}
     >
       <span>
@@ -30,9 +24,7 @@ function Hello(props: Props) {
       </span>
       <br></br>
       <input
-        onChange={event => {
-          setValue(event.target.value);
-        }}
+        style={{ zIndex: 9999 }}
         placeholder={"Enter your name here"}
         value={value}
       ></input>
@@ -44,7 +36,7 @@ function Hello(props: Props) {
             if (props.setAttributes)
               props.setAttributes({
                 ...props.attributes,
-                ...{ value }
+                ...{ value },
               });
           }}
         >
@@ -75,16 +67,11 @@ function Hello(props: Props) {
   );
 }
 
-export const HelloWidget: WidgetCreator = args => {
+export const HelloWidget: WidgetCreator = (args) => {
   const el = document.createElement("span");
   ReactDOM.render(
     <Widget>
-      <Hello
-        attributes={args.attributes}
-        setAttributes={args.setAttributes}
-        removeSelf={args.removeSelf}
-        replaceSelf={args.replaceSelf}
-      ></Hello>
+      <Hello {...args}></Hello>
     </Widget>,
     el
   );
