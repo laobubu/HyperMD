@@ -50,7 +50,7 @@ export function setTheme({
   themeName,
   baseUri = "./",
 }: {
-  editor: CodeMirror.Editor;
+  editor?: CodeMirror.Editor;
   themeName: ThemeName;
   baseUri: string;
 }) {
@@ -105,9 +105,11 @@ export function setTheme({
   editorThemeStyleElement.href =
     baseUri + `editor_themes/${theme.editorTheme}.css`;
 
-  const currentTheme = editor.getOption("theme");
-  if (currentTheme !== theme.editorTheme) {
-    editor.setOption("theme", theme.editorTheme);
-    editor.refresh();
+  if (editor) {
+    const currentTheme = editor.getOption("theme");
+    if (currentTheme !== theme.editorTheme) {
+      editor.setOption("theme", theme.editorTheme);
+      editor.refresh();
+    }
   }
 }
