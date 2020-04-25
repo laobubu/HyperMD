@@ -4,6 +4,10 @@ const path = require("path");
 const fs = require("fs");
 const glob = require("glob");
 const sass = require("sass");
+const CleanCSS = require("clean-css");
+const CleanCSSOptions = {};
+
+const cleanCSSWorker = new CleanCSS(CleanCSSOptions);
 
 function scan_and_compile(pattern = "**/*.scss", watch = false) {
   glob(
@@ -38,11 +42,17 @@ function compile_sass(sourceFilename) {
     function (err, result) {
       if (err) console.log(err);
       else {
-        fs.writeFile(outputFilename, result.css, function (err) {
-          if (!err) {
-            console.log("[SCSS] finished " + sourceFilename);
-            if (exports.onChanged)
-              exports.onChanged(sourceFilename, outputFilename);
+        cleanCSSWorker.minify(result.css, (err, output) => {
+          if (err) {
+            console.log(err);
+          } else {
+            fs.writeFile(outputFilename, output.styles, function (err) {
+              if (!err) {
+                console.log("[SCSS] finished " + sourceFilename);
+                if (exports.onChanged)
+                  exports.onChanged(sourceFilename, outputFilename);
+              }
+            });
           }
         });
       }
