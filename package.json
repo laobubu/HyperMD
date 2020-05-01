@@ -1,6 +1,6 @@
 {
   "name": "vickymd",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "description": "An experimental WYSIWYG markdown editor built on top of HyperMD with extended Widgets support",
   "main": "./everything.js",
   "types": "./everything.d.ts",
@@ -31,28 +31,28 @@
     "@rollup/plugin-json": "^4.0.3",
     "@types/codemirror": "^0.0.91",
     "@types/glob": "^7.1.1",
-    "@types/markdown-it": "^10.0.0",
+    "@types/markdown-it": "^10.0.1",
     "@types/mermaid": "^8.2.1",
     "@types/prop-types": "^15.7.3",
-    "@types/react": "^16.9.25",
-    "@types/react-dom": "^16.9.5",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.7",
     "@types/tern": "^0.23.3",
     "@types/yamljs": "^0.2.30",
-    "codemirror": "^5.52.2",
+    "codemirror": "^5.53.2",
     "express": "^4.17.1",
     "glob": "^7.1.6",
     "minimatch": "^3.0.4",
     "opn": "^6.0.0",
-    "rollup": "^2.6.1",
+    "rollup": "^2.7.3",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-typescript2": "^0.27.0",
     "rollup-plugin-uglify": "^6.0.4",
-    "sass": "^1.26.3",
+    "sass": "^1.26.5",
     "typescript": "^3.8.3"
   },
   "peerDependencies": {
-    "codemirror": "^5.52.2"
+    "codemirror": "^5.53.2"
   },
   "optionalDependencies": {
     "echarts": "^4.7.0",
@@ -75,10 +75,10 @@
     "react-dom": "^16.13.1",
     "turndown": "^6.0.0",
     "turndown-plugin-gfm": "^1.0.2",
-    "twemoji": "^12.1.5",
-    "vega": "^5.10.1",
+    "twemoji": "^12.1.6",
+    "vega": "^5.11.1",
     "vega-embed": "^6.6.0",
-    "vega-lite": "^4.10.5",
+    "vega-lite": "^4.11.0",
     "yamljs": "^0.3.0"
   },
   "dependencies": {}

@@ -10,14 +10,14 @@ import {
   Addon,
   suggestedEditorConfig,
   visitElements,
-  watchSize
+  watchSize,
 } from "../core";
 import { cm_t } from "../core/type";
 import {
   registerFolder,
   breakMark,
   FolderFunc,
-  RequestRangeResult
+  RequestRangeResult,
 } from "./fold";
 import "./read-link";
 
@@ -25,9 +25,10 @@ import "./read-link";
 /**
  * Before folding HTML, check its security and avoid XSS attack! Returns true if safe.
  */
-export type CheckerFunc = (html: string, pos: Position, cm: cm_t) => boolean;
+export type CheckerFunc = (html: string) => boolean;
 
-export var defaultChecker: CheckerFunc = html => {
+// export type CheckerFunc = (html: string, pos: Position, cm: cm_t) => boolean;
+export var defaultChecker: CheckerFunc = (html) => {
   // TODO: read https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet
 
   if (/^<(?:br)/i.test(html)) return false; // check first element...
@@ -89,11 +90,12 @@ export var defaultRenderer: RendererFunc = (
     }
 
     var innerHTML = html.slice(startCh, endCh);
-    if (innerHTML) ans.innerHTML = innerHTML;
+    if (innerHTML) {
+      ans.innerHTML = innerHTML;
+    }
 
     // resolve relative URLs and change default behavoirs
-
-    visitElements([ans], el => {
+    visitElements([ans], (el) => {
       const tagName = el.tagName.toLowerCase();
 
       if (tagName === "a") {
@@ -106,7 +108,7 @@ export var defaultRenderer: RendererFunc = (
       const urlAttrs: string[] = {
         a: ["href"],
         img: ["src"],
-        iframe: ["src"]
+        iframe: ["src"],
       }[tagName];
 
       if (urlAttrs) {
@@ -167,7 +169,7 @@ export const HTMLFolder: FolderFunc = (stream, token) => {
   var addon = getAddon(cm);
   var html: string = cm.getRange(from, to);
 
-  if (!addon.checker(html, from, cm)) return null; // security check
+  if (!addon.checker(html)) return null; // security check
 
   // security check pass!
 
@@ -204,7 +206,7 @@ export const defaultOption: Options = {
   checker: defaultChecker,
   renderer: defaultRenderer,
   stubText: "<HTML>",
-  isolatedTagName: /^(?:div|pre|form|table|iframe|ul|ol|input|textarea|p|summary|a)$/i
+  isolatedTagName: /^(?:div|pre|form|table|iframe|ul|ol|input|textarea|p|summary|a)$/i,
 };
 
 export const suggestedOption: Partial<Options> = {};
@@ -228,7 +230,7 @@ declare global {
 
 suggestedEditorConfig.hmdFoldHTML = suggestedOption;
 
-CodeMirror.defineOption("hmdFoldHTML", defaultOption, function(
+CodeMirror.defineOption("hmdFoldHTML", defaultOption, function (
   cm: cm_t,
   newVal: OptionValueType
 ) {
@@ -286,7 +288,6 @@ export class FoldHTML implements Addon.Addon, Options {
     inlineMode?: boolean
   ): CodeMirror.TextMarker {
     const cm = this.cm;
-
     var stub = this.makeStub();
     var el = this.renderer(html, from, cm);
     var breakFn = () => breakMark(cm, marker);
@@ -313,7 +314,7 @@ export class FoldHTML implements Addon.Addon, Options {
       /** If element size changed, we notify CodeMirror */
       var watcher = watchSize(el, (w, h) => {
         const computedStyle = getComputedStyle(el);
-        const getStyle = name => computedStyle.getPropertyValue(name);
+        const getStyle = (name) => computedStyle.getPropertyValue(name);
 
         var floating =
           w < 10 ||
@@ -343,7 +344,7 @@ export class FoldHTML implements Addon.Addon, Options {
         above: false,
         coverGutter: false,
         noHScroll: false,
-        showIfHidden: false
+        showIfHidden: false,
       });
 
       let highlightON = () => (stub.className = stubClassHighlight);
@@ -367,7 +368,7 @@ export class FoldHTML implements Addon.Addon, Options {
     }
 
     marker = cm.markText(from, to, {
-      replacedWith
+      replacedWith,
     });
 
     return marker;

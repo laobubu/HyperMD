@@ -3,10 +3,8 @@
 //
 // DESCRIPTION: This widget tries to build a widget using react
 
-import { Attributes } from "../../addon/fold";
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import { Widget } from "../component/widget";
 import { WidgetCreator, WidgetArgs } from "..";
 
 function Hello(props: WidgetArgs) {
@@ -69,11 +67,6 @@ function Hello(props: WidgetArgs) {
 
 export const HelloWidget: WidgetCreator = (args) => {
   const el = document.createElement("span");
-  ReactDOM.render(
-    <Widget>
-      <Hello {...args}></Hello>
-    </Widget>,
-    el
-  );
+  ReactDOM.render(<Hello {...args}></Hello>, el);
   return el;
 };
