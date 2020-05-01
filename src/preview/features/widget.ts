@@ -1,5 +1,6 @@
 import MarkdownIt from "markdown-it";
 import { Attributes } from "../../addon/fold";
+import { defaultChecker } from "../../addon/fold-html";
 
 export default (md: MarkdownIt) => {
   const renderWidget = (content: string) => {
@@ -44,7 +45,12 @@ export default (md: MarkdownIt) => {
     if (content.match(/^<!--\s*@/) && content.match(/-->$/)) {
       return renderWidget(content);
     } else {
-      return oldHTMLInlineRenderer(tokens, idx, options, env, slf);
+      const html = oldHTMLInlineRenderer(tokens, idx, options, env, slf);
+      if (defaultChecker(html)) {
+        return html;
+      } else {
+        return "";
+      }
     }
   };
 
@@ -54,7 +60,12 @@ export default (md: MarkdownIt) => {
     if (content.match(/^<!--\s*@/) && content.match(/-->$/)) {
       return renderWidget(content);
     } else {
-      return oldHTMLBlockRenderer(tokens, idx, options, env, slf);
+      const html = oldHTMLBlockRenderer(tokens, idx, options, env, slf);
+      if (defaultChecker(html)) {
+        return html;
+      } else {
+        return "";
+      }
     }
   };
 };

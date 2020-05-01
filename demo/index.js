@@ -129,7 +129,7 @@ require([
       code: true,
     },
 
-    inputProps: "textarea",
+    inputStyle: "contenteditable",
   });
   editor.setSize(null, "100%"); // set height
   editor.on("imageClicked", (args) => {
