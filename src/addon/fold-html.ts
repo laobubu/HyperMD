@@ -31,10 +31,18 @@ export type CheckerFunc = (html: string) => boolean;
 export var defaultChecker: CheckerFunc = (html) => {
   // TODO: read https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet
 
-  if (/^<(?:br)/i.test(html)) return false; // check first element...
-  if (/<(?:script|style|link|meta)/i.test(html)) return false; // don't allow some tags
-  if (/\son\w+\s*=/i.test(html)) return false; // don't allow `onclick=` etc.
-  if (/src\s*=\s*["']?javascript:/i.test(html)) return false; // don't allow `src="javascript:` etc.
+  if (/^<(?:br)/i.test(html)) {
+    return false; // check first element...
+  }
+  if (/<(?:script|style|link|meta|object|embed|iframe)/i.test(html)) {
+    return false; // don't allow some tags
+  }
+  if (/\son\w+\s*=/i.test(html)) {
+    return false; // don't allow `onclick=` etc.
+  }
+  if (/(src|background|href)\s*=\s*["']?javascript:/i.test(html)) {
+    return false; // don't allow `src="javascript:` etc.
+  }
   return true;
 };
 
