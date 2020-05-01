@@ -30,7 +30,7 @@ declare var html2pdf: typeof import("html2pdf.js").default;
 const md = new MarkdownIt({
   html: true,
   linkify: true,
-  typographer: true,
+  typographer: false, // The single quote will be rendered incorrectly, so disabled here.
   breaks: true,
 });
 
