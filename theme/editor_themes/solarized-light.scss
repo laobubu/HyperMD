@@ -131,7 +131,7 @@
   }
 
   span.cm-atom {
-    color: #219;
+    color: inherit;
   }
 
   span.cm-number {
@@ -667,7 +667,7 @@
     font-size: 0.7em;
     vertical-align: text-top;
     // background-color: rgba(#eee, 0.7);
-    color: #4078c0;
+    color: $url-color;
     margin-top: -0.2em;
   }
 
