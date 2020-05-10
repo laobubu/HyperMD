@@ -48,6 +48,9 @@ require([
   /// CodeMirror                      ///
   ///////////////////////////////////////
 
+  // showHint
+  "codemirror/addon/hint/show-hint",
+
   // Code Highlighting
   "codemirror/mode/htmlmixed/htmlmixed", // for embedded HTML
   "codemirror/mode/stex/stex", // for Math TeX Formular
@@ -175,7 +178,6 @@ require([
   const themeSelector = document.getElementById("theme-selector");
   themeSelector.value = defaultThemeName;
   themeSelector.addEventListener("change", (event) => {
-    console.log(event.target.value);
     themeSelector.value = event.target.value;
     Theme.setTheme({
       editor: editor,
@@ -183,6 +185,7 @@ require([
       baseUri: "http://127.0.0.1:8000/theme/",
     });
     localStorage.setItem("settings/themeName", themeSelector.value);
+    editor.refresh();
   });
 
   // for demo page only:
@@ -201,6 +204,58 @@ require([
 
   // @see demo/lab.js
   init_lab(editor);
+
+  editor.on("change", (instance, changeObject) => {
+    if (changeObject.text.length === 1 && changeObject.text[0] === "/") {
+      const aheadStr = editor
+        .getLine(changeObject.from.line)
+        .slice(0, changeObject.from.ch + 1);
+      if (!aheadStr.match(/#[^\s]+?\/$/)) {
+        editor.showHint({
+          closeOnUnfocus: false,
+          completeSingle: false,
+          hint: () => {
+            const cursor = editor.getCursor();
+            const token = editor.getTokenAt(cursor);
+            const line = cursor.line;
+            const lineStr = editor.getLine(line);
+            const end = cursor.ch;
+            let start = token.start;
+            if (lineStr[start] !== "/") {
+              start = start - 1;
+            }
+            const currentWord = lineStr.slice(start, end).replace(/^\//, "");
+
+            const commands = [
+              {
+                text: "# ",
+                displayText: `/h1 - Insert header 1`,
+              },
+              {
+                text: "## ",
+                displayText: `/h2 - Insert header 2`,
+              },
+              {
+                text: "### ",
+                displayText: `/h3 - Insert header 3`,
+              },
+            ];
+            const filtered = commands.filter(
+              (item) =>
+                item.displayText
+                  .toLocaleLowerCase()
+                  .indexOf(currentWord.toLowerCase()) >= 0
+            );
+            return {
+              list: filtered.length ? filtered : commands,
+              from: { line, ch: start },
+              to: { line, ch: end },
+            };
+          },
+        });
+      }
+    }
+  });
 }, function (err) {
   var div = document.getElementById("loadErrorSplash");
   var ul = document.getElementById("loadErrorList");

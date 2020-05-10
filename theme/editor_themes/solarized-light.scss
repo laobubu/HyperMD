@@ -9,14 +9,14 @@
   font-style: normal;
 }
 
-.cm-s-solarized-light.cm-s-solarized-light {
-  $fg: #657b83;
-  $bg: #fdf6e3;
-  $url-color: #08c;
-  $fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
-  $fg-subtle: contrast($fg, lighten($fg, 16%), darken($fg, 16%));
-  $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
+$fg: #657b83;
+$bg: #fdf6e3;
+$url-color: #08c;
+$fg-strong: contrast($bg, darken($fg, 32%), lighten($fg, 32%));
+$fg-subtle: contrast($fg, lighten($fg, 16%), darken($fg, 16%));
+$border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
 
+.cm-s-solarized-light.cm-s-solarized-light {
   $fs: 16px; //default font-size
   $editor-background: $bg;
   $editor-color: $fg;
@@ -184,7 +184,7 @@
   }
 
   span.cm-builtin {
-    color: #30a;
+    color: #c17d19;
   }
 
   span.cm-bracket {
@@ -196,7 +196,7 @@
   }
 
   span.cm-attribute {
-    color: #00c;
+    color: #607D8B;
   }
 
   span.cm-url {
@@ -1018,4 +1018,44 @@
       border-right: 0;
     }
   }
+}
+
+
+
+// showHint
+.CodeMirror-hints {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+  list-style: none;
+
+  margin: 0;
+  padding: 2px;
+
+  -webkit-box-shadow: 2px 3px 5px rgba(0, 0, 0, .2);
+  -moz-box-shadow: 2px 3px 5px rgba(0, 0, 0, .2);
+  box-shadow: 2px 3px 5px rgba(0, 0, 0, .2);
+  border-radius: 3px;
+  border: 1px solid #e0d7be;
+
+  background: $bg;
+  font-size: 90%;
+  font-family: monospace;
+
+  max-height: 20em;
+  overflow-y: auto;
+}
+
+.CodeMirror-hint {
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 2px;
+  white-space: pre;
+  color: $fg;
+  cursor: pointer;
+}
+
+li.CodeMirror-hint-active {
+  background: #ff9800;
+  color: #3a3a3a;
 }
