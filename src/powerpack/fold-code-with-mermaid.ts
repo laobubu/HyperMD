@@ -23,7 +23,7 @@ import * as CodeMirror from "codemirror";
 import {
   registerRenderer,
   CodeRenderer,
-  getAddon as getFoldCode
+  getAddon as getFoldCode,
 } from "../addon/fold-code";
 import { getAddon as getFold } from "../addon/fold";
 
@@ -37,20 +37,28 @@ export const MermaidRenderer: CodeRenderer = (code, info) => {
   el.setAttribute("id", id);
   el.setAttribute("class", "hmd-fold-code-image hmd-fold-code-mermaid");
 
-  mermaid.render(id, code, (svgCode, bindFunctions) => {
-    el.innerHTML = svgCode;
-    el.removeAttribute("id");
-    if (bindFunctions) {
-      bindFunctions(el);
-    }
+  try {
+    mermaid.parse(code);
+    mermaid.render(id, code, (svgCode, bindFunctions) => {
+      el.innerHTML = svgCode;
+      el.removeAttribute("id");
+      if (bindFunctions) {
+        bindFunctions(el);
+      }
+      if (info.changed) {
+        info.changed();
+      }
+    });
+  } catch (error) {
+    el.innerHTML = `<pre class="language-text">${error.str.toString()}</pre>`;
     if (info.changed) {
       info.changed();
     }
-  });
+  }
 
   return {
     element: el,
-    asyncRenderer: null
+    asyncRenderer: null,
   };
 };
 
@@ -64,7 +72,7 @@ if (typeof mermaid === "object") {
     name: "mermaid",
     pattern: /^mermaid$/i,
     renderer: MermaidRenderer,
-    suggested: true
+    suggested: true,
   });
 } else {
   if (window["VICKYMD_DEBUG"]) {
