@@ -8,7 +8,7 @@ import {
   FolderFunc,
   registerFolder,
   RequestRangeResult,
-  breakMark
+  breakMark,
 } from "./fold";
 import { Position } from "codemirror";
 import { splitLink } from "./read-link";
@@ -17,7 +17,7 @@ import * as CodeMirror from "codemirror";
 
 const DEBUG = false;
 
-export const LinkFolder: FolderFunc = function(stream, token) {
+export const LinkFolder: FolderFunc = function (stream, token) {
   const cm = stream.cm;
 
   // a valid beginning must be ...
@@ -68,27 +68,13 @@ export const LinkFolder: FolderFunc = function(stream, token) {
   imgElem.setAttribute("class", "hmd-link-icon");
   imgElem.setAttribute("title", url + "\n" + title);
   imgElem.setAttribute("data-url", url);
-  imgElem.style.cursor = "pointer";
 
   const marker = cm.markText(hrefFrom, hrefTo, {
     collapsed: true,
     replacedWith: imgElem,
-    clearOnEnter: true
   });
 
-  // imgElem.addEventListener("click", () => breakMark(cm, marker), false);
-  imgElem.addEventListener(
-    "click",
-    () => {
-      CodeMirror.signal(cm, "linkIconClicked", {
-        editor: cm,
-        marker,
-        breakMark,
-        element: imgElem
-      });
-    },
-    false
-  );
+  imgElem.addEventListener("click", () => breakMark(cm, marker), false);
   return marker;
 };
 
