@@ -222,6 +222,10 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
     &:hover {
       text-decoration: underline;
     }
+
+    &.hmd-hidden-token {
+      color: transparent;
+    }
   }
 
   span.cm-error {
