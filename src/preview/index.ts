@@ -10,6 +10,7 @@ import MathEnhancer from "./features/math";
 import TagEnhancer from "./features/tag";
 import WidgetEnhancer from "./features/widget";
 import FenceEnhancer from "./features/fence";
+import WikilinkEnhancer from "./features/wikilink";
 
 // Powerpacks
 import { PlantUMLRenderer } from "../powerpack/fold-code-with-plantuml";
@@ -41,6 +42,7 @@ TagEnhancer(md);
 MathEnhancer(md);
 WidgetEnhancer(md);
 FenceEnhancer(md);
+WikilinkEnhancer(md);
 
 interface RenderMarkdownOutput {
   html: string;

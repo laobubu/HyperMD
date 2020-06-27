@@ -143,6 +143,7 @@ export const enum LinkType {
   BARELINK, // [link]
   FOOTREF, // [^ref]
   NORMAL, // [text](url) or [text][doc]
+  WIKILINK, // [[url|text]]
   FOOTNOTE, // [footnote]:
   MAYBE_FOOTNOTE_URL, // things after colon
   BARELINK2, // [some-name][]  except latter []
@@ -152,6 +153,7 @@ export const enum LinkType {
 const linkStyle = {
   [LinkType.BARELINK]: "hmd-barelink",
   [LinkType.BARELINK2]: "hmd-barelink2",
+  [LinkType.WIKILINK]: "hmd-wikilink",
   [LinkType.FOOTREF]: "hmd-barelink hmd-footref",
   [LinkType.FOOTNOTE]: "hmd-footnote line-HyperMD-footnote",
   [LinkType.FOOTREF2]: "hmd-footref2",
@@ -593,33 +595,45 @@ CodeMirror.defineMode(
 
         //#endregion
 
-        //#region Link, BareLink, Footnote etc
+        //#region Link, BareLink, Footnote, Wikilink etc
+
+        if (stream.current() === "[" && stream.eat("[")) {
+          current = "[[";
+        }
+        if (stream.current() === "]" && stream.eat("]")) {
+          current = "]]";
+        }
 
         if (wasLinkText !== state.linkText) {
           if (!wasLinkText) {
-            // entering a link
-            tmp = stream.match(/^([^\]]+)\](\(| ?\[|\:)?/, false);
-            if (!tmp) {
-              // maybe met a line-break in link text?
-              state.hmdLinkType = LinkType.BARELINK;
-            } else if (!tmp[2]) {
-              // barelink
-              if (tmp[1].charAt(0) === "^") {
-                state.hmdLinkType = LinkType.FOOTREF;
-              } else {
-                state.hmdLinkType = LinkType.BARELINK;
-              }
-            } else if (tmp[2] === ":") {
-              // footnote
-              state.hmdLinkType = LinkType.FOOTNOTE;
-            } else if (
-              (tmp[2] === "[" || tmp[2] === " [") &&
-              stream.string.charAt(stream.pos + tmp[0].length) === "]"
-            ) {
-              // [barelink2][]
-              state.hmdLinkType = LinkType.BARELINK2;
+            if (current === "[[" || current === "]]") {
+              // Check wiki link
+              state.hmdLinkType = LinkType.WIKILINK;
             } else {
-              state.hmdLinkType = LinkType.NORMAL;
+              // entering a link
+              tmp = stream.match(/^([^\]]+)\](\(| ?\[|\:)?/, false);
+              if (!tmp) {
+                // maybe met a line-break in link text?
+                state.hmdLinkType = LinkType.BARELINK;
+              } else if (!tmp[2]) {
+                // barelink
+                if (tmp[1].charAt(0) === "^") {
+                  state.hmdLinkType = LinkType.FOOTREF;
+                } else {
+                  state.hmdLinkType = LinkType.BARELINK;
+                }
+              } else if (tmp[2] === ":") {
+                // footnote
+                state.hmdLinkType = LinkType.FOOTNOTE;
+              } else if (
+                (tmp[2] === "[" || tmp[2] === " [") &&
+                stream.string.charAt(stream.pos + tmp[0].length) === "]"
+              ) {
+                // [barelink2][]
+                state.hmdLinkType = LinkType.BARELINK2;
+              } else {
+                state.hmdLinkType = LinkType.NORMAL;
+              }
             }
           } else {
             // leaving a link
@@ -648,8 +662,32 @@ CodeMirror.defineMode(
         }
 
         if (state.hmdLinkType !== LinkType.NONE) {
-          if (state.hmdLinkType in linkStyle)
+          if (state.hmdLinkType in linkStyle) {
             ans += " " + linkStyle[state.hmdLinkType];
+          }
+
+          if (
+            state.hmdLinkType === LinkType.WIKILINK &&
+            current !== "[[" &&
+            current !== "]]"
+          ) {
+            let eaten = false;
+            while (stream.eat(/[^|\]]/)) {
+              eaten = true;
+            }
+            if (eaten || stream.peek().match(/[\|\]]/)) {
+              if (stream.peek() === "]") {
+                // [[a|b]] => b
+                // [[ab]]  => ab
+                ans += " " + "wikilink-name";
+              } else {
+                // [[a|b]] => a|
+                stream.eat("|");
+                ans += " " + "wikilink-url";
+              }
+              current = stream.current();
+            }
+          }
 
           if (state.hmdLinkType === LinkType.MAYBE_FOOTNOTE_URL) {
             if (!/^(?:\]\:)?\s*$/.test(current)) {

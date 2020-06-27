@@ -1,6 +1,6 @@
 {
   "name": "vickymd",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "An experimental WYSIWYG markdown editor built on top of HyperMD with extended Widgets support",
   "main": "./everything.js",
   "types": "./everything.d.ts",
@@ -38,7 +38,7 @@
     "@types/react-dom": "^16.9.7",
     "@types/tern": "^0.23.3",
     "@types/yamljs": "^0.2.31",
-    "codemirror": "^5.54.0",
+    "codemirror": "^5.55.0",
     "express": "^4.17.1",
     "glob": "^7.1.6",
     "minimatch": "^3.0.4",
