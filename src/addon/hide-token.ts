@@ -13,7 +13,7 @@ import {
   cm_internal,
   debounce,
   suggestedEditorConfig,
-  normalVisualConfig
+  normalVisualConfig,
 } from "../core";
 
 import { cm_t } from "../core/type";
@@ -61,11 +61,11 @@ export interface Options extends Addon.AddonOptions {
 export const defaultOption: Options = {
   enabled: false,
   line: true,
-  tokenTypes: "em|strong|strikethrough|code|linkText|task".split("|")
+  tokenTypes: "em|strong|strikethrough|code|linkText|task".split("|"),
 };
 
 export const suggestedOption: Partial<Options> = {
-  enabled: true // we recommend lazy users to enable this fantastic addon!
+  enabled: true, // we recommend lazy users to enable this fantastic addon!
 };
 
 export type OptionValueType = Partial<Options> | boolean | string | string[];
@@ -87,7 +87,7 @@ declare global {
 suggestedEditorConfig.hmdHideToken = suggestedOption;
 normalVisualConfig.hmdHideToken = false;
 
-CodeMirror.defineOption("hmdHideToken", defaultOption, function(
+CodeMirror.defineOption("hmdHideToken", defaultOption, function (
   cm: cm_t,
   newVal: OptionValueType
 ) {
@@ -235,6 +235,27 @@ export class HideToken implements Addon.Addon, Options {
               // if (DEBUG) console.log("HEAD DOM CHANGED")
               changed = true;
             }
+
+            // Yiyi: Wikilink
+            if (
+              domParent.nextElementSibling &&
+              domParent.nextElementSibling.classList.contains("cm-wikilink-url")
+            ) {
+              if (
+                shallHideTokens
+                  ? addClass(
+                      domParent.nextElementSibling as HTMLElement,
+                      hideClassName
+                    )
+                  : rmClass(
+                      domParent.nextElementSibling as HTMLElement,
+                      hideClassName
+                    )
+              ) {
+                // if (DEBUG) console.log("HEAD DOM CHANGED")
+                changed = true;
+              }
+            }
           }
 
           //FIXME: if leading formatting token is separated into two, the latter will not be hidden/shown!
@@ -283,7 +304,7 @@ export class HideToken implements Addon.Addon, Options {
       /* TODO: Use AST, instead of crafted Position */
       const spanRange: OrderedRange = [
         { line: lineNo, ch: span.begin },
-        { line: lineNo, ch: span.end }
+        { line: lineNo, ch: span.end },
       ];
       /* TODO: If use AST, compute `spanBeginCharInCurrentLine` in another way */
       const spanBeginCharInCurrentLine: number = span.begin;
@@ -304,8 +325,9 @@ export class HideToken implements Addon.Addon, Options {
         }
       }
 
-      if (changeVisibilityForSpan(span, shallHideTokens, iNodeHint))
+      if (changeVisibilityForSpan(span, shallHideTokens, iNodeHint)) {
         changed = true;
+      }
     }
 
     // finally clean the cache (if needed) and report the result

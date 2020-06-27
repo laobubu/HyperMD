@@ -93,7 +93,7 @@ export const defaultClickHandler: ClickHandler = (info, cm) => {
  * @param line where to place the button
  * @param anchor when user click the back button, jumps to here
  */
-const makeBackButton = (function() {
+const makeBackButton = (function () {
   var bookmark: { find(): CodeMirror.Position; clear() } = null;
 
   function updateBookmark(cm: cm_t, pos: CodeMirror.Position) {
@@ -113,7 +113,7 @@ const makeBackButton = (function() {
 
     var backButton = document.createElement("div");
     backButton.className = "HyperMD-goback-button";
-    backButton.addEventListener("click", function() {
+    backButton.addEventListener("click", function () {
       cm.setCursor(bookmark.find());
       cm.clearGutter("HyperMD-goback");
       bookmark.clear();
@@ -129,7 +129,7 @@ const makeBackButton = (function() {
     return backButton;
   }
 
-  return function(cm: cm_t, line: number, anchor: CodeMirror.Position) {
+  return function (cm: cm_t, line: number, anchor: CodeMirror.Position) {
     var backButton = makeButton(cm);
     if (!backButton) return;
 
@@ -157,11 +157,11 @@ export interface Options extends Addon.AddonOptions {
 
 export const defaultOption: Options = {
   enabled: false,
-  handler: null
+  handler: null,
 };
 
 export const suggestedOption: Partial<Options> = {
-  enabled: true // we recommend lazy users to enable this fantastic addon!
+  enabled: true, // we recommend lazy users to enable this fantastic addon!
 };
 
 export type OptionValueType = Partial<Options> | boolean | ClickHandler;
@@ -182,7 +182,7 @@ declare global {
 
 suggestedEditorConfig.hmdClick = suggestedOption;
 
-CodeMirror.defineOption("hmdClick", defaultOption, function(
+CodeMirror.defineOption("hmdClick", defaultOption, function (
   cm: cm_t,
   newVal: OptionValueType
 ) {
@@ -333,7 +333,7 @@ export class Click implements Addon.Addon, Options {
         range = expandRange(
           cm,
           pos,
-          token =>
+          (token) =>
             token.state.linkText || /(?:\s|^)link(?:\s|$)/.test(token.type)
         );
         type = "link";
@@ -364,6 +364,12 @@ export class Click implements Addon.Addon, Options {
       ) {
         // remove title part (if exists)
         url = splitLink(text.slice(tmp + 2, -1)).url;
+      } else if (text.startsWith("[[") && text.endsWith("]]")) {
+        url = text
+          .replace(/^\[\[/, "")
+          .replace(/\]\]$/, "")
+          .split("|")[0]
+          .trim();
       } else if (
         (mat = text.match(/[^\\]\]\s?\[([^\]]+)\]$/)) || // .][ref]     image / link with ref
         (mat = text.match(/^\[(.+)\]\s?\[\]$/)) || // [ref][]
@@ -411,7 +417,7 @@ export class Click implements Addon.Addon, Options {
         clientY,
         ctrlKey,
         altKey,
-        shiftKey
+        shiftKey,
       };
       this.lineDiv.addEventListener("mouseup", this._mouseUp, false);
     }

@@ -32,7 +32,7 @@ type SpanType =
 const enum SpanAction {
   NOTHING = 0,
   IS_THIS_TYPE = 1,
-  LEAVING_THIS_TYPE = 2
+  LEAVING_THIS_TYPE = 2,
 }
 
 /**
@@ -90,7 +90,8 @@ class LineSpanExtractor {
       // linkText
       linkText: state.linkText
         ? state.hmdLinkType === LinkType.NORMAL ||
-          state.hmdLinkType === LinkType.BARELINK2
+          state.hmdLinkType === LinkType.BARELINK2 ||
+          state.hmdLinkType === LinkType.WIKILINK
           ? SpanAction.IS_THIS_TYPE
           : SpanAction.NOTHING
         : prevState.linkText
@@ -119,7 +120,7 @@ class LineSpanExtractor {
         ? SpanAction.IS_THIS_TYPE
         : prevState.hmdHashtag
         ? SpanAction.LEAVING_THIS_TYPE
-        : SpanAction.NOTHING
+        : SpanAction.NOTHING,
     };
     return ans;
   }
@@ -157,7 +158,7 @@ class LineSpanExtractor {
               head_i: i,
               tail: tokens[tokens.length - 1],
               tail_i: tokens.length - 1,
-              text: lineText.slice(token.start)
+              text: lineText.slice(token.start),
             };
             ans.push(span);
             unclosed[type] = span;
