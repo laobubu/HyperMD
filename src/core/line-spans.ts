@@ -22,6 +22,10 @@ export interface Span {
 type SpanType =
   | "em"
   | "strong"
+  | "mark"
+  | "ins"
+  | "sub"
+  | "sup"
   | "strikethrough"
   | "code"
   | "linkText"
@@ -77,6 +81,34 @@ class LineSpanExtractor {
       strong: state.strong
         ? SpanAction.IS_THIS_TYPE
         : prevState.strong
+        ? SpanAction.LEAVING_THIS_TYPE
+        : SpanAction.NOTHING,
+
+      // mark
+      mark: state.mark
+        ? SpanAction.IS_THIS_TYPE
+        : prevState.mark
+        ? SpanAction.LEAVING_THIS_TYPE
+        : SpanAction.NOTHING,
+
+      // ins
+      ins: state.ins
+        ? SpanAction.IS_THIS_TYPE
+        : prevState.ins
+        ? SpanAction.LEAVING_THIS_TYPE
+        : SpanAction.NOTHING,
+
+      // sub
+      sub: state.sub
+        ? SpanAction.IS_THIS_TYPE
+        : prevState.sub
+        ? SpanAction.LEAVING_THIS_TYPE
+        : SpanAction.NOTHING,
+
+      // sup
+      sup: state.sup
+        ? SpanAction.IS_THIS_TYPE
+        : prevState.sup
         ? SpanAction.LEAVING_THIS_TYPE
         : SpanAction.NOTHING,
 

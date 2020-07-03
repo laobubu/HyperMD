@@ -15,6 +15,10 @@
   span.hmd-hidden-token {
     &.cm-formatting-em,
     &.cm-formatting-strong,
+    &.cm-formatting-mark,
+    &.cm-formatting-ins,
+    &.cm-formatting-sub,
+    &.cm-formatting-sup,
     &.cm-formatting-strikethrough,
     &.cm-formatting-code,
     &.cm-formatting-link {
