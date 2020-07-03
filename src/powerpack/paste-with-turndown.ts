@@ -14,7 +14,7 @@
 import * as TurndownService from "turndown";
 import { PasteConvertor, suggestedOption, defaultOption } from "../addon/paste";
 
-export const TurndownConvertor: PasteConvertor = html => {
+export const TurndownConvertor: PasteConvertor = (html) => {
   // strip <a> without href
   html = html.replace(/<a([^>]*)>(.*?)<\/a>/gi, (s, attrs, content) => {
     if (!/href=/i.test(attrs)) return content;
@@ -23,7 +23,7 @@ export const TurndownConvertor: PasteConvertor = html => {
 
   // maybe you don't need to convert, if there is no img/link/header...
   if (
-    !/\<(?:hr|img|h\d|strong|em|strikethrough|table|a|b|i|del)(?:\s.*?|\/)?\>/i.test(
+    !/\<(?:hr|img|h\d|strong|em|mark|ins|sub|sup|strikethrough|table|a|b|i|del)(?:\s.*?|\/)?\>/i.test(
       html
     )
   )
@@ -35,10 +35,10 @@ export const TurndownConvertor: PasteConvertor = html => {
   return null;
 };
 
-export const getTurndownService = (function() {
+export const getTurndownService = (function () {
   var service: TurndownService = null;
 
-  return function() {
+  return function () {
     if (!service && typeof TurndownService === "function") {
       var opts = {
         headingStyle: "atx",
@@ -49,7 +49,7 @@ export const getTurndownService = (function() {
         emDelimiter: "*",
         strongDelimiter: "**",
         linkStyle: "inlined",
-        linkReferenceStyle: "collapsed"
+        linkReferenceStyle: "collapsed",
       };
       service = new (TurndownService as any)(opts);
 

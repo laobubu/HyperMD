@@ -65,6 +65,10 @@ export interface MarkdownState {
   code: false | number;
   em: false | string;
   strong: false | string;
+  mark: false | string;
+  ins: false | string;
+  sub: false | string;
+  sup: false | string;
   header: number;
   setext: 0 | 1 | 2; // current line is afxHeader before ---- ======
   hr: boolean;
@@ -593,6 +597,10 @@ CodeMirror.defineMode(
           }
         }
 
+        //#endregion
+
+        //#region mark, ins, sub, sup
+        // TODO: Implement support
         //#endregion
 
         //#region Link, BareLink, Footnote, Wikilink etc

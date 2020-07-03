@@ -3,6 +3,11 @@ import MarkdownIt from "markdown-it";
 import MarkdownItEmoji from "markdown-it-emoji";
 import MarkdownItFootnote from "markdown-it-footnote";
 import MarkdownItTaskLists from "markdown-it-task-lists";
+import MarkdownItMark from "markdown-it-mark";
+import MarkdownItIns from "markdown-it-ins";
+import MarkdownItSub from "markdown-it-sub";
+import MarkdownItSup from "markdown-it-sup";
+
 declare var YAML: typeof import("yamljs");
 // import * as YAML from "yamljs";
 
@@ -38,6 +43,10 @@ const md = new MarkdownIt({
 md.use(MarkdownItEmoji, { defs: EmojiDefinitions });
 md.use(MarkdownItFootnote);
 md.use(MarkdownItTaskLists);
+md.use(MarkdownItMark);
+md.use(MarkdownItIns);
+md.use(MarkdownItSub);
+md.use(MarkdownItSup);
 TagEnhancer(md);
 MathEnhancer(md);
 WidgetEnhancer(md);
@@ -644,4 +653,4 @@ function printPreview(
   });
 }
 
-export { renderMarkdown, renderPreview, printPDF, printPreview };
+export { renderMarkdown, renderPreview, printPDF, printPreview, md };

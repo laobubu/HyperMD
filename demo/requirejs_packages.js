@@ -34,6 +34,11 @@ var requirejs_packages = [
   { name: "markdown-it", main: "dist/markdown-it.min.js" },
   { name: "markdown-it-footnote", main: "dist/markdown-it-footnote.min.js" },
   { name: "markdown-it-emoji", main: "dist/markdown-it-emoji.min.js" },
+  { name: "markdown-it-mark", main: "dist/markdown-it-mark.min.js" },
+  { name: "markdown-it-ins", main: "dist/markdown-it-ins.min.js" },
+  { name: "markdown-it-sub", main: "dist/markdown-it-sub.min.js" },
+  { name: "markdown-it-sup", main: "dist/markdown-it-sup.min.js" },
+
   {
     name: "markdown-it-task-lists",
     main: "dist/markdown-it-task-lists.min.js",
