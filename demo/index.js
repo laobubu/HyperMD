@@ -20,6 +20,7 @@ if (requirejs)
       // HyperMD is not from node_modules nor CDN:
       // "hypermd": "./",
       hypermd: demo_page_baseurl + ".",
+      "Raphael": "raphael", // adapt flowchart.js bug
     },
 
     // Remove this line if you occur errors with CDN
@@ -98,6 +99,7 @@ require([
   "hypermd/powerpack/fold-code-with-plantuml",
   "hypermd/powerpack/fold-code-with-echarts",
   "hypermd/powerpack/fold-code-with-wavedrom",
+  "hypermd/powerpack/fold-code-with-flowchart",
 
   // 'hypermd/powerpack/fold-emoji-with-twemoji',
 
