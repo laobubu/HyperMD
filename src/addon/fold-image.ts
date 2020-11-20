@@ -67,6 +67,7 @@ export const ImageFolder: FolderFunc = function (stream, token) {
 
       var img = document.createElement("img");
       var marker = cm.markText(from, to, {
+        clearOnEnter: true,
         collapsed: true,
         replacedWith: img,
         inclusiveLeft: true,
@@ -101,19 +102,19 @@ export const ImageFolder: FolderFunc = function (stream, token) {
       }
 
       // Yiyi: Disable the break
-      // img.addEventListener("click", () => breakMark(cm, marker));
-      img.addEventListener(
-        "click",
-        () => {
-          CodeMirror.signal(cm, "imageClicked", {
-            editor: cm,
-            marker,
-            breakMark,
-            element: img,
-          });
-        },
-        false
-      );
+      img.addEventListener("click", () => breakMark(cm, marker));
+      // img.addEventListener(
+      //   "click",
+      //   () => {
+      //     CodeMirror.signal(cm, "imageClicked", {
+      //       editor: cm,
+      //       marker,
+      //       breakMark,
+      //       element: img,
+      //     });
+      //   },
+      //   false
+      // );
 
       img.alt = alt;
       img.title = title;
