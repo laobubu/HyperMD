@@ -395,10 +395,6 @@ export class Click implements Addon.Addon, Options {
     } else if (styles.match(/\sformatting-task\s/)) {
       // TO-DO checkbox
       type = "todo";
-      range = expandRange(cm, pos, "formatting-task");
-      range.to.ch = cm.getLine(pos.line).length;
-      text = cm.getRange(range.from, range.to);
-      url = null;
     } else if (styles.match(/\shashtag/)) {
       type = "hashtag";
       range = expandRange(cm, pos, "hashtag");
@@ -420,6 +416,8 @@ export class Click implements Addon.Addon, Options {
         shiftKey,
       };
       this.lineDiv.addEventListener("mouseup", this._mouseUp, false);
+      if (type === 'todo')
+        return ev.preventDefault()
     }
   };
 }
