@@ -622,9 +622,6 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
 
   img.hmd-image {
     vertical-align: middle;
-    width: auto;
-    max-width: 100%;
-    height: auto;
 
     &.hmd-image-loading,
     &.hmd-image-error {
@@ -635,7 +632,7 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
 
     &.hmd-image-loading {
       &::after {
-        content: " ◌ ";
+        content: " loading.. ";
       }
     }
 
