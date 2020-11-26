@@ -98,33 +98,14 @@ export const ImageFolder: FolderFunc = function (stream, token) {
       if (url.match(/^http:\/\//)) {
         url = "";
         title = "";
-        alt = "Unsafe http image is not allowed";
+        alt = "URLをhttpからhttpsに修正してください";
       }
 
-      // Yiyi: Disable the break
       img.addEventListener("click", () => breakMark(cm, marker));
-      // img.addEventListener(
-      //   "click",
-      //   () => {
-      //     CodeMirror.signal(cm, "imageClicked", {
-      //       editor: cm,
-      //       marker,
-      //       breakMark,
-      //       element: img,
-      //     });
-      //   },
-      //   false
-      // );
 
       img.alt = alt;
       img.title = title;
-      img.setAttribute("data-src", url);
-      CodeMirror.signal(cm, "imageReadyToLoad", {
-        editor: cm,
-        marker,
-        breakMark,
-        element: img,
-      });
+      img.setAttribute("src", url);
       return marker;
     } else {
       if (DEBUG && window["VICKYMD_DEBUG"]) {
