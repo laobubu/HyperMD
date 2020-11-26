@@ -193,6 +193,7 @@ declare module "codemirror" {
   interface TextMarker {
     changed(): void;
     className: string;
+    widgetNode: HTMLElement;
 
     /**
      * Fired when the cursor enters the marked range.

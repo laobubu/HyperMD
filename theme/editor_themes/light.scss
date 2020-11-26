@@ -588,12 +588,6 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
     }
   }
 
-  /// emoji
-
-  span.hmd-emoji {
-    margin: 0 2px;
-  }
-
   /// image
 
   img.hmd-image {
@@ -943,8 +937,27 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
     clear: left;
   }
 
-  pre.hmd-active-line {
+  /// emoji
 
+  span.CodeMirror-widget {
+    &.hmd-emoji-selected {
+      .hmd-emoji-text {
+        display:inline;
+      }
+      .hmd-emoji-img {
+        display:none;
+      }
+    }
+
+    &:not(.hmd-emoji-selected) {
+      margin: 0 2px;
+      .hmd-emoji-text {
+        display:none;
+      }
+      .hmd-emoji-img {
+        display:inline;
+      }
+    }
   }
 
   pre:not(.hmd-active-line) {
@@ -955,7 +968,8 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
     span.cm-formatting-header,
     span.cm-formatting-strong,
     span.cm-formatting-em,
-    span.cm-formatting-strikethrough {
+    span.cm-formatting-strikethrough,
+    span.cm-formatting-emoji {
       color: transparent !important;
       font-size: 0 !important;
     }

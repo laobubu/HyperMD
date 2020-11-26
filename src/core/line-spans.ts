@@ -31,6 +31,7 @@ type SpanType =
   | "linkText"
   | "linkHref"
   | "task"
+  | "emoji"
   | "hashtag";
 
 const enum SpanAction {
@@ -144,6 +145,12 @@ class LineSpanExtractor {
       // task checkbox
       task:
         styles.indexOf(" formatting-task ") !== -1
+          ? SpanAction.IS_THIS_TYPE | SpanAction.LEAVING_THIS_TYPE
+          : SpanAction.NOTHING,
+
+      // task emoji
+      emoji:
+        styles.indexOf(" formatting-emoji ") !== -1
           ? SpanAction.IS_THIS_TYPE | SpanAction.LEAVING_THIS_TYPE
           : SpanAction.NOTHING,
 

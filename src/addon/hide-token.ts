@@ -15,7 +15,9 @@ import {
   suggestedEditorConfig,
   normalVisualConfig,
 } from "../core";
-
+import {
+  breakMark,
+} from "./fold";
 import { cm_t } from "../core/type";
 import { OrderedRange, orderedRange, rangesIntersect } from "../core";
 import { getLineSpanExtractor, Span } from "../core";
@@ -61,7 +63,7 @@ export interface Options extends Addon.AddonOptions {
 export const defaultOption: Options = {
   enabled: false,
   line: true,
-  tokenTypes: "em|strong|mark|ins|sub|sup|strikethrough|code|linkText|task".split(
+  tokenTypes: "em|strong|mark|ins|sub|sup|strikethrough|code|linkText|task|emoji".split(
     "|"
   ),
 };
@@ -196,6 +198,50 @@ export class HideToken implements Addon.Addon, Options {
     } else {
       // activeLine
       if (addClass(pre, lineActiveClassName)) changed = true;
+    }
+
+    const spans = getLineSpanExtractor(cm).extract(lineNo);
+
+    let iNodeHint = 0;
+    for (let iSpan = 0; iSpan < spans.length; iSpan++) {
+      const span = spans[iSpan];
+      if (this.tokenTypes.indexOf(span.type) === -1) continue; // not-interested span type
+
+      /* TODO: Use AST, instead of crafted Position */
+      const spanRange: OrderedRange = [
+        { line: lineNo, ch: span.begin },
+        { line: lineNo, ch: span.end },
+      ];
+      /* TODO: If use AST, compute `spanBeginCharInCurrentLine` in another way */
+      const spanBeginCharInCurrentLine: number = span.begin;
+
+      while (
+        iNodeHint < nodeCount &&
+        map[iNodeHint * 3 + 1] < spanBeginCharInCurrentLine
+      )
+        iNodeHint++;
+
+      let shouldShow = false;
+
+      for (let iLineRange = 0; iLineRange < rangesInLine.length; iLineRange++) {
+        const userRange = rangesInLine[iLineRange];
+        if (rangesIntersect(spanRange, userRange)) {
+          shouldShow = true;
+          break;
+        }
+      }
+      const mark = cm.findMarksAt({line: lineNo, ch: span.begin + 1})[0];
+      if (mark !== undefined) {
+        if (shouldShow) {
+          addClass(mark.widgetNode, "hmd-emoji-selected")
+        } else {
+          rmClass(mark.widgetNode, "hmd-emoji-selected")
+        }
+      }
+
+      // if (changeVisibilityForSpan(span, shallHideTokens, iNodeHint)) {
+      //   changed = true;
+      // }
     }
 
     if (changed) {
