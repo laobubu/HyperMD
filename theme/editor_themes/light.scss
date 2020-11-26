@@ -211,10 +211,6 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
     &:hover {
       text-decoration: underline;
     }
-
-    &.hmd-hidden-token {
-      color: transparent;
-    }
   }
 
   span.cm-error {
@@ -687,10 +683,6 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
       border: $inline-code-border;
       padding: 0.2em 0.4em;
     }
-
-    &.hmd-hidden-token {
-      font-size: 0;
-    }
   }
 
   /// hyperMD stuff
@@ -971,11 +963,8 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
     clear: left;
   }
 
-  /// hide-token
-  span.hmd-hidden-token {
-    &.cm-formatting-task {
-      color: transparent !important;
-    }
+  pre.hmd-active-line {
+
   }
 
   pre.hmd-inactive-line {
