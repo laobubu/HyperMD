@@ -612,6 +612,12 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
     }
   }
 
+  /// emoji
+
+  span.hmd-emoji {
+    margin: 0 2px;
+  }
+
   /// image
 
   img.hmd-image {
