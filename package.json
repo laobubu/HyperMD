@@ -76,7 +76,7 @@
     "plantuml-encoder": "^1.4.0",
     "prismjs": "^1.20.0",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "react-dom": "^17.0.1",
     "turndown": "^6.0.0",
     "turndown-plugin-gfm": "^1.0.2",
     "twemoji": "^13.0.0",
