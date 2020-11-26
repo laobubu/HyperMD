@@ -101,7 +101,9 @@ export const ImageFolder: FolderFunc = function (stream, token) {
         alt = "URLをhttpからhttpsに修正してください";
       }
 
-      img.addEventListener("click", () => breakMark(cm, marker));
+      img.addEventListener("click", () =>{
+         breakMark(cm, marker)
+      });
 
       img.alt = alt;
       img.title = title;
