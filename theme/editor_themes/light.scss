@@ -472,26 +472,6 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
     }
   }
 
-  span.cm-formatting-task // task list checkbox
-  {
-    @extend %monospace;
-
-    display: inline-block;
-    width: 1.4em;
-    height: 1.4em;
-    border: 2px solid #d3dce0;
-    border-radius: 3px;
-    vertical-align: middle;
-    margin: 0 .4em 3px 0;
-    cursor: pointer;
-    color: rgba(#000, 0);
-
-    &.cm-property {
-      // checked
-      background: #fafbfc url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8.51 15.36l5.48 5.47 9.5-9.5' fill='none' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' stroke='%2300b4f0'/%3E%3C/svg%3E") 0 0px no-repeat;
-    }
-  }
-
   /// footnote for link and image
   // note: footnote can be inside a blockquote
   pre.HyperMD-footnote {
@@ -967,8 +947,18 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
 
   }
 
-  pre.hmd-inactive-line {
+  pre:not(.hmd-active-line) {
     // background: aqua;  // just for debug
+
+    span.cm-formatting-quote,
+    span.cm-hmd-escape-backslash,
+    span.cm-formatting-header,
+    span.cm-formatting-strong,
+    span.cm-formatting-em,
+    span.cm-formatting-strikethrough {
+      color: transparent !important;
+      font-size: 0 !important;
+    }
 
     &.HyperMD-table-row-1 {
       // table line |:--------:|:-------:|
@@ -995,18 +985,28 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
       }
     }
 
-    span.cm-formatting-quote {
-      color: transparent;
-    }
-
-    span.cm-hmd-escape-backslash,
-    span.cm-formatting-header {
-      font-size: 0 !important;
-      display: inline;
-    }
-
     span.cm-hmd-list-indent {
       border-right: 0;
+    }
+
+    span.cm-formatting-task // task list checkbox
+    {
+      @extend %monospace;
+
+      display: inline-block;
+      width: 1.4em;
+      height: 1.4em;
+      border: 2px solid #d3dce0;
+      border-radius: 3px;
+      vertical-align: middle;
+      margin: 0 .4em 3px 0;
+      cursor: pointer;
+      color: rgba(#000, 0);
+
+      &.cm-property {
+        // checked
+        background: #fafbfc url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8.51 15.36l5.48 5.47 9.5-9.5' fill='none' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' stroke='%2300b4f0'/%3E%3C/svg%3E") 0 0px no-repeat;
+      }
     }
   }
 }

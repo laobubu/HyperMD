@@ -117,7 +117,7 @@ CodeMirror.defineOption("hmdHideToken", defaultOption, function (
 //#region Addon Class
 
 const hideClassName = "hmd-hidden-token";
-const lineInactiveClassName = "hmd-inactive-line";
+const lineActiveClassName = "hmd-active-line";
 
 export class HideToken implements Addon.Addon, Options {
   tokenTypes: string[];
@@ -192,10 +192,10 @@ export class HideToken implements Addon.Addon, Options {
 
     if (rangesInLine.length === 0) {
       // inactiveLine
-      if (addClass(pre, lineInactiveClassName)) changed = true;
+      if (rmClass(pre, lineActiveClassName)) changed = true;
     } else {
       // activeLine
-      if (rmClass(pre, lineInactiveClassName)) changed = true;
+      if (addClass(pre, lineActiveClassName)) changed = true;
     }
 
     if (changed) {
