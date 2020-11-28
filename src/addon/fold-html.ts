@@ -305,75 +305,45 @@ export class FoldHTML implements Addon.Addon, Options {
     stub.addEventListener("click", breakFn, false);
     if (!el.tagName.toLowerCase().match(this.isolatedTagName || /^$/))
       el.addEventListener("click", breakFn, false);
+      
 
     var replacedWith: HTMLElement;
     var marker: CodeMirror.TextMarker;
 
-    if (inlineMode) {
-      /** put HTML inline */
-      let span = document.createElement("span");
-      span.setAttribute("class", "hmd-fold-html");
-      span.setAttribute("style", "display: inline-block");
-      span.appendChild(stub);
-      span.appendChild(el);
+    /** put HTML inline */
+    let span = document.createElement("span");
+    span.setAttribute("class", "hmd-fold-html");
+    span.setAttribute("style", "display: inline-block");
+    span.appendChild(stub);
+    span.appendChild(el);
 
-      replacedWith = span;
+    replacedWith = span;
 
-      /** If element size changed, we notify CodeMirror */
-      var watcher = watchSize(el, (w, h) => {
-        const computedStyle = getComputedStyle(el);
-        const getStyle = (name) => computedStyle.getPropertyValue(name);
+    /** If element size changed, we notify CodeMirror */
+    var watcher = watchSize(el, (w, h) => {
+      const computedStyle = getComputedStyle(el);
+      const getStyle = (name) => computedStyle.getPropertyValue(name);
 
-        var floating =
-          w < 10 ||
-          h < 10 ||
-          !/^relative|static$/i.test(getStyle("position")) ||
-          !/^none$/i.test(getStyle("float"));
+      var floating =
+        w < 10 ||
+        h < 10 ||
+        !/^relative|static$/i.test(getStyle("position")) ||
+        !/^none$/i.test(getStyle("float"));
 
-        if (!floating) stub.className = stubClassOmittable;
-        else stub.className = stubClass;
+      if (!floating) stub.className = stubClassOmittable;
+      else stub.className = stubClass;
 
-        marker.changed();
+      marker.changed();
+    });
+
+    watcher.check(); // trig the checker once
+
+    // Marker is not created yet. Bind events later
+    setTimeout(() => {
+      marker.on("clear", () => {
+        watcher.stop();
       });
-
-      watcher.check(); // trig the checker once
-
-      // Marker is not created yet. Bind events later
-      setTimeout(() => {
-        marker.on("clear", () => {
-          watcher.stop();
-        });
-      }, 0);
-    } else {
-      /** use lineWidget to insert element */
-      replacedWith = stub;
-
-      let lineWidget = cm.addLineWidget(to.line, el, {
-        above: false,
-        coverGutter: false,
-        noHScroll: false,
-        showIfHidden: false,
-      });
-
-      let highlightON = () => (stub.className = stubClassHighlight);
-      let highlightOFF = () => (stub.className = stubClass);
-
-      el.addEventListener("mouseenter", highlightON, false);
-      el.addEventListener("mouseleave", highlightOFF, false);
-
-      var watcher = watchSize(el, () => lineWidget.changed());
-      watcher.check();
-
-      // Marker is not created yet. Bind events later
-      setTimeout(() => {
-        marker.on("clear", () => {
-          watcher.stop();
-          lineWidget.clear();
-          el.removeEventListener("mouseenter", highlightON, false);
-          el.removeEventListener("mouseleave", highlightOFF, false);
-        });
-      }, 0);
-    }
+    }, 0);
 
     marker = cm.markText(from, to, {
       replacedWith,
