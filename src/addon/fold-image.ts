@@ -11,10 +11,36 @@ import {
   breakMark,
 } from "./fold";
 import { Position } from "codemirror";
-import { splitLink } from "./read-link";
 import * as CodeMirror from "codemirror";
 
 const DEBUG = false;
+
+export function splitImageLink(content: string) {
+  // remove title part (if exists)
+  content = content.trim();
+  var url = content,
+    caption = "",
+    caption_or_size = "",
+    width = "",
+    height = "";
+  var mat = content.match(/^(\S+)\s+("(?:[^"\\]+|\\.)+"|[^"\s].*)$/);
+  if (mat) {
+    url = mat[1];
+    caption_or_size = mat[2];
+    var mat2 = caption_or_size.match(/^(?:(.*)\s)?(\d*)x(\d*)$/);
+    if (mat2) {
+      caption = mat2[1] || "";
+      width = mat2[2];
+      height = mat2[3];
+    } else {
+      caption = caption_or_size;
+    }
+    if (caption.charAt(0) === '"')
+      caption = caption.substr(1, caption.length - 2).replace(/\\"/g, '"');
+  }
+
+  return { url, caption, width, height };
+}
 
 export const ImageFolder: FolderFunc = function (stream, token) {
   const cm = stream.cm;
@@ -37,7 +63,9 @@ export const ImageFolder: FolderFunc = function (stream, token) {
     if (rngReq === RequestRangeResult.OK) {
       let url: string;
       let alt: string;
-      let title: string;
+      let caption: string;
+      let width: string;
+      let height: string;
 
       {
         // extract the URL
@@ -51,9 +79,11 @@ export const ImageFolder: FolderFunc = function (stream, token) {
           if (!tmp) return null; // Yup! bad URL?!
           rawurl = tmp.content;
         }
-        const split = splitLink(rawurl);
+        const split = splitImageLink(rawurl);
         url = split.url;
-        title = split.title;
+        caption = split.caption;
+        width = split.width;
+        height = split.height;
         url = cm.hmdResolveURL(url);
       }
 
@@ -97,7 +127,7 @@ export const ImageFolder: FolderFunc = function (stream, token) {
       // Yiyi: Disable unsafe http URL
       if (url.match(/^http:\/\//)) {
         url = "";
-        title = "";
+        caption = "";
         alt = "URLをhttpからhttpsに修正してください";
       }
 
@@ -106,7 +136,10 @@ export const ImageFolder: FolderFunc = function (stream, token) {
       });
 
       img.alt = alt;
-      img.title = title;
+      if (width !== "")
+        img.setAttribute("width", width);
+      if (height !== "")
+        img.setAttribute("height", height);
       img.setAttribute("src", url);
       return marker;
     } else {
