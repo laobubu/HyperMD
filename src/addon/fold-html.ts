@@ -213,7 +213,7 @@ export interface Options extends Addon.AddonOptions {
 export const defaultOption: Options = {
   checker: defaultChecker,
   renderer: defaultRenderer,
-  stubText: "<HTML>",
+  stubText: "編集",
   isolatedTagName: /^(?:div|pre|form|table|iframe|ul|ol|input|textarea|p|summary|a)$/i,
 };
 
