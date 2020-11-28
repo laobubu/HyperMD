@@ -303,7 +303,7 @@ export class FoldHTML implements Addon.Addon, Options {
     if (!el) return null;
 
     stub.addEventListener("click", breakFn, false);
-    if (!el.tagName.match(this.isolatedTagName || /^$/))
+    if (!el.tagName.toLowerCase().match(this.isolatedTagName || /^$/))
       el.addEventListener("click", breakFn, false);
 
     var replacedWith: HTMLElement;
