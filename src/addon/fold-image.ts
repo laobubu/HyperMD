@@ -27,16 +27,20 @@ export function splitImageLink(content: string) {
   if (mat) {
     url = mat[1];
     caption_or_size = mat[2];
-    var mat2 = caption_or_size.match(/^(?:(.*)\s)?(\d*)x(\d*)$/);
+    var mat2 = caption_or_size.match(/^(?:(.*)\s)?(\d*)x(\d*)(?:\s(.*))?$/);
     if (mat2) {
       caption = mat2[1] || "";
       width = mat2[2];
       height = mat2[3];
+      if (mat2[4] != null) {
+        caption = mat2[4]
+      } 
     } else {
       caption = caption_or_size;
     }
-    if (caption.charAt(0) === '"')
+    if (caption.charAt(0) === '"') {
       caption = caption.substr(1, caption.length - 2).replace(/\\"/g, '"');
+    }
   }
 
   return { url, caption, width, height };
@@ -95,11 +99,18 @@ export const ImageFolder: FolderFunc = function (stream, token) {
         );
       }
 
+      var baseEl = document.createElement("figure");
       var img = document.createElement("img");
+      baseEl.append(img);
+      if (caption != "") {
+        var captionEl = document.createElement("figcaption");
+        captionEl.innerText = caption;
+        baseEl.append(captionEl);
+      }
       var marker = cm.markText(from, to, {
         clearOnEnter: true,
         collapsed: true,
-        replacedWith: img,
+        replacedWith: baseEl,
         inclusiveLeft: true,
         inclusiveRight: true,
       });

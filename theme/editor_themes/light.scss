@@ -1062,3 +1062,16 @@ li.CodeMirror-hint-active {
   background: #2595f3;
   color: white;
 }
+
+figure {
+  display: inline-block;
+  margin-block-start: 0;
+  margin-block-end: 0;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+
+  figcaption {
+    text-align: center;
+    margin-top: 5px;
+  }
+}
