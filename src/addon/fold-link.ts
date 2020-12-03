@@ -64,17 +64,10 @@ export const LinkFolder: FolderFunc = function (stream, token) {
   const text = cm.getRange(hrefFrom, hrefTo);
   const { url, title } = splitLink(text.substr(1, text.length - 2));
 
-  const imgElem = document.createElement("span");
-  imgElem.setAttribute("class", "hmd-link-icon");
-  imgElem.setAttribute("title", url + "\n" + title);
-  imgElem.setAttribute("data-url", url);
-
   const marker = cm.markText(hrefFrom, hrefTo, {
     collapsed: true,
-    replacedWith: imgElem,
   });
 
-  imgElem.addEventListener("click", () => breakMark(cm, marker), false);
   return marker;
 };
 

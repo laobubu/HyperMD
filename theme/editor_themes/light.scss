@@ -969,6 +969,7 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
     span.cm-formatting-strong,
     span.cm-formatting-em,
     span.cm-formatting-strikethrough,
+    span.cm-formatting-link,
     span.cm-formatting-emoji {
       color: transparent !important;
       font-size: 0 !important;
