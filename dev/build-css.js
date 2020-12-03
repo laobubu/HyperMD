@@ -32,7 +32,9 @@ function scan_and_compile(pattern = "**/*.scss", watch = false) {
 }
 
 function compile_sass(sourceFilename) {
-  console.log("[SCSS] Compiling " + sourceFilename);
+  const now = new Date();
+  const nowStr = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+  console.log("[SCSS] Compiling " + sourceFilename + " " + nowStr);
   var outputFilename = sourceFilename.replace(/\.s[ac]ss$/, ".css");
   var proc = sass.render(
     {
