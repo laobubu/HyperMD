@@ -1076,3 +1076,19 @@ figure {
     margin-top: 5px;
   }
 }
+
+
+.math-preview-base {
+  background: #f5f5f5;
+  .math-preview-content {
+    display: flex;
+    height: 30px;
+  }
+  .math-preview-icon {
+    margin: auto 10px;
+  }
+  .hmd-math-dumb {
+    height: 70%;
+    margin: auto 0;
+  }
+}

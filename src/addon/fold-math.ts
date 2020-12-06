@@ -101,6 +101,7 @@ export const MathFolder: FolderFunc = (stream, token) => {
   const reqAns = stream.requestRange(from, to);
   if (reqAns !== RequestRangeResult.OK) {
     if (reqAns === RequestRangeResult.CURSOR_INSIDE)
+      foldMathAddon.previewPos = expr_to;
       foldMathAddon.editingExpr = expr; // try to trig preview event
     return null;
   }
@@ -223,7 +224,7 @@ export class DumbRenderer implements MathRenderer {
   startRender(expr: string): void {
     this.last_expr = expr;
     this.img.src =
-      "https://latex.codecogs.com/gif.latex?" + encodeURIComponent(expr);
+      "https://latex.codecogs.com/svg.latex?" + encodeURIComponent(expr);
   }
 
   clear(): void {
@@ -316,8 +317,11 @@ CodeMirror.defineOption("hmdFoldMath", defaultOption, function(
 
 export class FoldMath implements Addon.Addon, Options {
   renderer: typeof MathRenderer;
+  previewRenderer: typeof MathRenderer;
   onPreview: (expr: string) => void;
   onPreviewEnd: () => void;
+  previewWidget: any;
+  previewPos: any;
 
   /** current previewing TeX expression. could be null */
   editingExpr: string;
@@ -325,10 +329,20 @@ export class FoldMath implements Addon.Addon, Options {
   constructor(public cm: cm_t) {
     new FlipFlop<string>(
       /** CHANGED */ expr => {
-        this.onPreview && this.onPreview(expr);
+        if (!this.previewWidget) {
+          const baseEl = document.getElementById("math-preview-template").cloneNode(true);
+          const contentEl = baseEl.querySelector(".math-preview-content")
+          this.previewWidget = cm.addLineWidget(this.previewPos.line, baseEl, {coverGutter: false, noHScroll: true});
+          this.previewRenderer = cm.hmd.FoldMath.createRenderer(contentEl, "display");
+        }
+        if (!this.previewRenderer.isReady()) return;
+        this.previewRenderer.startRender(expr);
       },
       /** HIDE    */ () => {
-        this.onPreviewEnd && this.onPreviewEnd();
+        if (this.previewWidget != null) {
+          cm.removeLineWidget(this.previewWidget);
+          this.previewWidget = null;
+        }
       },
       null
     ).bind(this, "editingExpr");
