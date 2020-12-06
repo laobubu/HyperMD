@@ -1091,4 +1091,42 @@ figure {
     height: 70%;
     margin: auto 0;
   }
+  .math-preview-loading {
+    .hmd-math-dumb {
+      opacity: 0.5;
+    }
+  }
+}
+
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+   transform: rotate(360deg);
+ }
+}
+
+.loading-circle {
+  margin: 3px;
+  > div {
+    border-radius: 100%;
+    margin: 2px;
+    border: 2px solid $fg;
+    border-bottom-color: transparent;
+    height: 20px;
+    width: 20px;
+    background: 0 0!important;
+    display: inline-block;
+    -webkit-animation: rotate .75s 0s linear infinite;
+    animation: rotate .75s 0s linear infinite;
+  }
+}
+
+.hidden {
+  block: none;
 }

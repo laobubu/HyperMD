@@ -24,7 +24,7 @@ const DEBUG = false;
 /// MATH ENGINE DECLARATION
 /// You may implement a MathRenderer to use other engine, eg. MathJax or KaTex
 
-export type MathRenderMode = "display" | "";
+export type MathRenderMode = "display" | "preview" | "";
 export declare abstract class MathRenderer {
   constructor(container: HTMLElement, mode: MathRenderMode);
 
@@ -204,6 +204,7 @@ registerFolder("math", MathFolder, true);
 
 export class DumbRenderer implements MathRenderer {
   public img: HTMLImageElement;
+  public loadingDiv: HTMLElement;
   public last_expr: string;
 
   constructor(public container: HTMLElement, mode: MathRenderMode) {
@@ -212,6 +213,8 @@ export class DumbRenderer implements MathRenderer {
     img.addEventListener(
       "load",
       () => {
+        this.img.parentElement?.classList.remove("math-preview-loading");
+        this.loadingDiv?.classList.add("hidden");
         if (this.onChanged) this.onChanged(this.last_expr);
       },
       false
@@ -219,10 +222,19 @@ export class DumbRenderer implements MathRenderer {
 
     this.img = img;
     container.appendChild(img);
+
+    if (mode == "preview") {
+      this.loadingDiv = document.createElement("div");
+      this.loadingDiv.className = "loading-circle hidden";
+      this.loadingDiv.appendChild(document.createElement("div"));
+      container.appendChild(this.loadingDiv);
+    }
   }
 
   startRender(expr: string): void {
     this.last_expr = expr;
+    this.img.parentElement?.classList.add("math-preview-loading");
+    this.loadingDiv?.classList.remove("hidden");
     this.img.src =
       "https://latex.codecogs.com/svg.latex?" + encodeURIComponent(expr);
   }
@@ -317,7 +329,7 @@ CodeMirror.defineOption("hmdFoldMath", defaultOption, function(
 
 export class FoldMath implements Addon.Addon, Options {
   renderer: typeof MathRenderer;
-  previewRenderer: typeof MathRenderer;
+  previewRenderer: MathRenderer;
   onPreview: (expr: string) => void;
   onPreviewEnd: () => void;
   previewWidget: any;
@@ -330,16 +342,19 @@ export class FoldMath implements Addon.Addon, Options {
     new FlipFlop<string>(
       /** CHANGED */ expr => {
         if (!this.previewWidget) {
-          const baseEl = document.getElementById("math-preview-template").cloneNode(true);
-          const contentEl = baseEl.querySelector(".math-preview-content")
+          const baseEl: any = document.getElementById("math-preview-template").cloneNode(true);
+          baseEl.classList.remove("hidden");
+          baseEl.removeAttribute("id");
+          const contentEl: any = baseEl.querySelector(".math-preview-content")
           this.previewWidget = cm.addLineWidget(this.previewPos.line, baseEl, {coverGutter: false, noHScroll: true});
-          this.previewRenderer = cm.hmd.FoldMath.createRenderer(contentEl, "display");
+          this.previewRenderer = cm.hmd.FoldMath.createRenderer(contentEl, "preview");
         }
         if (!this.previewRenderer.isReady()) return;
         this.previewRenderer.startRender(expr);
       },
       /** HIDE    */ () => {
         if (this.previewWidget != null) {
+          this.previewRenderer.clear();
           cm.removeLineWidget(this.previewWidget);
           this.previewWidget = null;
         }
