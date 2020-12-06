@@ -200,6 +200,103 @@ export class HideToken implements Addon.Addon, Options {
       if (addClass(pre, lineActiveClassName)) changed = true;
     }
 
+    /**
+     * @returns if there are Span Nodes changed
+     */
+    function changeVisibilityForSpan(
+      span: Span,
+      shallHideTokens: boolean,
+      iNodeHint?: number
+    ): boolean {
+      let changed: boolean = false;
+
+      iNodeHint = iNodeHint || 0;
+
+      // iterate the map
+      for (let i = iNodeHint; i < nodeCount; i++) {
+        const begin = map[i * 3] as number,
+          end = map[i * 3 + 1] as number;
+        const domNode = map[i * 3 + 2] as Text | HTMLSpanElement;
+
+        if (begin === span.head.start) {
+          // find the leading token!
+
+          if (
+            /formatting-/.test(span.head.type) &&
+            domNode.nodeType === Node.TEXT_NODE
+          ) {
+            // if (DEBUG) console.log("DOMNODE", shallHideTokens, domNode, begin, span)
+
+            // good. this token can be changed
+            const domParent = domNode.parentElement as HTMLSpanElement;
+            if (
+              shallHideTokens
+                ? addClass(domParent, hideClassName)
+                : rmClass(domParent, hideClassName)
+            ) {
+              // if (DEBUG) console.log("HEAD DOM CHANGED")
+              changed = true;
+            }
+
+            // Yiyi: Wikilink
+            if (
+              domParent.nextElementSibling &&
+              domParent.nextElementSibling.classList.contains("cm-wikilink-url")
+            ) {
+              if (
+                shallHideTokens
+                  ? addClass(
+                      domParent.nextElementSibling as HTMLElement,
+                      hideClassName
+                    )
+                  : rmClass(
+                      domParent.nextElementSibling as HTMLElement,
+                      hideClassName
+                    )
+              ) {
+                // if (DEBUG) console.log("HEAD DOM CHANGED")
+                changed = true;
+              }
+            }
+          }
+
+          //FIXME: if leading formatting token is separated into two, the latter will not be hidden/shown!
+
+          // search for the tailing token
+          if (span.tail && /formatting-/.test(span.tail.type)) {
+            for (let j = i + 1; j < nodeCount; j++) {
+              const begin = map[j * 3] as number,
+                end = map[j * 3 + 1] as number;
+              const domNode = map[j * 3 + 2] as Text | HTMLSpanElement;
+
+              if (begin == span.tail.start) {
+                // if (DEBUG) console.log("TAIL DOM CHANGED", domNode)
+                if (domNode.nodeType === Node.TEXT_NODE) {
+                  // good. this token can be changed
+                  const domParent = domNode.parentElement as HTMLSpanElement;
+                  if (
+                    shallHideTokens
+                      ? addClass(domParent, hideClassName)
+                      : rmClass(domParent, hideClassName)
+                  ) {
+                    changed = true;
+                  }
+                }
+              }
+
+              if (begin >= span.tail.end) break;
+            }
+          }
+        }
+
+        // whoops, next time we can start searching since here
+        // return the hint value
+        if (begin >= span.begin) break;
+      }
+
+      return changed;
+    }
+
     const spans = getLineSpanExtractor(cm).extract(lineNo);
 
     let iNodeHint = 0;
@@ -239,9 +336,9 @@ export class HideToken implements Addon.Addon, Options {
         }
       }
 
-      // if (changeVisibilityForSpan(span, shallHideTokens, iNodeHint)) {
-      //   changed = true;
-      // }
+      if (changeVisibilityForSpan(span, !shouldShow, iNodeHint)) {
+        changed = true;
+      }
     }
 
     if (changed) {
