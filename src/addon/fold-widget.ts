@@ -15,11 +15,9 @@ import {
 import { Attributes } from "./attributes/index";
 import { registerWidgetCreator, getWidgetCreator } from "../widget/index";
 import { HelloWidget } from "../widget/hello/hello";
-import { ErrorWidget } from "../widget/error/error";
 import { TextMarker } from "codemirror";
 
 registerWidgetCreator("hello", HelloWidget);
-registerWidgetCreator("error", ErrorWidget);
 
 export const WidgetFolder = function (
   stream: FoldStream,
@@ -67,8 +65,7 @@ export const WidgetFolder = function (
         );
       }
     } catch (error) {
-      widgetName = "error";
-      widgetAttributes = { message: error.toString() };
+      throw error;
     }
   } else {
     widgetName = str.trim().replace(/^@/, "");

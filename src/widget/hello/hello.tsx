@@ -36,6 +36,8 @@ function Hello(props: WidgetArgs) {
                 ...props.attributes,
                 ...{ value },
               });
+            cm.setCursor({line: 28, ch: 0})
+            cm.focus()
           }}
         >
           Save

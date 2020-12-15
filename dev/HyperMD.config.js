@@ -41,7 +41,6 @@ exports.components = {
   "widget/index": "Widget",
   "widget/component/widget": "WidgetComponent",
   "widget/hello/hello": "WidgetHello",
-  "widget/error/error": "WidgetError",
   // ** Attribute
   "addon/attributes/index": "AttributesAddon",
   "addon/attributes/normalize": "AttributesNormalize",
