@@ -134,7 +134,7 @@ export var defaultRenderer: RendererFunc = (
 
 /********************************************************************************** */
 
-const stubClass = "hmd-fold-html-stub";
+const stubClass = "hmd-fold-html-stub omittable";
 const stubClassOmittable = "hmd-fold-html-stub omittable";
 const stubClassHighlight = "hmd-fold-html-stub highlight";
 
