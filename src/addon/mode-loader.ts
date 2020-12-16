@@ -63,7 +63,11 @@ declare global {
       hmdModeLoader?: OptionValueType;
     }
   }
+  interface Window {
+    CodeMirror: any;
+  }
 }
+window.CodeMirror = CodeMirror;
 
 suggestedEditorConfig.hmdModeLoader = suggestedOption;
 
