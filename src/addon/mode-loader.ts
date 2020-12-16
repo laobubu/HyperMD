@@ -11,9 +11,7 @@ import "codemirror/mode/meta";
 
 declare global {
   const requirejs: (modules: string[], factory: Function) => any;
-  const CodeMirror: any;
 }
-window.CodeMirror = CodeMirror;
 
 /** user may provider an async CodeMirror mode loader function */
 export type LoaderFunc = (
