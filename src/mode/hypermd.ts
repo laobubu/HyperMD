@@ -193,7 +193,7 @@ CodeMirror.defineMode(
       math: true,
       table: true,
       toc: true, // support [TOC] and [TOCM]
-      orgModeMarkup: true, // support OrgMode-like Markup like #+TITLE: my document
+      orgModeMarkup: false, // support OrgMode-like Markup like #+TITLE: my document
       hashtag: false, // support #hashtag
 
       fencedCodeBlockHighlighting: true,

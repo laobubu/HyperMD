@@ -36,6 +36,8 @@ import {
   Attributes
 } from "./fold";
 
+import { RenderCodeBlock } from "../addon/component/CodeBlock"
+
 //#region CodeRenderer ------------------------------------------------------------
 
 /**
@@ -288,21 +290,7 @@ export class FoldCode implements Addon.Addon {
     let renderer: CodeRenderer;
     let type: string;
 
-    var cm = this.cm,
-      registry = rendererRegistry,
-      _enabled = this._enabled;
-    for (const type_i in registry) {
-      let r = registry[type_i];
-      if (!_enabled[type_i]) continue;
-      if (!(r.pattern as (lang: string) => boolean)(lang)) continue;
-
-      type = type_i;
-      renderer = r.renderer;
-      break;
-    }
-
-    if (!type) return null;
-
+    var cm = this.cm;
     let from: CodeMirror.Position = { line: stream.lineNo, ch: 0 };
     let to: CodeMirror.Position = null;
 
@@ -326,12 +314,33 @@ export class FoldCode implements Addon.Addon {
     let rngReq = stream.requestRange(from, to);
     if (rngReq !== RequestRangeResult.OK) return null;
 
-    // now we can call renderer
 
+    var registry = rendererRegistry,
+      _enabled = this._enabled;
     let code = cm.getRange(
       { line: from.line + 1, ch: 0 },
       { line: to.line, ch: 0 }
     );
+
+    // rendererの決定
+    for (const type_i in registry) {
+      let r = registry[type_i];
+      if (!_enabled[type_i]) continue;
+      if (!(r.pattern as (lang: string) => boolean)(lang)) continue;
+
+      type = type_i;
+      renderer = r.renderer;
+      break;
+    }
+    if (!type) {
+      const el = RenderCodeBlock({code, lang});
+      return cm.markText(from, to, {
+        replacedWith: el,
+      });
+    }
+
+    // now we can call renderer
+
     let info: FoldInfo_Master = {
       editor: cm,
       lang,
@@ -373,7 +382,7 @@ export class FoldCode implements Addon.Addon {
 
     let $stub = document.createElement("span");
     $stub.className = stubClass + type;
-    $stub.textContent = "<CODE>";
+    $stub.textContent = "<編集>";
 
     let marker = (info.marker = cm.markText(from, to, {
       replacedWith: $stub
@@ -448,3 +457,6 @@ declare global {
     }
   }
 }
+
+
+

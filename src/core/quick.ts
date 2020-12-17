@@ -13,6 +13,7 @@ import "codemirror/addon/fold/foldcode";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/markdown-fold";
 import "codemirror/addon/edit/closebrackets";
+import "codemirror/addon/runmode/runmode";
 
 import "codemirror/lib/codemirror.css";
 import "codemirror/addon/fold/foldgutter.css";

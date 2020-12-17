@@ -67,8 +67,8 @@
 
 "@types/codemirror@^0.0.94":
   version "0.0.94"
-  resolved "https://registry.npm.taobao.org/@types/codemirror/download/@types/codemirror-0.0.94.tgz?cache=0&sync_timestamp=1589911352336&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Fcodemirror%2Fdownload%2F%40types%2Fcodemirror-0.0.94.tgz#386a74ee1fac9db624be288947df66e3cdb5ad45"
-  integrity sha1-OGp07h+snbYkviiJR99m4821rUU=
+  resolved "https://registry.yarnpkg.com/@types/codemirror/-/codemirror-0.0.94.tgz#386a74ee1fac9db624be288947df66e3cdb5ad45"
+  integrity sha512-uMf+r8CPbR8sRsFqdoKpE+SqXqTvw/7l21pk31TRSyH0nXKmtcPBW+YAOdBapEctIvwHkFvlybApP4OExE1glA==
   dependencies:
     "@types/tern" "*"
 
@@ -168,8 +168,8 @@
 
 "@types/tern@*", "@types/tern@^0.23.3":
   version "0.23.3"
-  resolved "https://registry.npm.taobao.org/@types/tern/download/@types/tern-0.23.3.tgz#4b54538f04a88c9ff79de1f6f94f575a7f339460"
-  integrity sha1-S1RTjwSojJ/3neH2+U9XWn8zlGA=
+  resolved "https://registry.yarnpkg.com/@types/tern/-/tern-0.23.3.tgz#4b54538f04a88c9ff79de1f6f94f575a7f339460"
+  integrity sha512-imDtS4TAoTcXk0g7u4kkWqedB3E4qpjXzCpD2LU5M5NAXHzCDsypyvXSaG7mM8DKYkCRa7tFp4tS/lp/Wo7Q3w==
   dependencies:
     "@types/estree" "*"
 

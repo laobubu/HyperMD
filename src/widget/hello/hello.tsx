@@ -34,10 +34,8 @@ function Hello(props: WidgetArgs) {
             if (props.setAttributes)
               props.setAttributes({
                 ...props.attributes,
-                ...{ value },
+                ...{ value: "aaa" },
               });
-            cm.setCursor({line: 28, ch: 0})
-            cm.focus()
           }}
         >
           Save
