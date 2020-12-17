@@ -41,7 +41,8 @@ exports.components = {
   "addon/fold-widget": "FoldWidget",
   "widget/index": "Widget",
   "widget/component/widget": "WidgetComponent",
-  "widget/hello/hello": "WidgetHello",
+  "widget/hello/hello": "HelloWidget",
+  "widget/box/box": "BoxWidget",
   // ** Attribute
   "addon/attributes/index": "AttributesAddon",
   "addon/attributes/normalize": "AttributesNormalize",

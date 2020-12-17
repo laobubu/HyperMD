@@ -15,7 +15,7 @@ export interface WidgetArgs {
   isPreview?: boolean;
 }
 
-export type WidgetCreator = (args: WidgetArgs) => HTMLElement;
+export type WidgetCreator = (args: WidgetArgs) => [HTMLElement, CodeMirror.TextMarkerOptions?];
 
 let widgetMap: { [key: string]: WidgetCreator } = {};
 

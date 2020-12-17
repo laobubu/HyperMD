@@ -14,10 +14,13 @@ import {
 } from "./fold";
 import { Attributes } from "./attributes/index";
 import { registerWidgetCreator, getWidgetCreator } from "../widget/index";
-import { HelloWidget } from "../widget/hello/hello";
 import { TextMarker } from "codemirror";
 
+import { HelloWidget } from "../widget/hello/hello";
 registerWidgetCreator("hello", HelloWidget);
+
+import { BoxWidget } from "../widget/box/box";
+registerWidgetCreator("box", BoxWidget);
 
 export const WidgetFolder = function (
   stream: FoldStream,
@@ -144,11 +147,12 @@ export const WidgetFolder = function (
 
   // Create the widget
   let widget: HTMLElement;
+  let markerArgs: CodeMirror.TextMarkerOptions;
   const widgetCreator = getWidgetCreator(widgetName);
   if (!widgetCreator) {
     return false;
   } else {
-    widget = widgetCreator({
+    [widget, markerArgs] = widgetCreator({
       editor: cm,
       attributes: widgetAttributes,
       setAttributes: setAttributes,
@@ -161,9 +165,7 @@ export const WidgetFolder = function (
   // Create widget here
   marker = cm.markText(from, to, {
     replacedWith: widget,
-    collapsed: true,
-    inclusiveLeft: true,
-    inclusiveRight: true,
+    ...markerArgs,
   });
 
   /*

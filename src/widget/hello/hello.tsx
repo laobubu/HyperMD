@@ -68,5 +68,9 @@ function Hello(props: WidgetArgs) {
 export const HelloWidget: WidgetCreator = (args) => {
   const el = document.createElement("span");
   ReactDOM.render(<Hello {...args}></Hello>, el);
-  return el;
+  return [el, {
+    collapsed: true,
+    inclusiveLeft: true,
+    inclusiveRight: true,
+  }];
 };

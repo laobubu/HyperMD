@@ -1315,5 +1315,139 @@ figure {
             }
         }
     }
+}
 
+
+.menu-container {
+    margin: 0px;
+    display: inline-block;
+    padding: 0px;
+    z-index: 160;
+    position: relative;
+    pointer-events: none;
+
+    .wrapper-south-start {
+        top: 100%;
+        left: 50%;
+        margin: 0px;
+        display: block;
+        padding: 16px 0px 0px;
+        z-index: 160;
+        position: absolute;
+        transform: translateX(-16px);
+        pointer-events: auto;
+
+        .popover {
+            margin: 0px;
+            display: block;
+            padding: 0px;
+            animation-name: keyframes-animation-7aca9d18-0-1-15;
+            animation-duration: 0.2s;
+            animation-timing-function: cubic-bezier(0.465, 0.183, 0.153, 0.946);
+
+            .card {
+                border: 1px solid rgb(211, 220, 228);
+                position: relative;
+                background: white;
+                box-shadow: rgba(116, 129, 141, 0.1) 0px 3px 8px 0px;
+                border-radius: 4px;
+
+                .arrow-south-start {
+                    top: -8px;
+                    left: 8px;
+                    right: auto;
+                    width: 0px;
+                    height: 0px;
+                    margin: 0px;
+                    display: block;
+                    padding: 0px;
+                    position: absolute;
+                    border-color: transparent transparent rgb(211, 220, 228);
+                    border-style: solid;
+                    border-width: 0px 8px 8px;
+
+                    &::after {
+                        top: 1px;
+                        left: -7px;
+                        width: 0px;
+                        height: 0px;
+                        content: "";
+                        display: block;
+                        position: absolute;
+                        border-color: transparent transparent white;
+                        border-style: solid;
+                        border-width: 0px 7px 7px;
+                    }
+                }
+
+                .menu {
+                    flex: 1 1 0%;
+                    margin: 0px;
+                    display: flex;
+                    padding: 0px;
+                    overflow: hidden;
+                    min-width: 220px;
+                    flex-direction: column;
+                    -webkit-box-orient: vertical;
+                    -webkit-box-direction: normal;
+
+                    .menuItems {
+                        flex: 1 1 0%;
+                        margin: 0px;
+                        display: block;
+                        padding: 12px 0px;
+                        overflow: hidden overlay;
+
+                        .menuItemInline {
+                            color: rgb(36, 42, 49);
+                            cursor: pointer;
+                            margin: 0px;
+                            display: flex;
+                            padding: 4px 16px;
+                            align-items: center;
+                            vertical-align: middle;
+                            text-decoration: none;
+                            -webkit-box-align: center;
+
+                            &:hover {
+                                background: rgb(245, 247, 249);
+                                color: rgb(56, 132, 255);
+                            }
+
+                            .menuItemIcon {
+                                color: rgb(157, 170, 182);
+                                margin: 0px 8px 0px 0px;
+                                display: inline-flex;
+                                padding: 0px;
+                                font-size: 18px;
+                            }
+                            .menuItemContent {
+                                margin: 0px;
+                                display: block;
+                                padding: 0px;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+
+                                .text {
+                                    font-size: 14px;
+                                    font-family: Roboto, sans-serif;
+                                    font-weight: 500;
+                                    line-height: 1.5;
+                                }
+                            }
+                        }
+
+                        .menuDivider {
+                            height: 1px;
+                            margin: 14px 16px;
+                            display: block;
+                            padding: 0px;
+                            background: rgb(211, 220, 228);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

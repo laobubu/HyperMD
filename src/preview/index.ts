@@ -378,11 +378,12 @@ function renderWidgets(previewElement: HTMLElement) {
     }
 
     let widget: HTMLElement = null;
+    let markerArgs: CodeMirror.TextMarkerOptions = null;
     const widgetCreator = getWidgetCreator(widgetName);
     if (!widgetCreator) {
       continue;
     }
-    widget = widgetCreator({
+    [widget, markerArgs] = widgetCreator({
       attributes: widgetAttributes,
       isPreview: true,
     });
