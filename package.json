@@ -29,7 +29,7 @@
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
     "@rollup/plugin-json": "^4.0.3",
-    "@types/codemirror": "^0.0.94",
+    "@types/codemirror": "^0.0.102",
     "@types/glob": "^7.1.1",
     "@types/markdown-it": "^10.0.1",
     "@types/mermaid": "^8.2.1",
