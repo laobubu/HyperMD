@@ -248,6 +248,11 @@ $border: contrast($bg, lighten($bg, 16%), darken($bg, 16%));
 
     .CodeMirror-line {
         padding: 0 $line-padding;
+        z-index: auto;
+
+        >span {
+          padding-right: 0 !important;
+        }
     }
 
     .CodeMirror-code {
@@ -1079,6 +1084,12 @@ figure {
     block: none;
 }
 
+.sidebar-hidden {
+    .sidebar {
+        display: none;
+    }
+}
+
 
 .codeBlockWrapper {
     margin: 0px;
@@ -1252,6 +1263,18 @@ figure {
     border-left: 4px solid;
     border-radius: 3px;
     background-color: rgb(245, 247, 249);
+
+    textarea {
+        background-color: rgb(245, 247, 249);
+        border: none;
+        font-size: 16px;
+        width: 100%;
+        resize: none;
+
+        &:focus {
+            outline: none;
+        }
+    }
 
     .codeBlockHint {
         right: 0px;
@@ -1447,6 +1470,108 @@ figure {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+
+.blockControls {
+    top: 0px;
+    left: 0px;
+    width: 88px;
+    bottom: 0px;
+    margin: 0px;
+    display: block;
+    opacity: 0;
+    padding: 0px;
+    position: absolute;
+    # transform: translateX(-100%);
+    transition: opacity 400ms ease 0s;
+    user-select: none;
+
+    &:hover {
+        opacity: 1;
+        z-index: 100;
+    }
+
+    &.active {
+        opacity: 1;
+        z-index: 100;
+    }
+
+    .blockControlsContent {
+        top: -15px;
+        left: 0px;
+        width: 88px;
+        # height: 100%;
+        margin: 0px;
+        display: flex;
+        padding: 0px 46px 0px 0px;
+        position: absolute;
+        max-width: 88px;
+        align-items: center;
+        justify-content: flex-start;
+        -webkit-box-pack: end;
+        -webkit-box-align: center;
+
+        .showMenu {
+            margin: 0px;
+            display: block;
+            padding: 0px;
+
+            .circleButton {
+                color: rgb(157, 170, 182);
+                width: 30px;
+                border: 1px solid rgb(211, 220, 228);
+                cursor: pointer;
+                height: 30px;
+                margin: 0px;
+                display: flex;
+                outline: none;
+                padding: 0px;
+                font-size: 18px;
+                align-items: center;
+                line-height: 1;
+                border-radius: 50%;
+                pointer-events: auto;
+                justify-content: center;
+                -webkit-box-pack: center;
+                background-color: rgb(255, 255, 255);
+                -webkit-box-align: center;
+                transition: all 250ms ease 0s;
+
+                &:hover {
+                    background-color: rgb(245, 247, 249);
+                }
+            }
+
+            .circleButton-active {
+                color: rgb(255, 255, 255);
+                width: 30px;
+                border: 1px solid rgb(56, 132, 255);
+                cursor: pointer;
+                height: 30px;
+                margin: 0px;
+                display: flex;
+                outline: none;
+                padding: 0px;
+                font-size: 18px;
+                align-items: center;
+                line-height: 1;
+                border-radius: 50%;
+                pointer-events: auto;
+                justify-content: center;
+                -webkit-box-pack: center;
+                background-color: rgb(56, 132, 255);
+                -webkit-box-align: center;
+                transition: all 250ms ease 0s;
+            }
+
+            .icon {
+                width: 1em;
+                height: 1em;
+                vertical-align: middle;
             }
         }
     }
