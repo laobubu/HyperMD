@@ -79,7 +79,7 @@ export const defaultClickHandler: ClickHandler = (info, cm) => {
     const footnote_name = text.slice(1, -1);
     const footnote = cm.hmdReadLink(footnote_name, pos.line);
     if (footnote) {
-      makeBackButton(cm, footnote.line, pos);
+      // makeBackButton(cm, footnote.line, pos);
       cm.setCursor({ line: footnote.line, ch: 0 });
     }
   }

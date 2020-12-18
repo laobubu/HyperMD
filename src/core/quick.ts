@@ -28,7 +28,7 @@ const HyperMD_Mark = "__hypermd__";
  * Addons may update this object freely!
  */
 export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
-  lineNumbers: true,
+  lineNumbers: false,
   lineWrapping: true,
   theme: "light",
   mode: "text/x-hypermd",
@@ -37,9 +37,9 @@ export var suggestedEditorConfig: CodeMirror.EditorConfiguration = {
   autoCloseBrackets: true,
   foldGutter: true,
   gutters: [
-    "CodeMirror-linenumbers",
-    "CodeMirror-foldgutter",
-    "HyperMD-goback", // (addon: click) 'back' button for footnotes
+    // "CodeMirror-linenumbers",
+    // "CodeMirror-foldgutter",
+    // "HyperMD-goback", // (addon: click) 'back' button for footnotes
   ],
 };
 
