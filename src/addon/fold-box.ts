@@ -159,7 +159,9 @@ export class FoldBox implements Addon.Addon {
     let fromCursor = null;
     marker.on("beforeCursorEnter", function() {
       fromCursor = (cm.getCursor().line <= from.line);
-      marker.clear();
+      if (el.querySelector(".blockControls .active") === null) {
+        //marker.clear();
+      }
     })
     marker.on("clear", function(from, to) {
       if (fromCursor === true) cm.setCursor(from);

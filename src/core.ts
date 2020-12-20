@@ -7,3 +7,9 @@ export * from "./core/line-spans";
 
 import * as Addon from "./core/addon";
 export { Addon };
+
+declare global {
+  interface Window {
+    cm: any;
+  }
+}

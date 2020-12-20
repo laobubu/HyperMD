@@ -31,28 +31,28 @@ function Box(props: any) {
         {
           text: "情報",
           svg: types["info"]["svg"],
-          callback: () => {setType("info")},
+          callback: (e) => {setType("info");},
         },
         {
           text: "成功",
           svg: types["success"]["svg"],
-          callback: () => {setType("success")},
+          callback: (e) => {setType("success");},
         },
         {
           text: "注意",
           svg: types["warning"]["svg"],
-          callback: () => {setType("warning")},
+          callback: (e) => {setType("warning");},
         },
         {
           text: "危険",
           svg: types["danger"]["svg"],
-          callback: () => {setType("danger")},
+          callback: (e) => {setType("danger");},
         },
         "divider",
         {
           text: "削除",
           svg: <svg preserveAspectRatio="xMidYMid meet" height="1em" width="1em" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor" className="icon"><g><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></g></svg>,
-          callback: () => {setType("info")},
+          callback: (e) => {setType("info");},
         },
       ]} />
       <div className="hintIcon">
