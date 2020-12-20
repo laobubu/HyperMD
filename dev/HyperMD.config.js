@@ -19,6 +19,7 @@ exports.components = {
   "addon/fold-link": "FoldLink",
   "addon/fold-widget": "FoldWidget",
   "addon/fold-code": "FoldCode",
+  "addon/fold-box": "FoldBox",
   "addon/fold-math": "FoldMath",
   "addon/fold-emoji": "FoldEmoji",
   "addon/fold-html": "FoldHTML",

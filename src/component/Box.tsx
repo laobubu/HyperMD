@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { WidgetCreator, WidgetArgs } from "..";
-import BlockControll from "../../component/BlockControll";
-import { fromTextArea } from "../../core/quick";
+import BlockControll from "./BlockControll";
+import { fromTextArea } from "../core/quick";
 
-function Box(props: WidgetArgs) {
+function Box(props: any) {
   const textareaEl = useRef(null);
   const types = {
     "info": {
@@ -24,24 +23,7 @@ function Box(props: WidgetArgs) {
       svg: <svg preserveAspectRatio="xMidYMid meet" height="1em" width="1em" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor" className="icon" style={{color: "rgb(255, 70, 66)"}}><g><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12" y2="17"></line></g></svg>,
     },
   }
-  const [type, setType] = useState<string>(props.attributes.type || "info");
-
-  const onChange = (e) => {
-    const target = e.currentTarget;
-    let lineHeight = 1;
-    target.setAttribute("rows", lineHeight);
-    while (target.scrollHeight > target.offsetHeight){
-        lineHeight++;
-        target.setAttribute("rows", lineHeight);
-    }
-    props.setAttributes({text: target.value});
-  }
-
-  useEffect(() => {
-    if (props.attributes.type != type) {
-      props.setAttributes({type: type});
-    }
-  }, [type])
+  const [type, setType] = useState<string>(props.type || "info");
 
   return (
     <div className="blockHint" style={{borderColor: types[type]["color"]}}>
@@ -79,7 +61,7 @@ function Box(props: WidgetArgs) {
       <div className="withControls">
         <div className="sideControlsWrapper">
           <p className="blockParagraph">
-            <span className="text" ></span>
+            <textarea className="text" ></textarea>
           </p>
         </div>
       </div>
@@ -87,26 +69,39 @@ function Box(props: WidgetArgs) {
   );
 }
 
-export const BoxWidget: WidgetCreator = (args) => {
-  const el = document.createElement("span");
-  ReactDOM.render(<Box {...args}></Box>, el);
-  return [el, {
-    collapsed: true,
-    inclusiveLeft: true,
-    inclusiveRight: true,
-  }];
-};
-
-
 export const RenderBox = (args) => {
   const el = document.createElement("span");
   ReactDOM.render(<Box {...args}></Box>, el);
 
-  const baseEl = el.querySelector(".blockParagraph .text")
-  var lineEl = null;
-  args.lineTokensArr.forEach(function(lineTokens) {
-    lineEl = document.createElement("pre");
-    baseEl.append(lineEl);
-  })
+  const cm = fromTextArea(el.querySelector(".blockParagraph .text"), {
+    mode: {
+      name: "hypermd",
+      hashtag: true,
+    },
+    readOnly: "nocursor",
+    inputStyle: "textarea",
+    showCursorWhenSelecting: false,
+    hmdFold: {
+      image: true,
+      link: true,
+      math: true,
+      html: true, // maybe dangerous
+      emoji: true,
+      widget: true,
+      code: true,
+      box: true,
+    },
+    lineNumbers: false,
+    foldGutter: false,
+    fixedGutter: false,
+    keyMap: "hypermd",
+  });
+  cm.setValue(args.code.trim());
+  cm.setSize("100%", "100%");
+  // args.lineTokensArr.forEach(function(lineTokens) {
+  //   lineEl = document.createElement("pre");
+
+  //   baseEl.append(lineEl);
+  // })
   return el;
 };

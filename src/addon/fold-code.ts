@@ -36,7 +36,7 @@ import {
   Attributes
 } from "./fold";
 
-import { RenderCodeBlock } from "../addon/component/CodeBlock"
+import { RenderCodeBlock } from "../component/CodeBlock"
 
 //#region CodeRenderer ------------------------------------------------------------
 

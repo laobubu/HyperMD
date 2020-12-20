@@ -19,8 +19,8 @@ import { TextMarker } from "codemirror";
 import { HelloWidget } from "../widget/hello/hello";
 registerWidgetCreator("hello", HelloWidget);
 
-import { BoxWidget } from "../widget/box/box";
-registerWidgetCreator("box", BoxWidget);
+// import { BoxWidget } from "../widget/box/box";
+// registerWidgetCreator("box", BoxWidget);
 
 export const WidgetFolder = function (
   stream: FoldStream,

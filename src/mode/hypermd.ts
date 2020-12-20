@@ -940,6 +940,25 @@ CodeMirror.defineMode(
           }
         }
         //#endregion
+
+
+        //#region Box
+
+        if (current === "/box") {
+          let endTag = "/end";
+          ans += enterMode(stream, state, "markdown", {
+            style: (ans + "dgit-box").trim(),
+            fallbackMode: () => createDummyMode(endTag),
+            exitChecker: createSimpleInnerModeExitChecker(endTag, {
+              style: "dgit-box-end",
+            }),
+          });
+          ans += " dgit-box-begin";
+          return ans;
+        }
+
+        //#endregion
+
       }
 
       return ans.trim() || null;
@@ -1038,6 +1057,7 @@ CodeMirror.defineMode(
     interface BasicInnerModeOptions {
       skipFirstToken?: boolean;
       style?: string;
+      mode?: string;
     }
 
     interface InnerModeOptions1 extends BasicInnerModeOptions {

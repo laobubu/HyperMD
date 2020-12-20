@@ -1317,6 +1317,15 @@ figure {
         padding: 0px;
         position: relative;
 
+
+        .cm-s-light.cm-s-light {
+            background-color: transparent;
+        }
+
+        .CodeMirror-cursor {
+            display: none;
+        }
+
         .sideControlsWrapper {
             margin: 0px;
             display: block;
