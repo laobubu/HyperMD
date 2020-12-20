@@ -334,9 +334,21 @@ export class FoldCode implements Addon.Addon {
     }
     if (!type) {
       const el = RenderCodeBlock({code, lang});
-      return cm.markText(from, to, {
+
+      const marker = cm.markText(from, to, {
+        inclusiveLeft: true,
+        inclusiveRight: true,
         replacedWith: el,
       });
+      let fromCursor = null;
+      marker.on("beforeCursorEnter", function() {
+        fromCursor = (cm.getCursor().line <= from.line);
+        marker.clear();
+      })
+      marker.on("clear", function(from, to) {
+        if (fromCursor === true) cm.setCursor(from);
+      })
+      return marker
     }
 
     // now we can call renderer
