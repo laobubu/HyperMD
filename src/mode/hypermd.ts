@@ -944,7 +944,8 @@ CodeMirror.defineMode(
 
         //#region Box
 
-        if (current === "/box") {
+        tmp = stream.string.match(/^\/box-?(info|success|warning|danger)?/)
+        if (bol && tmp) {
           let endTag = "/end";
           ans += enterMode(stream, state, "markdown", {
             style: (ans + "dgit-box").trim(),
@@ -952,6 +953,7 @@ CodeMirror.defineMode(
             exitChecker: createSimpleInnerModeExitChecker(endTag, {
               style: "dgit-box-end",
             }),
+            skipFirstToken: true,
           });
           ans += " dgit-box-begin";
           return ans;

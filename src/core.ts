@@ -11,5 +11,6 @@ export { Addon };
 declare global {
   interface Window {
     cm: any;
+    setMenuContainerAttr: any;
   }
 }

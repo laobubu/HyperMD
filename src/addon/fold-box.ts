@@ -104,7 +104,6 @@ export class FoldBox implements Addon.Addon {
     ) {
       return null;
     }
-
     var tmp = /([-\w]+)(\s*|\s+\{.+\}\s*)$/.exec(token.string);
     var lang = tmp && tmp[1].toLowerCase();
     let attributesStr = tmp && tmp[2] && tmp[2].trim();
@@ -119,7 +118,6 @@ export class FoldBox implements Addon.Addon {
     if (!lang) return null;
 
     let renderer: BoxRenderer;
-    let type: string;
 
     var cm = this.cm;
     let from: CodeMirror.Position = { line: stream.lineNo, ch: 0 };
@@ -149,7 +147,9 @@ export class FoldBox implements Addon.Addon {
       { line: from.line + 1, ch: 0 },
       { line: to.line, ch: 0 }
     );
-    const el = RenderBox({code, lang});
+    tmp = /^\/box-?(info|success|warning|danger)?/.exec(token.string);
+    const type = (tmp && tmp[1]) || "info"
+    const el = RenderBox({code, lang, from, type});
 
     const marker = cm.markText(from, to, {
       inclusiveLeft: true,
@@ -159,9 +159,7 @@ export class FoldBox implements Addon.Addon {
     let fromCursor = null;
     marker.on("beforeCursorEnter", function() {
       fromCursor = (cm.getCursor().line <= from.line);
-      if (el.querySelector(".blockControls .active") === null) {
-        //marker.clear();
-      }
+      marker.clear();
     })
     marker.on("clear", function(from, to) {
       if (fromCursor === true) cm.setCursor(from);
